@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <_Tasks>
+    <Task>
+      <_TaskType>Date</_TaskType>
+      <_DateTime>11:00:00</_DateTime>
+      <_filename>D:\Documents and Settings\doru\My Documents\Zarine - Leading The Rats\02-Corps.mp3</_filename>
+    </Task>    
+    <Task>
+      <_TaskType>Date</_TaskType>
+      <_DateTime>20:00:00</_DateTime>
+      <_filename>D:\Documents and Settings\doru\Desktop\SpaceGame3\Server\bin\Debug\Server.exe</_filename>      
+    </Task>
+  </_Tasks>
+</Database>

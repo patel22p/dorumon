@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<Database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <_Host>fchan.us</_Host>
+  <_Loop>5</_Loop>
+  <_Tasks>
+    <!--<Task>      
+      <_ProxyType>None</_ProxyType>
+      <_Sleep>0</_Sleep>      
+      <_SendFile>1 Sended.html</_SendFile>
+      <_InputFile>urllist.txt</_InputFile>      
+      <_Replacements>
+        <Replacement xsi:type="PatternReplacement">
+          <b>(.*)</b>
+          <a>_url_</a>
+        </Replacement>
+      </_Replacements>
+      <_Pattern>\w+/res/\d+\.html</_Pattern>
+      <_Format>{0}</_Format>
+      <_OutputFile>Links.txt</_OutputFile>
+      <_TimeSpan>1:0:0</_TimeSpan>
+    </Task>-->
+    <Task>      
+      <_Upload>CounterStrikeLive.png</_Upload>
+      <_ProxyType>Tor</_ProxyType>
+      <_Sleep>0</_Sleep>      
+      <_InputFile>Links.txt</_InputFile>            
+      <_SendFile>2.html</_SendFile>
+      <_Replacements>                
+        <Replacement xsi:type="PatternReplacement">
+          <b>\w+/res/(\d+)\.html</b>
+          <a>_id_</a>          
+        </Replacement>
+        <Replacement xsi:type="PatternReplacement">
+          <b>(\w+)/res/\d+\.html</b>
+          <a>_page_</a>
+        </Replacement>                
+      </_Replacements>
+      <_Pattern>Your posting ability has been temporarily suspended|Flood detected|exist|303 Go West|&lt;title&gt;[\w\s/]+&lt;/title&gt;|500 Internal Server Error|&gt;Error\: File format not supported.&lt;</_Pattern>
+    </Task>
+  </_Tasks>  
+</Database>

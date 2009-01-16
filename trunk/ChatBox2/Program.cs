@@ -66,8 +66,7 @@ namespace ChatBox2
             string msg = DateTime.Now + " " + s;
             _list.Add(msg);
             File.AppendAllText("history.txt", msg + "\r\n",Encoding.Default);
-        }
-        [STAThread]
+        }        
         static void Main(string[] args)
         {
             Spammer3.Beep = false;
@@ -201,7 +200,9 @@ namespace ChatBox2
                 msg = msg.Trim();
                 Trace2(String.Format(_Icq._uin + " message received from {0}: {1}", uin, msg));
                 User _User = FindUserByUin(uin);
+                
                 string _ret = GlobalCommands(msg,_User);
+                    
                 if (_ret != null) return _ret;
                 else if (_User == null)
                 {
@@ -239,7 +240,7 @@ namespace ChatBox2
                 else
                 {
                     _User._DateTime = DateTime.Now;
-                    if (_User._Banned > DateTime.Now) return "you cannot send messages";
+                    if (_User._Banned > DateTime.Now) return "you have been banned, please wait " + (_User._Banned - DateTime.Now).ToString().Split('.').First();
                     
                     Match setinfo = Regex.Match(msg, Res.setinfoMatch , RegexOptions.Multiline);
                     if (setinfo.Success)
@@ -504,6 +505,7 @@ namespace ChatBox2
                     Trace2("OnMessage");                    
                     string ip = (((IPEndPoint)_Socket.RemoteEndPoint).Address).ToString();
                     HttpUser _User = _Dictionary.TryGetValue(ip);
+                    
                     string s2 = GlobalCommands(msg,_User);
                     if (s2 != null) return s2;
                     if (_User == null)
@@ -570,7 +572,7 @@ namespace ChatBox2
         public static SerializableDictionary<string, HttpUser> _Dictionary { get { return _Database._Dictionary; } }
         public static T Trace2<T>(T t)
         {
-            Trace.WriteLine("Chatbox" + t);
+            Trace.WriteLine("Chatbox: " + t);
             return t;
         }
         public static string GlobalCommands(string msg, HttpUser _user)
@@ -579,14 +581,14 @@ namespace ChatBox2
             if (ping.Success)            
                 return Trace2("pong " + ping.Groups[1].Value);            
             if (Regex.Match(msg, "^.?help$").Success)            
-                return Res.help;            
-            Match m= Regex.Match(msg, Res.ban2match);
+                return Res.help;
+            Match m = Regex.Match(msg, @"^/ban (.+?) (\d*\.?\d+)$");
             if (m.Success)
             {
                 HttpUser _HttpUser  = FindUserbyNick(m.Groups[1].Value);
-                if (_HttpUser !=null)
+                if (_HttpUser != null)
                 {
-                    _HttpUser._Banned = DateTime.Now + TimeSpan.FromMinutes(int.Parse(m.Groups[2].Value));
+                    _HttpUser._Banned = DateTime.Now + TimeSpan.FromMinutes(float.Parse(m.Groups[2].Value.Replace(".", ",")));
                     return "success";
                 }
                 else                

@@ -120,9 +120,6 @@
   <data name="alreadyregistered" xml:space="preserve">
     <value>Такой ник уже зарегестрирован!</value>
   </data>
-  <data name="ban2match" xml:space="preserve">
-    <value>^/ban (.+?) (\d+)</value>
-  </data>
   <data name="help" xml:space="preserve">
     <value>форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
 правила: разговаривать только о cslive остальные темы запрешенны, личные сообшения неотсылать!

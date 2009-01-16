@@ -8,10 +8,10 @@
       <_Users>
         <User>
           <info>програмист на c#, разрабочик chatbox2, SpaceGame3 engine, CounterStrikeLive ... http://doru.tk - мой блог</info>
-          <_DateTime>2009-01-15T18:33:38.39475+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:22:37.2890548+02:00</_DateTime>
           <uin>1231925</uin>
-          <nick>doru</nick>
-          <_StatusA>authorized</_StatusA>
+          <nick>@doru</nick>
+          <_Banned>2009-01-16T11:27:45.0132505+02:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -23,7 +23,7 @@
           <_DateTime>2009-01-10T02:57:04.171875+02:00</_DateTime>
           <uin>325922844</uin>
           <nick>Partizan</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -35,7 +35,7 @@
           <_DateTime>2009-01-15T09:45:40.410375+02:00</_DateTime>
           <uin>429889736</uin>
           <nick>RAMAXA</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -44,10 +44,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_DateTime>2009-01-15T18:33:24.551+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:34:18.9095644+02:00</_DateTime>
           <uin>370555428</uin>
           <nick>kler</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -59,7 +59,7 @@
           <_DateTime>2009-01-15T09:45:57.847875+02:00</_DateTime>
           <uin>375107995</uin>
           <nick>teenman</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -71,7 +71,7 @@
           <_DateTime>2009-01-14T03:47:25.9006577+02:00</_DateTime>
           <uin>441308227</uin>
           <nick>CMH</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -84,7 +84,7 @@
           <_DateTime>2009-01-15T09:45:56.01975+02:00</_DateTime>
           <uin>310210514</uin>
           <nick>inecon</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -93,10 +93,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_DateTime>2009-01-15T18:03:11.254125+02:00</_DateTime>
+          <_DateTime>2009-01-16T11:39:08.836999+02:00</_DateTime>
           <uin>389437732</uin>
           <nick>Xoma37</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -109,7 +109,7 @@
           <_DateTime>2009-01-11T14:24:29.64475+02:00</_DateTime>
           <uin>387970464</uin>
           <nick>FEAR</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -121,14 +121,21 @@
           <_DateTime>2009-01-12T17:11:09.566625+02:00</_DateTime>
           <uin>456467454</uin>
           <nick>Jek-pirat</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
     <Icq>
       <uin>392871752</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_DateTime>2009-01-16T12:03:56.5306027+02:00</_DateTime>
+          <uin>378421732</uin>
+          <nick>Simka</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>445576180</uin>
@@ -136,10 +143,10 @@
       <_Users>
         <User>
           <info>[Бета тестер, увлекался SQL-MySQL базами,когда то) Был сис-админом на яве)) http://cslive.mindswitch.ru/forum/ - официальный форум CSLive]</info>
-          <_DateTime>2009-01-15T17:50:41.1135+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:33:29.8630033+02:00</_DateTime>
           <uin>254394794</uin>
-          <nick>[Mike]</nick>
-          <_StatusA>authorized</_StatusA>
+          <nick>@[Mike]</nick>
+          <_Banned>2009-01-16T11:30:49.8562015+02:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -152,7 +159,7 @@
           <_DateTime>2009-01-12T16:02:37.926+02:00</_DateTime>
           <uin>415747436</uin>
           <nick>Olegoncic</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -161,11 +168,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <info>Альфатестер</info>
-          <_DateTime>2009-01-15T18:34:03.816625+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:32:44.9414158+02:00</_DateTime>
           <uin>3522515</uin>
-          <nick>Knife</nick>
-          <_StatusA>authorized</_StatusA>
+          <nick>@Knife</nick>
+          <_Banned>2009-01-16T12:06:24.2804251+02:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -177,7 +183,7 @@
           <_DateTime>2009-01-13T19:01:39.4877116+02:00</_DateTime>
           <uin>494550981</uin>
           <nick>zerofx</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -189,14 +195,21 @@
           <_DateTime>2009-01-15T18:29:45.426+02:00</_DateTime>
           <uin>7070453</uin>
           <nick>Pozitiv</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
     <Icq>
       <uin>407655644</uin>
       <pass>x9Z4R9Us</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_DateTime>2009-01-16T12:33:53.8628497+02:00</_DateTime>
+          <uin>220253621</uin>
+          <nick>@Infinity</nick>
+          <_Banned>2009-01-16T12:23:18.9610471+02:00</_Banned>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>372131703</uin>
@@ -206,8 +219,8 @@
           <info>http://mindswitch.ru</info>
           <_DateTime>2009-01-15T18:07:30.58225+02:00</_DateTime>
           <uin>8360683</uin>
-          <nick>Diablos</nick>
-          <_StatusA>authorized</_StatusA>
+          <nick>@Diablos</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -219,7 +232,7 @@
           <_DateTime>2009-01-12T18:10:19.4219476+02:00</_DateTime>
           <uin>435900689</uin>
           <nick>frEEman27</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -231,7 +244,7 @@
           <_DateTime>2009-01-13T07:55:57.4009828+02:00</_DateTime>
           <uin>498563251</uin>
           <nick>400kg</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -244,7 +257,7 @@
           <_DateTime>2009-01-14T22:55:47.9885+02:00</_DateTime>
           <uin>151583707</uin>
           <nick>bond</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -256,7 +269,7 @@
           <_DateTime>2009-01-13T23:04:29.2225897+02:00</_DateTime>
           <uin>453815534</uin>
           <nick>denis</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -269,7 +282,7 @@
           <_DateTime>2009-01-15T05:49:52.01975+02:00</_DateTime>
           <uin>449491409</uin>
           <nick>kostik</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -281,7 +294,7 @@
           <_DateTime>2009-01-15T15:30:21.2385+02:00</_DateTime>
           <uin>226544080</uin>
           <nick>Gr@in</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -293,7 +306,7 @@
           <_DateTime>2009-01-14T09:49:38.4754444+02:00</_DateTime>
           <uin>475028198</uin>
           <nick>TeKKeN</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -303,10 +316,10 @@
       <_Users>
         <User>
           <info>3ds max</info>
-          <_DateTime>2009-01-15T18:33:59.7385+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:34:30.5813647+02:00</_DateTime>
           <uin>350198344</uin>
           <nick>Whiskas</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
     </Icq>
@@ -316,12 +329,22 @@
       <_Users>
         <User>
           <info>test</info>
-          <_DateTime>2009-01-15T18:32:31.7385+02:00</_DateTime>
+          <_DateTime>2009-01-16T11:15:58.0021504+02:00</_DateTime>
           <uin>432524101</uin>
           <nick>Artem</nick>
-          <_StatusA>authorized</_StatusA>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </User>
       </_Users>
+    </Icq>
+    <Icq>
+      <uin>483624657</uin>
+      <pass>er54s4</pass>
+      <_Users />
+    </Icq>
+    <Icq>
+      <uin>473201338</uin>
+      <pass>er54s4</pass>
+      <_Users />
     </Icq>
   </_Accounts>
   <_Dictionary>
@@ -333,8 +356,8 @@
         <HttpUser>
           <nick>(web)doru</nick>
           <_Info>test</_Info>
-          <_StatusA>authorized</_StatusA>
-          <_DateTime>2009-01-15T19:31:39.58225+02:00</_DateTime>
+          <_DateTime>2009-01-16T12:18:04.6189249+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>
     </item>
@@ -345,8 +368,8 @@
       <value>
         <HttpUser>
           <nick>(web)Mike</nick>
-          <_StatusA>authorized</_StatusA>
           <_DateTime>2009-01-15T19:25:32.08225+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>
     </item>
@@ -357,8 +380,8 @@
       <value>
         <HttpUser>
           <nick>(web)bond</nick>
-          <_StatusA>authorized</_StatusA>
           <_DateTime>2009-01-15T19:26:37.58225+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>
     </item>

@@ -8,7 +8,7 @@
       <_Users>
         <User>
           <info>програмист на c#, разрабочик chatbox2, SpaceGame3 engine, CounterStrikeLive ... http://doru.tk - мой блог</info>
-          <_DateTime>2009-01-16T18:05:00.4388278+02:00</_DateTime>
+          <_DateTime>2009-01-16T18:40:54.4719169+02:00</_DateTime>
           <uin>1231925</uin>
           <nick>@doru</nick>
           <_Banned>2009-01-16T11:27:45.0132505+02:00</_Banned>
@@ -130,7 +130,7 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_DateTime>2009-01-16T17:23:16.048606+02:00</_DateTime>
+          <_DateTime>2009-01-16T18:39:13.9725601+02:00</_DateTime>
           <uin>259990030</uin>
           <nick>LSDsl</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -168,7 +168,7 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_DateTime>2009-01-16T18:10:25.8117454+02:00</_DateTime>
+          <_DateTime>2009-01-16T18:38:42.0977641+02:00</_DateTime>
           <uin>3522515</uin>
           <nick>@Knife</nick>
           <_Banned>2009-01-16T12:06:24.2804251+02:00</_Banned>
@@ -329,7 +329,7 @@
       <_Users>
         <User>
           <info>test</info>
-          <_DateTime>2009-01-16T18:11:00.1709005+02:00</_DateTime>
+          <_DateTime>2009-01-16T18:41:03.7687324+02:00</_DateTime>
           <uin>432524101</uin>
           <nick>Artem</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -339,7 +339,14 @@
     <Icq>
       <uin>483624657</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_DateTime>2009-01-16T18:39:25.7693596+02:00</_DateTime>
+          <uin>471174107</uin>
+          <nick>Lucky</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>473201338</uin>

@@ -247,7 +247,7 @@ namespace ChatBox2
                         _User._Info = setinfo.Groups[1].Value;
                         return ("Success");
                     }
-                    else if (Regex.Match(msg, "@^/exit2$").Success)
+                    else if (Regex.Match(msg, @"^/exit2$").Success)
                     {
                         throw new Exception("exit");
                     }

@@ -116,7 +116,7 @@ namespace ChatBox2
                     foreach (Icq _Icq in _Accounts)
                         foreach (Im _IM in _Icq.Update())
                         {
-                            string s = OnMessage(_Icq, _IM.uin, _IM.msg);
+                            string s = Trace2(OnMessage(_Icq, _IM.uin, _IM.msg));
                             if (s != null) _Icq.SendMessage(_IM.uin, s);
                         }
                     if (STimer.TimeElapsed(8000))
@@ -166,8 +166,8 @@ namespace ChatBox2
                     if (user != null && !user.nick.StartsWith("@"))
                     {
                         user.nick = "@" + user.nick;
-                    }
-                    return "success";
+                        return "success";
+                    }                    
                 }
                 m = Regex.Match(msg, @"^/register (\d+);(\w+)");
                 if (m.Success)
@@ -212,9 +212,9 @@ namespace ChatBox2
                         {
                             Icq _Icq2 = From();
                             if (_Icq2 == null)                            
-                                return (Res.nouins.Trace());                            
+                                return (Res.nouins);                            
                             else                            
-                                return (Trace2(Res.limitreached + _Icq2._uin));                                                            
+                                return (Res.limitreached + _Icq2._uin);                                                            
                         }
                         else
                         {
@@ -225,16 +225,16 @@ namespace ChatBox2
                                 _User.nick = nick;
                                 _User._Account = _Icq;                                
                                 _Icq.Add(_User);
-                                return (_User.uin + Res.youareregistered.Trace());
+                                return (_User.uin + Res.youareregistered);
                             }
                             else                            
-                                return (nick + Res.alreadyregistered.Trace());                            
+                                return (nick + Res.alreadyregistered);                            
                         }
                     }
                     else if (Regex.IsMatch(msg, Res.unknowncommandMatch))                    
                         return (Res.unknowncommand);                    
                     else                    
-                        return (Res.welcome.Trace());                    
+                        return (Res.welcome);                    
                 }
                 else
                 {
@@ -252,11 +252,13 @@ namespace ChatBox2
                         throw new Exception("exit");
                     }
                     else if (Regex.Match(msg, Res.unregisterMatch).Success)
-                    {                        
+                    {
                         _Icq.Remove(_User);
-                        return (Res.unregister.Trace());
-                    }                                        
-                    else 
+                        return (Res.unregister);
+                    }
+                    else if (Regex.Match(msg, Res.unknowncommandMatch).Success)
+                        return Res.unknowncommand;
+                    else
                     {
                         string msg2 = (_User.nick.Length != 0 ? _User.nick : uin) + ": " + msg;
                         AddMessage(msg2.Replace("\r\n", "\n"));
@@ -464,7 +466,7 @@ namespace ChatBox2
                             }
                             else if (PostMessage.Success) //send msg
                             {
-                                Send(OnMessage(HttpUtility.UrlDecode(PostMessage.Groups[1].Value)));
+                                Send(Trace2(OnMessage(HttpUtility.UrlDecode(PostMessage.Groups[1].Value))));
                             }
                             else if (gethistory.Success)
                             {
@@ -545,10 +547,8 @@ namespace ChatBox2
                         {   //message send
                             msg = _User.nick + ":" + msg;
                             foreach (Program.Icq icq in _Accounts)
-                                foreach (Program.User user in icq._Users)
-                                {
-                                    icq.SendMessage(user.uin, msg);
-                                }
+                                foreach (Program.User user in icq._Users)                                
+                                    icq.SendMessage(user.uin, msg);                                
                             AddMessage(msg);
                             return "";
                         }
@@ -576,27 +576,21 @@ namespace ChatBox2
         public static string GlobalCommands(string msg, HttpUser _user)
         {
             Match ping = Regex.Match(msg, @"^.?ping(.*)");
-            if (ping.Success)
-            {
-                return Trace2("pong " + ping.Groups[1].Value);
-            }            
-            if (Regex.Match(msg, "^.?help$").Success)
-            {
-                return Res.help;
-            }
+            if (ping.Success)            
+                return Trace2("pong " + ping.Groups[1].Value);            
+            if (Regex.Match(msg, "^.?help$").Success)            
+                return Res.help;            
             Match m= Regex.Match(msg, Res.ban2match);
             if (m.Success)
             {
                 HttpUser _HttpUser  = FindUserbyNick(m.Groups[1].Value);
-                if (_user.nick.StartsWith("@") && _HttpUser !=null)
+                if (_HttpUser !=null)
                 {
                     _HttpUser._Banned = DateTime.Now + TimeSpan.FromMinutes(int.Parse(m.Groups[2].Value));
                     return "success";
                 }
-                else
-                {
-                    return "access denied";
-                }
+                else                
+                    return "Failed";                
             }
             if (Regex.Match(msg, "^.?whois$").Success)
             {
@@ -608,10 +602,8 @@ namespace ChatBox2
                     sb.AppendLine(user.nick + ":" + user._Info);
                     return Trace2(sb.ToString());
             }
-            if (Regex.Match(msg, @"^.?register$").Success)
-            {
-                return Trace2(Res.register);
-            }
+            if (Regex.Match(msg, @"^.?register$").Success)            
+                return Trace2(Res.register);            
             return null;
         }
         

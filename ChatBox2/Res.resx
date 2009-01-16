@@ -125,7 +125,7 @@
   </data>
   <data name="help" xml:space="preserve">
     <value>форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
-правила: разговаривать только о cslive остальные темы запрешенны.
+правила: разговаривать только о cslive остальные темы запрешенны, личные сообшения неотсылать!
 команды:
 /unregister выйти из чата
 /ping пинг
@@ -157,7 +157,7 @@ Content-Type: text/HTML; charset=windows-1251
     <value>Сервер перегружен попробуйте зарегестрироватся завтра</value>
   </data>
   <data name="register" xml:space="preserve">
-    <value>Для того чтобы зарегистрировать свой ник, напишите: /register ваш ник без пробелов и знаков</value>
+    <value>Для того чтобы зарегистрировать свой ник, напишите: /register имя</value>
   </data>
   <data name="registerMatch" xml:space="preserve">
     <value>^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+)</value>
@@ -178,7 +178,7 @@ Content-Type: text/HTML; charset=windows-1251
     <value>^.?unregister$</value>
   </data>
   <data name="welcome" xml:space="preserve">
-    <value>Добро пожаловать в чат CSLIVE
+    <value>Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
 Чтобы воити в чат напишите /register
 Чтобы посмотреть список команд напишите /help
 если будут проблемы с чатом то обратитесь по номеру 1231925</value>

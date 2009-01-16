@@ -80,7 +80,7 @@ namespace ChatBox2 {
         
         /// <summary>
         ///   Looks up a localized string similar to форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
-        ///правила: разговаривать только о cslive остальные темы запрешенны.
+        ///правила: разговаривать только о cslive остальные темы запрешенны, личные сообшения неотсылать!
         ///команды:
         ////unregister выйти из чата
         ////ping пинг
@@ -142,7 +142,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Для того чтобы зарегистрировать свой ник, напишите: /register ваш ник без пробелов и знаков.
+        ///   Looks up a localized string similar to Для того чтобы зарегистрировать свой ник, напишите: /register имя.
         /// </summary>
         internal static string register {
             get {
@@ -205,7 +205,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Добро пожаловать в чат CSLIVE
+        ///   Looks up a localized string similar to Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
         ///Чтобы воити в чат напишите /register
         ///Чтобы посмотреть список команд напишите /help
         ///если будут проблемы с чатом то обратитесь по номеру 1231925.

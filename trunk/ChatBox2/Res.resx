@@ -121,17 +121,18 @@
     <value>Такой ник уже зарегестрирован!</value>
   </data>
   <data name="ban2match" xml:space="preserve">
-    <value>^/ban2 (.+)</value>
+    <value>^/ban (.+?) (\d+)</value>
   </data>
   <data name="help" xml:space="preserve">
     <value>форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
+правила: разговаривать только о cslive остальные темы запрешенны.
 команды:
-/unregister
-/help
-/ping [text]
-/register [nick]
-/whois
-/setinfo [info]";</value>
+/unregister выйти из чата
+/ping пинг
+/register  [nick] зарегестрировать ник
+/whois посмотреть список юзеров
+/setinfo [text] написать инфо о себе
+/ban [nick] [minutes] забанить юзера на указанное время</value>
   </data>
   <data name="httpnotfound" xml:space="preserve">
     <value>HTTP/1.1 404 Not Found
@@ -159,7 +160,7 @@ Content-Type: text/HTML; charset=windows-1251
     <value>Для того чтобы зарегистрировать свой ник, напишите: /register ваш ник без пробелов и знаков</value>
   </data>
   <data name="registerMatch" xml:space="preserve">
-    <value>^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x40\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+)</value>
+    <value>^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+)</value>
   </data>
   <data name="setinfoMatch" xml:space="preserve">
     <value>^.?setinfo (.+)</value>

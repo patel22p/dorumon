@@ -70,7 +70,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ^/ban2 (.+).
+        ///   Looks up a localized string similar to ^/ban (.+?) (\d+).
         /// </summary>
         internal static string ban2match {
             get {
@@ -80,13 +80,14 @@ namespace ChatBox2 {
         
         /// <summary>
         ///   Looks up a localized string similar to форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
+        ///правила: разговаривать только о cslive остальные темы запрешенны.
         ///команды:
-        ////unregister
-        ////help
-        ////ping [text]
-        ////register [nick]
-        ////whois
-        ////setinfo [info]&quot;;.
+        ////unregister выйти из чата
+        ////ping пинг
+        ////register  [nick] зарегестрировать ник
+        ////whois посмотреть список юзеров
+        ////setinfo [text] написать инфо о себе
+        ////ban [nick] [minutes] забанить юзера на указанное время.
         /// </summary>
         internal static string help {
             get {
@@ -150,7 +151,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x40\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+).
+        ///   Looks up a localized string similar to ^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+).
         /// </summary>
         internal static string registerMatch {
             get {

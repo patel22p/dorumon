@@ -17,14 +17,13 @@ using System.Windows.Forms;
 namespace ChatBox2
 {
     public class Program
-    {
-        public enum StatusA { authorized, ignored };
+    {        
         public class HttpUser
         {
             public virtual string nick { get; set; }
-            public virtual string _Info { get; set; }
-            public virtual StatusA _StatusA { get; set; }
-            public DateTime _DateTime { get; set; }
+            public virtual string _Info { get; set; }            
+            public virtual DateTime _DateTime { get; set; }
+            public virtual DateTime _Banned { get; set; }
             public HttpUser()
             {
                 _DateTime = DateTime.Now;
@@ -35,10 +34,10 @@ namespace ChatBox2
             public override string _Info { get { return _DUser.info; } set { _DUser.info = value; } }
             public Icq _Account;
             public Database.User _DUser = new Database.User();
-            public DateTime _DateTime { get { return _DUser._DateTime; } set { _DUser._DateTime = value; } }
+            public override DateTime _DateTime { get { return _DUser._DateTime; } set { _DUser._DateTime = value; } }
             public string uin { get { return _DUser.uin; } set { _DUser.uin = value; } }
             public override string nick { get { return _DUser.nick; } set { _DUser.nick = value; } }
-            public override StatusA _StatusA { get { return _DUser._StatusA; } set { _DUser._StatusA = value; } }
+            public override DateTime _Banned { get { return _DUser._Banned; } set { _DUser._Banned = value; } }
         }
         public static List<Icq> _Accounts = new List<Icq>();            
         public class Database
@@ -49,7 +48,7 @@ namespace ChatBox2
                 public DateTime _DateTime;
                 public string uin;
                 public string nick;
-                public StatusA _StatusA = StatusA.authorized;
+                public DateTime _Banned;
             }
             public int limit = 5;
             public List<Icq> _Accounts = new List<Icq>();
@@ -117,9 +116,10 @@ namespace ChatBox2
                     foreach (Icq _Icq in _Accounts)
                         foreach (Im _IM in _Icq.Update())
                         {
-                            OnMessage(_Icq, _IM.uin, _IM.msg);
+                            string s = OnMessage(_Icq, _IM.uin, _IM.msg);
+                            if (s != null) _Icq.SendMessage(_IM.uin, s);
                         }
-                    if(STimer.TimeElapsed(8000))
+                    if (STimer.TimeElapsed(8000))
                         using (FileStream _FileStream = new FileStream("db.xml", FileMode.Create, FileAccess.Write))
                             _XmlSerializer.Serialize(_FileStream, _Database);
 
@@ -127,44 +127,58 @@ namespace ChatBox2
                     foreach (Icq icq in _Accounts)
                         sb.Append((byte)icq._ICQAPP._ConnectionStatus);
                     Spammer3._Title = sb.ToString();
-
-                    ReadConsole2();
-
+                    string msg = _console.FirstOrDefault(); // console read
+                    if (msg != null)
+                    {
+                        Console.WriteLine(ReadConsole2(msg));
+                        _console.Remove(msg);
+                    }
                     STimer.Update();
                     Thread.Sleep(20);
                 }
             }
 
-            private void ReadConsole2()
+            private string ReadConsole2(string msg)
             {
-                string msg = _console.FirstOrDefault(); // console read
-                if (msg != null)
+                Match m;                                
+                m= Regex.Match(msg, @"^/send (.+)");
+                if (m.Success)
                 {
-                    Match register = Regex.Match(msg, @"^/register (\d+);(\w+)");
-                    Match send = Regex.Match(msg, @"^/send (.+)");
-                    if (send.Success)
-                    {
-                        foreach (Icq icq in _Accounts)
-                            foreach (User u in icq._Users)
-                                icq.SendMessage(u.uin, send.Groups[1].Value);
-                    }
-                    else if (Regex.Match(msg, @"^/reconnect$").Success)
-                    {
-                        foreach (Icq icq in _Accounts)
-                            if (icq._ICQAPP._ConnectionStatus == ConnectionStatus.LoginError)
-                            {
-                                icq._ICQAPP.StartAsync();
-                                Trace2("reconnecting" + icq._uin);
-                            }
-                    }
-                    else if (register.Success)
-                    {
-                        Add(new Icq { _uin = register.Groups[1].Value, _pass = register.Groups[2].Value });
-                    }
-                    else Console.WriteLine("unknown command");
-                    _console.Remove(msg);
+                    foreach (Icq icq in _Accounts)
+                        foreach (User u in icq._Users)
+                            icq.SendMessage(u.uin, m.Groups[1].Value);
+                    return "success";
                 }
+                if (Regex.Match(msg, @"^/reconnect$").Success)
+                {
+                    foreach (Icq icq in _Accounts)
+                        if (icq._ICQAPP._ConnectionStatus == ConnectionStatus.LoginError)
+                        {
+                            icq._ICQAPP.StartAsync();
+                            Trace2("reconnecting" + icq._uin);
+                        }
+                    return "success";
+                }
+                m= Regex.Match(msg, @"^/op (.+)");
+                if (m.Success)
+                {
+                    HttpUser user = FindUserbyNick(m.Groups[1].Value);
+                    if (user != null && !user.nick.StartsWith("@"))
+                    {
+                        user.nick = "@" + user.nick;
+                    }
+                    return "success";
+                }
+                m = Regex.Match(msg, @"^/register (\d+);(\w+)");
+                if (m.Success)
+                {
+                    Add(new Icq { _uin = m.Groups[1].Value, _pass = m.Groups[2].Value });
+                    return "success";
+                }
+                return ("unknown command");
+
             }
+            
                                                                         
             XmlSerializer _XmlSerializer = new XmlSerializer(typeof(Database));
             
@@ -182,13 +196,13 @@ namespace ChatBox2
                     _Database = (Database)_XmlSerializer.Deserialize(_FileStream);
             }
             
-            public void OnMessage(Icq _Icq, string uin, string msg)
+            public string OnMessage(Icq _Icq, string uin, string msg)
             {
                 msg = msg.Trim();
                 Trace2(String.Format(_Icq._uin + " message received from {0}: {1}", uin, msg));
                 User _User = FindUserByUin(uin);
-                string _ret = GlobalCommands(msg);
-                if (_ret != null) _Icq.SendMessage(uin, _ret);
+                string _ret = GlobalCommands(msg,_User);
+                if (_ret != null) return _ret;
                 else if (_User == null)
                 {
                     Match _registernick = Regex.Match(msg, Res.registerMatch);
@@ -197,15 +211,10 @@ namespace ChatBox2
                         if (_Icq._Users.Count >= _Database.limit)
                         {
                             Icq _Icq2 = From();
-                            if (_Icq2 == null)
-                            {
-                                _Icq.SendMessage(uin, Res.nouins.Trace());
-
-                            }
-                            else
-                            {
-                                _Icq.SendMessage(uin, Trace2(Res.limitreached + _Icq2._uin));                                
-                            }
+                            if (_Icq2 == null)                            
+                                return (Res.nouins.Trace());                            
+                            else                            
+                                return (Trace2(Res.limitreached + _Icq2._uin));                                                            
                         }
                         else
                         {
@@ -214,48 +223,40 @@ namespace ChatBox2
                             {
                                 _User = new User { uin = uin };
                                 _User.nick = nick;
-                                _User._Account = _Icq;
-                                _User._StatusA = StatusA.authorized;
+                                _User._Account = _Icq;                                
                                 _Icq.Add(_User);
-                                _Icq.SendMessage(uin, _User.uin + Res.youareregistered.Trace());
+                                return (_User.uin + Res.youareregistered.Trace());
                             }
-                            else
-                            {
-                                _Icq.SendMessage(uin, nick + Res.alreadyregistered.Trace());
-
-                            }
+                            else                            
+                                return (nick + Res.alreadyregistered.Trace());                            
                         }
                     }
-                    else if (Regex.IsMatch(msg, Res.unknowncommandMatch))
-                    {
-                        _Icq.SendMessage(uin, Res.unknowncommand);
-                    }
-                    else
-                    {
-                        _Icq.SendMessage(uin, Res.welcome.Trace());
-                    }
+                    else if (Regex.IsMatch(msg, Res.unknowncommandMatch))                    
+                        return (Res.unknowncommand);                    
+                    else                    
+                        return (Res.welcome.Trace());                    
                 }
                 else
                 {
-                    AutoUnban(_User);//autounban                    
-                    if (_User._StatusA == StatusA.ignored) return;
+                    _User._DateTime = DateTime.Now;
+                    if (_User._Banned > DateTime.Now) return "you cannot send messages";
                     
                     Match setinfo = Regex.Match(msg, Res.setinfoMatch , RegexOptions.Multiline);
                     if (setinfo.Success)
                     {
                         _User._Info = setinfo.Groups[1].Value;
-                        _Icq.SendMessage(uin, "Success");
+                        return ("Success");
                     }
                     else if (Regex.Match(msg, "@^/exit2$").Success)
                     {
                         throw new Exception("exit");
                     }
                     else if (Regex.Match(msg, Res.unregisterMatch).Success)
-                    {
-                        _Icq.SendMessage(uin, Res.unregister.Trace());
+                    {                        
                         _Icq.Remove(_User);
+                        return (Res.unregister.Trace());
                     }                                        
-                    else if (_User._StatusA == StatusA.authorized)
+                    else 
                     {
                         string msg2 = (_User.nick.Length != 0 ? _User.nick : uin) + ": " + msg;
                         AddMessage(msg2.Replace("\r\n", "\n"));
@@ -271,10 +272,9 @@ namespace ChatBox2
                                 }
                         }
                         Trace2("Sended msgs: " + i);
+                        return null;
                     }
-
-                }
-
+                }                
             }
 
             
@@ -499,11 +499,11 @@ namespace ChatBox2
                 private string OnMessage(string msg)
                 {
                     Match m;
-                    Trace2("OnMessage");
-                    string s2 = GlobalCommands(msg);
-                    if (s2 != null) return s2;
+                    Trace2("OnMessage");                    
                     string ip = (((IPEndPoint)_Socket.RemoteEndPoint).Address).ToString();
-                    HttpUser _User = _Dictionary.TryGetValue(ip);                    
+                    HttpUser _User = _Dictionary.TryGetValue(ip);
+                    string s2 = GlobalCommands(msg,_User);
+                    if (s2 != null) return s2;
                     if (_User == null)
                     {
                         m = Regex.Match(msg, Res.registerMatch);
@@ -524,8 +524,8 @@ namespace ChatBox2
                     }
                     else
                     {
-                        AutoUnban(_User);
-                        if (_User._StatusA == StatusA.ignored) return "";
+                        _User._DateTime = DateTime.Now;
+                        if (_User._Banned > DateTime.Now) return "banned";
 
                         if (Regex.IsMatch(msg, Res.unregisterMatch))
                         {
@@ -573,7 +573,7 @@ namespace ChatBox2
             Trace.WriteLine("Chatbox" + t);
             return t;
         }
-        public static string GlobalCommands(string msg)
+        public static string GlobalCommands(string msg, HttpUser _user)
         {
             Match ping = Regex.Match(msg, @"^.?ping(.*)");
             if (ping.Success)
@@ -588,7 +588,15 @@ namespace ChatBox2
             if (m.Success)
             {
                 HttpUser _HttpUser  = FindUserbyNick(m.Groups[1].Value);
-                _HttpUser._StatusA = StatusA.ignored;
+                if (_user.nick.StartsWith("@") && _HttpUser !=null)
+                {
+                    _HttpUser._Banned = DateTime.Now + TimeSpan.FromMinutes(int.Parse(m.Groups[2].Value));
+                    return "success";
+                }
+                else
+                {
+                    return "access denied";
+                }
             }
             if (Regex.Match(msg, "^.?whois$").Success)
             {
@@ -606,11 +614,7 @@ namespace ChatBox2
             }
             return null;
         }
-        public static void AutoUnban(HttpUser _User)
-        {
-            if (DateTime.Now - _User._DateTime > TimeSpan.FromMinutes(10)) _User._StatusA = StatusA.authorized;
-            _User._DateTime = DateTime.Now;
-        }
+        
     }
     
 }

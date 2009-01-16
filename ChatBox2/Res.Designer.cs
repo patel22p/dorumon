@@ -70,15 +70,6 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ^/ban (.+?) (\d+).
-        /// </summary>
-        internal static string ban2match {
-            get {
-                return ResourceManager.GetString("ban2match", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to форум - http://cslive.mindswitch.ru/forum/index.php?showtopic=9
         ///правила: разговаривать только о cslive остальные темы запрешенны, личные сообшения неотсылать!
         ///команды:

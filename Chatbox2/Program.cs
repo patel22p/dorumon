@@ -14,7 +14,7 @@ using System.Net;
 using System.Web;
 using System.Windows.Forms;
 
-namespace Chatbox2
+namespace ChatBox2
 {
     public class Program
     {        

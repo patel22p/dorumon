@@ -8,8 +8,8 @@
     <ProjectGuid>{E36D7FF3-AB84-4D38-8799-6E15A7D6C8A7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chatbox2</RootNamespace>
-    <AssemblyName>Chatbox2</AssemblyName>
+    <RootNamespace>ChatBox2</RootNamespace>
+    <AssemblyName>ChatBox2</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>Svn</SccProjectName>

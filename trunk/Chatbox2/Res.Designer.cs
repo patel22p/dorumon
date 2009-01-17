@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Chatbox2 {
+namespace ChatBox2 {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Chatbox2 {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Chatbox2.Res", typeof(Res).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ChatBox2.Res", typeof(Res).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

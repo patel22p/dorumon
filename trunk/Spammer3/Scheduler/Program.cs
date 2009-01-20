@@ -164,6 +164,6 @@ namespace Scheduler
 
         public List<Task> _Tasks { get { return _Database._Tasks; } }
         
-        XmlSerializer _XmlSerializer = new XmlSerializer(typeof(Database));
+        XmlSerializer _XmlSerializer = Helper.CreateSchema("Scheduller",typeof(Database));
     }
 }

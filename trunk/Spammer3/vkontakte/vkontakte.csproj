@@ -52,6 +52,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\message.txt">
+      <Link>message.txt</Link>
+    </Content>
     <Content Include="1 Sended add friend.html" />
     <Content Include="1 Sended add to group.html" />
     <Content Include="1 Sended getlist.html" />

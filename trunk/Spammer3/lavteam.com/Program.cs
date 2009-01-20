@@ -52,7 +52,8 @@ namespace Lavteam.com
         private void Populate()
         {
             Connect();
-            for (; i < 50100; i += 13)
+            int max = i.i+50*13;
+            for (; i.i < max; i.i += 13)
             {
                 try
                 {

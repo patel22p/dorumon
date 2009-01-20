@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lavteam.com", "lavteam.com\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vingrad.ru", "vingrad.ru\vingrad.ru.csproj", "{AE822089-8D37-41FB-85BC-5D13AE8AB00C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "..\Helper\Helper\Helper.csproj", "{4DE8D8C1-6F75-42AD-AA46-BD35BB71352A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "..\Helper.sln\Helper\Helper.csproj", "{4DE8D8C1-6F75-42AD-AA46-BD35BB71352A}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution

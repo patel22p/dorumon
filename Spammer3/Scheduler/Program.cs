@@ -40,14 +40,13 @@ namespace Scheduler
 			public DateTime _DateTime1
 			{
 				get { return DateTime.Parse(_DateTime); }				
-			}
-            public string _Interval;
+			}            
             [XmlIgnore]
             public TimeSpan _TimeSpan
             {
                 get
                 {                    
-                    return TimeSpan.Parse(_Interval);
+                    return TimeSpan.Parse(_DateTime);
                 }                
             }
         }
@@ -109,7 +108,7 @@ namespace Scheduler
                         }
                         break;
 					case TaskType.Idle:						
-						if (_IdleTime > 60 * 1000 * 5)
+						if (_IdleTime > _Task._TimeSpan.TotalMilliseconds)
 						{
 							goto case TaskType.Interval;
 						}

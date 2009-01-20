@@ -55,6 +55,9 @@
     </Content>
     <Content Include="1 Sended Post.html" />
     <Content Include="1 Sended.html" />
+    <Content Include="i.txt" />
+    <Content Include="list.txt" />
+    <Content Include="postedlist.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Helper\Helper\Helper.csproj">

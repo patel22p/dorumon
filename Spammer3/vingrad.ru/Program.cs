@@ -8,7 +8,7 @@ using doru;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Philka.ru
+namespace Vingrad.ru
 {
     class Program
     {
@@ -21,7 +21,12 @@ namespace Philka.ru
         //string sessid = "758a32ddcfe106024b91e579899ceb81";
         public Program()
         {
-            Spamm();
+            Connect();
+            while (true)
+            {
+                Populate();
+                Spamm();
+            }
         }
         intA i = new intA("i.txt");
         private void Spamm()
@@ -37,8 +42,9 @@ namespace Philka.ru
                         "sending".Trace();
                         _listPosted.Add(s);
                         byte[] _bytes = File.ReadAllBytes("1 Sended Post.html");
+                        Helper.Replace(ref _bytes, "_title_", HttpUtility.UrlEncode("привет", Encoding.UTF8), 1);
                         Helper.Replace(ref _bytes, "_name_", s, 1);
-                        Helper.Replace(ref _bytes, "_message_", HttpUtility.UrlEncode(_message,Encoding.Default), 1);
+                        Helper.Replace(ref _bytes, "_message_", HttpUtility.UrlEncode(_message,Encoding.UTF8), 1);
                         Http.Length(ref _bytes);
                         _Socket.Send(_bytes.Save());
                         string s2 = Http.ReadHttp(_Socket).ToStr().Save();
@@ -54,17 +60,17 @@ namespace Philka.ru
         private void Populate()
         {
             Connect();
-            int max = i + 1000;
-            for (; i < max; i+=60)
+            int max = i.i + 1000;
+            for (; i.i < max; i.i += 50)
             {
                 try
                 {
                     byte[] _bytes = File.ReadAllBytes("1 Sended.html");
-                    Helper.Replace(ref _bytes, "_st_", i.ToString(), 1);
+                    Helper.Replace(ref _bytes, "_page_", String.Format(@"/forum/act-Members/name_box/all/max_results-50/filter-3/sort_order-desc/sort_key-posts/{0}.html", i.i), 1);
                     _Socket.Send(_bytes);
                     string s = Http.ReadHttp(_Socket).ToStr().Save();
 
-                    MatchCollection ms = Regex.Matches(s, @"(?:(?:user\d+.html)|(?:showuser=\d+))"">(.+?)</a></strong>");
+                    MatchCollection ms = Regex.Matches(s, @"<a href=""/users/.+?"">(.+?)</a>");
 
                     foreach (Match m in ms)
                     {
@@ -73,14 +79,14 @@ namespace Philka.ru
                     "".Trace();
                     _ListA.Flush();
                 }
-                catch { Connect(); }
+                catch (IOException) { Connect(); }
             }            
         }
 
         private void Connect()
         {
             if (_Socket != null) _Socket.Close();
-            TcpClient _TcpClient = new TcpClient("philka.ru", 80);
+            TcpClient _TcpClient = new TcpClient("forum.vingrad.ru", 80);
             _Socket = _TcpClient.Client;
         }
 

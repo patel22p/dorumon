@@ -33,12 +33,13 @@ namespace Softoroom
         }
         Socket _Socket;
         private Socket Spamm()
-        {            
-            foreach (string user in list)
+        {
+
+            foreach (string user in (from u in list where !sendedList.Contains(u) select u))
             {
                 try
                 {
-                    if (!sendedList.Contains(user))
+                    //if (!sendedList.Contains(user))
                     {
                         "Sending".Trace();
                         sendedList.Add(user);

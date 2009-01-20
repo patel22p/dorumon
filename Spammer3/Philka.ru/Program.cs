@@ -54,7 +54,8 @@ namespace Philka.ru
         private void Populate()
         {
             Connect();
-            for (; i < 9999999; i+=60)
+            int max = i.i + 50*60;
+            for (; i.i < max; i.i+=60)
             {
                 try
                 {

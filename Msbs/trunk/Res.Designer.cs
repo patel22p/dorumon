@@ -70,7 +70,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to сайт проекта: http://cslive.mindswitch.ru/
+        ///   Looks up a localized string similar to сайт проекта: cslive.mindswitch.ru
         ///правила: разговаривать только о cslive остальные темы запрешенны, личные сообшения неотсылать!
         ///команды:
         ////unregister выйти из чата
@@ -103,6 +103,7 @@ namespace ChatBox2 {
         /// <summary>
         ///   Looks up a localized string similar to HTTP/1.1 200 OK
         ///Connection: Keep-Alive
+        ///Set-Cookie: ses={2}
         ///Content-Length: {0}
         ///Content-Type: text/HTML; charset=windows-1251
         ///
@@ -147,6 +148,15 @@ namespace ChatBox2 {
         internal static string registerMatch {
             get {
                 return ResourceManager.GetString("registerMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to вы были неактивны 3 дня и удалены из чата.
+        /// </summary>
+        internal static string removed {
+            get {
+                return ResourceManager.GetString("removed", resourceCulture);
             }
         }
         

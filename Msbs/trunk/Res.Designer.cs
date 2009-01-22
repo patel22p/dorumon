@@ -78,7 +78,9 @@ namespace ChatBox2 {
         ////register  [nick] зарегестрировать ник
         ////whois посмотреть список юзеров
         ////setinfo [text] написать инфо о себе
-        ////ban [nick] [minutes] забанить юзера на указанное время.
+        ////ban [nick] [minutes] забанить юзера на указанное время
+        ////unban [nick]
+        ////hideuin.
         /// </summary>
         internal static string help {
             get {

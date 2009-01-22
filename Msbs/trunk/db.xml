@@ -8,10 +8,12 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_DateTime>2009-01-22T11:02:55.9532065+02:00</_DateTime>
+          <_room>a</_room>
+          <_DateTime>2009-01-22T16:00:24.6542545+02:00</_DateTime>
           <uin>416575050</uin>
           <nick>sda</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_Banned>2009-01-22T15:04:18.3011833+02:00</_Banned>
+          <_HideUin>false</_HideUin>
         </User>
       </_Users>
     </Icq>

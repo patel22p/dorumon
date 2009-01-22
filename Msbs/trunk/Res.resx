@@ -129,7 +129,9 @@
 /register  [nick] зарегестрировать ник
 /whois посмотреть список юзеров
 /setinfo [text] написать инфо о себе
-/ban [nick] [minutes] забанить юзера на указанное время</value>
+/ban [nick] [minutes] забанить юзера на указанное время
+/unban [nick]
+/hideuin</value>
   </data>
   <data name="httpnotfound" xml:space="preserve">
     <value>HTTP/1.1 404 Not Found

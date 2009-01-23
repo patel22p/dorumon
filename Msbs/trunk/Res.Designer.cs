@@ -75,12 +75,13 @@ namespace ChatBox2 {
         ///команды:
         ////unregister выйти из чата
         ////ping пинг
-        ////register  [nick] зарегестрировать ник
+        ////register  ник. зарегестрировать ник
         ////whois посмотреть список юзеров
-        ////setinfo [text] написать инфо о себе
-        ////ban [nick] [minutes] забанить юзера на указанное время
-        ////unban [nick]
-        ////hideuin.
+        ////setinfo текст,  написать инфо о себе
+        ////ban ник время, забанить юзера на указанное время
+        ////unban ник
+        ////hideuin скрыть уин
+        ////join комната , заити в комнату.
         /// </summary>
         internal static string help {
             get {

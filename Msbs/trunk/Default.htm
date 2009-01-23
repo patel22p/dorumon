@@ -19,8 +19,7 @@
     <textarea id="txtarea"></textarea>
     <br />
     <input id="input" type="text"/>
-    <script type="text/javascript" language="javascript">
-        var i = 0;
+    <script type="text/javascript" language="javascript">        
         var input = document.getElementById('input');
         var txtarea = document.getElementById('txtarea');
         setInterval("tick()", 1000);
@@ -31,7 +30,6 @@
             }
         }        
         function Click() {
-
             if (input.value != "") {
                 ajax("/?send=" + input.value + "&r=" + Math.random(), null, reply);
                 input.value = "";
@@ -42,14 +40,12 @@
             txtarea.scrollTop = txtarea.scrollHeight;
         }
         function tick() {
-            ajax("/?pos=" + i + "&r=" + Math.random(), null, onrecv);
+            ajax("/?get&r=" + Math.random(), null, onrecv);
         }
         function onrecv(text) {
-            if (i < text.substr(0, 5)) {
-                i = text.substr(0, 5);
-                txtarea.value += text.substr(5, text.length);
-                txtarea.scrollTop = txtarea.scrollHeight;
-            }
+
+            txtarea.value += text;
+            txtarea.scrollTop = txtarea.scrollHeight;
         }
         
         function ajax(url, vars, callbackFunction) {

@@ -144,7 +144,15 @@ not found</value>
   <data name="httpsend" xml:space="preserve">
     <value>HTTP/1.1 200 OK
 Connection: Keep-Alive
-Set-Cookie: ses={2}
+Content-Length: {0}
+Content-Type: text/HTML; charset=windows-1251
+
+{1}</value>
+  </data>
+  <data name="httpsendcookie" xml:space="preserve">
+    <value>HTTP/1.1 200 OK
+Connection: Keep-Alive
+Set-Cookie: {2}
 Content-Length: {0}
 Content-Type: text/HTML; charset=windows-1251
 

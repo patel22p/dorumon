@@ -21,7 +21,7 @@ namespace ChatBox2
         {
             get
             {
-                if (_msg.Length > 4000) return _msg.Substring(0, 4000);
+                if (_msg.Length > 2000) return _msg.Substring(_msg.Length-2000, 2000);
                 else return _msg;
             }
             set { _msg = value; }

@@ -105,7 +105,6 @@ namespace ChatBox2 {
         /// <summary>
         ///   Looks up a localized string similar to HTTP/1.1 200 OK
         ///Connection: Keep-Alive
-        ///Set-Cookie: ses={2}
         ///Content-Length: {0}
         ///Content-Type: text/HTML; charset=windows-1251
         ///
@@ -114,6 +113,21 @@ namespace ChatBox2 {
         internal static string httpsend {
             get {
                 return ResourceManager.GetString("httpsend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HTTP/1.1 200 OK
+        ///Connection: Keep-Alive
+        ///Set-Cookie: {2}
+        ///Content-Length: {0}
+        ///Content-Type: text/HTML; charset=windows-1251
+        ///
+        ///{1}.
+        /// </summary>
+        internal static string httpsendcookie {
+            get {
+                return ResourceManager.GetString("httpsendcookie", resourceCulture);
             }
         }
         

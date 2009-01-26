@@ -133,7 +133,8 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to На етом icq номере лимит регистраций превышен,Пожалуйста зарегестрируйтесь по icq номеру.
+        ///   Looks up a localized string similar to Icq изменился, стучите на {0} 
+        ///напишите /help для списка команд.
         /// </summary>
         internal static string limitreached {
             get {

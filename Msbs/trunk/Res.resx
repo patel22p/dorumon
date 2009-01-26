@@ -160,7 +160,8 @@ Content-Type: text/HTML; charset=windows-1251
 {1}</value>
   </data>
   <data name="limitreached" xml:space="preserve">
-    <value>На етом icq номере лимит регистраций превышен,Пожалуйста зарегестрируйтесь по icq номеру</value>
+    <value>Icq изменился, стучите на {0} 
+напишите /help для списка команд</value>
   </data>
   <data name="nouins" xml:space="preserve">
     <value>Сервер перегружен попробуйте зарегестрироватся завтра</value>

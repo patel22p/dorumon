@@ -30,7 +30,7 @@ namespace ChatBox2
             public virtual DateTime _Banned { get; set; }
             public StringCollection _MsgsToSend = new StringCollection();
             public HttpUser()
-            {                
+            {
                 _DateTime = DateTime.Now;
             }
         }
@@ -81,10 +81,11 @@ namespace ChatBox2
             }
 
         }
+        
         public static Dictionary<string, List<string>> _Dictionary2 = new Dictionary<string, List<string>>();
         public static List<string> GetRoom(string file)
-        {            
-            file = file + ".txt";            
+        {
+            file = file + ".txt";
             if (_Dictionary2.ContainsKey(file))
                 return _Dictionary2[file];
             else
@@ -102,8 +103,8 @@ namespace ChatBox2
                 if (_HttpUser._room == room)
                 {
                     _HttpUser._MsgsToSend.Add(msg);
-                    if (_HttpUser._MsgsToSend.Count > 50)                    
-                        _HttpUser._MsgsToSend.RemoveAt(0);                    
+                    if (_HttpUser._MsgsToSend.Count > 50)
+                        _HttpUser._MsgsToSend.RemoveAt(0);
                 }
             GetRoom(room).Add(msg);
             File.AppendAllText(room + ".txt", msg + "\r\n", Encoding.Default);
@@ -112,20 +113,26 @@ namespace ChatBox2
         {
             Spammer3.Beep = false;
             Spammer3.Setup("../../");
-            new Thread(ReadConsole).Start();
-            IcqChat _IcqChat = new IcqChat();
+            Spammer3.StartRemoteConsoleAsync(5999);
+            ChatBox _IcqChat = new ChatBox();
             _IcqChat.Start();
         }
-        public static List<string> _console = new List<string>();
-        private static void ReadConsole()
-        {
-            while (true)
-            {
-                _console.Add(Console.ReadLine());
-            }
-        }
+        
+        
+        
+        public static List<string> _console { get { return Spammer3._console; } }
         public static void SendIcqMessages(string room, string uin, string msg2)
         {
+            SendIcqMessages(room, uin, msg2, false);
+        }
+        public static void SendIcqMessages(string room, string uin, string msg2, bool fromirc)
+        {
+            if (!fromirc)
+            {
+                //irc
+                _IrcChat.SendMessage(room, msg2);
+            }
+            //////////icq
             int i = 0;
             foreach (User _User2 in (from a in _Accounts from u in a._Users where u._room == room && u.uin != uin select u))
             {
@@ -133,12 +140,102 @@ namespace ChatBox2
                 i++;
             }
             Trace2("Sended msgs: " + i);
+
+            /////////web
+            string msg = DateTime.Now + " " + msg2.Replace("\r\n", "\n");
+            foreach (HttpUser _HttpUser in _Dictionary.Values)
+                if (_HttpUser._room == room)
+                {
+                    _HttpUser._MsgsToSend.Add(msg);
+                    if (_HttpUser._MsgsToSend.Count > 50)
+                        _HttpUser._MsgsToSend.RemoveAt(0);
+                }
+            GetRoom(room).Add(msg);
+            File.AppendAllText(room + ".txt", msg + "\r\n", Encoding.Default);
         }
         public static Database _Database;
-        public class IcqChat
+        public class IrcChat
+        {
+            NetworkStream _NetworkStream;
+            public void Start()
+            {
+                TcpClient _TcpClient = new TcpClient("irc.kgts.ru", 6667);
+                Socket _Socket = _TcpClient.Client;
+                _NetworkStream = new NetworkStream(_Socket);
+                Thread _Thread = new Thread(Read);
+                _Thread.Start();
+                _NetworkStream.WriteLine(Trace2(string.Format("NICK {0}", "ChatBox2")));
+                _NetworkStream.WriteLine(Trace2("USER " + "ChatBox2" + " " + "ChatBox2" + " server :" + "cslive"));
+                _NetworkStream.WriteLine(Trace2("codepage cp1251"));
+            }
+            public bool _Connected;
+            public void Leave(string room)
+            {
+                _NetworkStream.WriteLine(Trace2("part #" + prefix + room));
+            }
+            public void Join(string room)
+            {
+                _NetworkStream.WriteLine(Trace2("join #" + prefix+room));
+            }
+            public class IrcIm
+            {
+                public string room;
+                public string msg;
+                public string user;
+            }
+            List<IrcIm> messages = new List<IrcIm>();
+            public const string prefix = "cs-";
+            public List<IrcIm> GetMessages()
+            {
+                List<IrcIm> msgs = messages;
+                messages = new List<IrcIm>();
+                return msgs;
+            }
+            public void SendMessage(string room, string msg)
+            {
+                foreach (string s in msg.Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    _NetworkStream.WriteLine(String.Format("PRIVMSG #{0} :{1}", prefix + room, s));
+            }
+
+            public void Read()
+            {
+                try
+                {
+                    while (true)
+                    {
+                        string s = Trace2(_NetworkStream.ReadLine());
+                        Match _Match = Regex.Match(s, @"PING \:(\w+)", RegexOptions.IgnoreCase);
+                        if (_Match.Success)
+                            _NetworkStream.WriteLine(("PONG :" + Trace2(_Match.Groups[1])));
+                        _Match = Regex.Match(s, @":(.+?)!.+? PRIVMSG #(.+?) :(.+)");
+                        if (_Match.Success)
+                        {
+                            messages.Add(new IrcIm
+                            {
+                                room = _Match.Groups[2].Value.TrimStart(prefix),
+                                user = _Match.Groups[1].Value,
+                                msg = _Match.Groups[3].Value
+                            });
+
+                        }
+                        if (Regex.Match(s, @":.+? 005").Success) _Connected = true;
+                    }
+                }
+                catch (IOException) { }
+                _Connected = false;
+            }
+            public static T Trace2<T>(T t)
+            {
+                using (var fs = File.Create("irc.txt")) fs.WriteLine(t.ToString());
+                return t;
+            }
+        }
+        public static IrcChat _IrcChat;
+
+        public class ChatBox
         {
             public void Start()
-            {                                
+            {
                 if (File.Exists("db.xml"))
                     Load();
 
@@ -147,7 +244,10 @@ namespace ChatBox2
                 HttpChat _ChatHttpServer = new HttpChat();
                 _ChatHttpServer._ChatBox = this;
                 _ChatHttpServer.StartAsync();
-
+                _IrcChat = new IrcChat();
+                _IrcChat.Start();
+                foreach (string room in _rooms)
+                    _IrcChat.Join(room);
                 List<string> dcheck = new List<string>();
                 foreach (Database.Icq _Dicq in _Database._Accounts) //load database
                 {
@@ -174,7 +274,11 @@ namespace ChatBox2
                         foreach (HttpUser user in GetOldHttpUsers(TimeSpan.FromDays(3)).ToArray())
                             _Dictionary.Remove(user.ip);
                     }
-                    foreach (Icq _Icq in _Accounts)
+                    foreach (IrcChat.IrcIm msg2 in _IrcChat.GetMessages())
+                    {
+                        SendIcqMessages(msg2.room, null, msg2.user + "(irc):" + msg2.msg, true);
+                    }
+                    foreach (Icq _Icq in _Accounts) //////OnMessage
                         foreach (Im _IM in _Icq.Update())
                         {
                             string s = OnMessage(_Icq, _IM.uin, _IM.msg);
@@ -184,14 +288,14 @@ namespace ChatBox2
                         using (FileStream _FileStream = new FileStream("db.xml", FileMode.Create, FileAccess.Write))
                             _XmlSerializer.Serialize(_FileStream, _Database);
 
-                    StringBuilder sb = new StringBuilder(); //title
+                    StringBuilder sb = new StringBuilder(_IrcChat._Connected?"1":"0"); //title
                     foreach (Icq icq in _Accounts)
                         sb.Append((byte)icq._ICQAPP._ConnectionStatus);
                     Spammer3._Title = sb.ToString();
                     string msg = _console.FirstOrDefault(); // console read
                     if (msg != null)
                     {
-                        Console.WriteLine(ReadConsole2(msg));
+                        ReadConsole(msg).Trace();
                         _console.Remove(msg);
                     }
                     STimer.Update();
@@ -213,7 +317,7 @@ namespace ChatBox2
                 return (from a in _Dictionary.Values where DateTime.Now - a._DateTime > t select a);
             }
 
-            private string ReadConsole2(string msg)
+            private string ReadConsole(string msg)
             {
                 Match m;
                 m = Regex.Match(msg, @"^/send (.+)");
@@ -250,8 +354,31 @@ namespace ChatBox2
                     Add(new Icq { _uin = m.Groups[1].Value, _pass = m.Groups[2].Value });
                     return "success";
                 }
+                m = Regex.Match(msg, @"^/removeroom (\w+)");
+                if (m.Success)
+                {
+                    string room = m.Groups[1].Value;
+                    _rooms.Remove(room);
+                    foreach (HttpUser ht in GetUserRoom(room))
+                        ht._room = "general";
+                    _IrcChat.Leave(room);
+                    return "success";
+                }
+                m = Regex.Match(msg, @"^/addroom (\w+)");
+                if (m.Success)
+                {
+                    string room = m.Groups[1].Value;
+                    _rooms.Add(room);
+                    _IrcChat.Join(room);
+                    return "success";
+                }
                 return ("unknown command");
 
+            }
+
+            private static IEnumerable<User> GetUserRoom(string room)
+            {
+                return (from a in _Accounts from u in a._Users where u._room == room select u);
             }
 
 
@@ -282,32 +409,29 @@ namespace ChatBox2
                 if (_ret != null) return _ret;
                 else if (_User == null)
                 {
+                    if (_Icq._Users.Count >= _Database.limit)
+                    {
+                        Icq _Icq2 = From();
+                        if (_Icq2 == null)
+                            return (Res.nouins);
+                        else
+                            return (Res.limitreached + _Icq2._uin);
+                    }
                     Match _registernick = Regex.Match(msg, Res.registerMatch);
                     if (_registernick.Success)
                     {
-                        if (_Icq._Users.Count >= _Database.limit)
+                        string nick = _registernick.Groups[1].Value;
+                        if (FindUserbyNick(nick) == null)
                         {
-                            Icq _Icq2 = From();
-                            if (_Icq2 == null)
-                                return (Res.nouins);
-                            else
-                                return (Res.limitreached + _Icq2._uin);
+                            _User = new User { uin = uin };
+                            _User._room = "general";
+                            _User.nick = nick;
+                            _User._Account = _Icq;
+                            _Icq.Add(_User);
+                            return GetLastMessages(_User._room) + Res.youareregistered;
                         }
                         else
-                        {
-                            string nick = _registernick.Groups[1].Value;
-                            if (FindUserbyNick(nick) == null)
-                            {
-                                _User = new User { uin = uin };
-                                _User._room = "general";
-                                _User.nick = nick;
-                                _User._Account = _Icq;
-                                _Icq.Add(_User);
-                                return (_User.uin + Res.youareregistered);
-                            }
-                            else
-                                return (nick + Res.alreadyregistered);
-                        }
+                            return (nick + Res.alreadyregistered);
                     }
                     else if (Regex.IsMatch(msg, Res.unknowncommandMatch))
                         return (Res.unknowncommand);
@@ -344,7 +468,7 @@ namespace ChatBox2
                     else
                     {
                         string msg2 = _User.nick + ": " + msg;
-                        AddMessage(msg2.Replace("\r\n", "\n"), _User._room);
+
                         SendIcqMessages(_User._room, uin, msg2);
                         return null;
                     }
@@ -379,7 +503,7 @@ namespace ChatBox2
             {
                 return _ICQAPP._uin + "->" + _ICQAPP._ConnectionStatus;
             }
-            public List<Im> _msgstosend = new List<Im>();
+            public List<Im> _messages = new List<Im>();
 
             public Database.Icq _DIcq = new Database.Icq();
             public List<User> _Users = new List<User>();
@@ -404,7 +528,7 @@ namespace ChatBox2
                 started = true;
                 foreach (Database.User _Duser in _DIcq._Users)
                 {
-                    if(_Duser._room == null)
+                    if (_Duser._room == null)
                         _Duser._room = "general";
                     Add(new User { _DUser = _Duser, _Account = this });
                 }
@@ -412,7 +536,6 @@ namespace ChatBox2
                 _ICQAPP._onMessage += new ICQAPP.Message(ICQAPP__onMessage);
                 _ICQAPP._onMessageStatusChanged += new ICQAPP.Message(ICQAPP__onMessageStatusChanged);
                 _ICQAPP.StartAsync();
-
             }
 
             void ICQAPP__onMessageStatusChanged(Im Im)
@@ -429,9 +552,9 @@ namespace ChatBox2
 
             public void SendMessage(string uin, string msg)
             {
-                Im im = _msgstosend.FirstOrDefault(a => a.uin == uin && a.Status == MessageStatus.None);
+                Im im = _messages.FirstOrDefault(a => a.uin == uin && a.Status == MessageStatus.None);
                 if (im == null)
-                    _msgstosend.Add(new Im { msg = msg, uin = uin, Status = MessageStatus.None });
+                    _messages.Add(new Im { msg = msg, uin = uin, Status = MessageStatus.None });
                 else
                     im.msg += "\r\n" + msg;
             }
@@ -439,11 +562,11 @@ namespace ChatBox2
             public List<Im> Update()
             {
                 Im Im = null;
-                try
-                {
-                    Im = _msgstosend.FirstOrDefault(Func2());
-                }
-                catch { }
+                //try
+                //{
+                Im = _messages.FirstOrDefault(Func2());
+                //}
+                //catch { }
                 ConnectionStatus c = _ICQAPP._ConnectionStatus;
                 if (c == ConnectionStatus.Connected && DateTime.Now - _DateTime > TimeSpan.FromSeconds(5) && Im != null) //interval
                 {
@@ -456,18 +579,18 @@ namespace ChatBox2
                     _ICQAPP.StartAsync();
                 }
 
-                try
-                {
-                    if (null != _msgstosend.FirstOrDefault(Func1()))
+                //try
+                //{
+                    if (null != _messages.FirstOrDefault(Func1()))
                     {
                         Trace2(_ICQAPP._uin + "Message Sending Failed");
-                        foreach (Im im2 in _msgstosend)
+                        foreach (Im im2 in _messages)
                             if (im2.Status == MessageStatus.Sending) im2.Status = MessageStatus.None;
 
                         _ICQAPP.Disconnect();
                     }
-                }
-                catch { }
+                //}
+                //catch { }
                 List<Im> ims = _ims;
                 _ims = new List<Im>();
                 return ims;
@@ -509,8 +632,9 @@ namespace ChatBox2
                 public void Start()
                 {
                     _ip = (((IPEndPoint)_Socket.RemoteEndPoint).Address).ToString();
-                    Trace2("con");
+                    Trace2("con"+_ip);
                     NetworkStream _NetworkStream = new NetworkStream(_Socket);
+                    _NetworkStream.ReadTimeout = 30000;
                     try
                     {
                         while (true)
@@ -519,7 +643,7 @@ namespace ChatBox2
                             Match cookie = Regex.Match(s, @"Cookie: .*ses=(\d.+)%3a(.+?)[;\n\r]", RegexOptions.IgnoreCase);
                             if (Regex.Match(s, @"GET /(Default.htm)? HTTP", RegexOptions.IgnoreCase).Success)
                             {
-                                string s3 = File.ReadAllText("Default.htm");
+                                string s3 = File.ReadAllText("Default.htm",Encoding.Default);
                                 Send(s3);
                                 Trace2("Send1");
                             }
@@ -533,7 +657,7 @@ namespace ChatBox2
                             {
                                 Send("", "ses=" + HttpUtility.UrlEncode(_ip + ":" + ICQAPP.XOR(_ip).ToStr()));
                                 return;
-                            }                            
+                            }
                         }
                     }
                     catch (IOException) { }
@@ -545,9 +669,9 @@ namespace ChatBox2
                     Match getlog = Regex.Match(s, @"GET /\?line=(\d+)");
                     Match get = Regex.Match(s, @"GET /\?get&r=.+? HTTP", RegexOptions.IgnoreCase);
                     Match PostMessage = Regex.Match(s, @"GET /\?send=(.+?)&r=.+? HTTP", RegexOptions.IgnoreCase);
-                    
+
                     Match search = Regex.Match(s, @"GET /\?q=(.+?) HTTP", RegexOptions.IgnoreCase);
-                    
+
                     if (PostMessage.Success) //send msg
                     {
                         return Trace2(OnMessage2(HttpUtility.UrlDecode(PostMessage.Groups[1].Value)));
@@ -567,7 +691,7 @@ namespace ChatBox2
                                     sb.Append(string.Format("<br /><a href=?line={0}>{1}</a>", line, HttpUtility.HtmlEncode(s4)));
                             }
                             Trace2("search");
-                            return(sb.ToString());
+                            return (sb.ToString());
                         }
                         if (getlog.Success)
                         {
@@ -578,13 +702,13 @@ namespace ChatBox2
                                 sb.AppendLine(HttpUtility.HtmlEncode(GetRoom(_User._room)[i]) + "<br />");
                             }
                             Trace2("getlog");
-                            return(sb.ToString());                            
+                            return (sb.ToString());
                         }
                         if (get.Success)
-                        {          
+                        {
                             StringCollection ss = _MsgsToSend;
-                            _MsgsToSend = new StringCollection();                            
-                            return ss.ToString("\r\n");            
+                            _MsgsToSend = new StringCollection();
+                            return ss.ToString("\r\n");
                         }
                     }
                     return "";
@@ -597,13 +721,13 @@ namespace ChatBox2
                     _Socket.Send(string.Format(Res.httpsend, text.Length, text));
                 }
                 private void Send(string text, string cookie)
-                {                    
+                {
                     _Socket.Send(string.Format(Res.httpsendcookie, text.Length, text, cookie));
                 }
                 private string OnMessage2(string msg)
                 {
                     Match m;
-                    Trace2("OnMessage");                    
+                    Trace2("OnMessage");
                     string s2 = GlobalCommands(msg, _User);
                     if (s2 != null) return s2;
                     if (_User == null)
@@ -615,7 +739,7 @@ namespace ChatBox2
                             if (FindUserbyNick(nick) == null)
                             {
                                 _Dictionary.Add(_ip, new HttpUser { nick = nick, ip = _ip, _room = "general" });
-                                return Res.youareregistered;
+                                return GetLastMessages("general") + Res.youareregistered;
                             }
                             else
                                 Send(Res.alreadyregistered);
@@ -645,9 +769,8 @@ namespace ChatBox2
                             return Res.unknowncommand;
 
                         //message send
-                        msg = _User.nick + ":" + msg;                        
-                        SendIcqMessages(_User._room, null, msg);                                                
-                        AddMessage(msg, _User._room);
+                        msg = _User.nick + ":" + msg;
+                        SendIcqMessages(_User._room, null, msg);
                         return "";
 
                     }
@@ -655,23 +778,23 @@ namespace ChatBox2
                     throw new Exception("wtf");
                 }
             }
-            public IcqChat _ChatBox;
+            public ChatBox _ChatBox;
 
 
 
             public static T Trace2<T>(T t)
             {
-                Trace.WriteLine("webchat:"+t);
+                Helper.Trace2(t.ToString(), "HttpChat");
                 return t;
             }
         }
         public static SerializableDictionary<string, HttpUser> _Dictionary { get { return _Database._Dictionary; } }
         public static T Trace2<T>(T t)
         {
-            Trace.WriteLine("Chatbox: " + t);
+            Helper.Trace2(t.ToString(),"Chatbox");
             return t;
         }
-        public static List<string> rooms { get { return _Database.rooms; } }
+        public static List<string> _rooms { get { return _Database.rooms; } }
         public static string GlobalCommands(string msg, HttpUser _user)
         {
             Match m;
@@ -684,21 +807,19 @@ namespace ChatBox2
             {
                 if (Regex.Match(msg, "^/rooms").Success)
                 {
-                    return rooms.ToString("\r\n");
+                    return _rooms.ToString("\r\n");
                 }
                 m = Regex.Match(msg, @"^/join (.+)");
                 if (m.Success)
                 {
-
-                    if (rooms.Contains(m.Groups[1].Value))
+                    if (_rooms.Contains(m.Groups[1].Value))
                     {
-                        string room = m.Groups[1].Value;                        
+                        string room = m.Groups[1].Value;
                         _user._room = m.Groups[1].Value;
-                        return GetRoom(room).Skip(Math.Min(0,GetRoom(room).Count-1000)).ToString("\r\n");
+                        return GetLastMessages(room);
                     }
                     else
                         return "room not found";
-
                 }
                 if (_user.nick.StartsWith("@"))//admin
                 {
@@ -736,6 +857,11 @@ namespace ChatBox2
                 return Res.register;
             return null;
         }
+
+        private static string GetLastMessages(string room)
+        {
+            return GetRoom(room).Skip(Math.Min(0, GetRoom(room).Count - 1000)).ToString("\r\n");
+        }
         private static IEnumerable<HttpUser> GetOrderedHttpUsers()
         {
             return (from a in _Dictionary.Values orderby a.nick select a);
@@ -746,5 +872,5 @@ namespace ChatBox2
         }
 
     }
-
+    
 }

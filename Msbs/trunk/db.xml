@@ -2,8 +2,6 @@
 <Database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="ChatBox2.xsd">
   <rooms>
     <string>general</string>
-    <string>dev</string>
-    <string>site</string>
   </rooms>
   <_RemovedUsers>
     <string>Whiskas;350198344</string>
@@ -24,6 +22,14 @@
     <string>nick;307561398</string>
     <string>kostik;449491409</string>
     <string>Gr;226544080</string>
+    <string>Artemis;9803474</string>
+    <string>@Knife;3522515</string>
+    <string>StormRider;473445638</string>
+    <string>Zyoma;920653</string>
+    <string>Koyan;263757369</string>
+    <string>Angel;471553320</string>
+    <string>vovakent;240814529</string>
+    <string>LSDsl;259990030</string>
   </_RemovedUsers>
   <limit>1</limit>
   <_Accounts>
@@ -33,7 +39,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-23T14:06:55.062625+02:00</_DateTime>
+          <_DateTime>2009-01-24T18:18:41.8419706+02:00</_DateTime>
           <uin>399517888</uin>
           <nick>катя</nick>
           <_Banned>2009-04-02T11:41:56.297+03:00</_Banned>
@@ -47,11 +53,10 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <info>c#,silverlight, php,starcraft,wpf,flash as2 as3,maya,ms blend,zbrush,asp.net,ms sql,linq</info>
-          <_DateTime>2009-01-23T14:37:23.031375+02:00</_DateTime>
+          <_DateTime>2009-01-25T15:18:55.25+02:00</_DateTime>
           <uin>1231925</uin>
           <nick>@doru</nick>
-          <_Banned>2009-01-16T23:09:58.90625+02:00</_Banned>
+          <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
       </_Users>
@@ -62,8 +67,8 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <info>Hosting server</info>
-          <_DateTime>2009-01-23T14:37:28.781375+02:00</_DateTime>
+          <info> Hosting server | C# | asp.net | PHP | Java | Pascal | VB | MySQL |  MSSQL | Oracle | и другое ....</info>
+          <_DateTime>2009-01-25T19:57:42.328125+02:00</_DateTime>
           <uin>685295</uin>
           <nick>@Sv0104</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -74,7 +79,16 @@
     <Icq>
       <uin>387769980</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_room>general</_room>
+          <_DateTime>2009-01-24T20:17:27.3786544+02:00</_DateTime>
+          <uin>470560538</uin>
+          <nick>cfif</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>435237556</uin>
@@ -82,9 +96,9 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-21T07:15:25.82825+02:00</_DateTime>
-          <uin>920653</uin>
-          <nick>Zyoma</nick>
+          <_DateTime>2009-01-25T16:46:25.453125+02:00</_DateTime>
+          <uin>8831029</uin>
+          <nick>JuiSe</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
@@ -93,31 +107,12 @@
     <Icq>
       <uin>489250076</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>site</_room>
-          <info>програмист PHP и немного C#</info>
-          <_DateTime>2009-01-23T11:45:04.4845+02:00</_DateTime>
-          <uin>261599235</uin>
-          <nick>GiBSON</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>true</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>410301743</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-21T12:57:21.64075+02:00</_DateTime>
-          <uin>263757369</uin>
-          <nick>Koyan</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>420069239</uin>
@@ -125,9 +120,9 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-20T17:02:23.781375+02:00</_DateTime>
-          <uin>9803474</uin>
-          <nick>Artemis</nick>
+          <_DateTime>2009-01-24T19:35:08.4674188+02:00</_DateTime>
+          <uin>461290763</uin>
+          <nick>Dreigo</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
@@ -160,25 +155,16 @@
     <Icq>
       <uin>392871752</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-22T11:31:24.6095+02:00</_DateTime>
-          <uin>259990030</uin>
-          <nick>LSDsl</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>445576180</uin>
       <pass>er54s4</pass>
       <_Users>
         <User>
-          <_room>site</_room>
+          <_room>general</_room>
           <info>[Бета-тестер, увлекался SQL-MySQL базами,когда то) Был сис-админом на яве)) http://cslive.mindswitch.ru/forum/ - официальный форум CSLive]</info>
-          <_DateTime>2009-01-23T13:42:27.4845+02:00</_DateTime>
+          <_DateTime>2009-01-25T07:57:51.666375+02:00</_DateTime>
           <uin>254394794</uin>
           <nick>@Mike</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -193,7 +179,7 @@
         <User>
           <_room>general</_room>
           <info>3д моделинг, текстуринг, unwrap, normal mapping</info>
-          <_DateTime>2009-01-21T17:42:43.031375+02:00</_DateTime>
+          <_DateTime>2009-01-25T14:20:17.546875+02:00</_DateTime>
           <uin>234034191</uin>
           <nick>rik0</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -207,11 +193,10 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <info>Альфатестер</info>
-          <_DateTime>2009-01-20T19:37:34.593875+02:00</_DateTime>
+          <_DateTime>2009-01-24T19:13:06.899758+02:00</_DateTime>
           <uin>3522515</uin>
-          <nick>@Knife</nick>
-          <_Banned>2009-01-16T22:08:35.1875+02:00</_Banned>
+          <nick>Knife</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
       </_Users>
@@ -227,7 +212,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-21T18:21:04.1095+02:00</_DateTime>
+          <_DateTime>2009-01-25T15:25:51.546875+02:00</_DateTime>
           <uin>7070453</uin>
           <nick>Pozitiv</nick>
           <_Banned>2009-01-19T09:23:58.20325+02:00</_Banned>
@@ -242,7 +227,7 @@
         <User>
           <_room>general</_room>
           <info>Программист C#, Silverlight</info>
-          <_DateTime>2009-01-22T21:36:58.32825+02:00</_DateTime>
+          <_DateTime>2009-01-23T19:34:34.500125+02:00</_DateTime>
           <uin>220253621</uin>
           <nick>@Infinity</nick>
           <_Banned>2009-01-16T12:23:18.9610471+02:00</_Banned>
@@ -256,7 +241,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-22T23:03:01.8595+02:00</_DateTime>
+          <_DateTime>2009-01-25T16:46:47.65625+02:00</_DateTime>
           <uin>959249</uin>
           <nick>@Leopotam</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -271,7 +256,7 @@
         <User>
           <_room>general</_room>
           <info>Java|J2ME|PHP|JavaScript|ActionScript|C#|ASP.NET|MySQL|PostgreSQL|MSSQL</info>
-          <_DateTime>2009-01-23T14:28:40.906375+02:00</_DateTime>
+          <_DateTime>2009-01-23T19:36:41.281375+02:00</_DateTime>
           <uin>281187442</uin>
           <nick>rainman</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -291,7 +276,7 @@
         <User>
           <_room>general</_room>
           <info>.NET Framework (2.0/3.0/3.5), C#, ASP.NET, ADO.NET, LINQ, NHibernate, .NET Remoting, WCF, WWF, Silverlight, MS SQL Server, SVN, VSS</info>
-          <_DateTime>2009-01-22T22:46:57.281375+02:00</_DateTime>
+          <_DateTime>2009-01-25T19:57:09.6875+02:00</_DateTime>
           <uin>151583707</uin>
           <nick>@bond</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -305,7 +290,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-23T08:54:37.468875+02:00</_DateTime>
+          <_DateTime>2009-01-24T19:14:59.4367696+02:00</_DateTime>
           <uin>262231449</uin>
           <nick>netrue</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -350,7 +335,7 @@
         <User>
           <_room>general</_room>
           <info>владею Photoshop.</info>
-          <_DateTime>2009-01-22T22:33:49.547+02:00</_DateTime>
+          <_DateTime>2009-01-24T20:05:25.7010814+02:00</_DateTime>
           <uin>400245313</uin>
           <nick>Kaktus</nick>
           <_Banned>2009-01-20T19:15:55.76575+02:00</_Banned>
@@ -366,16 +351,7 @@
     <Icq>
       <uin>410693769</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-20T23:27:45.64075+02:00</_DateTime>
-          <uin>473445638</uin>
-          <nick>StormRider</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>422902840</uin>
@@ -384,7 +360,7 @@
         <User>
           <_room>general</_room>
           <info>Программист на С#(начинающий) буду рад вам памочь</info>
-          <_DateTime>2009-01-22T23:46:02.547+02:00</_DateTime>
+          <_DateTime>2009-01-25T15:28:13.921875+02:00</_DateTime>
           <uin>662118</uin>
           <nick>MABDEN</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -400,16 +376,7 @@
     <Icq>
       <uin>478120451</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-22T08:46:42.922+02:00</_DateTime>
-          <uin>240814529</uin>
-          <nick>vovakent</nick>
-          <_Banned>2009-01-20T09:30:41.64075+02:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>396867039</uin>
@@ -444,16 +411,7 @@
     <Icq>
       <uin>435029035</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-21T17:44:56.125125+02:00</_DateTime>
-          <uin>471553320</uin>
-          <nick>Angel</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>462980236</uin>
@@ -477,16 +435,7 @@
     <Icq>
       <uin>441304585</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-23T11:54:46.093875+02:00</_DateTime>
-          <uin>210898012</uin>
-          <nick>*lix</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>456918992</uin>
@@ -502,61 +451,18 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>23.01.2009 11:44:36 .::shodan::.: как отконнектицо? просто закрыть?</string>
-            <string>23.01.2009 11:44:46 @doru: да</string>
-            <string>23.01.2009 11:44:49 @doru: некак</string>
-            <string>23.01.2009 11:45:04 .::shodan::.: как смотреть таблицу фрагов?</string>
-            <string>23.01.2009 11:45:04 GiBSON: f rfr gj rjvyfnfv [jlbnm</string>
-            <string>23.01.2009 11:45:08 .::shodan::.: ого))</string>
-            <string>23.01.2009 11:45:23 @doru: return или таб</string>
-            <string>23.01.2009 11:45:29 .::shodan::.: join</string>
-            <string>23.01.2009 11:45:34 @doru: bakckspace тоесть</string>
-            <string>23.01.2009 11:45:38 .::shodan::.: ясн</string>
-            <string>23.01.2009 11:45:50 .::shodan::.: на таб что то не сработало</string>
-            <string>23.01.2009 11:52:39 @doru: упс я нечайно чат закрыл)</string>
-            <string>23.01.2009 11:53:18 @doru: мессаги недошли последние, если че</string>
-            <string>23.01.2009 11:53:24 .::shodan::.: ясно</string>
-            <string>23.01.2009 11:53:41 .::shodan::.: я писал что типа мне пора позже спишемся</string>
-            <string>23.01.2009 11:53:58 .::shodan::.: как с чата выходить? un register?</string>
-            <string>23.01.2009 11:54:35 .::shodan::.: unregoster</string>
-            <string>23.01.2009 11:54:46 *lix: mistypo</string>
-            <string>23.01.2009 14:04:48 Sv0104: у кого VS 2008 есть рус</string>
-            <string>23.01.2009 14:28:12 IOpuK: комнаты сделали как переходить???</string>
-            <string>23.01.2009 14:28:31 Sv0104: куда перехадить?</string>
-            <string>23.01.2009 14:28:38 rainman: -- /join site</string>
-            <string>23.01.2009 14:28:40 rainman: к примеру</string>
-            <string>23.01.2009 14:28:52 IOpuK: developers</string>
-            <string>23.01.2009 14:29:41 IOpuK: room not found</string>
-            <string>23.01.2009 14:29:51 @doru: пишы /rooms</string>
-            <string>23.01.2009 14:30:26 IOpuK: о дору ты туту??? че насчет DLE???</string>
-            <string>23.01.2009 14:31:21 @doru: так пишы че мне там менять в htaccess</string>
-            <string>23.01.2009 14:31:41 IOpuK: я же те ссылку прислал на файл</string>
-            <string>23.01.2009 14:31:50 IOpuK: ща еще раз пришлю</string>
-            <string>23.01.2009 14:31:56 @doru: nenado мне фаил</string>
-            <string>23.01.2009 14:32:26 IOpuK: блин текст длинный не отсылает</string>
-            <string>23.01.2009 14:32:38 @doru: скажи как чтоб с форума редиректа небыло</string>
-            <string>23.01.2009 14:32:53 IOpuK: скинь текст</string>
-            <string>23.01.2009 14:32:53 Sv0104: ?</string>
-            <string>23.01.2009 14:32:58 @doru: ето пару строк всево,</string>
-            <string>23.01.2009 14:33:14 IOpuK: скынь тексть))</string>
-            <string>23.01.2009 14:33:20 @doru: какой?</string>
-            <string>23.01.2009 14:33:34 IOpuK: htaccess</string>
-            <string>23.01.2009 14:33:44 @doru: http://cslive.mindswitch.ru/1.htaccess</string>
-            <string>23.01.2009 14:35:11 IOpuK: попробуй убери эту строчку RewriteRule ^page/(.*)$ index.php?cstart=$1 [L]</string>
-            <string>23.01.2009 14:36:09 @doru: ша я отайду на пол часа</string>
-            <string>23.01.2009 14:36:16 @doru: скажу когда сменю</string>
-            <string>23.01.2009 14:36:24 IOpuK: а вообще можно его удалить и выключить ЧПУ в админке</string>
-            <string>23.01.2009 14:36:56 Sv0104: ура еще 2 мин и VS скачалась</string>
-            <string>23.01.2009 14:37:14 @doru: руская)))?</string>
-            <string>23.01.2009 14:37:18 Sv0104: ага</string>
-            <string>23.01.2009 14:37:23 @doru: жуть)))</string>
-            <string>23.01.2009 14:37:27 Sv0104: БУГАГА</string>
-            <string>23.01.2009 14:37:28 Sv0104: :)</string>
+            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
+            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
+            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
+            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
+            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
+            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>127.0.0.1</ip>
           <nick>(web)doru</nick>
-          <_DateTime>2009-01-22T21:20:03.01575+02:00</_DateTime>
+          <_DateTime>2009-01-24T19:35:26.8433596+02:00</_DateTime>
           <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>
@@ -568,61 +474,12 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>23.01.2009 11:44:36 .::shodan::.: как отконнектицо? просто закрыть?</string>
-            <string>23.01.2009 11:44:46 @doru: да</string>
-            <string>23.01.2009 11:44:49 @doru: некак</string>
-            <string>23.01.2009 11:45:04 .::shodan::.: как смотреть таблицу фрагов?</string>
-            <string>23.01.2009 11:45:04 GiBSON: f rfr gj rjvyfnfv [jlbnm</string>
-            <string>23.01.2009 11:45:08 .::shodan::.: ого))</string>
-            <string>23.01.2009 11:45:23 @doru: return или таб</string>
-            <string>23.01.2009 11:45:29 .::shodan::.: join</string>
-            <string>23.01.2009 11:45:34 @doru: bakckspace тоесть</string>
-            <string>23.01.2009 11:45:38 .::shodan::.: ясн</string>
-            <string>23.01.2009 11:45:50 .::shodan::.: на таб что то не сработало</string>
-            <string>23.01.2009 11:52:39 @doru: упс я нечайно чат закрыл)</string>
-            <string>23.01.2009 11:53:18 @doru: мессаги недошли последние, если че</string>
-            <string>23.01.2009 11:53:24 .::shodan::.: ясно</string>
-            <string>23.01.2009 11:53:41 .::shodan::.: я писал что типа мне пора позже спишемся</string>
-            <string>23.01.2009 11:53:58 .::shodan::.: как с чата выходить? un register?</string>
-            <string>23.01.2009 11:54:35 .::shodan::.: unregoster</string>
-            <string>23.01.2009 11:54:46 *lix: mistypo</string>
-            <string>23.01.2009 14:04:48 Sv0104: у кого VS 2008 есть рус</string>
-            <string>23.01.2009 14:28:12 IOpuK: комнаты сделали как переходить???</string>
-            <string>23.01.2009 14:28:31 Sv0104: куда перехадить?</string>
-            <string>23.01.2009 14:28:38 rainman: -- /join site</string>
-            <string>23.01.2009 14:28:40 rainman: к примеру</string>
-            <string>23.01.2009 14:28:52 IOpuK: developers</string>
-            <string>23.01.2009 14:29:41 IOpuK: room not found</string>
-            <string>23.01.2009 14:29:51 @doru: пишы /rooms</string>
-            <string>23.01.2009 14:30:26 IOpuK: о дору ты туту??? че насчет DLE???</string>
-            <string>23.01.2009 14:31:21 @doru: так пишы че мне там менять в htaccess</string>
-            <string>23.01.2009 14:31:41 IOpuK: я же те ссылку прислал на файл</string>
-            <string>23.01.2009 14:31:50 IOpuK: ща еще раз пришлю</string>
-            <string>23.01.2009 14:31:56 @doru: nenado мне фаил</string>
-            <string>23.01.2009 14:32:26 IOpuK: блин текст длинный не отсылает</string>
-            <string>23.01.2009 14:32:38 @doru: скажи как чтоб с форума редиректа небыло</string>
-            <string>23.01.2009 14:32:53 IOpuK: скинь текст</string>
-            <string>23.01.2009 14:32:53 Sv0104: ?</string>
-            <string>23.01.2009 14:32:58 @doru: ето пару строк всево,</string>
-            <string>23.01.2009 14:33:14 IOpuK: скынь тексть))</string>
-            <string>23.01.2009 14:33:20 @doru: какой?</string>
-            <string>23.01.2009 14:33:34 IOpuK: htaccess</string>
-            <string>23.01.2009 14:33:44 @doru: http://cslive.mindswitch.ru/1.htaccess</string>
-            <string>23.01.2009 14:35:11 IOpuK: попробуй убери эту строчку RewriteRule ^page/(.*)$ index.php?cstart=$1 [L]</string>
-            <string>23.01.2009 14:36:09 @doru: ша я отайду на пол часа</string>
-            <string>23.01.2009 14:36:16 @doru: скажу когда сменю</string>
-            <string>23.01.2009 14:36:24 IOpuK: а вообще можно его удалить и выключить ЧПУ в админке</string>
-            <string>23.01.2009 14:36:56 Sv0104: ура еще 2 мин и VS скачалась</string>
-            <string>23.01.2009 14:37:14 @doru: руская)))?</string>
-            <string>23.01.2009 14:37:18 Sv0104: ага</string>
-            <string>23.01.2009 14:37:23 @doru: жуть)))</string>
-            <string>23.01.2009 14:37:27 Sv0104: БУГАГА</string>
-            <string>23.01.2009 14:37:28 Sv0104: :)</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>87.237.118.18</ip>
           <nick>(web)chekist</nick>
-          <_DateTime>2009-01-22T20:26:43.2345+02:00</_DateTime>
+          <_DateTime>2009-01-25T19:26:34.625+02:00</_DateTime>
           <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>
@@ -634,56 +491,56 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>23.01.2009 11:44:36 .::shodan::.: как отконнектицо? просто закрыть?</string>
-            <string>23.01.2009 11:44:46 @doru: да</string>
-            <string>23.01.2009 11:44:49 @doru: некак</string>
-            <string>23.01.2009 11:45:04 .::shodan::.: как смотреть таблицу фрагов?</string>
-            <string>23.01.2009 11:45:04 GiBSON: f rfr gj rjvyfnfv [jlbnm</string>
-            <string>23.01.2009 11:45:08 .::shodan::.: ого))</string>
-            <string>23.01.2009 11:45:23 @doru: return или таб</string>
-            <string>23.01.2009 11:45:29 .::shodan::.: join</string>
-            <string>23.01.2009 11:45:34 @doru: bakckspace тоесть</string>
-            <string>23.01.2009 11:45:38 .::shodan::.: ясн</string>
-            <string>23.01.2009 11:45:50 .::shodan::.: на таб что то не сработало</string>
-            <string>23.01.2009 11:52:39 @doru: упс я нечайно чат закрыл)</string>
-            <string>23.01.2009 11:53:18 @doru: мессаги недошли последние, если че</string>
-            <string>23.01.2009 11:53:24 .::shodan::.: ясно</string>
-            <string>23.01.2009 11:53:41 .::shodan::.: я писал что типа мне пора позже спишемся</string>
-            <string>23.01.2009 11:53:58 .::shodan::.: как с чата выходить? un register?</string>
-            <string>23.01.2009 11:54:35 .::shodan::.: unregoster</string>
-            <string>23.01.2009 11:54:46 *lix: mistypo</string>
-            <string>23.01.2009 14:04:48 Sv0104: у кого VS 2008 есть рус</string>
-            <string>23.01.2009 14:28:12 IOpuK: комнаты сделали как переходить???</string>
-            <string>23.01.2009 14:28:31 Sv0104: куда перехадить?</string>
-            <string>23.01.2009 14:28:38 rainman: -- /join site</string>
-            <string>23.01.2009 14:28:40 rainman: к примеру</string>
-            <string>23.01.2009 14:28:52 IOpuK: developers</string>
-            <string>23.01.2009 14:29:41 IOpuK: room not found</string>
-            <string>23.01.2009 14:29:51 @doru: пишы /rooms</string>
-            <string>23.01.2009 14:30:26 IOpuK: о дору ты туту??? че насчет DLE???</string>
-            <string>23.01.2009 14:31:21 @doru: так пишы че мне там менять в htaccess</string>
-            <string>23.01.2009 14:31:41 IOpuK: я же те ссылку прислал на файл</string>
-            <string>23.01.2009 14:31:50 IOpuK: ща еще раз пришлю</string>
-            <string>23.01.2009 14:31:56 @doru: nenado мне фаил</string>
-            <string>23.01.2009 14:32:26 IOpuK: блин текст длинный не отсылает</string>
-            <string>23.01.2009 14:32:38 @doru: скажи как чтоб с форума редиректа небыло</string>
-            <string>23.01.2009 14:32:53 IOpuK: скинь текст</string>
-            <string>23.01.2009 14:32:53 Sv0104: ?</string>
-            <string>23.01.2009 14:32:58 @doru: ето пару строк всево,</string>
-            <string>23.01.2009 14:33:14 IOpuK: скынь тексть))</string>
-            <string>23.01.2009 14:33:20 @doru: какой?</string>
-            <string>23.01.2009 14:33:34 IOpuK: htaccess</string>
-            <string>23.01.2009 14:33:44 @doru: http://cslive.mindswitch.ru/1.htaccess</string>
-            <string>23.01.2009 14:35:11 IOpuK: попробуй убери эту строчку RewriteRule ^page/(.*)$ index.php?cstart=$1 [L]</string>
-            <string>23.01.2009 14:36:09 @doru: ша я отайду на пол часа</string>
-            <string>23.01.2009 14:36:16 @doru: скажу когда сменю</string>
-            <string>23.01.2009 14:36:24 IOpuK: а вообще можно его удалить и выключить ЧПУ в админке</string>
-            <string>23.01.2009 14:36:56 Sv0104: ура еще 2 мин и VS скачалась</string>
-            <string>23.01.2009 14:37:14 @doru: руская)))?</string>
-            <string>23.01.2009 14:37:18 Sv0104: ага</string>
-            <string>23.01.2009 14:37:23 @doru: жуть)))</string>
-            <string>23.01.2009 14:37:27 Sv0104: БУГАГА</string>
-            <string>23.01.2009 14:37:28 Sv0104: :)</string>
+            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
+            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
+            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
+            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
+            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
+            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
+            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
+            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
+            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
+            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
+            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
+            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
+            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
+            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
+            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
+            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
+            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
+            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
+            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
+            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
+            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
+            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
+            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
+            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
+            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
+            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
+            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
+            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
+            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
+            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
+            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
+            <string>25.01.2009 16:36:41 JuiSe: а?</string>
+            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
+            <string>25.01.2009 16:37:01 JuiSe: ща</string>
+            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
+            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
+            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
+            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
+            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
+            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
+            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
+            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
+            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
+            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
+            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
+            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
+            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
+            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
+            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>79.165.255.170</ip>
@@ -700,13 +557,210 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>23.01.2009 11:17:14 .::shodan::.: есть кто?</string>
-            <string>23.01.2009 14:29:47 Sv0104: ЫЫЫЫЫ</string>
+            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
+            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
+            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
+            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
+            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
+            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
+            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
+            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
+            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
+            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
+            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
+            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
+            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
+            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
+            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
+            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
+            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
+            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
+            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
+            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
+            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
+            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
+            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
+            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
+            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
+            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
+            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
+            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
+            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
+            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
+            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
+            <string>25.01.2009 16:36:41 JuiSe: а?</string>
+            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
+            <string>25.01.2009 16:37:01 JuiSe: ща</string>
+            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
+            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
+            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
+            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
+            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
+            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
+            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
+            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
+            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
+            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
+            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
+            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
+            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
+            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
+            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
           </_MsgsToSend>
-          <_room>dev</_room>
+          <_room>general</_room>
           <ip>213.250.94.190</ip>
           <nick>(web)doru(work)</nick>
           <_DateTime>2009-01-23T09:25:23.89075+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">83.143.233.129</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_MsgsToSend>
+            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
+            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
+            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
+            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
+            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
+            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
+            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
+            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
+            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
+            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
+            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
+            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
+            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
+            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
+            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
+            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
+            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
+            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
+            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
+            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
+            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
+            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
+            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
+            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
+            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
+            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
+            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
+            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
+            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
+            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
+            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
+            <string>25.01.2009 16:36:41 JuiSe: а?</string>
+            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
+            <string>25.01.2009 16:37:01 JuiSe: ща</string>
+            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
+            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
+            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
+            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
+            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
+            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
+            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
+            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
+            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
+            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
+            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
+            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
+            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
+            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
+            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+          </_MsgsToSend>
+          <_room>general</_room>
+          <ip>83.143.233.129</ip>
+          <nick>(web)Dethrail</nick>
+          <_DateTime>2009-01-23T21:32:23.3595+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">93.84.27.228</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_MsgsToSend>
+            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
+            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
+            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
+            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
+            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
+            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
+            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
+            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
+            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
+            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
+            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
+            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
+            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
+            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
+            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
+            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
+            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
+            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
+            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
+            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
+            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
+            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
+            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
+            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
+            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
+            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
+            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
+            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
+            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
+            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
+            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
+            <string>25.01.2009 16:36:41 JuiSe: а?</string>
+            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
+            <string>25.01.2009 16:37:01 JuiSe: ща</string>
+            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
+            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
+            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
+            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
+            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
+            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
+            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
+            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
+            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
+            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
+            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
+            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
+            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
+            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
+            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+          </_MsgsToSend>
+          <_room>general</_room>
+          <ip>93.84.27.228</ip>
+          <nick>(web)distorm</nick>
+          <_DateTime>2009-01-23T21:38:09.437625+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">85.157.178.100</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_MsgsToSend>
+            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+          </_MsgsToSend>
+          <_room>general</_room>
+          <ip>85.157.178.100</ip>
+          <nick>(web)doru2</nick>
+          <_DateTime>2009-01-25T19:59:28.109375+02:00</_DateTime>
           <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>

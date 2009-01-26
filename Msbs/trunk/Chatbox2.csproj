@@ -12,10 +12,14 @@
     <AssemblyName>ChatBox2</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>Svn</SccProjectName>
-    <SccLocalPath>Svn</SccLocalPath>
-    <SccAuxPath>Svn</SccAuxPath>
-    <SccProvider>SubversionScc</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Helper\Helper\Helper.cs">
+      <Link>Helper.cs</Link>
+    </Compile>
     <Compile Include="ICQAPP.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Res.Designer.cs">
@@ -63,7 +70,6 @@
   <ItemGroup>
     <Content Include="db.xml" />
     <Content Include="Default.htm" />
-    <Content Include="history.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Res.resx">
@@ -71,12 +77,6 @@
       <LastGenOutput>Res.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Helper\Helper\Helper.csproj">
-      <Project>{4DE8D8C1-6F75-42AD-AA46-BD35BB71352A}</Project>
-      <Name>Helper</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

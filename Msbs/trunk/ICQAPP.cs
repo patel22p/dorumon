@@ -33,10 +33,10 @@ namespace ChatBox2
     public class ICQAPP
     {
         public void Disconnect()
-        {
-            _ConnectionStatus = ConnectionStatus.Disconnected;
+        {            
             _Thread.Abort();
-            _Socket.Close();            
+            _Socket.Close();
+            _ConnectionStatus = ConnectionStatus.Disconnected;
         }
         public ConnectionStatus _ConnectionStatus = ConnectionStatus.Disconnected;
         public static Random _Random = new Random();
@@ -65,6 +65,7 @@ namespace ChatBox2
         {
             if (_Thread != null && _Thread.ThreadState != System.Threading.ThreadState.Stopped)
             {
+               Debugger.Break();
                 Trace2("Error:Thread Already exists");
                 return;
             }

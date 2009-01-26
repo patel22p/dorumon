@@ -113,7 +113,7 @@ namespace ChatBox2
         {
             Spammer3.Beep = false;
             Spammer3.Setup("../../");
-            Spammer3.StartRemoteConsoleAsync(5999);
+            Spammer3.StartRemoteConsoleAsync(5999);            
             ChatBox _IcqChat = new ChatBox();
             _IcqChat.Start();
         }
@@ -288,7 +288,7 @@ namespace ChatBox2
                         using (FileStream _FileStream = new FileStream("db.xml", FileMode.Create, FileAccess.Write))
                             _XmlSerializer.Serialize(_FileStream, _Database);
 
-                    StringBuilder sb = new StringBuilder(_IrcChat._Connected?"1":"0"); //title
+                    StringBuilder sb = new StringBuilder(_IrcChat._Connected?"0":"1"); //title
                     foreach (Icq icq in _Accounts)
                         sb.Append((byte)icq._ICQAPP._ConnectionStatus);
                     Spammer3._Title = sb.ToString();
@@ -323,9 +323,10 @@ namespace ChatBox2
                 m = Regex.Match(msg, @"^/send (.+)");
                 if (m.Success)
                 {
-                    foreach (Icq icq in _Accounts)
-                        foreach (User u in icq._Users)
-                            icq.SendMessage(u.uin, m.Groups[1].Value);
+                    //foreach (Icq icq in _Accounts)
+                    //    foreach (User u in icq._Users)
+                    //        icq.SendMessage(u.uin, m.Groups[1].Value);
+                    AddMessage(m.Groups[1].Value, "general");
                     return "success";
                 }
                 if (Regex.Match(msg, @"^/reconnect$").Success)
@@ -415,7 +416,7 @@ namespace ChatBox2
                         if (_Icq2 == null)
                             return (Res.nouins);
                         else
-                            return (Res.limitreached + _Icq2._uin);
+                            return (string.Format(Res.limitreached,_Icq2._uin));
                     }
                     Match _registernick = Regex.Match(msg, Res.registerMatch);
                     if (_registernick.Success)

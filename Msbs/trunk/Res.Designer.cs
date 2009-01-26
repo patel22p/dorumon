@@ -81,7 +81,8 @@ namespace ChatBox2 {
         ////ban ник время, забанить юзера на указанное время
         ////unban ник
         ////hideuin скрыть уин
-        ////join комната , заити в комнату.
+        ////join комната , заити в комнату
+        ////rooms посматреть комнаты.
         /// </summary>
         internal static string help {
             get {
@@ -134,7 +135,8 @@ namespace ChatBox2 {
         
         /// <summary>
         ///   Looks up a localized string similar to Icq изменился, стучите на {0} 
-        ///напишите /help для списка команд.
+        ///Чтобы посмотреть список команд напишите /help
+        ///если будут проблемы с чатом то обратитесь по номеру 1231925.
         /// </summary>
         internal static string limitreached {
             get {
@@ -170,7 +172,7 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to вы были неактивны 3 дня и удалены из чата.
+        ///   Looks up a localized string similar to вы были неактивны 3 дня и удалены из чата,чтобы сново ваити в чат напишите /register.
         /// </summary>
         internal static string removed {
             get {

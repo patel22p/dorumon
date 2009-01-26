@@ -30,6 +30,11 @@
     <string>Angel;471553320</string>
     <string>vovakent;240814529</string>
     <string>LSDsl;259990030</string>
+    <string>Suvoroff;419656121</string>
+    <string>@Infinity;220253621</string>
+    <string>rainman;281187442</string>
+    <string>kostik;449491409</string>
+    <string>IOpuK;449744011</string>
   </_RemovedUsers>
   <limit>1</limit>
   <_Accounts>
@@ -53,7 +58,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-25T15:18:55.25+02:00</_DateTime>
+          <_DateTime>2009-01-26T22:34:43.15625+02:00</_DateTime>
           <uin>1231925</uin>
           <nick>@doru</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -131,16 +136,7 @@
     <Icq>
       <uin>375705016</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-23T09:27:02.20325+02:00</_DateTime>
-          <uin>419656121</uin>
-          <nick>Suvoroff</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>480024863</uin>
@@ -164,7 +160,7 @@
         <User>
           <_room>general</_room>
           <info>[Бета-тестер, увлекался SQL-MySQL базами,когда то) Был сис-админом на яве)) http://cslive.mindswitch.ru/forum/ - официальный форум CSLive]</info>
-          <_DateTime>2009-01-25T07:57:51.666375+02:00</_DateTime>
+          <_DateTime>2009-01-26T21:29:13.65625+02:00</_DateTime>
           <uin>254394794</uin>
           <nick>@Mike</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -193,7 +189,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-24T19:13:06.899758+02:00</_DateTime>
+          <_DateTime>2009-01-26T21:10:39.0625+02:00</_DateTime>
           <uin>3522515</uin>
           <nick>Knife</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -223,17 +219,7 @@
     <Icq>
       <uin>407655644</uin>
       <pass>x9Z4R9Us</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <info>Программист C#, Silverlight</info>
-          <_DateTime>2009-01-23T19:34:34.500125+02:00</_DateTime>
-          <uin>220253621</uin>
-          <nick>@Infinity</nick>
-          <_Banned>2009-01-16T12:23:18.9610471+02:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>372131703</uin>
@@ -241,7 +227,7 @@
       <_Users>
         <User>
           <_room>general</_room>
-          <_DateTime>2009-01-25T16:46:47.65625+02:00</_DateTime>
+          <_DateTime>2009-01-26T22:37:17.09375+02:00</_DateTime>
           <uin>959249</uin>
           <nick>@Leopotam</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -252,17 +238,7 @@
     <Icq>
       <uin>412360471</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <info>Java|J2ME|PHP|JavaScript|ActionScript|C#|ASP.NET|MySQL|PostgreSQL|MSSQL</info>
-          <_DateTime>2009-01-23T19:36:41.281375+02:00</_DateTime>
-          <uin>281187442</uin>
-          <nick>rainman</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>452202035</uin>
@@ -301,17 +277,7 @@
     <Icq>
       <uin>475949080</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <info>Программист Delphi</info>
-          <_DateTime>2009-01-23T08:37:45.70325+02:00</_DateTime>
-          <uin>449491409</uin>
-          <nick>kostik</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>398912918</uin>
@@ -360,7 +326,7 @@
         <User>
           <_room>general</_room>
           <info>Программист на С#(начинающий) буду рад вам памочь</info>
-          <_DateTime>2009-01-25T15:28:13.921875+02:00</_DateTime>
+          <_DateTime>2009-01-26T20:41:17.234375+02:00</_DateTime>
           <uin>662118</uin>
           <nick>MABDEN</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -416,16 +382,7 @@
     <Icq>
       <uin>462980236</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <_DateTime>2009-01-23T14:36:24.750125+02:00</_DateTime>
-          <uin>449744011</uin>
-          <nick>IOpuK</nick>
-          <_Banned>2009-01-20T16:02:51.32825+02:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>359349297</uin>
@@ -451,13 +408,56 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
-            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
-            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
-            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
-            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
-            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+            <string>26.01.2009 21:23:22 chekist_(irc):&#x1;ACTION AWAY&#x1;</string>
+            <string>26.01.2009 21:26:42 @Mike: народ кому дору не молчит?</string>
+            <string>26.01.2009 21:26:55 @Leopotam: У него аська глючит</string>
+            <string>26.01.2009 21:27:30 @Mike: у меня куча вопросов ппц(</string>
+            <string>26.01.2009 21:28:27 @Leopotam: :)</string>
+            <string>26.01.2009 21:28:42 @Mike: к нему..</string>
+            <string>26.01.2009 21:28:46 dorumonstr4(irc):у всех аська работает? у меня мессаги непренимает</string>
+            <string>26.01.2009 21:28:49 @Leopotam: Когда тебе сделает персональный канал и чтобы никого больше не пускало?</string>
+            <string>26.01.2009 21:29:03 @Leopotam: У меня работает</string>
+            <string>26.01.2009 21:29:13 @Mike: не угадал</string>
+            <string>26.01.2009 21:29:24 @Leopotam: Работает, проверил</string>
+            <string>26.01.2009 21:29:24 dorumonstr4(irc):))))))</string>
+            <string>26.01.2009 21:29:53 dorumonstr4(irc):ша надо пароль сменить пока нестыздили)</string>
+            <string>26.01.2009 21:29:54 @Leopotam: Миранда с OscarJ mod</string>
+            <string>26.01.2009 21:34:00 chekist_(irc):&#x1;ACTION ONLINE&#x1;</string>
+            <string>26.01.2009 21:35:04 chekist_(irc):У меня ICQ тоже не работает</string>
+            <string>26.01.2009 21:35:25 @Leopotam: Квипы поди.</string>
+            <string>26.01.2009 21:35:34 chekist_(irc):Поде</string>
+            <string>26.01.2009 21:35:39 chekist_(irc):Поди</string>
+            <string>26.01.2009 21:36:04 chekist_(irc):Щас миранду скачаю, посмотрю как с ней</string>
+            <string>26.01.2009 21:36:31 chekist_(irc):А вообще,я за IRC.</string>
+            <string>26.01.2009 21:37:11 @Leopotam: Угу. Дает все нужные функции. Есть бесплатные защищенные площадки.</string>
+            <string>26.01.2009 21:37:30 @Leopotam: Но, думаю, Дору не согласится. :)</string>
+            <string>26.01.2009 21:37:54 chekist_(irc):С чем ?  С тем что он и я сидим через IRC ?</string>
+            <string>26.01.2009 21:38:17 @Leopotam: С тем, чтобы irc сделать основным средством хостинга чата</string>
+            <string>26.01.2009 21:38:39 chekist_(irc):А этого не надо</string>
+            <string>26.01.2009 21:39:05 chekist_(irc):Все желающие могут через IRC и так заходить</string>
+            <string>26.01.2009 21:39:32 chekist_(irc):Но ряд функций для совместимости в ChatBox добавить все же стоит</string>
+            <string>26.01.2009 21:39:48 chekist_(irc):Я подумю, как можно улучшить.</string>
+            <string>26.01.2009 21:43:58 @Leopotam: Chekist, не забудь про мод: http://addons.miranda-im.org/details.php?action=viewfile&amp;id=3705</string>
+            <string>26.01.2009 21:46:46 @doru: во заработало</string>
+            <string>26.01.2009 21:58:17 chekist_(irc):А куда это мод - к папку с мирандой ?</string>
+            <string>26.01.2009 21:58:40 @Leopotam: В папку plugins с заменой</string>
+            <string>26.01.2009 21:58:45 @Leopotam: Потом перезапустить</string>
+            <string>26.01.2009 21:58:57 @Leopotam: Распаковать, разумеется</string>
+            <string>26.01.2009 21:59:10 @Leopotam: Еси там есть папки, то разложить по папкам</string>
+            <string>26.01.2009 21:59:23 @Leopotam: Главное, чтобы icq.dll попал в папку plugins</string>
+            <string>26.01.2009 21:59:32 @Leopotam: остальное - не так важно</string>
+            <string>26.01.2009 22:01:31 chekist_(irc):Станно, как это</string>
+            <string>26.01.2009 22:02:27 @Leopotam: М?</string>
+            <string>26.01.2009 22:18:58 dorumonstr4(irc):http://code.google.com/p/counterstrike/downloads/list</string>
+            <string>26.01.2009 22:19:05 dorumonstr4(irc):обнавил cslive</string>
+            <string>26.01.2009 22:31:21 @doru: работает)</string>
+            <string>26.01.2009 22:31:43 @Leopotam: Ты че, кстати, никак сдохнуть-то не мог? :)</string>
+            <string>26.01.2009 22:32:10 @doru: у меня пинг был</string>
+            <string>26.01.2009 22:33:45 @Leopotam: Кстати, в чем прикол? На основной php выбираешь серв, качаешь сервелат и... снов выбираешь серв. :)</string>
+            <string>26.01.2009 22:33:48 @Leopotam: *снова</string>
+            <string>26.01.2009 22:34:21 @doru: незнаю так получилось)))</string>
+            <string>26.01.2009 22:34:43 @doru: сл неумеет uri читать</string>
+            <string>26.01.2009 22:37:17 @Leopotam: Ладна, пора спать. Всем снофф.</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>127.0.0.1</ip>
@@ -474,7 +474,56 @@
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+            <string>26.01.2009 21:23:22 chekist_(irc):&#x1;ACTION AWAY&#x1;</string>
+            <string>26.01.2009 21:26:42 @Mike: народ кому дору не молчит?</string>
+            <string>26.01.2009 21:26:55 @Leopotam: У него аська глючит</string>
+            <string>26.01.2009 21:27:30 @Mike: у меня куча вопросов ппц(</string>
+            <string>26.01.2009 21:28:27 @Leopotam: :)</string>
+            <string>26.01.2009 21:28:42 @Mike: к нему..</string>
+            <string>26.01.2009 21:28:46 dorumonstr4(irc):у всех аська работает? у меня мессаги непренимает</string>
+            <string>26.01.2009 21:28:49 @Leopotam: Когда тебе сделает персональный канал и чтобы никого больше не пускало?</string>
+            <string>26.01.2009 21:29:03 @Leopotam: У меня работает</string>
+            <string>26.01.2009 21:29:13 @Mike: не угадал</string>
+            <string>26.01.2009 21:29:24 @Leopotam: Работает, проверил</string>
+            <string>26.01.2009 21:29:24 dorumonstr4(irc):))))))</string>
+            <string>26.01.2009 21:29:53 dorumonstr4(irc):ша надо пароль сменить пока нестыздили)</string>
+            <string>26.01.2009 21:29:54 @Leopotam: Миранда с OscarJ mod</string>
+            <string>26.01.2009 21:34:00 chekist_(irc):&#x1;ACTION ONLINE&#x1;</string>
+            <string>26.01.2009 21:35:04 chekist_(irc):У меня ICQ тоже не работает</string>
+            <string>26.01.2009 21:35:25 @Leopotam: Квипы поди.</string>
+            <string>26.01.2009 21:35:34 chekist_(irc):Поде</string>
+            <string>26.01.2009 21:35:39 chekist_(irc):Поди</string>
+            <string>26.01.2009 21:36:04 chekist_(irc):Щас миранду скачаю, посмотрю как с ней</string>
+            <string>26.01.2009 21:36:31 chekist_(irc):А вообще,я за IRC.</string>
+            <string>26.01.2009 21:37:11 @Leopotam: Угу. Дает все нужные функции. Есть бесплатные защищенные площадки.</string>
+            <string>26.01.2009 21:37:30 @Leopotam: Но, думаю, Дору не согласится. :)</string>
+            <string>26.01.2009 21:37:54 chekist_(irc):С чем ?  С тем что он и я сидим через IRC ?</string>
+            <string>26.01.2009 21:38:17 @Leopotam: С тем, чтобы irc сделать основным средством хостинга чата</string>
+            <string>26.01.2009 21:38:39 chekist_(irc):А этого не надо</string>
+            <string>26.01.2009 21:39:05 chekist_(irc):Все желающие могут через IRC и так заходить</string>
+            <string>26.01.2009 21:39:32 chekist_(irc):Но ряд функций для совместимости в ChatBox добавить все же стоит</string>
+            <string>26.01.2009 21:39:48 chekist_(irc):Я подумю, как можно улучшить.</string>
+            <string>26.01.2009 21:43:58 @Leopotam: Chekist, не забудь про мод: http://addons.miranda-im.org/details.php?action=viewfile&amp;id=3705</string>
+            <string>26.01.2009 21:46:46 @doru: во заработало</string>
+            <string>26.01.2009 21:58:17 chekist_(irc):А куда это мод - к папку с мирандой ?</string>
+            <string>26.01.2009 21:58:40 @Leopotam: В папку plugins с заменой</string>
+            <string>26.01.2009 21:58:45 @Leopotam: Потом перезапустить</string>
+            <string>26.01.2009 21:58:57 @Leopotam: Распаковать, разумеется</string>
+            <string>26.01.2009 21:59:10 @Leopotam: Еси там есть папки, то разложить по папкам</string>
+            <string>26.01.2009 21:59:23 @Leopotam: Главное, чтобы icq.dll попал в папку plugins</string>
+            <string>26.01.2009 21:59:32 @Leopotam: остальное - не так важно</string>
+            <string>26.01.2009 22:01:31 chekist_(irc):Станно, как это</string>
+            <string>26.01.2009 22:02:27 @Leopotam: М?</string>
+            <string>26.01.2009 22:18:58 dorumonstr4(irc):http://code.google.com/p/counterstrike/downloads/list</string>
+            <string>26.01.2009 22:19:05 dorumonstr4(irc):обнавил cslive</string>
+            <string>26.01.2009 22:31:21 @doru: работает)</string>
+            <string>26.01.2009 22:31:43 @Leopotam: Ты че, кстати, никак сдохнуть-то не мог? :)</string>
+            <string>26.01.2009 22:32:10 @doru: у меня пинг был</string>
+            <string>26.01.2009 22:33:45 @Leopotam: Кстати, в чем прикол? На основной php выбираешь серв, качаешь сервелат и... снов выбираешь серв. :)</string>
+            <string>26.01.2009 22:33:48 @Leopotam: *снова</string>
+            <string>26.01.2009 22:34:21 @doru: незнаю так получилось)))</string>
+            <string>26.01.2009 22:34:43 @doru: сл неумеет uri читать</string>
+            <string>26.01.2009 22:37:17 @Leopotam: Ладна, пора спать. Всем снофф.</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>87.237.118.18</ip>
@@ -486,276 +535,61 @@
     </item>
     <item>
       <key>
-        <string xmlns="">79.165.255.170</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
-            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
-            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
-            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
-            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
-            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
-            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
-            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
-            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
-            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
-            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
-            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
-            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
-            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
-            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
-            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
-            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
-            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
-            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
-            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
-            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
-            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
-            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
-            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
-            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
-            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
-            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
-            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
-            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
-            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
-            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
-            <string>25.01.2009 16:36:41 JuiSe: а?</string>
-            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
-            <string>25.01.2009 16:37:01 JuiSe: ща</string>
-            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
-            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
-            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
-            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
-            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
-            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
-            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
-            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
-            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
-            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
-            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
-            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
-            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
-            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
-            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>79.165.255.170</ip>
-          <nick>(web)Sv0104</nick>
-          <_DateTime>2009-01-23T09:06:40.156375+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">213.250.94.190</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
-            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
-            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
-            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
-            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
-            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
-            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
-            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
-            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
-            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
-            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
-            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
-            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
-            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
-            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
-            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
-            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
-            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
-            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
-            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
-            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
-            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
-            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
-            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
-            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
-            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
-            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
-            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
-            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
-            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
-            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
-            <string>25.01.2009 16:36:41 JuiSe: а?</string>
-            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
-            <string>25.01.2009 16:37:01 JuiSe: ща</string>
-            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
-            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
-            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
-            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
-            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
-            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
-            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
-            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
-            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
-            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
-            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
-            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
-            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
-            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
-            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>213.250.94.190</ip>
-          <nick>(web)doru(work)</nick>
-          <_DateTime>2009-01-23T09:25:23.89075+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">83.143.233.129</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
-            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
-            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
-            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
-            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
-            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
-            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
-            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
-            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
-            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
-            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
-            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
-            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
-            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
-            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
-            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
-            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
-            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
-            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
-            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
-            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
-            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
-            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
-            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
-            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
-            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
-            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
-            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
-            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
-            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
-            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
-            <string>25.01.2009 16:36:41 JuiSe: а?</string>
-            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
-            <string>25.01.2009 16:37:01 JuiSe: ща</string>
-            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
-            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
-            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
-            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
-            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
-            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
-            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
-            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
-            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
-            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
-            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
-            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
-            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
-            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
-            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>83.143.233.129</ip>
-          <nick>(web)Dethrail</nick>
-          <_DateTime>2009-01-23T21:32:23.3595+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">93.84.27.228</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>25.01.2009 15:21:17 @Sv0104: мля кпк задалбал</string>
-            <string>25.01.2009 15:21:30 @Sv0104: полавина букв умирает</string>
-            <string>25.01.2009 15:22:06 @Leopotam: http://build.sharpdevelop.net/buildartefacts/ - кому интересно посмотреть SharpDevelop</string>
-            <string>25.01.2009 15:22:13 @Leopotam: Брать последнюю ночную сборку</string>
-            <string>25.01.2009 15:23:10 @Sv0104: я оф жена ждет</string>
-            <string>25.01.2009 15:23:12 @Leopotam: С начала декабря оторвали визуализацию XAML. :( Сказали, что в C#4 будет сборка System.Xaml, в которой будут нормальные парсеры. И что можно будет без хаков все рисовать.</string>
-            <string>25.01.2009 15:23:37 @Leopotam: Вот только зачем убрали текущую реализацию - хз</string>
-            <string>25.01.2009 15:24:12 @Leopotam: Но на винформсах и прочем не WPF/WCF/Web - клева</string>
-            <string>25.01.2009 15:24:38 @Leopotam: особенно радует полная интеграция с черепахой</string>
-            <string>25.01.2009 15:25:36 MABDEN: а мнре заебис</string>
-            <string>25.01.2009 15:25:51 Pozitiv: молодцом</string>
-            <string>25.01.2009 15:26:25 MABDEN: кто к квейк второй играет</string>
-            <string>25.01.2009 15:26:45 @Sv0104: 3</string>
-            <string>25.01.2009 15:26:55 @Leopotam: Вот когда сможешь нормально запустить CoD4 под никсами... :)</string>
-            <string>25.01.2009 15:27:05 MABDEN: )))))))))))))</string>
-            <string>25.01.2009 15:27:15 MABDEN: хочу чтоб кто то отсосал</string>
-            <string>25.01.2009 15:27:17 @Sv0104: :)</string>
-            <string>25.01.2009 15:27:37 @Sv0104: ОФ ТОП</string>
-            <string>25.01.2009 15:27:46 @Leopotam: И не только! :)</string>
-            <string>25.01.2009 15:27:59 @Leopotam: Sv0104, ftp требует реквизиты</string>
-            <string>25.01.2009 15:28:13 MABDEN: банкавские чтоли_)))))))))</string>
-            <string>25.01.2009 15:28:21 @Sv0104: ну все я к жене :) жена рулит</string>
-            <string>25.01.2009 15:28:26 @Sv0104: попозже дам</string>
-            <string>25.01.2009 15:28:27 @Leopotam: Умри, спамер. :)</string>
-            <string>25.01.2009 15:28:35 @Leopotam: Флудер, т.е.</string>
-            <string>25.01.2009 15:28:43 @Sv0104: банан  ему</string>
-            <string>25.01.2009 15:29:06 @Leopotam: Пока пусть так посидит.</string>
-            <string>25.01.2009 15:30:59 @Leopotam: Дору, ты бы хоть бранчи-то как-нить нумеровал что ли, версии каки-нить присваивал.</string>
-            <string>25.01.2009 16:36:11 JuiSe: я зделал лого</string>
-            <string>25.01.2009 16:36:14 JuiSe: куда его?</string>
-            <string>25.01.2009 16:36:26 @Leopotam: :)</string>
-            <string>25.01.2009 16:36:41 JuiSe: а?</string>
-            <string>25.01.2009 16:36:52 @Leopotam: На форуме был?</string>
-            <string>25.01.2009 16:37:01 JuiSe: ща</string>
-            <string>25.01.2009 16:37:09 @Leopotam: Там есть топик про лого, отпости туда с вложением</string>
-            <string>25.01.2009 16:43:19 JuiSe: зацените, я выложил)</string>
-            <string>25.01.2009 16:45:48 @Leopotam: Немного кажется пустоватой центральная часть внизу.</string>
-            <string>25.01.2009 16:46:25 JuiSe: лпн, потом что нибудь ещё придумаю</string>
-            <string>25.01.2009 16:46:39 @Leopotam: Можно туда накидать, например, дырок от попаданий.</string>
-            <string>25.01.2009 16:46:47 @Leopotam: Вмятины такие.</string>
-            <string>25.01.2009 17:07:14 dorumonstr(irc):зделал m3u качалку) разбивает фаилы по 2 мб=)</string>
-            <string>25.01.2009 17:09:08 dorumonstr(irc):размеры лого тут  вот яж писал http://cs1349.vkontakte.ru/g6735935/a_f826b1be.jpg</string>
-            <string>25.01.2009 17:09:37 dorumonstr(irc):а для форума надо еше скин наити под ето лого =)</string>
-            <string>25.01.2009 19:26:34 (web)chekist:dorumon ты тут ?</string>
-            <string>25.01.2009 19:55:16 @Sv0104: кстати а че чатбокс не автаризирует и оффлайн вечно?</string>
-            <string>25.01.2009 19:55:50 @bond: у меня онлайн, и я авторизирован *DONT_KNOW*</string>
-            <string>25.01.2009 19:56:50 @Sv0104: странно в квипе и джиме офлайн и не автаризован</string>
-            <string>25.01.2009 19:57:09 @bond: у меня квип как раз и всё ок</string>
-            <string>25.01.2009 19:57:42 @Sv0104: странно я даж запросы слллать могу автаризации</string>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>93.84.27.228</ip>
-          <nick>(web)distorm</nick>
-          <_DateTime>2009-01-23T21:38:09.437625+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
         <string xmlns="">85.157.178.100</string>
       </key>
       <value>
         <HttpUser xmlns="">
           <_MsgsToSend>
-            <string>25.01.2009 20:57:18 chekist_929(irc):test</string>
+            <string>26.01.2009 21:23:22 chekist_(irc):&#x1;ACTION AWAY&#x1;</string>
+            <string>26.01.2009 21:26:42 @Mike: народ кому дору не молчит?</string>
+            <string>26.01.2009 21:26:55 @Leopotam: У него аська глючит</string>
+            <string>26.01.2009 21:27:30 @Mike: у меня куча вопросов ппц(</string>
+            <string>26.01.2009 21:28:27 @Leopotam: :)</string>
+            <string>26.01.2009 21:28:42 @Mike: к нему..</string>
+            <string>26.01.2009 21:28:46 dorumonstr4(irc):у всех аська работает? у меня мессаги непренимает</string>
+            <string>26.01.2009 21:28:49 @Leopotam: Когда тебе сделает персональный канал и чтобы никого больше не пускало?</string>
+            <string>26.01.2009 21:29:03 @Leopotam: У меня работает</string>
+            <string>26.01.2009 21:29:13 @Mike: не угадал</string>
+            <string>26.01.2009 21:29:24 @Leopotam: Работает, проверил</string>
+            <string>26.01.2009 21:29:24 dorumonstr4(irc):))))))</string>
+            <string>26.01.2009 21:29:53 dorumonstr4(irc):ша надо пароль сменить пока нестыздили)</string>
+            <string>26.01.2009 21:29:54 @Leopotam: Миранда с OscarJ mod</string>
+            <string>26.01.2009 21:34:00 chekist_(irc):&#x1;ACTION ONLINE&#x1;</string>
+            <string>26.01.2009 21:35:04 chekist_(irc):У меня ICQ тоже не работает</string>
+            <string>26.01.2009 21:35:25 @Leopotam: Квипы поди.</string>
+            <string>26.01.2009 21:35:34 chekist_(irc):Поде</string>
+            <string>26.01.2009 21:35:39 chekist_(irc):Поди</string>
+            <string>26.01.2009 21:36:04 chekist_(irc):Щас миранду скачаю, посмотрю как с ней</string>
+            <string>26.01.2009 21:36:31 chekist_(irc):А вообще,я за IRC.</string>
+            <string>26.01.2009 21:37:11 @Leopotam: Угу. Дает все нужные функции. Есть бесплатные защищенные площадки.</string>
+            <string>26.01.2009 21:37:30 @Leopotam: Но, думаю, Дору не согласится. :)</string>
+            <string>26.01.2009 21:37:54 chekist_(irc):С чем ?  С тем что он и я сидим через IRC ?</string>
+            <string>26.01.2009 21:38:17 @Leopotam: С тем, чтобы irc сделать основным средством хостинга чата</string>
+            <string>26.01.2009 21:38:39 chekist_(irc):А этого не надо</string>
+            <string>26.01.2009 21:39:05 chekist_(irc):Все желающие могут через IRC и так заходить</string>
+            <string>26.01.2009 21:39:32 chekist_(irc):Но ряд функций для совместимости в ChatBox добавить все же стоит</string>
+            <string>26.01.2009 21:39:48 chekist_(irc):Я подумю, как можно улучшить.</string>
+            <string>26.01.2009 21:43:58 @Leopotam: Chekist, не забудь про мод: http://addons.miranda-im.org/details.php?action=viewfile&amp;id=3705</string>
+            <string>26.01.2009 21:46:46 @doru: во заработало</string>
+            <string>26.01.2009 21:58:17 chekist_(irc):А куда это мод - к папку с мирандой ?</string>
+            <string>26.01.2009 21:58:40 @Leopotam: В папку plugins с заменой</string>
+            <string>26.01.2009 21:58:45 @Leopotam: Потом перезапустить</string>
+            <string>26.01.2009 21:58:57 @Leopotam: Распаковать, разумеется</string>
+            <string>26.01.2009 21:59:10 @Leopotam: Еси там есть папки, то разложить по папкам</string>
+            <string>26.01.2009 21:59:23 @Leopotam: Главное, чтобы icq.dll попал в папку plugins</string>
+            <string>26.01.2009 21:59:32 @Leopotam: остальное - не так важно</string>
+            <string>26.01.2009 22:01:31 chekist_(irc):Станно, как это</string>
+            <string>26.01.2009 22:02:27 @Leopotam: М?</string>
+            <string>26.01.2009 22:18:58 dorumonstr4(irc):http://code.google.com/p/counterstrike/downloads/list</string>
+            <string>26.01.2009 22:19:05 dorumonstr4(irc):обнавил cslive</string>
+            <string>26.01.2009 22:31:21 @doru: работает)</string>
+            <string>26.01.2009 22:31:43 @Leopotam: Ты че, кстати, никак сдохнуть-то не мог? :)</string>
+            <string>26.01.2009 22:32:10 @doru: у меня пинг был</string>
+            <string>26.01.2009 22:33:45 @Leopotam: Кстати, в чем прикол? На основной php выбираешь серв, качаешь сервелат и... снов выбираешь серв. :)</string>
+            <string>26.01.2009 22:33:48 @Leopotam: *снова</string>
+            <string>26.01.2009 22:34:21 @doru: незнаю так получилось)))</string>
+            <string>26.01.2009 22:34:43 @doru: сл неумеет uri читать</string>
+            <string>26.01.2009 22:37:17 @Leopotam: Ладна, пора спать. Всем снофф.</string>
           </_MsgsToSend>
           <_room>general</_room>
           <ip>85.157.178.100</ip>

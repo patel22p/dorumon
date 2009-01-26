@@ -132,7 +132,8 @@
 /ban ник время, забанить юзера на указанное время
 /unban ник
 /hideuin скрыть уин
-/join комната , заити в комнату</value>
+/join комната , заити в комнату
+/rooms посматреть комнаты</value>
   </data>
   <data name="httpnotfound" xml:space="preserve">
     <value>HTTP/1.1 404 Not Found
@@ -161,7 +162,8 @@ Content-Type: text/HTML; charset=windows-1251
   </data>
   <data name="limitreached" xml:space="preserve">
     <value>Icq изменился, стучите на {0} 
-напишите /help для списка команд</value>
+Чтобы посмотреть список команд напишите /help
+если будут проблемы с чатом то обратитесь по номеру 1231925</value>
   </data>
   <data name="nouins" xml:space="preserve">
     <value>Сервер перегружен попробуйте зарегестрироватся завтра</value>
@@ -173,7 +175,7 @@ Content-Type: text/HTML; charset=windows-1251
     <value>^.?register ([\x00\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F\x3A\x3B\x3C\x3D\x3E\x3F\x5B\x5C\x5D\x5E\x5F\x7B\x7C\x7D\x7E\xA9\xAE\w ]+)</value>
   </data>
   <data name="removed" xml:space="preserve">
-    <value>вы были неактивны 3 дня и удалены из чата</value>
+    <value>вы были неактивны 3 дня и удалены из чата,чтобы сново ваити в чат напишите /register</value>
   </data>
   <data name="setinfoMatch" xml:space="preserve">
     <value>^.?setinfo (.+)</value>

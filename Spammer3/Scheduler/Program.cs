@@ -40,13 +40,14 @@ namespace Scheduler
 			public DateTime _DateTime1
 			{
 				get { return DateTime.Parse(_DateTime); }				
-			}            
+			}
+            public string _Interval;
             [XmlIgnore]
             public TimeSpan _TimeSpan
             {
                 get
                 {                    
-                    return TimeSpan.Parse(_DateTime);
+                    return TimeSpan.Parse(_Interval);
                 }                
             }
         }
@@ -108,7 +109,7 @@ namespace Scheduler
                         }
                         break;
 					case TaskType.Idle:						
-						if (_IdleTime > _Task._TimeSpan.TotalMilliseconds)
+						if (_IdleTime > 60 * 1000 * 5)
 						{
 							goto case TaskType.Interval;
 						}
@@ -164,6 +165,6 @@ namespace Scheduler
 
         public List<Task> _Tasks { get { return _Database._Tasks; } }
         
-        XmlSerializer _XmlSerializer = Helper.CreateSchema("Scheduller",typeof(Database));
+        XmlSerializer _XmlSerializer = new XmlSerializer(typeof(Database));
     }
 }

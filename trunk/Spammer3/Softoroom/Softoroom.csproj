@@ -64,7 +64,6 @@
     <Content Include="1 Sended Post.html" />
     <Content Include="1 Sended.html" />
     <Content Include="i.txt" />
-    <Content Include="list.txt" />
     <Content Include="sendedList.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

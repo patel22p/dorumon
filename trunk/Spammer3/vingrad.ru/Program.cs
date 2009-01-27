@@ -98,31 +98,36 @@ namespace Vingrad.ru
                 }                
             }
             private void StartPopulate()
-            {                                
-                for (; ; i.i += 50)
+            {
+                for (; ; )
                 {
-                    try
+                    if (_list.Count < 10)
                     {
-                        byte[] _bytes = File.ReadAllBytes("1 Sended.html");
-                        Helper.Replace(ref _bytes, "_page_", String.Format(@"/forum/act-Members/name_box/all/max_results-50/filter-3/sort_order-desc/sort_key-posts/{0}.html", i.i), 1);
-                        _Socket.Send(_bytes);
-                        string s = Http.ReadHttp(_Socket).ToStr().Save("populate");
-
-                        MatchCollection ms = Regex.Matches(s, @"<a href=""/users/.+?"">(.+?)</a>");
-                        int c = 0;
-                        foreach (Match m in ms)
+                        i.i += 50;
+                        try
                         {
-                            
-                            string s2 = HttpUtility.HtmlDecode(m.Groups[1].Value);
-                            if (!_list.Contains(s2) && !_sendedList.Contains(s2))
+                            byte[] _bytes = File.ReadAllBytes("1 Sended.html");
+                            Helper.Replace(ref _bytes, "_page_", String.Format(@"/forum/act-Members/name_box/all/max_results-50/filter-3/sort_order-desc/sort_key-posts/{0}.html", i.i), 1);
+                            _Socket.Send(_bytes);
+                            string s = Http.ReadHttp(_Socket).ToStr().Save("populate");
+
+                            MatchCollection ms = Regex.Matches(s, @"<a href=""/users/.+?"">(.+?)</a>");
+                            int c = 0;
+                            foreach (Match m in ms)
                             {
-                                c++;
-                                _list.Add(s2);
+
+                                string s2 = HttpUtility.HtmlDecode(m.Groups[1].Value);
+                                if (!_list.Contains(s2) && !_sendedList.Contains(s2))
+                                {
+                                    c++;
+                                    _list.Add(s2);
+                                }
                             }
+                            ("populated " + c).Trace();
                         }
-                        ("populated " + c).Trace();
+                        catch (IOException) { Connect(); }
                     }
-                    catch (IOException) { Connect(); }
+                    Thread.Sleep(50);
                 }
             }
 

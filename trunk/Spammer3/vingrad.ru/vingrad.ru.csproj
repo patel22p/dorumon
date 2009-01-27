@@ -50,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Helper\Helper\Helper.cs">
+      <Link>Helper.cs</Link>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -60,14 +63,7 @@
     <Content Include="1 Sended Post.html" />
     <Content Include="1 Sended.html" />
     <Content Include="i.txt" />
-    <Content Include="list.txt" />
     <Content Include="postedlist.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Helper\Helper\Helper.csproj">
-      <Project>{4DE8D8C1-6F75-42AD-AA46-BD35BB71352A}</Project>
-      <Name>Helper</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

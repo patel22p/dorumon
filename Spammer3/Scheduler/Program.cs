@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using System.Diagnostics;
-using System.Windows.Forms;
+
 using System.Threading;
 using doru;
 
@@ -19,7 +19,7 @@ namespace Scheduler
         {            
             if ((from p in Process.GetProcesses() where p.ProcessName == _Process.ProcessName select p).Count() > 1)
             {
-                MessageBox.Show("Already exists");
+                System.Windows.Forms.MessageBox.Show("Already exists");
                 return;
             }
             Directory.SetCurrentDirectory(Path.GetFullPath(Path.GetDirectoryName(_Process.MainModule.FileName) +"../../../"));
@@ -35,6 +35,7 @@ namespace Scheduler
             public string _Popup;
             public string _filename;
 			public string _arguments;
+            public string _Wait;
 			public string _DateTime;
 			[XmlIgnore]
 			public DateTime _DateTime1
@@ -81,7 +82,7 @@ namespace Scheduler
             LoadDb();
             while (true)
             {
-                Thread.Sleep(5000);
+                Thread.Sleep(1000);
                 Update();
             }
         }
@@ -126,20 +127,28 @@ namespace Scheduler
         {
             if (_Task._Popup != null)
             {
-                new Thread(delegate() { MessageBox.Show(_Task._Popup); }).Start();
+                new Thread(delegate() { System.Windows.Forms.MessageBox.Show(_Task._Popup); }).Start();
             }
             else if (_Task._filename != null)
             {
                 ProcessStartInfo _ProcessStartInfo = new ProcessStartInfo(_Task._filename);
                 _ProcessStartInfo.WorkingDirectory = Path.GetDirectoryName(_Task._filename);
                 _ProcessStartInfo.Arguments = _Task._arguments;
-                Process.Start(_ProcessStartInfo);
+                Process _Process = Process.Start(_ProcessStartInfo);
+                if (_Task._Wait != null) new Timer(TimerStack, _Process, (int)TimeSpan.Parse(_Task._Wait).TotalMilliseconds, Timeout.Infinite);
             }
             else throw new Exception();
         }
-
-        Timer _Timer = new Timer();
-        public class Timer
+        public void TimerStack(object o)
+        {
+            try
+            {
+                Process _Process = (Process)o;
+                _Process.Kill();
+            }catch{ }
+        }
+        public static Timer2 _Timer = new Timer2();
+        public class Timer2
         {
             double time;
             double oldtime;

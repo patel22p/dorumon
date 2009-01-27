@@ -1,0 +1,2 @@
+﻿/217.168.150.207;8000;/listen
+/stream.radiorock.fi;8000;/

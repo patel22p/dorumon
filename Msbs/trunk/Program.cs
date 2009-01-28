@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using doru;
 using System.Text.RegularExpressions;
 using System.IO;
@@ -52,6 +51,7 @@ namespace ChatBox2
             public bool _HideUin { get { return _DUser._HideUin; } set { _DUser._HideUin = value; } }
             public void SendMessage(string msg)
             {
+                
                 _Account.SendMessage(uin, msg);
             }
         }
@@ -126,7 +126,7 @@ namespace ChatBox2
             SendIcqMessages(room, uin, msg2, false);
         }
         public static void SendIcqMessages(string room, string uin, string msg2, bool fromirc)
-        {
+        {            
             if (!fromirc)
             {
                 //irc
@@ -261,19 +261,6 @@ namespace ChatBox2
 
                 while (true) //Update()
                 {
-
-                    if (STimer.TimeElapsed(20000))
-                    {
-
-                        foreach (User user in GetOldIcqUsers(TimeSpan.FromDays(3)))
-                        {
-                            _Database._RemovedUsers.Add(user.nick + ";" + user.uin);
-                            user.SendMessage(Res.removed);
-                            user._Account.Remove(user);
-                        }
-                        foreach (HttpUser user in GetOldHttpUsers(TimeSpan.FromDays(3)).ToArray())
-                            _Dictionary.Remove(user.ip);
-                    }
                     foreach (IrcChat.IrcIm msg2 in _IrcChat.GetMessages())
                     {
                         SendIcqMessages(msg2.room, null, msg2.user + "(irc):" + msg2.msg, true);
@@ -288,7 +275,7 @@ namespace ChatBox2
                         using (FileStream _FileStream = new FileStream("db.xml", FileMode.Create, FileAccess.Write))
                             _XmlSerializer.Serialize(_FileStream, _Database);
 
-                    StringBuilder sb = new StringBuilder(_IrcChat._Connected?"0":"1"); //title
+                    System.Text.StringBuilder sb = new System.Text.StringBuilder(_IrcChat._Connected ? "0" : "1"); //title
                     foreach (Icq icq in _Accounts)
                         sb.Append((byte)icq._ICQAPP._ConnectionStatus);
                     Spammer3._Title = sb.ToString();
@@ -302,16 +289,24 @@ namespace ChatBox2
                     Thread.Sleep(20);
                 }
             }
-
-            private static User[] GetOldIcqUsers(TimeSpan t)
+            private static IEnumerable<User> _OrderedByDateUsers
             {
-                return (from icq in _Accounts
-                        from a in icq._Users
-                        where DateTime.Now - a._DateTime > t
-                        select a
-                                         ).ToArray();
+                get
+                {
+                    return (from icq in _Accounts
+                            from a in icq._Users orderby a._DateTime descending
+                            select a).ToList();
+                }
             }
-
+            private static IEnumerable<User> _Users
+            {
+                get
+                {
+                    return (from icq in _Accounts
+                            from a in icq._Users
+                            select a).ToList();
+                }
+            }
             private static IEnumerable<HttpUser> GetOldHttpUsers(TimeSpan t)
             {
                 return (from a in _Dictionary.Values where DateTime.Now - a._DateTime > t select a);
@@ -336,8 +331,22 @@ namespace ChatBox2
                         {
                             icq._ICQAPP.StartAsync();
                             Trace2("reconnecting" + icq._uin);
-                        }
+                        }                                                            
                     return "success";
+                }                
+                if ((m = Regex.Match(msg, @"^/flush (\d+)")).Success)
+                {
+                    foreach (User user in _OrderedByDateUsers.Take(int.Parse(m.Groups[1].Value)))
+                    {
+                        _Database._RemovedUsers.Add(user.nick + ";" + user.uin);
+                        user.SendMessage(Res.removed);
+                        user._Account.Remove(user);
+                    }                    
+                }
+                if (Regex.Match(msg, @"^/flush").Success)
+                {
+                    foreach (HttpUser user in GetOldHttpUsers(TimeSpan.FromDays(3)).ToArray())
+                        _Dictionary.Remove(user.ip);
                 }
                 m = Regex.Match(msg, @"^/op (.+)");
                 if (m.Success)
@@ -351,7 +360,7 @@ namespace ChatBox2
                 }
                 m = Regex.Match(msg, @"^/register (\d+);(\w+)");
                 if (m.Success)
-                {
+                {                    
                     Add(new Icq { _uin = m.Groups[1].Value, _pass = m.Groups[2].Value });
                     return "success";
                 }
@@ -681,7 +690,7 @@ namespace ChatBox2
                     {
                         if (search.Success)
                         {
-                            StringBuilder sb = new StringBuilder(@"<form action=""/"" method=""get""><input name=""q"" type=""text"" /><input type=""submit"" value=""Search"" /></form>");
+                            System.Text.StringBuilder sb = new System.Text.StringBuilder(@"<form action=""/"" method=""get""><input name=""q"" type=""text"" /><input type=""submit"" value=""Search"" /></form>");
                             for (int line = 0; line < GetRoom(_User._room).Count; line++)
                             {
                                 string s4 = GetRoom(_User._room)[line];
@@ -696,7 +705,7 @@ namespace ChatBox2
                         }
                         if (getlog.Success)
                         {
-                            StringBuilder sb = new StringBuilder();
+                            System.Text.StringBuilder sb = new System.Text.StringBuilder();
                             int i2 = int.Parse(getlog.Groups[1].Value);
                             for (int i = i2; i < Math.Min(GetRoom(_User._room).Count, i2 + 100); i++)
                             {
@@ -823,7 +832,7 @@ namespace ChatBox2
                         return "room not found";
                 }
                 if (_user.nick.StartsWith("@"))//admin
-                {
+                {                    
                     m = Regex.Match(msg, @"^/ban (.+?) (\d*\.?\d+)$");
                     if (m.Success)
                     {
@@ -841,13 +850,19 @@ namespace ChatBox2
                     if (m.Success && _user.nick.StartsWith("@"))
                     {
                         HttpUser _HttpUser = FindUserbyNick(m.Groups[1].Value);
-                        _HttpUser._Banned = DateTime.MinValue;
+                        if (_HttpUser != null)
+                        {
+                            _HttpUser._Banned = DateTime.MinValue;
+                            return "success";
+                        }
+                        else
+                            return "user not found";
                     }
                 }
             }
             if (Regex.Match(msg, "^.?whois$").Success)
             {
-                StringBuilder sb = new StringBuilder("\r\n");
+                System.Text.StringBuilder sb = new System.Text.StringBuilder("\r\n");
                 foreach (User user in GetOrderedIcqUsers())
                     sb.AppendLine(user.nick + (user._HideUin ? "(icq)" : "(" + user.uin + ")") + "," + user._room + ":" + user._Info);
                 foreach (HttpUser user in GetOrderedHttpUsers())

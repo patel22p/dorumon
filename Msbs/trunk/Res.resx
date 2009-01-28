@@ -161,9 +161,9 @@ Content-Type: text/HTML; charset=windows-1251
 {1}</value>
   </data>
   <data name="limitreached" xml:space="preserve">
-    <value>Icq изменился, стучите на {0} 
-Чтобы посмотреть список команд напишите /help
-если будут проблемы с чатом то обратитесь по номеру 1231925</value>
+    <value>Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
+Извините но Icq изменился, стучите на {0} 
+Чтобы посмотреть список команд напишите /help</value>
   </data>
   <data name="nouins" xml:space="preserve">
     <value>Сервер перегружен попробуйте зарегестрироватся завтра</value>

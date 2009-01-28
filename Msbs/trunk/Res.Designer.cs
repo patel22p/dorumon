@@ -134,9 +134,9 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Icq изменился, стучите на {0} 
-        ///Чтобы посмотреть список команд напишите /help
-        ///если будут проблемы с чатом то обратитесь по номеру 1231925.
+        ///   Looks up a localized string similar to Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
+        ///Извините но Icq изменился, стучите на {0} 
+        ///Чтобы посмотреть список команд напишите /help.
         /// </summary>
         internal static string limitreached {
             get {

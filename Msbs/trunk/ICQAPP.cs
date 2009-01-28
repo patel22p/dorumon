@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using doru;
 using System.Net.Sockets;
 using System.IO;
@@ -63,7 +62,7 @@ namespace ChatBox2
         ConnectionStatus _oldConnectionStatus;
         public void StartAsync()
         {
-            if (_Thread != null && _Thread.ThreadState != System.Threading.ThreadState.Stopped)
+            if (_Thread != null && _Thread.ThreadState == System.Threading.ThreadState.Running)
             {
                Debugger.Break();
                 Trace2("Error:Thread Already exists");
@@ -216,11 +215,11 @@ namespace ChatBox2
                 ushort charset = _MemoryStream.ReadUInt16();
                 ushort language = _MemoryStream.ReadUInt16();
                 _bytes = _MemoryStream.Read();
-                Encoding incoming = charset == 2 ? Encoding.BigEndianUnicode : Encoding.ASCII;
-                incoming = Encoding.GetEncoding(incoming.CodePage, new EncoderExceptionFallback(), new DecoderExceptionFallback());
+                System.Text.Encoding incoming = charset == 2 ? Encoding.BigEndianUnicode : Encoding.ASCII;
+                incoming = Encoding.GetEncoding(incoming.CodePage, new System.Text.EncoderExceptionFallback(), new System.Text.DecoderExceptionFallback());
                 string msg;
                 try { msg = incoming.GetString(_bytes); }
-                catch (DecoderFallbackException) { msg = Encoding.Default.GetString(_bytes); }
+                catch (System.Text.DecoderFallbackException) { msg = Encoding.Default.GetString(_bytes); }
                 Im _IM = new Im { msg = msg, uin = uin, Status = MessageStatus.Received };
                 if (_onMessage != null) _onMessage(_IM);
 
@@ -239,7 +238,7 @@ namespace ChatBox2
                 _Flap.WriteSnac();
                 _Dictionary.Add(_Flap._Snac.req, im);
                 _Flap._data.Write("00 00 00 00 00 00 00 00 00 01".Hex());
-                byte[] sendto = ASCIIEncoding.ASCII.GetBytes(im.uin);
+                byte[] sendto = System.Text.ASCIIEncoding.ASCII.GetBytes(im.uin);
                 _Flap._data.WriteByte((byte)sendto.Length);
                 _Flap._data.Write(sendto);
                 _Flap._data.Write(new byte[] { 0, 6, 0, 0 });

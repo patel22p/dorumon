@@ -20,7 +20,6 @@ namespace ChatBox2
     {
         public class HttpUser
         {
-
             public virtual string _room { get; set; }
             public virtual string ip { get; set; }
             public virtual string nick { get; set; }
@@ -58,6 +57,7 @@ namespace ChatBox2
         public static List<Icq> _Accounts = new List<Icq>();
         public class Database
         {
+            public string IpAddress;
             public List<string> rooms = new List<string>();// { "general", "dev", "site" };
             public List<string> _RemovedUsers = new List<string>();
             public class User
@@ -96,19 +96,7 @@ namespace ChatBox2
                 return ss;
             }
         }
-        public static void AddMessage(string s, string room)
-        {
-            string msg = DateTime.Now + " " + s;
-            foreach (HttpUser _HttpUser in _Dictionary.Values)
-                if (_HttpUser._room == room)
-                {
-                    _HttpUser._MsgsToSend.Add(msg);
-                    if (_HttpUser._MsgsToSend.Count > 50)
-                        _HttpUser._MsgsToSend.RemoveAt(0);
-                }
-            GetRoom(room).Add(msg);
-            File.AppendAllText(room + ".txt", msg + "\r\n", Encoding.Default);
-        }
+        
         static void Main(string[] args)
         {
             Spammer3.Beep = false;
@@ -121,11 +109,11 @@ namespace ChatBox2
         
         
         public static List<string> _console { get { return Spammer3._console; } }
-        public static void SendIcqMessages(string room, string uin, string msg2)
+        public static void SendMessageToAll(string room, string uin, string msg2)
         {
-            SendIcqMessages(room, uin, msg2, false);
+            SendMessageToAll(room, uin, msg2, false);
         }
-        public static void SendIcqMessages(string room, string uin, string msg2, bool fromirc)
+        public static void SendMessageToAll(string room, string uin, string msg2, bool fromirc)
         {            
             if (!fromirc)
             {
@@ -263,7 +251,7 @@ namespace ChatBox2
                 {
                     foreach (IrcChat.IrcIm msg2 in _IrcChat.GetMessages())
                     {
-                        SendIcqMessages(msg2.room, null, msg2.user + "(irc):" + msg2.msg, true);
+                        SendMessageToAll(msg2.room, null, msg2.user + "(irc):" + msg2.msg, true);
                     }
                     foreach (Icq _Icq in _Accounts) //////OnMessage
                         foreach (Im _IM in _Icq.Update())
@@ -318,10 +306,9 @@ namespace ChatBox2
                 m = Regex.Match(msg, @"^/send (.+)");
                 if (m.Success)
                 {
-                    //foreach (Icq icq in _Accounts)
-                    //    foreach (User u in icq._Users)
-                    //        icq.SendMessage(u.uin, m.Groups[1].Value);
-                    AddMessage(m.Groups[1].Value, "general");
+                    foreach (string room in _rooms)
+                        SendMessageToAll(room,null, m.Groups[1].Value);
+                    
                     return "success";
                 }
                 if (Regex.Match(msg, @"^/reconnect$").Success)
@@ -479,7 +466,7 @@ namespace ChatBox2
                     {
                         string msg2 = _User.nick + ": " + msg;
 
-                        SendIcqMessages(_User._room, uin, msg2);
+                        SendMessageToAll(_User._room, uin, msg2);
                         return null;
                     }
                 }
@@ -649,7 +636,7 @@ namespace ChatBox2
                     {
                         while (true)
                         {
-                            string s = _NetworkStream.Cut("\r\n\r\n").ToStr();
+                            string s = _Socket.Receive().ToStr();// ; //_NetworkStream.Cut("\r\n\r\n").ToStr();
                             Match cookie = Regex.Match(s, @"Cookie: .*ses=(\d.+)%3a(.+?)[;\n\r]", RegexOptions.IgnoreCase);
                             if (Regex.Match(s, @"GET /(Default.htm)? HTTP", RegexOptions.IgnoreCase).Success)
                             {
@@ -666,7 +653,7 @@ namespace ChatBox2
                             else
                             {
                                 Send("", "ses=" + HttpUtility.UrlEncode(_ip + ":" + ICQAPP.XOR(_ip).ToStr()));
-                                return;
+                                //return;
                             }
                         }
                     }
@@ -728,7 +715,8 @@ namespace ChatBox2
 
                 private void Send(string text)
                 {
-                    _Socket.Send(string.Format(Res.httpsend, text.Length, text));
+                    string s = string.Format(Res.httpsend, text.Length, text);
+                    _Socket.Send(s);
                 }
                 private void Send(string text, string cookie)
                 {
@@ -780,7 +768,7 @@ namespace ChatBox2
 
                         //message send
                         msg = _User.nick + ":" + msg;
-                        SendIcqMessages(_User._room, null, msg);
+                        SendMessageToAll(_User._room, null, msg);
                         return "";
 
                     }
@@ -813,6 +801,9 @@ namespace ChatBox2
                 return "pong " + ping.Groups[1].Value;
             if (Regex.Match(msg, "^.?help$").Success)
                 return Res.help;
+            
+            if ((m = Regex.Match(msg, @"^.?search( .*)")).Success)
+                return "http://" + _Database.IpAddress + ":5200/?q=" + HttpUtility.UrlEncode(m.Groups[1].Value.Trim());            
             if (_user != null)
             {
                 if (Regex.Match(msg, "^/rooms").Success)

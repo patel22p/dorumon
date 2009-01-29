@@ -144,7 +144,7 @@ namespace Scheduler
             try
             {
                 Process _Process = (Process)o;
-                _Process.Kill();
+                _Process.CloseMainWindow();
             }catch{ }
         }
         public static Timer2 _Timer = new Timer2();

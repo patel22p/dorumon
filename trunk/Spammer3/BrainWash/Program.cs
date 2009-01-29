@@ -73,7 +73,7 @@ namespace BrainWash
                         string s = Res.get.Replace("_host_", host + ":" + port).Replace("_page_", page);
                         _Socket.Send(s);
                         _NetworkStream = new NetworkStream(_Socket);
-                        _NetworkStream.ReadTimeout = 20000;
+                        _NetworkStream.ReadTimeout = 40000;
                         string s2 = _NetworkStream.Cut("\r\n\r\n").ToStr();
                         name = Regex.Match(s2, "icy-name:(.+)\r").Groups[1].Value;
                         blocksize = int.Parse(Regex.Match(s2, @"icy-metaint:(.+)\b").Groups[1].Value);

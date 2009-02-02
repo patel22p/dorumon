@@ -16,8 +16,8 @@ namespace vkontakte
         public static string _message { get { return File.ReadAllText("../message.txt",Encoding.Default); } }
 
         static void Main(string[] args)
-        {
-            Spammer3.Setup();
+        {            
+            Spammer3.Setup();            
             new Program();
         }
 

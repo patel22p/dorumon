@@ -16,7 +16,7 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
-            
+            Spammer3.Setup();
             new Program();
         }
         List<string> list = new List<string>();
@@ -24,6 +24,7 @@ namespace ConsoleApplication1
         {
             new Thread(Populate).StartBackground("populate");
             new Thread(Spamm).StartBackground("spamm");
+            Thread.Sleep(-1);
         }
         intA i = new intA("i.txt");
         private void Populate()
@@ -32,6 +33,8 @@ namespace ConsoleApplication1
             {
                 Socket _Socket = Connect();
                 for (; ; i.i++)
+                {
+                    while (list.Count > 200) Thread.Sleep(100);
                     lock ("spamm")
                     {
                         try
@@ -43,20 +46,19 @@ namespace ConsoleApplication1
                             MatchCollection ms = Regex.Matches(s, @"u=\d+"">(.+?)</a>", RegexOptions.IgnoreCase);
                             foreach (Match m in ms)
                             {
-                                int i2=0;
+                                int i2 = 0;
                                 string s3 = m.Groups[1].Value + ";";
                                 if (!list.Contains(s3))
                                 {
                                     i2++;
                                     list.Add(s3);
-                                    Trace.Write(s3);
                                 }
-                                Trace.WriteLine("populated:" + i);
+                                Trace.WriteLine("populated:" + i2);
                             }
                         }
                         catch (IOException) { _Socket = Connect(); i.i--; }
-
                     }
+                }
             }
         }
 
@@ -80,7 +82,7 @@ namespace ConsoleApplication1
                         while (true)
                         {
                             try
-                            {
+                            {                                
                                 string usrs = HttpUtility.UrlEncode(list.Join(";"));
                                 _Socket.Send(String.Format(Res._post, usrs));
                                 string s = Http.ReadHttp(_Socket).ToStr().Save("spamm");

@@ -1,6 +1,6 @@
 Приветствую вас из Финляндии! 
  
-Я собираю команду для проекта CS LIVE - клон counter-strike в 2D, подробную информацию можно узнать нa сайтах http://cslive.mindswitch.ru/ http://vkontakte.ru/club6342121 
+Я собираю команду для проекта CS LIVE - клон counter-strike в 2D, подробную информацию можно узнать нa сайтах http://cslive.no-ip.org/ http://vkontakte.ru/club6342121 
 Разработка идет уже 3 месяца. Проект некоммерческий, разрабатываем на энтузиазме.
 
 жанр: Браузерный 2D-шутер с мултиплеером
@@ -14,8 +14,7 @@ Subversion
 Visual studio 2008 sp1
 Microsoft Blender 2 sp1
 Adobe Flash
-Adobe Photoshopв аську 210898012
+Adobe Photoshop
 3ds max,Maya
 
 Если кто заинтересован делать игру, стучитесь в аську 1231925
-Если кто заинтересован делать сайт для игры, стучитесь 

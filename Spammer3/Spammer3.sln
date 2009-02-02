@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helper", "..\Helper\Helper\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrainWash", "BrainWash\BrainWash.csproj", "{144489C3-571E-496D-9FD6-15842B86D1BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{8C12D37A-32B1-4F20-8A49-C48EF29DBED2}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -119,6 +121,10 @@ Global
 		{144489C3-571E-496D-9FD6-15842B86D1BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{144489C3-571E-496D-9FD6-15842B86D1BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{144489C3-571E-496D-9FD6-15842B86D1BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C12D37A-32B1-4F20-8A49-C48EF29DBED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C12D37A-32B1-4F20-8A49-C48EF29DBED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C12D37A-32B1-4F20-8A49-C48EF29DBED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C12D37A-32B1-4F20-8A49-C48EF29DBED2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

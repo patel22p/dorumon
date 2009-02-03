@@ -77,6 +77,22 @@ namespace ConsoleApplication1 {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GET /private.php?do=newpm HTTP/1.1
+        ///User-Agent: Opera/9.62 (Windows NT 5.1; U; en) Presto/2.1.1
+        ///Host: forum.codenet.ru
+        ///Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1
+        ///Accept-Language: ru,fi;q=0.9,en;q=0.8,ru-RU;q=0.7
+        ///Accept-Charset: iso-8859-1, utf-8, utf-16, *;q=0.1
+        ///Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
+        ///Cookie: bblastvisit=1231957409; bblastactivity=0; bbuserid=46416; bbpassword=73a9390b7cf635b07b10460b122 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string _get2 {
+            get {
+                return ResourceManager.GetString("_get2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to POST /private.php?do=insertpm&amp;pmid=0 HTTP/1.1
         ///User-Agent: Opera/9.63 (Windows NT 5.1; U; en) Presto/2.1.1
         ///Host: forum.codenet.ru

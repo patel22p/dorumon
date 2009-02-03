@@ -13,10 +13,10 @@ namespace Scheduler
 {
     public class Program
     {
-
+        
         public static Process _Process = Process.GetCurrentProcess();
         static void Main(string[] args)
-        {            
+        {
             if ((from p in Process.GetProcesses() where p.ProcessName == _Process.ProcessName select p).Count() > 1)
             {
                 System.Windows.Forms.MessageBox.Show("Already exists");
@@ -67,6 +67,8 @@ namespace Scheduler
                 using (FileStream _FileStream = new FileStream(_db, FileMode.Open, FileAccess.Read))
                 {
                     _Database = (Database)_XmlSerializer.Deserialize(_FileStream);
+                    foreach (Task task in _Database._Tasks)
+                        if (!File.Exists(task._filename)) throw new ExceptionC("File Not Exists:" + task._filename);
                 }
             }
         }
@@ -144,7 +146,7 @@ namespace Scheduler
             try
             {
                 Process _Process = (Process)o;
-                _Process.CloseMainWindow();
+                _Process.Kill();
             }catch{ }
         }
         public static Timer2 _Timer = new Timer2();

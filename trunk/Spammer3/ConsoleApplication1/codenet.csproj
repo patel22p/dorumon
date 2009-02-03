@@ -65,6 +65,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="i.txt" />
+    <Content Include="posted.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cookies4.dat" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

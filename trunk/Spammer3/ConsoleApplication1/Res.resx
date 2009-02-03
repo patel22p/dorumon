@@ -132,6 +132,21 @@ TE: deflate, gzip, chunked, identity, trailers
 
 </value>
   </data>
+  <data name="_get2" xml:space="preserve">
+    <value>GET /private.php?do=newpm HTTP/1.1
+User-Agent: Opera/9.62 (Windows NT 5.1; U; en) Presto/2.1.1
+Host: forum.codenet.ru
+Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1
+Accept-Language: ru,fi;q=0.9,en;q=0.8,ru-RU;q=0.7
+Accept-Charset: iso-8859-1, utf-8, utf-16, *;q=0.1
+Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
+Cookie: bblastvisit=1231957409; bblastactivity=0; bbuserid=46416; bbpassword=73a9390b7cf635b07b10460b122c41bb; 
+Cookie2: $Version=1
+Connection: Keep-Alive, TE
+TE: deflate, gzip, chunked, identity, trailers
+
+</value>
+  </data>
   <data name="_post" xml:space="preserve">
     <value>POST /private.php?do=insertpm&amp;pmid=0 HTTP/1.1
 User-Agent: Opera/9.63 (Windows NT 5.1; U; en) Presto/2.1.1
@@ -141,12 +156,12 @@ Accept-Language: ru,en;q=0.9,fi-FI;q=0.8,fi;q=0.7
 Accept-Charset: iso-8859-1, utf-8, utf-16, *;q=0.1
 Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
 Referer: http://forum.codenet.ru/private.php?do=insertpm&amp;pmid=
-Cookie: b=b; bblastvisit=1233577963; bbforum_view=c790b490850932b52ba440c78b5964cc2301dfa2a-1-%7Bi-30_i-1233577963_%7D; bblastactivity=0; bbuserid=46416; bbpassword=73a9390b7cf635b07b10460b122c41bb; bbsessionhash=aa03cc9fd719dbdc09ae893fb27b90fe
+Cookie: b=b; bblastvisit=1233577963; bbforum_view=c790b490850932b52ba440c78b5964cc2301dfa2a-1-%7Bi-30_i-1233577963_%7D; bblastactivity=0; bbuserid=46416; bbpassword=73a9390b7cf635b07b10460b122c41bb; bbsessionhash={1}
 Cookie2: $Version=1
 Connection: Keep-Alive
-Content-Length: 1865
+Content-Length: _length_
 Content-Type: application/x-www-form-urlencoded
 
-recipients={0}&amp;bccrecipients=&amp;title=%EF%F0%E8%E2%E5%F2&amp;message=%CF%F0%E8%E2%E5%F2%F1%F2%E2%F3%FE+%E2%E0%F1+%E8%E7+%D4%E8%ED%EB%FF%ED%E4%E8%E8%21+%0D%0A+%0D%0A%DF+%F1%EE%E1%E8%F0%E0%FE+%EA%EE%EC%E0%ED%E4%F3+%E4%EB%FF+%EF%F0%EE%E5%EA%F2%E0+CS+LIVE+-+%EA%EB%EE%ED+counter-strike+%E2+2D%2C+%EF%EE%E4%F0%EE%E1%ED%F3%FE+%E8%ED%F4%EE%F0%EC%E0%F6%E8%FE+%EC%EE%E6%ED%EE+%F3%E7%ED%E0%F2%FC+%EDa+%F1%E0%E9%F2%E0%F5+%5Burl%5Dhttp%3A%2F%2Fcslive.no-ip.org%2F%5B%2Furl%5D+%5Burl%5Dhttp%3A%2F%2Fvkontakte.ru%2Fclub6342121%5B%2Furl%5D+%0D%0A%D0%E0%E7%F0%E0%E1%EE%F2%EA%E0+%E8%E4%E5%F2+%F3%E6%E5+3+%EC%E5%F1%FF%F6%E0.+%CF%F0%EE%E5%EA%F2+%ED%E5%EA%EE%EC%EC%E5%F0%F7%E5%F1%EA%E8%E9%2C+%F0%E0%E7%F0%E0%E1%E0%F2%FB%E2%E0%E5%EC+%ED%E0+%FD%ED%F2%F3%E7%E8%E0%E7%EC%E5.%0D%0A%0D%0A%E6%E0%ED%F0%3A+%C1%F0%E0%F3%E7%E5%F0%ED%FB%E9+2D-%F8%F3%F2%E5%F0+%F1+%EC%F3%EB%F2%E8%EF%EB%E5%E5%F0%EE%EC%0D%0A%CF%EB%E0%F2%F4%EE%F0%EC%E0%3A+Silverlight+%0D%0A%D1%E5%F0%E2%E5%F0%ED%E0%FF+%F7%E0%F1%F2%FC+%ED%E0+.net+Framework+3.5+%28c%23%29%0D%0A%0D%0A%D2%F0%E5%E1%F3%FE%F2%F1%FF+%F1%E5%F0%E2%E5%F0%E0%2C+%EF%F0%EE%E3%F0%E0%EC%EC%E8%F1%F2%FB+%ED%E0+.net+%2C+%F5%F3%E4%EE%E6%ED%E8%EA%E8%2C+%E4%E8%E7%E0%E8%ED%E5%F0%FB%2C+%E0%ED%E8%EC%E0%F2%EE%F0%FB%2C+%E1%E5%F2%E0%F2%E5%F1%F2%E5%F0%FB%0D%0A%0D%0A%C6%E5%EB%E0%F2%E5%EB%FC%ED%EE+%ED%E0%E2%FB%EA%E8+%E2+%E8%F1%EF%EE%EB%E7%EE%E2%E0%ED%E8%E8%3A%0D%0ASubversion%0D%0AVisual+studio+2008+sp1%0D%0AMicrosoft+Blender+2+sp1%0D%0AAdobe+Flash%0D%0AAdobe+Photoshop%0D%0A3ds+max%2CMaya%0D%0A%0D%0A%C5%F1%EB%E8+%EA%F2%EE+%E7%E0%E8%ED%F2%E5%F0%E5%F1%EE%E2%E0%ED+%E4%E5%EB%E0%F2%FC+%E8%E3%F0%F3%2C+%F1%F2%F3%F7%E8%F2%E5%F1%FC+%E2+%E0%F1%FC%EA%F3+1231925&amp;wysiwyg=0&amp;iconid=0&amp;s=&amp;securitytoken=1233579667-1a563cc252dae0ef3df37d390a4125220d8d5f76&amp;do=insertpm&amp;pmid=0&amp;forward=0&amp;sbutton=%D1%EE%E7%E4%E0%F2%FC+%F1%EE%EE%E1%F9%E5%ED%E8%E5&amp;savecopy=1&amp;parseurl=1</value>
+recipients={0}&amp;bccrecipients=&amp;title={4}&amp;message={3}&amp;wysiwyg=0&amp;iconid=0&amp;s=&amp;securitytoken={2}&amp;do=insertpm&amp;pmid=0&amp;forward=0&amp;sbutton=%D1%EE%E7%E4%E0%F2%FC+%F1%EE%EE%E1%F9%E5%ED%E8%E5&amp;savecopy=0&amp;parseurl=1</value>
   </data>
 </root>

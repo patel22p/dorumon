@@ -134,7 +134,8 @@
 /hideuin (скрыть уин)
 /join комната (заити в комнату)
 /rooms (посматреть комнаты)
-/search текст (поиск текста в чате)</value>
+/search текст (поиск текста в чате)
+/disablenotify выключить или включить оповешания об играх</value>
   </data>
   <data name="httpnotfound" xml:space="preserve">
     <value>HTTP/1.1 404 Not Found
@@ -187,17 +188,10 @@ Content-Type: text/HTML; charset=windows-1251
   <data name="unknowncommandMatch" xml:space="preserve">
     <value>\A/.*(\r?\n?.?)*\z</value>
   </data>
-  <data name="unregister" xml:space="preserve">
-    <value>Вы вышли из чата</value>
-  </data>
-  <data name="unregisterMatch" xml:space="preserve">
-    <value>^.?unregister$</value>
-  </data>
   <data name="welcome" xml:space="preserve">
     <value>Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
 Чтобы воити в чат напишите /register
-Чтобы посмотреть список команд напишите /help
-если будут проблемы с чатом то обратитесь по номеру 1231925</value>
+Чтобы посмотреть список команд напишите /help</value>
   </data>
   <data name="youareregistered" xml:space="preserve">
     <value>Вы зарегестрированы! Теперь можете посылать сообшения в чат</value>

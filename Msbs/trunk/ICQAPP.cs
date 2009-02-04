@@ -64,7 +64,7 @@ namespace ChatBox2
         {
             if (_Thread != null && _Thread.ThreadState == System.Threading.ThreadState.Running)
             {
-               Debugger.Break();
+               //Debugger.Break();
                 Trace2("Error:Thread Already exists");
                 return;
             }

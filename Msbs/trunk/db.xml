@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <Database xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="ChatBox2.xsd">
+  <IpAddress>chat.mindswitch.ru</IpAddress>
   <rooms>
     <string>general</string>
   </rooms>
@@ -48,10 +49,11 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T19:14:26.953125+02:00</_DateTime>
-          <uin>359077077</uin>
-          <nick>_KoT_</nick>
+          <_DateTime>2009-02-03T23:58:46.71875+02:00</_DateTime>
+          <uin>3916190</uin>
+          <nick>-=FOBOS=-</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
@@ -62,8 +64,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>true</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T22:50:41.125+02:00</_DateTime>
+          <info>c# silverlight</info>
+          <_DateTime>2009-02-03T15:28:57.15625+02:00</_DateTime>
           <uin>1231925</uin>
           <nick>@doru</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -76,9 +80,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <info> Hosting server | C# | asp.net | PHP | Java | Pascal | VB | MySQL |  MSSQL | Oracle | и другое ....</info>
-          <_DateTime>2009-01-28T13:43:59.515625+02:00</_DateTime>
+          <info>Hosting server | C# | asp.net | PHP | Java | Pascal | VB | MySQL |  MSSQL | Oracle | и другое .... http://vkontakte.ru/id10033159</info>
+          <_DateTime>2009-02-03T15:29:15.6875+02:00</_DateTime>
           <uin>685295</uin>
           <nick>@Sv0104</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -91,11 +96,12 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T22:39:57.9375+02:00</_DateTime>
+          <_DateTime>2009-01-29T19:40:53.4375+02:00</_DateTime>
           <uin>333298698</uin>
           <nick>Legart</nick>
-          <_Banned>2009-01-29T05:15:03.734375+02:00</_Banned>
+          <_Banned>2009-02-02T07:01:12.046875+02:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
       </_Users>
@@ -105,6 +111,7 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
           <_DateTime>2009-01-25T16:46:25.453125+02:00</_DateTime>
           <uin>8831029</uin>
@@ -115,48 +122,105 @@
       </_Users>
     </Icq>
     <Icq>
-      <uin>489250076</uin>
-      <pass>er54s4</pass>
-      <_Users />
-    </Icq>
-    <Icq>
       <uin>410301743</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T12:09:18.578125+02:00</_DateTime>
+          <uin>364014918</uin>
+          <nick>serega</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>420069239</uin>
       <pass>d3zeiQpk</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T13:21:34.484375+02:00</_DateTime>
+          <uin>390168550</uin>
+          <nick>Gattaca</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>375705016</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T23:58:35.171875+02:00</_DateTime>
+          <uin>473445638</uin>
+          <nick>StormRider</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>480024863</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-01-30T16:26:27.1875+02:00</_DateTime>
+          <uin>55460280</uin>
+          <nick>NoRLesT</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>486132362</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-02T22:05:52.265625+02:00</_DateTime>
+          <uin>351078604</uin>
+          <nick>ArtUrl</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>392871752</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <info>Имя Алексей Возраст 20 Владею 3д максом</info>
+          <_DateTime>2009-02-03T11:26:56.890625+02:00</_DateTime>
+          <uin>419130359</uin>
+          <nick>Aladdin</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>445576180</uin>
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>true</_notifydisabled>
           <_room>general</_room>
           <info>[Бета-тестер, увлекался SQL-MySQL базами,когда то) Был сис-админом на яве)) http://cslive.mindswitch.ru/forum/ - официальный форум CSLive]</info>
-          <_DateTime>2009-01-26T21:29:13.65625+02:00</_DateTime>
+          <_DateTime>2009-02-03T20:54:35.78125+02:00</_DateTime>
           <uin>254394794</uin>
           <nick>@Mike</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -169,11 +233,12 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <info>3д моделинг, текстуринг, unwrap, normal mapping</info>
-          <_DateTime>2009-01-25T14:20:17.546875+02:00</_DateTime>
-          <uin>234034191</uin>
-          <nick>rik0</nick>
+          <info>Михаил, бетатестер со стажем, 18 лет</info>
+          <_DateTime>2009-02-03T10:57:02.453125+02:00</_DateTime>
+          <uin>492192764</uin>
+          <nick>gugnuz</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
@@ -184,8 +249,10 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T12:56:48.046875+02:00</_DateTime>
+          <info>альфатестинг, текстуринг</info>
+          <_DateTime>2009-02-03T14:58:01.546875+02:00</_DateTime>
           <uin>3522515</uin>
           <nick>Knife</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -196,15 +263,26 @@
     <Icq>
       <uin>473897185</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T10:45:42.171875+02:00</_DateTime>
+          <uin>289992173</uin>
+          <nick>XM</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>480540084</uin>
       <pass>VzjmVCZW</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-25T15:25:51.546875+02:00</_DateTime>
+          <_DateTime>2009-01-29T15:27:24.546875+02:00</_DateTime>
           <uin>7070453</uin>
           <nick>Pozitiv</nick>
           <_Banned>2009-01-19T09:23:58.20325+02:00</_Banned>
@@ -217,8 +295,9 @@
       <pass>x9Z4R9Us</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T18:31:59.96875+02:00</_DateTime>
+          <_DateTime>2009-02-03T19:07:32.109375+02:00</_DateTime>
           <uin>220253621</uin>
           <nick>@Infinity</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -229,17 +308,29 @@
     <Icq>
       <uin>372131703</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T14:53:55.171875+02:00</_DateTime>
+          <uin>473609175</uin>
+          <nick>DIMAN</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>412360471</uin>
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>true</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T19:18:02.828125+02:00</_DateTime>
-          <uin>281187442</uin>
-          <nick>rainman</nick>
+          <info>Universal Fighter, JB-level: сделаю все что угодно, главное - целесообразность или материальное поощрение [Delphi, C++, OOD, GDI, OpenGL, Html... other will be linked with time;)]</info>
+          <_DateTime>2009-02-03T15:30:25.890625+02:00</_DateTime>
+          <uin>387180189</uin>
+          <nick>MARS</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
@@ -248,13 +339,24 @@
     <Icq>
       <uin>452202035</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-04T05:36:02.109375+02:00</_DateTime>
+          <uin>440564133</uin>
+          <nick>shafl</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>493742092</uin>
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
           <info>.NET Framework (2.0/3.0/3.5), C#, ASP.NET, ADO.NET, LINQ, NHibernate, .NET Remoting, WCF, WWF, Silverlight, MS SQL Server, SVN, VSS</info>
           <_DateTime>2009-01-25T19:57:09.6875+02:00</_DateTime>
@@ -268,7 +370,17 @@
     <Icq>
       <uin>360158930</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T12:40:21.921875+02:00</_DateTime>
+          <uin>262231449</uin>
+          <nick>unfalse</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>475949080</uin>
@@ -278,15 +390,26 @@
     <Icq>
       <uin>398912918</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>true</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T13:21:39.71875+02:00</_DateTime>
+          <uin>267499670</uin>
+          <nick>juzik</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>386421676</uin>
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T18:31:54.46875+02:00</_DateTime>
+          <_DateTime>2009-02-03T09:51:56.25+02:00</_DateTime>
           <uin>475028198</uin>
           <nick>TeKKeN</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -302,7 +425,17 @@
     <Icq>
       <uin>483624657</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T21:13:40.28125+02:00</_DateTime>
+          <uin>400245313</uin>
+          <nick>Kaktus</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>473201338</uin>
@@ -317,17 +450,7 @@
     <Icq>
       <uin>422902840</uin>
       <pass>er54s4</pass>
-      <_Users>
-        <User>
-          <_room>general</_room>
-          <info>Программист на С#(начинающий) буду рад вам памочь</info>
-          <_DateTime>2009-01-27T14:24:25.15625+02:00</_DateTime>
-          <uin>662118</uin>
-          <nick>MABDEN</nick>
-          <_Banned>2009-01-27T14:29:05.96875+02:00</_Banned>
-          <_HideUin>false</_HideUin>
-        </User>
-      </_Users>
+      <_Users />
     </Icq>
     <Icq>
       <uin>459592894</uin>
@@ -347,7 +470,17 @@
     <Icq>
       <uin>486772278</uin>
       <pass>er54s4</pass>
-      <_Users />
+      <_Users>
+        <User>
+          <_notifydisabled>false</_notifydisabled>
+          <_room>general</_room>
+          <_DateTime>2009-02-03T20:16:24.390625+02:00</_DateTime>
+          <uin>392837911</uin>
+          <nick>ArbuzOFF</nick>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_HideUin>false</_HideUin>
+        </User>
+      </_Users>
     </Icq>
     <Icq>
       <uin>444689689</uin>
@@ -359,8 +492,9 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-28T22:51:10.71875+02:00</_DateTime>
+          <_DateTime>2009-01-30T20:51:09.046875+02:00</_DateTime>
           <uin>195922916</uin>
           <nick>gannibal</nick>
           <_Banned>0001-01-01T00:00:00</_Banned>
@@ -388,11 +522,12 @@
       <pass>er54s4</pass>
       <_Users>
         <User>
+          <_notifydisabled>false</_notifydisabled>
           <_room>general</_room>
-          <_DateTime>2009-01-27T13:19:59.09375+02:00</_DateTime>
+          <_DateTime>2009-02-03T20:57:44.0625+02:00</_DateTime>
           <uin>449744011</uin>
           <nick>IOpuK</nick>
-          <_Banned>0001-01-01T00:00:00</_Banned>
+          <_Banned>2009-02-03T20:49:23.90625+02:00</_Banned>
           <_HideUin>false</_HideUin>
         </User>
       </_Users>
@@ -416,447 +551,56 @@
   <_Dictionary>
     <item>
       <key>
-        <string xmlns="">87.237.118.18</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>87.237.118.18</ip>
-          <nick>(web)chekist</nick>
-          <_DateTime>2009-01-25T19:26:34.625+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">90.151.231.171</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>90.151.231.171</ip>
-          <nick>(web)F</nick>
-          <_DateTime>2009-01-27T11:37:33.0625+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">85.157.178.100</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>85.157.178.100</ip>
-          <nick>(web)doru2</nick>
-          <_DateTime>2009-01-25T19:59:28.109375+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">192.84.196.226</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>192.84.196.226</ip>
-          <nick>(web)doru3</nick>
-          <_DateTime>2009-01-28T09:50:19.765625+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">195.182.135.58</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>195.182.135.58</ip>
-          <nick>(web)*lix</nick>
-          <_DateTime>2009-01-28T12:28:12.078125+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
-        <string xmlns="">89.207.74.186</string>
-      </key>
-      <value>
-        <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 18:30:02 rainman: хм, я последний раз тянул - было 30М</string>
-            <string>28.01.2009 18:30:06 _KoT_: аж с сердца камень..везом в 30 тонн</string>
-            <string>28.01.2009 18:30:08 _KoT_: :-)</string>
-            <string>28.01.2009 18:30:18 rainman: у тебя не анлим?</string>
-            <string>28.01.2009 18:30:36 _KoT_: ниа..мну 100 муетров м месяц дают..</string>
-            <string>28.01.2009 18:31:14 @Infinity: а хотя может и 30 если все проекты. я говорил про клиента КС :-)</string>
-            <string>28.01.2009 18:31:36 _KoT_: обманщик ты походу..</string>
-            <string>28.01.2009 18:31:46 rainman: ооо, там тока добавляется.... я тоже апдейтюсь</string>
-            <string>28.01.2009 18:31:52 TeKKeN: [fq</string>
-            <string>28.01.2009 18:31:54 TeKKeN: хай</string>
-            <string>28.01.2009 18:31:59 @Infinity: кто обманщик?</string>
-            <string>28.01.2009 18:33:03 rainman: да, репка махонькая</string>
-            <string>28.01.2009 18:33:17 rainman: совсем полегчала</string>
-            <string>28.01.2009 18:33:22 rainman: просто файла там пресс</string>
-            <string>28.01.2009 18:33:29 rainman: а весит мало</string>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
-          <_room>general</_room>
-          <ip>89.207.74.186</ip>
-          <nick>(web)t</nick>
-          <_DateTime>2009-01-28T16:53:06.703125+02:00</_DateTime>
-          <_Banned>0001-01-01T00:00:00</_Banned>
-        </HttpUser>
-      </value>
-    </item>
-    <item>
-      <key>
         <string xmlns="">127.0.0.1</string>
       </key>
       <value>
         <HttpUser xmlns="">
-          <_MsgsToSend>
-            <string>28.01.2009 19:14:26 _KoT_: закачалося..</string>
-            <string>28.01.2009 19:14:29 Legart: Hi chatbox. I'm away since 28.01.2009 18:25:43. I'll read your message later.</string>
-            <string>28.01.2009 19:17:44 rainman: Legart отключи свой автоответчик для чата</string>
-            <string>28.01.2009 19:18:02 rainman: тем более, твоё локальное время никому не нужно</string>
-            <string>28.01.2009 19:30:20 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:31:50 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:32:55 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:38 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:46:53 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:52:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 19:53:03 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:02:04 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:03:17 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:3 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:07:48 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:16:28 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:4 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 20:30:44 chekist_(irc):А в полноэкранном режиме A,W,S,D - работают ?  У меня чего-то нет.</string>
-            <string>28.01.2009 22:07:35 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:09 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:1 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:24:12 &lt;&lt;notify&gt;&gt; Client connected at Counter Strike Live Server  players:2 http://cslive.mindswitch.ru/cs/serv.php</string>
-            <string>28.01.2009 22:39:57 gannibal: всем привет</string>
-            <string>28.01.2009 22:40:45 @doru: привет</string>
-            <string>28.01.2009 22:41:04 gannibal: что решаеться?</string>
-            <string>28.01.2009 22:42:15 @doru: silverlight юзал?</string>
-            <string>28.01.2009 22:42:48 gannibal: да юзал, но не так полностью как бы хотелось</string>
-            <string>28.01.2009 22:43:03 gannibal: вот с другой стороны меня этим тоже и заинтирисовал твой проект</string>
-            <string>28.01.2009 22:43:21 @doru: а исходники качал уже?</string>
-            <string>28.01.2009 22:43:39 gannibal: нет ещё, сейчас всё буду качат</string>
-            <string>28.01.2009 22:43:40 gannibal: ь</string>
-            <string>28.01.2009 22:46:52 @doru: можеш флеш сайт покрасивее зделать? у тебя cs4?</string>
-            <string>28.01.2009 22:47:17 gannibal: да cs4 у меня могу конечно чего нибудь нарисовать</string>
-            <string>28.01.2009 22:50:10 @doru: 210898012 вот стучи кнему он сайт делает</string>
-            <string>28.01.2009 22:50:32 @doru: http://cslive.mindswitch.ru/cssite.7z вот исходник сайта</string>
-            <string>28.01.2009 22:50:41 @doru: fla</string>
-            <string>28.01.2009 22:51:10 gannibal: сейчас стукну</string>
-          </_MsgsToSend>
           <_room>general</_room>
           <ip>127.0.0.1</ip>
           <nick>(web)doru</nick>
-          <_DateTime>2009-01-28T18:39:06.171875+02:00</_DateTime>
+          <_DateTime>2009-01-30T20:45:41.671875+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">94.181.228.207</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_room>general</_room>
+          <ip>94.181.228.207</ip>
+          <nick>(web)Leopotam_HellFlooder</nick>
+          <_DateTime>2009-01-31T08:38:46.265625+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">94.181.231.150</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_room>general</_room>
+          <ip>94.181.231.150</ip>
+          <nick>(web)Leopotam_HellFlooder2</nick>
+          <_DateTime>2009-02-03T21:20:39.5+02:00</_DateTime>
+          <_Banned>0001-01-01T00:00:00</_Banned>
+        </HttpUser>
+      </value>
+    </item>
+    <item>
+      <key>
+        <string xmlns="">89.106.192.244</string>
+      </key>
+      <value>
+        <HttpUser xmlns="">
+          <_room>general</_room>
+          <ip>89.106.192.244</ip>
+          <nick>(web)nwn</nick>
+          <_DateTime>2009-02-03T16:37:32.0625+02:00</_DateTime>
           <_Banned>0001-01-01T00:00:00</_Banned>
         </HttpUser>
       </value>

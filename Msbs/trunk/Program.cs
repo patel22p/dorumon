@@ -18,40 +18,44 @@ namespace ChatBox2
 {
     public class Program
     {
-        public class HttpUser
-        {
-            public virtual string _room { get; set; }
-            public virtual string ip { get; set; }
-            public virtual string nick { get; set; }
-            public virtual string _Info { get; set; }
-            public virtual DateTime _DateTime { get; set; }
-            public virtual DateTime _Banned { get; set; }
-            public StringCollection _MsgsToSend = new StringCollection();
-            public HttpUser()
-            {
-                _DateTime = DateTime.Now;
-            }
-        }
-        public class User : HttpUser
-        {
-            public User()
-                : base()
-            {
-
-            }
-            public override string _room { get { return _DUser._room; } set { _DUser._room = value; } }
-            public override string _Info { get { return _DUser.info; } set { _DUser.info = value; } }
+        //public class User
+        //{
+        //    public string _room { get; set; }
+        //    public string ip { get; set; }
+        //    public string nick { get; set; }
+        //    public string _Info { get; set; }
+        //    public DateTime _DateTime { get; set; }
+        //    public DateTime _Banned { get; set; }
+        //    [XmlIgnore]
+        //    
+        //    public User()
+        //    {
+        //        _DateTime = DateTime.Now;
+        //    }
+        //}
+        public enum Type { Icq, Http };
+        public class User 
+        {            
+            public StringCollection _MsgsToSend = new StringCollection();            
+            public string _PasswordHash { get { return _DUser._PasswordHash; } set { _DUser._PasswordHash = value; } }
+            public string _ip { get { return _DUser._Ip; } set { _DUser._Ip= value; } }
+            public DateTime _Mute { get { return _DUser._Mute; } set { _DUser._Mute = value; } }
+            public bool _notifydisabled { get { return _DUser._notifydisabled; } set { _DUser._notifydisabled = value; } }
+            public string _room { get { return _DUser._room; } set { _DUser._room = value; } }
+            public string _Info { get { return _DUser.info; } set { _DUser.info = value; } }
             public Icq _Account;
             public Database.User _DUser = new Database.User();
-            public override DateTime _DateTime { get { return _DUser._DateTime; } set { _DUser._DateTime = value; } }
+            public DateTime _DateTime { get { return _DUser._DateTime; } set { _DUser._DateTime = value; } }
             public string uin { get { return _DUser.uin; } set { _DUser.uin = value; } }
-            public override string nick { get { return _DUser.nick; } set { _DUser.nick = value; } }
-            public override DateTime _Banned { get { return _DUser._Banned; } set { _DUser._Banned = value; } }
+            public string nick { get { return _DUser.nick; } set { _DUser.nick = value; } }
+            public DateTime _Banned { get { return _DUser._Banned; } set { _DUser._Banned = value; } }
             public bool _HideUin { get { return _DUser._HideUin; } set { _DUser._HideUin = value; } }
             public void SendMessage(string msg)
             {
-                
-                _Account.SendMessage(uin, msg);
+                if (msg.StartsWith("<<notify>>") && _notifydisabled)
+                    return;
+                else
+                    _Account.SendMessage(uin, msg);
             }
         }
         public static List<Icq> _Accounts = new List<Icq>();
@@ -62,17 +66,22 @@ namespace ChatBox2
             public List<string> _RemovedUsers = new List<string>();
             public class User
             {
+                public string _Ip;
+                public Type _Type = Type.Icq;
+                public string _PasswordHash;
+                public bool _notifydisabled;
                 public string _room;
                 public string info;
                 public DateTime _DateTime;
                 public string uin;
                 public string nick;
                 public DateTime _Banned;
+                public DateTime _Mute;
                 public bool _HideUin;
             }
             public int limit = 5;
             public List<Icq> _Accounts = new List<Icq>();
-            public SerializableDictionary<string, HttpUser> _Dictionary = new SerializableDictionary<string, HttpUser>();
+            public List<User> _Users = new List<User>();
             public class Icq
             {
                 public string uin;
@@ -131,12 +140,12 @@ namespace ChatBox2
 
             /////////web
             string msg = DateTime.Now + " " + msg2.Replace("\r\n", "\n");
-            foreach (HttpUser _HttpUser in _Dictionary.Values)
-                if (_HttpUser._room == room)
+            foreach (User _User in _UserList)
+                if (_User._room == room)
                 {
-                    _HttpUser._MsgsToSend.Add(msg);
-                    if (_HttpUser._MsgsToSend.Count > 50)
-                        _HttpUser._MsgsToSend.RemoveAt(0);
+                    _User._MsgsToSend.Add(msg);
+                    if (_User._MsgsToSend.Count > 50)
+                        _User._MsgsToSend.RemoveAt(0);
                 }
             GetRoom(room).Add(msg);
             File.AppendAllText(room + ".txt", msg + "\r\n", Encoding.Default);
@@ -226,12 +235,13 @@ namespace ChatBox2
             {
                 if (File.Exists("db.xml"))
                     Load();
-
                 else throw new Exception("Database not Found");
 
-                HttpChat _ChatHttpServer = new HttpChat();
-                _ChatHttpServer._ChatBox = this;
-                _ChatHttpServer.StartAsync();
+                HttpChat _HttpChat = new HttpChat();
+                _HttpChat._ChatBox = this;
+                foreach (Database.User u in _Database._Users)
+                    _UserList.Add(new User { _DUser = u });
+                _HttpChat.StartAsync();
                 _IrcChat = new IrcChat();
                 _IrcChat.Start();
                 foreach (string room in _rooms)
@@ -249,6 +259,7 @@ namespace ChatBox2
 
                 while (true) //Update()
                 {
+                    
                     foreach (IrcChat.IrcIm msg2 in _IrcChat.GetMessages())
                     {
                         SendMessageToAll(msg2.room, null, msg2.user + "(irc):" + msg2.msg, true);
@@ -295,9 +306,9 @@ namespace ChatBox2
                             select a).ToList();
                 }
             }
-            private static IEnumerable<HttpUser> GetOldHttpUsers(TimeSpan t)
+            private static IEnumerable<User> GetOldUsers(TimeSpan t)
             {
-                return (from a in _Dictionary.Values where DateTime.Now - a._DateTime > t select a);
+                return (from a in _UserList where DateTime.Now - a._DateTime > t select a);
             }
 
             private string ReadConsole(string msg)
@@ -310,6 +321,23 @@ namespace ChatBox2
                         SendMessageToAll(room,null, m.Groups[1].Value);
                     
                     return "success";
+                }
+                if ((m = Regex.Match(msg, @"^/remove (\d+)")).Success)
+                {
+                    foreach (Icq icq in _Accounts.ToArray())
+                        if (icq._uin == m.Groups[1].Value)
+                        {
+                            
+                            _Accounts.Remove(icq);                            
+                            return "success";
+                        }   
+                    foreach (Database.Icq icq in _Database._Accounts)
+                        if (icq.uin == m.Groups[1].Value)
+                        {
+                            _Database._Accounts.Remove(icq);
+                            return "success";
+                        }
+                    return "failed";
                 }
                 if (Regex.Match(msg, @"^/reconnect$").Success)
                 {
@@ -332,13 +360,13 @@ namespace ChatBox2
                 }
                 if (Regex.Match(msg, @"^/flush").Success)
                 {
-                    foreach (HttpUser user in GetOldHttpUsers(TimeSpan.FromDays(3)).ToArray())
-                        _Dictionary.Remove(user.ip);
+                    foreach (User user in GetOldUsers(TimeSpan.FromDays(3)).ToArray())
+                        RemoveUser(user);
                 }
                 m = Regex.Match(msg, @"^/op (.+)");
                 if (m.Success)
                 {
-                    HttpUser user = FindUserbyNick(m.Groups[1].Value);
+                    User user = FindUserbyNick(m.Groups[1].Value);
                     if (user != null && !user.nick.StartsWith("@"))
                     {
                         user.nick = "@" + user.nick;
@@ -356,7 +384,7 @@ namespace ChatBox2
                 {
                     string room = m.Groups[1].Value;
                     _rooms.Remove(room);
-                    foreach (HttpUser ht in GetUserRoom(room))
+                    foreach (User ht in GetUserRoom(room))
                         ht._room = "general";
                     _IrcChat.Leave(room);
                     return "success";
@@ -395,7 +423,7 @@ namespace ChatBox2
                     _Database = (Database)_XmlSerializer.Deserialize(_FileStream);
             }
 
-            public string OnMessage(Icq _Icq, string uin, string msg)
+            public string OnMessage(Icq _Icq, string uin, string msg) //icqcommands
             {
                 msg = msg.Trim();
                 Trace2(String.Format(_Icq._uin + " message received from {0}: {1}", uin, msg));
@@ -445,6 +473,19 @@ namespace ChatBox2
                         _User._HideUin = true;
                         return "success";
                     }
+                    if (Regex.Match(msg, "^/disablenotify").Success)
+                    {
+                        if (_User._notifydisabled == false)
+                        {
+                            _User._notifydisabled = true;
+                            return "disabled";
+                        }
+                        else
+                        {
+                            _User._notifydisabled = false;
+                            return "enabled";
+                        }
+                    }
                     Match setinfo = Regex.Match(msg, Res.setinfoMatch, RegexOptions.Multiline);
                     if (setinfo.Success)
                     {
@@ -454,12 +495,7 @@ namespace ChatBox2
                     else if (Regex.Match(msg, @"^/exit2$").Success)
                     {
                         throw new Exception("exit");
-                    }
-                    else if (Regex.Match(msg, Res.unregisterMatch).Success)
-                    {
-                        _Icq.Remove(_User);
-                        return (Res.unregister);
-                    }
+                    }                    
                     else if (Regex.Match(msg, Res.unknowncommandMatch).Success)
                         return Res.unknowncommand;
                     else
@@ -487,15 +523,17 @@ namespace ChatBox2
                 return _User;
             }
         }
-        public static HttpUser FindUserbyNick(string nick)
+        public static User FindUserbyNick(string nick)
         {
-            HttpUser u = (from account in _Accounts from user in account._Users where user.nick == nick select user).FirstOrDefault();
+            User u = (from account in _Accounts from user in account._Users where user.nick == nick select user).FirstOrDefault();
             if (u != null) return u;
-            return _Dictionary.Values.FirstOrDefault(a => a.nick == nick);
+            return _UserList.FirstOrDefault(a => a.nick == nick);
 
         }
         public class Icq
         {
+
+
             public override string ToString()
             {
                 return _ICQAPP._uin + "->" + _ICQAPP._ConnectionStatus;
@@ -576,8 +614,8 @@ namespace ChatBox2
                     _ICQAPP.StartAsync();
                 }
 
-                //try
-                //{
+                try
+                {
                     if (null != _messages.FirstOrDefault(Func1()))
                     {
                         Trace2(_ICQAPP._uin + "Message Sending Failed");
@@ -586,8 +624,8 @@ namespace ChatBox2
 
                         _ICQAPP.Disconnect();
                     }
-                //}
-                //catch { }
+                }
+                catch { }
                 List<Im> ims = _ims;
                 _ims = new List<Im>();
                 return ims;
@@ -606,7 +644,7 @@ namespace ChatBox2
         public class HttpChat
         {
             public void StartAsync()
-            {
+            {                
                 TcpListener _TcpListener = new TcpListener(IPAddress.Any, 5200);
                 _TcpListener.Start();
                 Thread _Thread = new Thread(delegate()
@@ -625,10 +663,11 @@ namespace ChatBox2
             {
                 public Socket _Socket;
                 string _ip;
-                HttpUser _User;
+                User _User;
                 public void Start()
                 {
                     _ip = (((IPEndPoint)_Socket.RemoteEndPoint).Address).ToString();
+                    _User = _UserList.FirstOrDefault(a => a._ip == _ip); //
                     Trace2("con"+_ip);
                     NetworkStream _NetworkStream = new NetworkStream(_Socket);
                     _NetworkStream.ReadTimeout = 30000;
@@ -637,24 +676,18 @@ namespace ChatBox2
                         while (true)
                         {
                             string s = _Socket.Receive().ToStr();// ; //_NetworkStream.Cut("\r\n\r\n").ToStr();
-                            Match cookie = Regex.Match(s, @"Cookie: .*ses=(\d.+)%3a(.+?)[;\n\r]", RegexOptions.IgnoreCase);
+                            //Match cookie = Regex.Match(s, @"Cookie: .*ses=(\d.+)%3a(.+?)[;\n\r]", RegexOptions.IgnoreCase);
                             if (Regex.Match(s, @"GET /(Default.htm)? HTTP", RegexOptions.IgnoreCase).Success)
                             {
                                 string s3 = File.ReadAllText("Default.htm",Encoding.Default);
                                 Send(s3);
                                 Trace2("Send1");
                             }
-                            else if (cookie.Success && HttpUtility.UrlDecode(cookie.Groups[2].Value) == ICQAPP.XOR(cookie.Groups[1].Value).ToStr())
-                            {
-                                _ip = cookie.Groups[1].Value;
-                                _User = _Dictionary.TryGetValue(_ip);
+                            else 
+                            {                                
                                 Send(OnMessage1(s));
                             }
-                            else
-                            {
-                                Send("", "ses=" + HttpUtility.UrlEncode(_ip + ":" + ICQAPP.XOR(_ip).ToStr()));
-                                //return;
-                            }
+                            
                         }
                     }
                     catch (IOException) { }
@@ -663,45 +696,46 @@ namespace ChatBox2
                 }
                 public string OnMessage1(string s)
                 {
-                    Match getlog = Regex.Match(s, @"GET /\?line=(\d+)");
-                    Match get = Regex.Match(s, @"GET /\?get&r=.+? HTTP", RegexOptions.IgnoreCase);
-                    Match PostMessage = Regex.Match(s, @"GET /\?send=(.+?)&r=.+? HTTP", RegexOptions.IgnoreCase);
+                    Match m;
 
-                    Match search = Regex.Match(s, @"GET /\?q=(.+?) HTTP", RegexOptions.IgnoreCase);
-
-                    if (PostMessage.Success) //send msg
+                    if ((Regex.Match(s, @"GET /\?getlog&r=.+? HTTP", RegexOptions.IgnoreCase)).Success)                                            
+                        return GetLastMessages(_User==null?"general":_User._room);
+                    
+                    if ((m = Regex.Match(s, @"GET /\?send=(.+?)&r=.+? HTTP", RegexOptions.IgnoreCase)).Success) //send msg
                     {
-                        return Trace2(OnMessage2(HttpUtility.UrlDecode(PostMessage.Groups[1].Value)));
+                        return Trace2(OnMessage2(HttpUtility.UrlDecode(m.Groups[1].Value)));
                     }
-                    if (_User != null)
+                    if ((m = Regex.Match(s, @"GET /\?q=(.+?) HTTP", RegexOptions.IgnoreCase)).Success)
                     {
-                        if (search.Success)
-                        {
-                            System.Text.StringBuilder sb = new System.Text.StringBuilder(@"<form action=""/"" method=""get""><input name=""q"" type=""text"" /><input type=""submit"" value=""Search"" /></form>");
-                            for (int line = 0; line < GetRoom(_User._room).Count; line++)
+                        System.Text.StringBuilder sb = new System.Text.StringBuilder(@"<form action=""/"" method=""get""><input name=""q"" type=""text"" /><input type=""submit"" value=""Search"" /></form>");
+                        foreach (string room in _rooms)
+                            for (int line = 0; line < GetRoom(room).Count; line++)
                             {
-                                string s4 = GetRoom(_User._room)[line];
-                                string req = HttpUtility.UrlDecode(search.Groups[1].Value, Encoding.Default);
+                                string s4 = GetRoom(room)[line];
+                                string req = HttpUtility.UrlDecode(m.Groups[1].Value, Encoding.Default);
                                 req = Regex.Replace(req, @"\b(?:(?!\w).)+\b", ".*");
-                                Match m = Regex.Match(s4, req, RegexOptions.IgnoreCase);
-                                if (m.Success)
-                                    sb.Append(string.Format("<br /><a href=?line={0}>{1}</a>", line, HttpUtility.HtmlEncode(s4)));
+                                Match m2 = Regex.Match(s4, req, RegexOptions.IgnoreCase);
+                                if (m2.Success)
+                                    sb.Append(string.Format("<br /><a href=?line={0}&room={2}>{1}</a>", line, HttpUtility.HtmlEncode(s4),room));
                             }
-                            Trace2("search");
-                            return (sb.ToString());
-                        }
-                        if (getlog.Success)
+                        Trace2("search");
+                        return (sb.ToString());
+                    }
+                    if ((m = Regex.Match(s, @"GET /\?line=(\d+)&room=(.+?) HTTP")).Success)
+                        if (_rooms.Contains(m.Groups[2].Value))
                         {
                             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                            int i2 = int.Parse(getlog.Groups[1].Value);
-                            for (int i = i2; i < Math.Min(GetRoom(_User._room).Count, i2 + 100); i++)
+                            int i2 = int.Parse(m.Groups[1].Value);
+                            for (int i = i2; i < Math.Min(GetRoom(m.Groups[2].Value).Count, i2 + 100); i++)
                             {
-                                sb.AppendLine(HttpUtility.HtmlEncode(GetRoom(_User._room)[i]) + "<br />");
+                                sb.AppendLine(HttpUtility.HtmlEncode(GetRoom(m.Groups[2].Value)[i]) + "<br />");
                             }
                             Trace2("getlog");
                             return (sb.ToString());
                         }
-                        if (get.Success)
+                    if (_User != null)
+                    {
+                        if ((Regex.Match(s, @"GET /\?get&r=.+? HTTP", RegexOptions.IgnoreCase)).Success)
                         {
                             StringCollection ss = _MsgsToSend;
                             _MsgsToSend = new StringCollection();
@@ -736,8 +770,8 @@ namespace ChatBox2
                             string nick = "(web)" + m.Groups[1].Value;
                             if (FindUserbyNick(nick) == null)
                             {
-                                _Dictionary.Add(_ip, new HttpUser { nick = nick, ip = _ip, _room = "general" });
-                                return GetLastMessages("general") + Res.youareregistered;
+                                AddUser(new User { nick = nick, _ip = _ip, _room = "general"});
+                                return Res.youareregistered;
                             }
                             else
                                 Send(Res.alreadyregistered);
@@ -749,13 +783,7 @@ namespace ChatBox2
                     else
                     {
                         _User._DateTime = DateTime.Now;
-                        if (_User._Banned > DateTime.Now) return "banned " + (_User._Banned - DateTime.Now);
-
-                        if (Regex.IsMatch(msg, Res.unregisterMatch))
-                        {
-                            _Dictionary.Remove(_ip);
-                            return Res.unregister;
-                        }
+                        if (_User._Banned > DateTime.Now) return "banned " + (_User._Banned - DateTime.Now);                        
 
                         m = Regex.Match(msg, Res.setinfoMatch);
                         if (m.Success)
@@ -786,14 +814,25 @@ namespace ChatBox2
                 return t;
             }
         }
-        public static SerializableDictionary<string, HttpUser> _Dictionary { get { return _Database._Dictionary; } }
+        public static List<User> _UserList = new List<User>();
+        public static void AddUser(User u)
+        {
+            _UserList.Add(u);
+            
+            _Database._Users.Add(u._DUser);
+        }
+        public static void RemoveUser(User u)
+        {
+            _UserList.Remove(u);
+            _Database._Users.Remove(u._DUser);
+        }
         public static T Trace2<T>(T t)
         {
             Helper.Trace2(t.ToString(),"Chatbox");
             return t;
         }
         public static List<string> _rooms { get { return _Database.rooms; } }
-        public static string GlobalCommands(string msg, HttpUser _user)
+        public static string GlobalCommands(string msg, User _user)
         {
             Match m;
             Match ping = Regex.Match(msg, @"^.?ping(.*)");
@@ -806,6 +845,15 @@ namespace ChatBox2
                 return "http://" + _Database.IpAddress + ":5200/?q=" + HttpUtility.UrlEncode(m.Groups[1].Value.Trim());            
             if (_user != null)
             {
+                if ((m = Regex.Match(msg, @"^/mute ?(\d+)")).Success)
+                {
+                    TimeSpan ts;
+                    if (m.Groups[1].Value == "")
+                        ts = TimeSpan.FromHours(3);
+                    else
+                        ts = TimeSpan.FromMinutes(Math.Min(int.Parse(m.Groups[1].Value),180));
+                    _user._Mute=DateTime.Now + ts;
+                }
                 if (Regex.Match(msg, "^/rooms").Success)
                 {
                     return _rooms.ToString("\r\n");
@@ -827,11 +875,13 @@ namespace ChatBox2
                     m = Regex.Match(msg, @"^/ban (.+?) (\d*\.?\d+)$");
                     if (m.Success)
                     {
-                        HttpUser _HttpUser = FindUserbyNick(m.Groups[1].Value);
-                        if (_HttpUser != null && _HttpUser._Banned > DateTime.Now) return "Already Banned for" + (DateTime.Now - _HttpUser._Banned);
-                        if (_HttpUser != null && !_HttpUser.nick.StartsWith("@"))
+                        User _User = FindUserbyNick(m.Groups[1].Value);
+                        if (_User != null && _User._Banned > DateTime.Now) return "Already Banned for" + (DateTime.Now - _User._Banned);
+                        if (_User != null && !_User.nick.StartsWith("@"))
                         {
-                            _HttpUser._Banned = DateTime.Now + TimeSpan.FromMinutes(float.Parse(m.Groups[2].Value.Replace(".", ",")));
+                            TimeSpan ts = TimeSpan.FromMinutes(float.Parse(m.Groups[2].Value.Replace(".", ",")));
+                            _User._Banned = DateTime.Now + ts;
+                            SendMessageToAll(_User._room, null, "<<"+_User.nick + " banned for " + ts+">>");
                             return "success";
                         }
                         else
@@ -840,10 +890,11 @@ namespace ChatBox2
                     m = Regex.Match(msg, @"^/unban (.+)");
                     if (m.Success && _user.nick.StartsWith("@"))
                     {
-                        HttpUser _HttpUser = FindUserbyNick(m.Groups[1].Value);
-                        if (_HttpUser != null)
+                        User _User = FindUserbyNick(m.Groups[1].Value);
+                        if (_User != null)
                         {
-                            _HttpUser._Banned = DateTime.MinValue;
+                            _User._Banned = DateTime.MinValue;
+                            SendMessageToAll(_User._room, null, "<<"+_User.nick + " unbanned>>");
                             return "success";
                         }
                         else
@@ -856,7 +907,7 @@ namespace ChatBox2
                 System.Text.StringBuilder sb = new System.Text.StringBuilder("\r\n");
                 foreach (User user in GetOrderedIcqUsers())
                     sb.AppendLine(user.nick + (user._HideUin ? "(icq)" : "(" + user.uin + ")") + "," + user._room + ":" + user._Info);
-                foreach (HttpUser user in GetOrderedHttpUsers())
+                foreach (User user in GetOrderedUsers())
                     sb.AppendLine(user.nick + "," + user._room + ":" + user._Info);
                 return sb.ToString();
             }
@@ -867,11 +918,14 @@ namespace ChatBox2
 
         private static string GetLastMessages(string room)
         {
-            return GetRoom(room).Skip(Math.Min(0, GetRoom(room).Count - 1000)).ToString("\r\n");
+             var a =GetRoom(room).Last(500);
+             //int b=a.Count();
+             //Debugger.Break();
+            return a.ToString("\r\n");
         }
-        private static IEnumerable<HttpUser> GetOrderedHttpUsers()
+        private static IEnumerable<User> GetOrderedUsers()
         {
-            return (from a in _Dictionary.Values orderby a.nick select a);
+            return (from a in _UserList orderby a.nick select a);
         }
         private static IEnumerable<User> GetOrderedIcqUsers()
         {

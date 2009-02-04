@@ -83,7 +83,8 @@ namespace ChatBox2 {
         ////hideuin (скрыть уин)
         ////join комната (заити в комнату)
         ////rooms (посматреть комнаты)
-        ////search текст (поиск текста в чате).
+        ////search текст (поиск текста в чате)
+        ////disablenotify выключить или включить оповешания об игра [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string help {
             get {
@@ -209,28 +210,9 @@ namespace ChatBox2 {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Вы вышли из чата.
-        /// </summary>
-        internal static string unregister {
-            get {
-                return ResourceManager.GetString("unregister", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ^.?unregister$.
-        /// </summary>
-        internal static string unregisterMatch {
-            get {
-                return ResourceManager.GetString("unregisterMatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Добро пожаловать в чат CSLIVE (cslive.mindswitch.ru)
         ///Чтобы воити в чат напишите /register
-        ///Чтобы посмотреть список команд напишите /help
-        ///если будут проблемы с чатом то обратитесь по номеру 1231925.
+        ///Чтобы посмотреть список команд напишите /help.
         /// </summary>
         internal static string welcome {
             get {

@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "codenet", "ConsoleApplicati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameDevRu", "GameDevRu\GameDevRu.csproj", "{56F40208-F99A-4306-905F-62C244B04744}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "botva-online", "botva-online\botva-online.csproj", "{E3CC72E5-7308-4883-AF4F-D3602D77AB5B}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -131,6 +133,10 @@ Global
 		{56F40208-F99A-4306-905F-62C244B04744}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56F40208-F99A-4306-905F-62C244B04744}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56F40208-F99A-4306-905F-62C244B04744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3CC72E5-7308-4883-AF4F-D3602D77AB5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3CC72E5-7308-4883-AF4F-D3602D77AB5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3CC72E5-7308-4883-AF4F-D3602D77AB5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3CC72E5-7308-4883-AF4F-D3602D77AB5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

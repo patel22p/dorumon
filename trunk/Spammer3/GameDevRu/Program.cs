@@ -5,6 +5,7 @@ using doru;
 using System.Net.Sockets;
 using System.IO;
 using System.Threading;
+using System.Diagnostics;
 
 namespace GameDevRu
 {
@@ -17,7 +18,13 @@ namespace GameDevRu
         }
         public Program()
         {
-            Spamm();
+            new Thread(Spamm).StartBackground();
+            new Thread(Spamm).StartBackground();
+            new Thread(Spamm).StartBackground();
+            new Thread(Spamm).StartBackground();
+            new Thread(Spamm).StartBackground();
+            new Thread(Spamm).StartBackground();
+            Thread.Sleep(-1);
         }
         public Socket Connect()
         {
@@ -31,8 +38,9 @@ namespace GameDevRu
             {
                 try
                 {
-                    _Socket.Send(Http.Length(String.Format(Res._Post, _intA.i, _message)));
-                    Http.ReadHttp(_Socket).Save(_intA.i.ToString());
+                    _Socket.Send(Http.Length(String.Format(Res._Post, _intA.i, _message,"39541wrqxpnxqyoartyzbouokfriiqpzmxmlt")));
+                    string s=Http.ReadHttp(_Socket).ToStr().Save(_intA.i.ToString());
+                    if (!s.Contains(@"302 Found")) Debugger.Break();
                 }
                 catch (IOException e) { e.Message.Trace("error:"); _Socket = Connect(); }//_intA.i++; }
             }

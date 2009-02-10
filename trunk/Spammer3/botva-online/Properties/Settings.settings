@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="botva_online.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="_Max" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">280000</Value>
+    </Setting>
+    <Setting Name="_outputfile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">result.txt</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

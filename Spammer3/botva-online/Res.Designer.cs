@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GameDevRu {
+namespace botva_online {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace GameDevRu {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("GameDevRu.Res", typeof(Res).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("botva_online.Res", typeof(Res).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,21 +61,21 @@ namespace GameDevRu {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to POST /users/message.php HTTP/1.1
-        ///User-Agent: Opera/9.63 (Windows NT 5.1; U; en) Presto/2.1.1
-        ///Host: www.gamedev.ru
+        ///   Looks up a localized string similar to GET /player.php?id={0} HTTP/1.1
+        ///User-Agent: Opera/9.62 (Windows NT 5.1; U; en) Presto/2.1.1
+        ///Host: www.botva-online.ru
         ///Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1
-        ///Accept-Language: ru,en;q=0.9,fi-FI;q=0.8,fi;q=0.7
+        ///Accept-Language: ru,en;q=0.9,fi;q=0.8,ru-RU;q=0.7
         ///Accept-Charset: iso-8859-1, utf-8, utf-16, *;q=0.1
         ///Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
-        ///Referer: http://www.gamedev.ru/users/?id=39526
-        ///Cookie: SID={2}
+        ///Cookie: PHPSESSID=85922ef5f951c494f33e0f360550ae47
         ///Cookie2: $Version=1
-        ///Connection: Keep-Alive [rest of string was truncated]&quot;;.
+        ///Pragma: no-cache
+        ///Cache-Control [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string _Post {
+        internal static string get {
             get {
-                return ResourceManager.GetString("_Post", resourceCulture);
+                return ResourceManager.GetString("get", resourceCulture);
             }
         }
     }

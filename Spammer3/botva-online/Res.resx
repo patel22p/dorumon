@@ -117,22 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="_Post" xml:space="preserve">
-    <value>POST /users/message.php HTTP/1.1
-User-Agent: Opera/9.63 (Windows NT 5.1; U; en) Presto/2.1.1
-Host: www.gamedev.ru
+  <data name="get" xml:space="preserve">
+    <value>GET /player.php?id={0} HTTP/1.1
+User-Agent: Opera/9.62 (Windows NT 5.1; U; en) Presto/2.1.1
+Host: www.botva-online.ru
 Accept: text/html, application/xml;q=0.9, application/xhtml+xml, image/png, image/jpeg, image/gif, image/x-xbitmap, */*;q=0.1
-Accept-Language: ru,en;q=0.9,fi-FI;q=0.8,fi;q=0.7
+Accept-Language: ru,en;q=0.9,fi;q=0.8,ru-RU;q=0.7
 Accept-Charset: iso-8859-1, utf-8, utf-16, *;q=0.1
 Accept-Encoding: deflate, gzip, x-gzip, identity, *;q=0
-Referer: http://www.gamedev.ru/users/?id=39526
-Cookie: SID={2}
+Cookie: PHPSESSID=85922ef5f951c494f33e0f360550ae47
 Cookie2: $Version=1
-Connection: Keep-Alive, TE
-TE: deflate, gzip, chunked, identity, trailers
-Content-Length: _length_
-Content-Type: application/x-www-form-urlencoded
+Pragma: no-cache
+Cache-Control: no-cache
+Connection: Keep-Alive
 
-Text={1}&amp;idto={0}&amp;action=send&amp;url=%2Fusers%2Fmessage.php</value>
+</value>
   </data>
 </root>

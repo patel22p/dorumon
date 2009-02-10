@@ -16,7 +16,7 @@ namespace EmailTest
     {
         static void Main(string[] args)
         {
-            
+            Spammer3.Setup();
             //TcpRedirect _TcpRedirect = new TcpRedirect();
             //_TcpRedirect._LocalPort = 25;
             //_TcpRedirect._RemoteIpDelegate = delegate{ new TcpClient ("localhost",

@@ -35,13 +35,55 @@ namespace karabiner
         public Program()
         {
             Load();
-            current = numbers;
+            new Thread(Save).StartBackground();
+            current = words;
             for (; thlen < ints.Length; thlen++)
             {
                 Begin(thlen);
             }
         }
 
+        
+        List<string> _Begin = new List<string> { "KarS" ,"KarRena","KarRf251",""};
+        List<string> _End = new List<string> { ".jpg", ".JPG", ".html", ".htm" };
+        private void Begin(int c)
+        {                        
+            for (; ints[c] < _Begin.Count; ints[c]++)
+            {
+                if (c == 0)                
+                    Send(_Begin[ints[c]]);
+                else
+                    BruteForce(c - 1, _Begin[ints[c]]);
+            }
+            ints[c] = 0;
+        }
+        private void End(int c, string sb)
+        {
+            for (; ints[c] < _End.Count; ints[c]++)
+                Send(sb + _End[ints[c]]);
+            ints[c] = 0;
+        }
+        public void Send(string sb)
+        {
+            while (i > 200) Thread.Sleep(2);
+            new Thread(Send).Start(sb);
+        }
+        private void BruteForce(int c, string sb)
+        {
+            if (c == 0)
+            {
+
+                End(c, sb);
+                Thread.Sleep(2);
+                return;
+            }
+
+            for (; ints[c] < current.Length; ints[c]++)
+            {
+                BruteForce(c - 1, sb + current[ints[c]]);
+            }
+            ints[c] = 0;
+        }
         private void Load()
         {
             try
@@ -54,47 +96,8 @@ namespace karabiner
                     ints[i] = int.Parse(ss[i]);
 
             }
-            catch (Exception) { thlen = 0; ints = new int[2 + 2]; "deafult".Trace(); }
-            new Thread(Save).StartBackground();
-        }
-        List<string> _Begin = new List<string> { "Kars" };
-        List<string> _End = new List<string> { ".jpg", ".JPG", ".html", ".htm" };
-        private void Begin(int c)
-        {                        
-            for (; ints[c] < _Begin.Count; ints[c]++)
-            {
-                if (c == 0)                
-                    OnString(_Begin[ints[c]]);
-                else
-                BruteForce(c - 1, _Begin[ints[c]]);
-            }
-            ints[c] = 0;
-        }
-        private void End(int c, string sb)
-        {
-            for (; ints[c] < _End.Count; ints[c]++)
-                OnString(sb + _End[ints[c]]);
-        }
-        public void OnString(string sb)
-        {
-            sb.Trace();
-        }
-        private void BruteForce(int c, string sb)
-        {
-            if (c == 0)
-            {
-                //while (i > 50) Thread.Sleep(1);
-                //new Thread(Send).Start(sb);
-                End(c, sb);
-                Thread.Sleep(1);
-                return;
-            }
-
-            for (; ints[c] < current.Length; ints[c]++)
-            {
-                BruteForce(c - 1, sb + current[ints[c]]);
-            }
-            ints[c] = 0;
+            catch (Exception) { thlen = 0; ints = new int[3 + 2]; "deafult".Trace(); }
+            
         }
         public void Save()
         {
@@ -113,18 +116,20 @@ namespace karabiner
             try
             {
 
-                Socket _Socket = new TcpClient("www014.upp.so-net.ne.jp", 80).Client;
-                NetworkStream _NetworkStream = new NetworkStream(_Socket);
-                _NetworkStream.Write(string.Format(Res.get, s));
-                string s2 = _NetworkStream.Cut("\r\n").ToStr();
-                s.Trace(s2.Trim());
-                if (s2 == _ok)
+                Socket _Socket = new TcpClient("192.84.196.226", 8080).Client;
+                using (NetworkStream _NetworkStream = new NetworkStream(_Socket))
                 {
-                    if (!_ListA.Contains(s)) _ListA.Add(s);
-                    _ListA.Flush();
-                    "success".Trace();
-                }
+                    _NetworkStream.Write(string.Format(Res.proxy, s));
+                    string s2 = _NetworkStream.Cut("\r\n").ToStr();
+                    s.Trace(s2.Trim());
+                    if (s2 == _ok)
+                    {
+                        if (!_ListA.Contains(s)) _ListA.Add(s);
+                        _ListA.Flush();
+                        "success".Trace();
+                    }                
                 _Socket.Close();
+                }
             }
             catch (IOException) { "err".Trace(); }
             catch (SocketException) { "connerr".Trace(); }

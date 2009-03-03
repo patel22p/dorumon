@@ -1,0 +1,42 @@
+<Window x:Class="Notepad.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:a="clr-namespace:Notepad"
+    Title="{Binding _Title}" Width="800" Height="600">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="ApplicationCommands.New"/>
+                <MenuItem Header="_Open" Command="ApplicationCommands.Open"/>
+                <MenuItem Header="_Save" Command="ApplicationCommands.Save"/>
+                <MenuItem Header="_Find" Command="ApplicationCommands.Find"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Command="ApplicationCommands.Close"/>
+            </MenuItem>            
+        </Menu>
+
+        <a:MyTextBox ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                 x:Name="_RitchTextBox" AcceptsReturn="True" Text="{Binding _Text}">
+            <TextBox.Resources>
+                <Style TargetType="{x:Type Paragraph}">
+                    <Setter Property="Margin" Value="0"/>
+                </Style>
+            </TextBox.Resources>
+        </a:MyTextBox>
+
+    </DockPanel>
+    <Window.InputBindings>
+        <KeyBinding Command="ApplicationCommands.New" Modifiers="Control" Key="N"/>
+        <KeyBinding Command="ApplicationCommands.Open" Modifiers="Control" Key="O"/>
+        <KeyBinding Command="ApplicationCommands.Save" Modifiers="Control" Key="S"/>
+        <KeyBinding Command="ApplicationCommands.Find" Modifiers="Control" Key="F"/>
+        <KeyBinding Command="ApplicationCommands.Close" Modifiers="Control" Key="W"/>        
+    </Window.InputBindings>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.New" Executed="Nw" />
+        <CommandBinding Command="ApplicationCommands.Open" Executed="Open" />
+        <CommandBinding Command="ApplicationCommands.Save" Executed="Save" />
+        <CommandBinding Command="ApplicationCommands.Close" Executed="Close" />
+        <CommandBinding Command="ApplicationCommands.Find" Executed="Find" />
+    </Window.CommandBindings>
+</Window>

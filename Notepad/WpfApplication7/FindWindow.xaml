@@ -1,0 +1,8 @@
+﻿<Window x:Class="Notepad.FindWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="FindWindow" Height="71" Width="286">
+    <Grid>
+        <TextBox Name="_Textbox" />
+    </Grid>
+</Window>

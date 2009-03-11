@@ -48,12 +48,13 @@ namespace Notepad
                 try
                 {
                     if (_Path == "") throw new ExceptionA("empty path");
+                    if (!File.Exists(_Path)) throw new ExceptionA("file not exists");
                     _Date = new FileInfo(_Path).LastWriteTime;
                     _Text = File.ReadAllText(_Path);
-
+                    this._Path = _Path;
                     "loaded".Trace();
                 }
-                catch (ExceptionA e) { e.Message.Trace(); } catch (IOException) { this._Path = _Path; }
+                catch (ExceptionA e) { e.Message.Trace(); } catch (IOException) {  }
                 _Title = _Path + " " + _Text.Length / 1000;
                 
             }            

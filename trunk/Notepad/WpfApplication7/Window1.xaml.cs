@@ -30,10 +30,11 @@ namespace Notepad
         Model _Model;
         public Window1()
         {
+            
             Logging.Setup();
             
             _Window1 = this;
-            InitializeComponent();
+            InitializeComponent();  
             Loaded += new RoutedEventHandler(Window1_Loaded);
         }
 
@@ -42,7 +43,7 @@ namespace Notepad
         {
             ShowInTaskbar = false;
             RegisterHotkey();
-
+            
             _Model = new Model();
             this.DataContext = _Model;
             foreach (string s in Environment.GetCommandLineArgs())
@@ -55,14 +56,25 @@ namespace Notepad
             if (!_Model._Loaded) _Model.Load();
             KeyDown += new KeyEventHandler(Window1_KeyDown);
             Closed += new EventHandler(Window1_Closed);
+            
             Closing += new System.ComponentModel.CancelEventHandler(Window1_Closing);
+            App.Current.Deactivated += new EventHandler(Current_Deactivated);
             _RitchTextBox.Focus();
             _RitchTextBox.TextChanged += new TextChangedEventHandler(RitchTextBox_TextChanged);
-
+            
             new DispatcherTimer().StartRepeatMethod(600, Update);
-            this.Focus();            
+            this.Show();            
+            
         }
-
+                        
+        void Current_Deactivated(object sender, EventArgs e)
+        {
+            Hide();
+        }
+        public new void Hide()
+        {
+            base.Hide();
+        }
         private void RegisterHotkey()
         {
             Hotkey _Hotkey = new Hotkey();
@@ -74,14 +86,16 @@ namespace Notepad
 
         void Hotkey_HotkeyPressed(object sender, EventArgs e)
         {            
-            Visibility = Visibility.Visible;            
-            Focus();
+            Show();
         }
 
-        public new void Focus()
+        public new void Show()
         {
+            "fucused".Trace();
+            base.Show();
+            Activate();
             _RitchTextBox.Focus();
-            base.Focus();
+            
         }
         void RitchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -107,7 +121,7 @@ namespace Notepad
         {
             if (e.Key == Key.Escape)
             {
-                Visibility = Visibility.Collapsed;
+                Hide();
             }
             if (e.Key == Key.F3)
                 _RitchTextBox.FindNext();

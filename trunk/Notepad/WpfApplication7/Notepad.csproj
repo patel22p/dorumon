@@ -50,7 +50,7 @@
   <ItemGroup>
     <Reference Include="ManagedWinapi, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Helper\dlls\ManagedWinapi.dll</HintPath>
+      <HintPath>bin\Debug\ManagedWinapi.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -163,9 +163,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="D:\Documents and Settings\doru\My Documents\code\Helper\Helper\Helper.csproj">
+    <ProjectReference Include="..\..\Helper\Helper\Helper.csproj">
       <Project>{4DE8D8C1-6F75-42AD-AA46-BD35BB71352A}</Project>
       <Name>Helper</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

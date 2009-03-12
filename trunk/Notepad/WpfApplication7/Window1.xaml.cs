@@ -29,18 +29,24 @@ namespace Notepad
         public static Window1 _Window1;
         Model _Model;
         public Window1()
-        {
-            
-            Logging.Setup();
-            
+        {           
             _Window1 = this;
             InitializeComponent();  
             Loaded += new RoutedEventHandler(Window1_Loaded);
         }
 
+        public static void AddToAuthorun()
+        {
+            Microsoft.Win32.RegistryKey myKey =
+Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run\", true);
+            myKey.SetValue(Assembly.GetEntryAssembly().ManifestModule.Name, Assembly.GetEntryAssembly().Location);            
+        }
+
         
         void Window1_Loaded(object sender, RoutedEventArgs e)
         {
+            Logging.Setup();
+            Logging.AddToAuthorun();
             ShowInTaskbar = false;
             RegisterHotkey();
             
@@ -61,9 +67,10 @@ namespace Notepad
             App.Current.Deactivated += new EventHandler(Current_Deactivated);
             _RitchTextBox.Focus();
             _RitchTextBox.TextChanged += new TextChangedEventHandler(RitchTextBox_TextChanged);
-            
-            new DispatcherTimer().StartRepeatMethod(600, Update);
-            this.Show();            
+
+            new DispatcherTimer().StartRepeatMethod(60 * 10, Update);
+            this.Show(); 
+           
             
         }
                         
@@ -81,7 +88,11 @@ namespace Notepad
             _Hotkey.WindowsKey = true;
             _Hotkey.KeyCode = System.Windows.Forms.Keys.C;
             _Hotkey.HotkeyPressed += new EventHandler(Hotkey_HotkeyPressed);
-            _Hotkey.Enabled = true;
+            try
+            {
+                _Hotkey.Enabled = true;
+            }
+            catch { throw new Exception("key already token"); }
         }
 
         void Hotkey_HotkeyPressed(object sender, EventArgs e)

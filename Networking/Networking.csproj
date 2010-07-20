@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2EF1CFCC-10BD-ED2D-54E3-CE66FDBAC5FE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Irrelevant</RootNamespace>
+    <AssemblyName>Irrelvant</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:/Program Files/Unity/Editor/Data/lib/UnityEngine-Debug.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>C:/Program Files/Unity/Editor/Data/lib/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Vehicles\jeep\readme.txt" />
+    <Compile Include="Assets\Authoritative Server\GraduallyUpdateState.cs" />
+    <Compile Include="Assets\Networking Scripts\NetworkInterpolatedTransform.cs" />
+    <Compile Include="Assets\Networking Scripts\NetworkRigidbody.cs" />
+    <Compile Include="Assets\Networking Scripts\NetworkSyncAnimation.cs" />
+    <Compile Include="Assets\Networking Scripts\PingCustom.cs" />
+    <Compile Include="Assets\Networking Scripts\PingWin.cs" />
+    <Compile Include="Assets\ZFolder\Base.cs" />
+    <Compile Include="Assets\ZFolder\Cam.cs" />
+    <Compile Include="Assets\ZFolder\GuiConnection.cs" />
+    <Compile Include="Assets\ZFolder\GuiPlayer.cs" />
+    <Compile Include="Assets\ZFolder\GuiScoreBoard.cs" />
+    <Compile Include="Assets\ZFolder\GunBase.cs" />
+    <Compile Include="Assets\ZFolder\Player.cs" />
+    <Compile Include="Assets\ZFolder\Spawn.cs" />
+    <None Include="Assets\Detonator\Resources\Detonator\Textures\HeatDistort.shader" />
+    <None Include="Assets\Vehicles\SurfaceEffects\Spume\WaterSpume.shader" />
+    <None Include="Assets\Authoritative Server\AuthServerNetworkLogic.js" />
+    <None Include="Assets\Authoritative Server\AuthServerPersonAnimation.js" />
+    <None Include="Assets\Authoritative Server\AuthServerSpawnPlayer.js" />
+    <None Include="Assets\Authoritative Server\NetworkController.js" />
+    <None Include="Assets\Castles\CastleLogic.js" />
+    <None Include="Assets\Castles\CastlesNetworkInit.js" />
+    <None Include="Assets\CharacterControls-(No Networking code)\SpringFollowCamera.js" />
+    <None Include="Assets\CharacterControls-(No Networking code)\ThirdPersonController.js" />
+    <None Include="Assets\CharacterControls-(No Networking code)\ThirdPersonPushBodies.js" />
+    <None Include="Assets\CharacterControls-(No Networking code)\ThirdPersonSimpleAnimation.js" />
+    <None Include="Assets\Chat\Chat.js" />
+    <None Include="Assets\Networking Scripts\CarNetworkInit.js" />
+    <None Include="Assets\Networking Scripts\CarSpawnPrefab.js" />
+    <None Include="Assets\Networking Scripts\ConnectGui.js" />
+    <None Include="Assets\Networking Scripts\ConnectGuiMasterServer.js" />
+    <None Include="Assets\Networking Scripts\NetworkLevelLoad.js" />
+    <None Include="Assets\Networking Scripts\PingTester.js" />
+    <None Include="Assets\Networking Scripts\SpawnPrefab.js" />
+    <None Include="Assets\Networking Scripts\ThirdPersonNetworkInit.js" />
+    <None Include="Assets\Vehicles\Car.js" />
+    <None Include="Assets\Vehicles\SpringFollowCameraGeneric.js" />
+    <None Include="Assets\Vehicles\SurfaceEffects\FloatableWater.js" />
+    <None Include="Assets\Vehicles\SurfaceEffects\Spume\WaterSpume.js" />
+    <None Include="Assets\Vehicles\SurfaceEffects\Tracks\Skidmarks.js" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

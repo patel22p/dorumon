@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{EB118228-989F-C16E-E172-491164A668FD}") = "New Unity Project 4", "New Unity Project 4.csproj", "{1A7D9A5F-5E19-F0A1-8334-78E800D2043C}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A7D9A5F-5E19-F0A1-8334-78E800D2043C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A7D9A5F-5E19-F0A1-8334-78E800D2043C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A7D9A5F-5E19-F0A1-8334-78E800D2043C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A7D9A5F-5E19-F0A1-8334-78E800D2043C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

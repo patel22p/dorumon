@@ -20,8 +20,9 @@ public class Player : Base {
     public string Nick;
     public int score;
     protected override void Start()
-    { 
-        if (isMine)            
+    {
+        gunlist = this.GetComponentsInChildren<GunBase>(); 
+        if (networkView.isMine)            
         {
             RPCSetNick(connectionGui.Nick);
             SetOwner(Network.player);            
@@ -66,7 +67,7 @@ public class Player : Base {
                 RCPSelectGun(2);
         }
     }
-    public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
+    public GunBase[] gunlist;
     [RPC]
     private void RCPSelectGun(int i)
     {
@@ -121,6 +122,7 @@ public class Player : Base {
     [RPC]
     public void RPCSpawn()
     {
+        _cam.localplayer = this;
         CallRPC();
         Show(true);
         RCPSelectGun(1);
@@ -145,9 +147,9 @@ public class Player : Base {
                 if (p.OwnerID == killedyby)
                 {                    
                     if (p.isMine)
-                        networkView.RPC("RPCSetScore", RPCMode.All, score - 1);                        
+                        myNetworkView.RPC("RPCSetScore", RPCMode.All, score - 1);                        
                     else
-                        p.networkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);                        
+                        p.myNetworkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);                        
                 }
 
         }

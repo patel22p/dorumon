@@ -31,8 +31,9 @@ public class Base : MonoBehaviour
     protected virtual void OnCollisionEnter(Collision collisionInfo) { }
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
-    public bool isMine { get { return OwnerID == Network.player; } }
-    public new NetworkView networkView
+    public bool isMine { get { return myNetworkView!=null; } }
+    public bool isMineControlled { get { return OwnerID == Network.player; } }
+    public NetworkView myNetworkView
     {
         get
         {
@@ -66,18 +67,27 @@ public class Base : MonoBehaviour
     public void Show() { Show(true); }
     public void Show(bool value)
     {
-        enabled = value;
-        foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
-            r.enabled = value;        
+        print(value);
+        this.transform.gameObject.active = value;
+        Active(value,this.transform);
+    }
+
+    private void Active(bool value, Transform t)
+    {
+        for (int i = 0; i < t.transform.childCount; i++)
+        {
+            t.transform.GetChild(i).gameObject.active = value;
+            Active(value, t.transform.GetChild(i));
+        }
     }    
     public void CallRPC(params object[] obs)   
     {        
-        if (isMine)
+        if (isMineControlled)
         {            
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)
                     return;
-            networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
+            myNetworkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
         }
     }
     

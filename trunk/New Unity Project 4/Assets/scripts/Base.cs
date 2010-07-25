@@ -86,26 +86,28 @@ public class Base : MonoBehaviour
 
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
+    bool hidden;
     public void Show(bool value)
     {
-        if (value == enabled) return;
+        
         if (rigidbody != null)
         {
             rigidbody.collider.isTrigger = !value;
             rigidbody.useGravity = value;
-        }        
-        
+            rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
+        }
+
         if (value)
-        {            
-                transform.localPosition -= new Vector3(9999, 0, 0);
+        {
+            if (hidden) { transform.localPosition += new Vector3(99999, 0, 0); hidden = false; }
         }
         else
-        {            
-            transform.localPosition += new Vector3(9999, 0, 0);
-        }
-        enabled = value;
-        //foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
-        //    r.enabled = value;
+        {
+            if (!hidden) { transform.localPosition -= new Vector3(99999, 0, 0); hidden = true; }
+            
+        }        
+        foreach (Base r in this.GetComponentsInChildren<Base>())
+            r.enabled = value;
     }    
     public IEnumerable<Transform> getChild(Transform t)
     {

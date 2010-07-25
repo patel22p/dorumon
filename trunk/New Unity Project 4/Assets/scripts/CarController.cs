@@ -29,11 +29,10 @@ public class CarController : Car
     protected override void  OnTriggerStay(Collider collisionInfo)
     {
         
-        if (collisionInfo.gameObject.name == "LocalPlayer" && !isControlled)
+        if (collisionInfo.gameObject.name == "LocalPlayer" && !isControlled && localPlayer.enabled)
         {            
             if (Input.GetKeyDown(KeyCode.F))
-            {
-                print("car in");
+            {                
                 localPlayer.Show(false);
                 RPCSetOwner();
                 _cam.localplayer = this;

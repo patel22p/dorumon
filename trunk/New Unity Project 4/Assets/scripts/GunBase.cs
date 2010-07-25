@@ -30,6 +30,7 @@ public class GunBase : Base
 
     protected override void Update()
     {
+        
         if (isMine) q = Find<Cam>().transform.rotation;
         transform.rotation = q;
         if (isMine)

@@ -142,9 +142,9 @@ public class Player : Base {
                 if (p.OwnerID == killedyby)
                 {                    
                     if (p.isMine)
-                        myNetworkView.RPC("RPCSetScore", RPCMode.All, score - 1);                        
+                        networkView.RPC("RPCSetScore", RPCMode.All, score - 1);                        
                     else
-                        p.myNetworkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);                        
+                        p.networkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);                        
                 }
 
         }

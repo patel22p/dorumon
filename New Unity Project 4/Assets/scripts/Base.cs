@@ -73,7 +73,10 @@ public class Base : MonoBehaviour
     public void RPCResetOwner()
     {
         CallRPC();
-        myNetworkView.observed = null;
+        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
+            otherView.observed = null;
+        foreach (Base bas in GetComponentsInChildren(typeof(Base)))
+            bas.OwnerID = null;
     }
     
     public void RPCSetOwner()
@@ -103,8 +106,7 @@ public class Base : MonoBehaviour
         enabled = value;
         //foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
         //    r.enabled = value;
-    }
-    Vector3 oldt;
+    }    
     public IEnumerable<Transform> getChild(Transform t)
     {
         yield return t;

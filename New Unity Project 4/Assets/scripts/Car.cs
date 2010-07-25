@@ -28,8 +28,7 @@ public class Car : Base
     protected float brake = 0.0f;
     protected float handbrake = 0.0f;
     protected float steer = 0.0f;
-    protected float motor = 0.0f;
-    private float skidTime = 0.0f;
+    protected float motor = 0.0f;    
     private bool onGround = false;
     private float cornerSlip = 0.0f;
     private float driveSlip = 0.0f;
@@ -234,7 +233,7 @@ public class Car : Base
         steerVelo = Mathf.Clamp(steerVelo, -maxRotSteer, maxRotSteer);
         transform.Rotate(Vector3.up * steerVelo * 57.295788f);
     }
-    public virtual void FixedUpdate()
+    protected override void FixedUpdate()
     {
       
         if (onGround)

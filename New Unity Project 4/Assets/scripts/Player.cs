@@ -24,7 +24,7 @@ public class Player : Base {
         if (isMine)            
         {
             RPCSetNick(connectionGui.Nick);
-            RPCSetID(Network.player);
+            SetOwner(Network.player);            
             RPCSpawn();
         }
 
@@ -106,17 +106,7 @@ public class Player : Base {
         CallRPC(nick);
         Nick = nick;
     }
-    [RPC]
-    public void RPCSetID(NetworkPlayer player)
-    {
-
-        CallRPC(player);
-        foreach (Base a in GetComponentsInChildren(typeof(Base)))
-        {
-            a.OwnerID = player;
-            a.OnSetID();
-        }
-    }
+    
     [RPC]
     public void RPCSetLife(int NwLife)
     {

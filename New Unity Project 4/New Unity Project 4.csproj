@@ -42,19 +42,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Detonator\System\Detonator.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorBurstEmitter.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorCloudRing.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorFireball.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorForce.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorGlow.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorHeatwave.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorLight.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorShockwave.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorSmoke.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorSound.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorSparks.cs" />
-    <Compile Include="Assets\Detonator\System\DetonatorSpray.cs" />
     <Compile Include="Assets\Editor\CreateFolders.cs" />
     <Compile Include="Assets\Editor\TerrainToolkit.cs" />
     <Compile Include="Assets\scripts\Base.cs" />
@@ -64,6 +51,7 @@
     <Compile Include="Assets\scripts\BulletBazoka.cs" />
     <Compile Include="Assets\scripts\BulletMini.cs" />
     <Compile Include="Assets\scripts\Cam.cs" />
+    <Compile Include="Assets\scripts\Car.cs" />
     <Compile Include="Assets\scripts\CarController.cs" />
     <Compile Include="Assets\scripts\Energy.cs" />
     <Compile Include="Assets\scripts\Generate2DReflection.cs" />
@@ -76,23 +64,16 @@
     <Compile Include="Assets\scripts\GunMini.cs" />
     <Compile Include="Assets\scripts\IslandWater.cs" />
     <Compile Include="Assets\scripts\Player.cs" />
+    <Compile Include="Assets\scripts\Skidmarks.cs" />
     <Compile Include="Assets\scripts\Spawn.cs" />
-    <None Include="Assets\Detonator\Resources\Detonator\Textures\HeatDistort.shader" />
     <None Include="Assets\materials\FX-IslandWaterFull.shader" />
     <None Include="Assets\materials\FX-IslandWaterSimple.shader" />
     <None Include="Assets\materials\FX-UnderwaterSurface.shader" />
     <None Include="Assets\materials\Normal-BumpSpec_EnvLightmapped.shader" />
     <None Include="Assets\materials\Particle Alpha Blend goodfog.shader" />
     <None Include="Assets\materials\Skidmarks.shader" />
-    <None Include="Assets\Detonator\Sample Supporting Emitters\Detonator Spray Helper.js" />
-    <None Include="Assets\Detonator\TestScene\DetonatorTest.js" />
     <None Include="Assets\Editor\HeightmapExportPNG.js" />
-    <None Include="Assets\scripts\Car.js" />
-    <None Include="Assets\scripts\CrashController.js" />
     <None Include="Assets\scripts\LightmapperObjectUV.js" />
-    <None Include="Assets\scripts\Skidmarks.js" />
-    <None Include="Assets\scripts\SoundController.js" />
-    <None Include="Assets\scripts\SoundToggler.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

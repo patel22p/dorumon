@@ -31,15 +31,5 @@ public class Box : Base
         //    Random.Range(bounds.min.z, bounds.max.z));
         //this.transform.rotation = rotation;
     }
-    [RPC]
-    void SetOwner(NetworkPlayer owner, NetworkMessageInfo a)
-    {
-        this.CallRPC(owner, a);
-        //if (b.isMine)
-        //        b.RPC("SetOwner", RPCMode.All, Network.player);
-        foreach (NetworkView b in this.GetComponents<NetworkView>())
-            b.observed = null;
-        a.networkView.observed = this.rigidbody;
-        OwnerID = owner;
-    }
+    
 }

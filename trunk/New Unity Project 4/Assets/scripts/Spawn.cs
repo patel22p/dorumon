@@ -13,10 +13,23 @@ public class Spawn : Base
     }
     protected override void OnPlayerDisconnected(NetworkPlayer player)
     {
-        print("pl disc");                
+        foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
+            foreach (NetworkView v in a.GetComponents<NetworkView>())
+                if (v.owner == player) Destroy(v.viewID);
+
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);        
     }
+    [RPC]
+    private void Destroy(NetworkViewID v)
+    {
+        CallRPC(v);
+        NetworkView nw = NetworkView.Find(v);
+        nw.viewID = NetworkViewID.unassigned;
+        nw.enabled = false;
+        Component.Destroy(nw);
+    }   
+
     protected override void OnDisconnectedFromServer()
     {
         Application.LoadLevel(Application.loadedLevel);      

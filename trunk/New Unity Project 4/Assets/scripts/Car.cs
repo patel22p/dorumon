@@ -230,6 +230,7 @@ public class Car : Base
             if (steerVeloInput > steerVelo)
                 steerVelo = steerVeloInput;
         }
+        
         steerVelo = Mathf.Clamp(steerVelo, -maxRotSteer, maxRotSteer);
         transform.Rotate(Vector3.up * steerVelo * 57.295788f);
     }

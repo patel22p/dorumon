@@ -20,28 +20,25 @@ public class Player : Base {
     public string Nick;
     public int score;
     protected override void Start()
-    {
-        gunlist = this.GetComponentsInChildren<GunBase>(); 
+    {        
         if (networkView.isMine)            
         {
             RPCSetNick(connectionGui.Nick);
-            SetOwner(Network.player);            
+            RPCSetOwner();            
             RPCSpawn();
+            _cam.localplayer = this;
         }
 
     }
 
-    //[RPC]
-    //public void RPCAssignID(int i, NetworkViewID id)
-    //{
-    //    CallRPC(i, id);
-    //    GameObject g = GameObject.Find(i.ToString());
-    //    NetworkView nw = g.AddComponent<NetworkView>();
-    //    nw.observed = null;
-    //    nw.group = (int)Group.RPCAssignID;        
-    //    nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
-    //    nw.viewID = id;
-    //}
+    [RPC]
+    public void RPCShow(bool value)
+    {
+        CallRPC(value);
+        Show(value);
+
+    }
+
     public override void OnSetID()
     {
         if (isMine)
@@ -67,11 +64,10 @@ public class Player : Base {
                 RCPSelectGun(2);
         }
     }
-    public GunBase[] gunlist;
+    public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
     [RPC]
     private void RCPSelectGun(int i)
     {
-        
         CallRPC(i);
         foreach (GunBase gb in gunlist)
             gb.DisableGun();
@@ -110,7 +106,7 @@ public class Player : Base {
     
     [RPC]
     public void RPCSetLife(int NwLife)
-    {
+    {        
         CallRPC(NwLife);
         if (isMine)
             blood.Hit(Mathf.Abs(NwLife - Life));
@@ -122,9 +118,8 @@ public class Player : Base {
     [RPC]
     public void RPCSpawn()
     {
-        _cam.localplayer = this;
-        CallRPC();
         Show(true);
+        CallRPC();        
         RCPSelectGun(1);
         foreach (GunBase gunBase in gunlist)
             gunBase.Reset();

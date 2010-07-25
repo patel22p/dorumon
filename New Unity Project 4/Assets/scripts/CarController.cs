@@ -8,41 +8,53 @@ public class CarController : Car
     protected override void Start()
     {
         base.Start();
-        if (Network.peerType == NetworkPeerType.Disconnected) return;
+        if (Network.peerType == NetworkPeerType.Disconnected) return;        
         if(!Network.isServer)
-            myNetworkView.RPC("RPCNW",RPCMode.All,  Network.AllocateViewID());
+            networkView.RPC("RPCNW",RPCMode.All,  Network.AllocateViewID());
         
     }
+    [RPC]
+    public void RPCNW(NetworkViewID id)
+    {        
+        NetworkView nw = this.gameObject.AddComponent<NetworkView>();
+        nw.group = (int)Group.RPCAssignID;
+        nw.observed = null;
+        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        nw.viewID = id;
+    }
+
     Player localPlayer  { get { return Find<Player>("LocalPlayer"); } }
     Cam _cam { get { return Find<Cam>(); } }
     protected override void OnCollisionEnter(Collision collisionInfo)
     {
-
+        
         if (collisionInfo.gameObject.name == "LocalPlayer")
         {
-
             if (Input.GetKey(KeyCode.F))
             {
-                RPCDeactivePlayer(false);
-                SetOwner(Network.player);
+                localPlayer.RPCShow(false);
+                RPCSetOwner();
                 _cam.localplayer = this;
             }
         }
     }
-    [RPC]
-    public void RPCDeactivePlayer(bool value)
-    {
-        CallRPC(value);
-        localPlayer.Show(value); 
-    }
+    
     public override void FixedUpdate()
     {
         if (isMineControlled)
         {            
             brake = Mathf.Clamp01(-Input.GetAxis("Vertical"));
-            handbrake = Input.GetButton("Jump") ? 1.0f : 0.0f;
+            handbrake = Input.GetButton("Jump") ? 1f : 0.0f;
             steer = Input.GetAxis("Horizontal");
             motor = Mathf.Clamp01(Input.GetAxis("Vertical"));
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                localPlayer.RPCShow(true);                
+                localPlayer.transform.position = transform.Find("door").position;
+                _cam.localplayer = localPlayer;
+                RPCResetOwner();
+            }
+            if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
         }
         else
         {
@@ -54,15 +66,6 @@ public class CarController : Car
 
         base.FixedUpdate();
     }
-    [RPC]
-    public void RPCNW(NetworkViewID id)
-    {
-        print("RPCNW call");
-        NetworkView nw = this.gameObject.AddComponent<NetworkView>();                
-        nw.group = (int)Group.RPCAssignID;
-        nw.observed = null;
-        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
-        nw.viewID = id;        
-    }
+    
 }
  

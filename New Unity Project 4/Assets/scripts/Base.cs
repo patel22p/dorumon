@@ -32,7 +32,7 @@ public class Base : MonoBehaviour
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
     public bool isMine { get { return myNetworkView!=null; } }
-    public bool isMineControlled { get { return OwnerID == Network.player; } }
+    public bool isMineControlled { get { return Network.peerType != NetworkPeerType.Disconnected && myNetworkView.observed != null; } }
     public NetworkView myNetworkView
     {
         get
@@ -45,33 +45,44 @@ public class Base : MonoBehaviour
 
     
     [RPC]
-    void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo a)
-    {                         
-        foreach (NetworkView b in this.GetComponents<NetworkView>())
-            b.observed = null;
-        a.networkView.observed = this.rigidbody; 
+    void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
+    {        
+        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
+            otherView.observed = null;
+        ownerView.networkView.observed = this.rigidbody; 
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
             bas.OwnerID = owner;
             bas.OnSetID();
         }       
     }
-    public void SetOwner(NetworkPlayer owner)
+    [RPC]
+    public void RPCResetOwner()
     {
-        foreach (NetworkView b in GetComponents<NetworkView>())
-            if (b.isMine)
-                b.RPC("RPCSetOwner", RPCMode.All, owner);                                
+        CallRPC();
+        myNetworkView.observed = null;
+    }
+    
+    public void RPCSetOwner()
+    {
+        myNetworkView.RPC("RPCSetOwner", RPCMode.All, Network.player);                                
     }
 
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
     public void Show(bool value)
     {
-        print(value);
-        this.transform.gameObject.active = value;
-        Active(value,this.transform);
+        if (rigidbody != null)
+        {
+            rigidbody.collider.isTrigger = !value;
+            rigidbody.useGravity = value;
+        }
+        enabled = value;
+        foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
+            r.enabled = value;     
     }
 
+    
     private void Active(bool value, Transform t)
     {
         for (int i = 0; i < t.transform.childCount; i++)

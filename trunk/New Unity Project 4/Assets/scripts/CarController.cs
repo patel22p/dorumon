@@ -25,14 +25,15 @@ public class CarController : Car
 
     Player localPlayer  { get { return Find<Player>("LocalPlayer"); } }
     Cam _cam { get { return Find<Cam>(); } }
-    protected override void OnCollisionEnter(Collision collisionInfo)
+    
+    protected override void  OnTriggerStay(Collider collisionInfo)
     {
         
-        if (collisionInfo.gameObject.name == "LocalPlayer")
-        {
-            if (Input.GetKey(KeyCode.F))
+        if (collisionInfo.gameObject.name == "LocalPlayer" && !isControlled)
+        {            
+            if (Input.GetKeyDown(KeyCode.F))
             {
-                localPlayer.RPCShow(false);
+                localPlayer.Show(false);
                 RPCSetOwner();
                 _cam.localplayer = this;
             }
@@ -49,7 +50,7 @@ public class CarController : Car
             motor = Mathf.Clamp01(Input.GetAxis("Vertical"));
             if (Input.GetKeyDown(KeyCode.F))
             {
-                localPlayer.RPCShow(true);                
+                localPlayer.Show(true);                
                 localPlayer.transform.position = transform.Find("door").position;
                 _cam.localplayer = localPlayer;
                 RPCResetOwner();

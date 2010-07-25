@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 public class Base : MonoBehaviour
 {
@@ -29,10 +30,22 @@ public class Base : MonoBehaviour
     protected virtual void OnParticleCollision(GameObject other) { }
     protected virtual void OnPlayerDisconnected(NetworkPlayer player) { }
     protected virtual void OnCollisionEnter(Collision collisionInfo) { }
+    protected virtual void OnCollisionStay(Collision collisionInfo) { }
+    protected virtual void OnTriggerStay(Collider collisionInfo) { }
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
     public bool isMine { get { return myNetworkView!=null; } }
-    public bool isMineControlled { get { return Network.peerType != NetworkPeerType.Disconnected && myNetworkView.observed != null; } }
+    public bool isMineControlled { get { return myNetworkView != null && myNetworkView.observed != null; } }
+    public bool isControlled
+    {
+        get
+        {
+            foreach (NetworkView b in this.GetComponents<NetworkView>())
+                if (b.observed != null)
+                    return true;
+            return false;
+        }
+    }
     public NetworkView myNetworkView
     {
         get
@@ -72,16 +85,35 @@ public class Base : MonoBehaviour
     public void Show() { Show(true); }
     public void Show(bool value)
     {
+        if (value == enabled) return;
         if (rigidbody != null)
         {
             rigidbody.collider.isTrigger = !value;
             rigidbody.useGravity = value;
+        }        
+        
+        if (value)
+        {            
+                transform.localPosition -= new Vector3(9999, 0, 0);
+        }
+        else
+        {            
+            transform.localPosition += new Vector3(9999, 0, 0);
         }
         enabled = value;
-        foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
-            r.enabled = value;     
+        //foreach (Renderer r in this.GetComponentsInChildren<Renderer>())
+        //    r.enabled = value;
     }
-
+    Vector3 oldt;
+    public IEnumerable<Transform> getChild(Transform t)
+    {
+        yield return t;
+        for (int i = 0; i < t.childCount; i++)
+        {
+            foreach (Transform a in getChild(t.GetChild(i)))
+                yield return a;
+        }
+    }
     
     private void Active(bool value, Transform t)
     {

@@ -31,9 +31,37 @@ public class Base : MonoBehaviour
     protected virtual void OnCollisionEnter(Collision collisionInfo) { }
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
-    public bool isMine { get { return networkView.isMine; } }
-  
+    public bool isMine { get { return OwnerID == Network.player; } }
+    public new NetworkView networkView
+    {
+        get
+        {
+            foreach (NetworkView b in this.GetComponents<NetworkView>())
+                if (b.isMine) return b;
+            return null;
+        }
+    }
+
     
+    [RPC]
+    void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo a)
+    {                         
+        foreach (NetworkView b in this.GetComponents<NetworkView>())
+            b.observed = null;
+        a.networkView.observed = this.rigidbody; 
+        foreach (Base bas in GetComponentsInChildren(typeof(Base)))
+        {
+            bas.OwnerID = owner;
+            bas.OnSetID();
+        }       
+    }
+    public void SetOwner(NetworkPlayer owner)
+    {
+        foreach (NetworkView b in GetComponents<NetworkView>())
+            if (b.isMine)
+                b.RPC("RPCSetOwner", RPCMode.All, owner);                                
+    }
+
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
     public void Show(bool value)
@@ -44,7 +72,7 @@ public class Base : MonoBehaviour
     }    
     public void CallRPC(params object[] obs)   
     {        
-        if (networkView.isMine)
+        if (isMine)
         {            
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)

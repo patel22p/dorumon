@@ -110,7 +110,7 @@ public class GuiConnection : Base
 
     protected override void OnPlayerConnected(NetworkPlayer player)
     {
-        myNetworkView.RPC("LoadLevel", RPCMode.All, lastLevelPrefix + 1);
+        networkView.RPC("LoadLevel", RPCMode.All, lastLevelPrefix + 1);
     }
     [RPC]
     private void LoadLevel(int levelPrefix)

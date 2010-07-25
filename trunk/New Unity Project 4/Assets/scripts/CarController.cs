@@ -33,6 +33,7 @@ public class CarController : Car
         {            
             if (Input.GetKeyDown(KeyCode.F))
             {
+                print("car in");
                 localPlayer.Show(false);
                 RPCSetOwner();
                 _cam.localplayer = this;
@@ -40,7 +41,7 @@ public class CarController : Car
         }
     }
     
-    public override void FixedUpdate()
+    protected override void FixedUpdate()
     {
         if (isMineControlled)
         {            
@@ -50,6 +51,7 @@ public class CarController : Car
             motor = Mathf.Clamp01(Input.GetAxis("Vertical"));
             if (Input.GetKeyDown(KeyCode.F))
             {
+                print("car out");
                 localPlayer.Show(true);                
                 localPlayer.transform.position = transform.Find("door").position;
                 _cam.localplayer = localPlayer;
@@ -63,6 +65,7 @@ public class CarController : Car
             steer = 0;
             brake = 0;
             handbrake = 0;
+            rigidbody.velocity = Vector3.zero;
         }
 
         base.FixedUpdate();

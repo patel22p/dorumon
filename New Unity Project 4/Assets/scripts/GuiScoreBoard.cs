@@ -20,7 +20,7 @@ public class GuiScoreBoard : Base
             {
                 GUILayout.Space(20);
                 foreach (Player a in FindObjectsOfType(typeof(Player)))
-                    GUILayout.Label("isMine:" + a.networkView.isMine + "  Owner:" + a.OwnerID.ToString() + "     Nick:" + a.Nick + " Score:" + a.score +
+                    GUILayout.Label("isMine:" + a.myNetworkView.isMine + "  Owner:" + a.OwnerID.ToString() + "     Nick:" + a.Nick + " Score:" + a.score +
                         "     Life:" + a.Life + "    Ping:" + Network.GetLastPing(a.OwnerID.Value) +
                         "   IPAddress:" + a.OwnerID.Value.ipAddress + "port:" + a.OwnerID.Value.port);
                 GUILayout.Label("<<<<Debug>>>>");

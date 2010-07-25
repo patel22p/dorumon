@@ -57,7 +57,7 @@ public class Car : Base
         public bool handbraked = false;
         public Quaternion originalRotation;
     };
-    protected virtual void Start()
+    protected override void Start()
     {
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)
@@ -103,6 +103,7 @@ public class Car : Base
             handbrakeSlip = 1;
         float totalSlip = 0.0f;
         onGround = false;
+        
         foreach (WheelData w in wheels)
         {
             w.rotation += wheelRPM / 60.0f * -rev * 360.0f * Time.fixedDeltaTime;

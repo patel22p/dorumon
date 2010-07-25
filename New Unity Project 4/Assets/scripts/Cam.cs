@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 public class Cam : Base
 {
-    public Player localplayer { get { return Find<Player>("LocalPlayer"); } }
+    public Base localplayer;
 
     public float maxdistance = 5.0f;
     public float xSpeed = 120.0f;
@@ -24,7 +24,7 @@ public class Cam : Base
 
     protected override void LateUpdate()
     {
-        if (localplayer == null || localplayer.isdead) return;
+        if (localplayer == null) return;
 
         Vector3 pos = localplayer.transform.position;
         pos.y -= yoffset;

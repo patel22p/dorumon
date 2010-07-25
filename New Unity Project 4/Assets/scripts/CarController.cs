@@ -6,26 +6,39 @@ using doru;
 public class CarController : Car
 {
     protected override void Start()
-    {        
+    {
+        base.Start();
         if (Network.peerType == NetworkPeerType.Disconnected) return;
         if(!Network.isServer)
-            networkView.RPC("RPCNW",RPCMode.All,  Network.AllocateViewID());
-        base.Start();
+            myNetworkView.RPC("RPCNW",RPCMode.All,  Network.AllocateViewID());
+        
     }
+    Player localPlayer  { get { return Find<Player>("LocalPlayer"); } }
+    Cam _cam { get { return Find<Cam>(); } }
     protected override void OnCollisionEnter(Collision collisionInfo)
     {
 
         if (collisionInfo.gameObject.name == "LocalPlayer")
         {
-            print("car set owner");
-            if(Input.GetKey(KeyCode.F))
+
+            if (Input.GetKey(KeyCode.F))
+            {
+                RPCDeactivePlayer(false);
                 SetOwner(Network.player);
+                _cam.localplayer = this;
+            }
         }
+    }
+    [RPC]
+    public void RPCDeactivePlayer(bool value)
+    {
+        CallRPC(value);
+        localPlayer.Show(value); 
     }
     public override void FixedUpdate()
     {
-        if (isMine)
-        {
+        if (isMineControlled)
+        {            
             brake = Mathf.Clamp01(-Input.GetAxis("Vertical"));
             handbrake = Input.GetButton("Jump") ? 1.0f : 0.0f;
             steer = Input.GetAxis("Horizontal");

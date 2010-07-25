@@ -31,13 +31,13 @@ public class Player : Base {
 
     }
 
-    [RPC]
-    public void RPCShow(bool value)
-    {
-        CallRPC(value);
-        Show(value);
+    //[RPC]
+    //public void RPCShow(bool value)
+    //{
+    //    CallRPC(value);
+    //    Show(value);
 
-    }
+    //}
 
     public override void OnSetID()
     {

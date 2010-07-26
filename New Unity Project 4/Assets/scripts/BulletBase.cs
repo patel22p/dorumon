@@ -6,7 +6,7 @@ public class BulletBase : Base
 {
     float tm;
 
-    protected Player LocalPlayer { get { return Find<Player>("LocalPlayer"); } }
+    protected IPlayer LocalPlayer { get { return (IPlayer)Find<Cam>().localplayer; } }
     protected Vector3 previousPosition;
 
     protected override void FixedUpdate()

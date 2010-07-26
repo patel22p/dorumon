@@ -14,9 +14,11 @@ public class GuiPlayer : Base
             GUILayout.Window(0, r, DrawWind, "");
     }
     Player player { get { return Find<Player>("LocalPlayer"); } }
+    IPlayer iplayer { get { return Find<Cam>().localplayer; } }
     public void DrawWind(int q)
     {
-        GUILayout.Label("Life: " + player.Life);
+        
+        GUILayout.Label("Life: " + iplayer.Life);
         GUILayout.Label("Frags: " + player.score);
 
         foreach (GunBase gb in player.gunlist)

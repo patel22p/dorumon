@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 public class Cam : Base
 {
-    public Base localplayer;
+    public IPlayer localplayer;
 
     public float maxdistance = 5.0f;
     public float xSpeed = 120.0f;

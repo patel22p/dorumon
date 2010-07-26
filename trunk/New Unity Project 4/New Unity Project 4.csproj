@@ -42,6 +42,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\LevelLoader.cs" />
      <Compile Include="Assets\Detonator\System\Detonator.cs" />
      <Compile Include="Assets\Detonator\System\DetonatorBurstEmitter.cs" />
      <Compile Include="Assets\Detonator\System\DetonatorCloudRing.cs" />

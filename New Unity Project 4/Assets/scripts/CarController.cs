@@ -80,17 +80,22 @@ public class CarController : Car
     }
     public override void RPCDie()
     {
-        if(isMine)
-            CarOut();
-        base.RPCDie();
+        if (isOwner)
+        {
+            CarOut();            
+            _TimerA.AddMethod(2000, RPCSpawn);
+        }
+        Show(false);
     }
-    public override void RPCSpawn()
+    [RPC]
+    public void RPCSpawn()
     {
-        print("car spawn");
-        Reset();     
+        
+        CallRPC();        
+        Show(true);
         transform.position = startpos;
-        Show(true);        
         Life = life;
+        Reset();        
     }
 
     private void Reset()

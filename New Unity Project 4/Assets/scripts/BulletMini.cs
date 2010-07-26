@@ -6,7 +6,7 @@ public class BulletMini : BulletBase
 {
     public float velocity = 100;
     public int damage=34;
-    public float rigidbodyPushForce=20;
+    float rigidbodyPushForce=20;
     public Transform impact;
     protected override void Hit(RaycastHit hit )
     {
@@ -18,12 +18,11 @@ public class BulletMini : BulletBase
             hit.rigidbody.AddForceAtPosition(rigidbodyPushForce * transform.TransformDirection(Vector3.forward), hit.point);
         }
         Destroy(gameObject);
-
-        Player localPlayer = hit.collider.GetComponent<Player>();
-        if (localPlayer != null && !localPlayer.isdead && localPlayer.isMine)
+        IPlayer iplayer = hit.collider.GetComponent<IPlayer>();        
+        if (iplayer != null && !iplayer.isdead && iplayer.isOwner)
         {
-            localPlayer.killedyby = OwnerID.Value;
-            localPlayer.RPCSetLife(localPlayer.Life - damage);
+            iplayer.killedyby = OwnerID.Value;
+            iplayer.RPCSetLife(iplayer.Life - damage);
         }
     }
 

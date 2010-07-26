@@ -11,7 +11,7 @@ public class Player : IPlayer {
     
     public static Spawn spawn { get { return Find<Spawn>(); } }
     GuiConnection connectionGui { get { return Find<GuiConnection>(); } }
-    TimerA _TimerA { get { return Find<GuiFpsCounter>().timer; } }
+    
     GameObject boxes { get { return GameObject.Find("box"); } }
     
     public float force = 400;
@@ -32,7 +32,7 @@ public class Player : IPlayer {
 
     public override void OnSetID()
     {
-        if (isMine)
+        if (isOwner)
             name = "LocalPlayer";
         else
             name = "RemotePlayer" + OwnerID;
@@ -46,7 +46,7 @@ public class Player : IPlayer {
     protected override void OnUpdate()
     {
 
-        if (isMine)
+        if (isOwner)
         {
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -69,7 +69,7 @@ public class Player : IPlayer {
     protected override void OnFixedUpdate()
     {
         
-        if (isMine) LocalMove();
+        if (isOwner) LocalMove();
     }
 
     private void LocalMove()
@@ -99,15 +99,31 @@ public class Player : IPlayer {
     public override void RPCSetLife(int NwLife)
     {        
         CallRPC(NwLife);
-        if (isMine)
+        if (isOwner)
             blood.Hit(Mathf.Abs(NwLife - Life));
         if (NwLife < 0)
             RPCDie();
         Life = NwLife;
 
     }
+    public override void RPCDie()
+    {
+        if (isOwner)
+        {
+            _TimerA.AddMethod(2000, RPCSpawn);
+            foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
+                if (p.OwnerID == killedyby)
+                {
+                    if (p.isOwner)
+                        localPlayer.networkView.RPC("RPCSetScore", RPCMode.All, localPlayer.score - 1);
+                    else
+                        p.networkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);
+                }
+        }
+        Show(false);
+    }
     [RPC]
-    public override void  RPCSpawn()
+    public void  RPCSpawn()
     {
         Show(true);
         CallRPC();        

@@ -75,7 +75,7 @@ public class GunBase : Base
     }
     protected override void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-        if (isMine) q = Find<Cam>().transform.rotation;
+        if (isOwner) q = Find<Cam>().transform.rotation;
         stream.Serialize(ref q);
         transform.rotation = q;        
     }

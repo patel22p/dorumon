@@ -19,7 +19,8 @@ public class CarController : Car
      
     [RPC]
     public void RPCAddNetworkView(NetworkViewID id)
-    {        
+    {
+        print("new nw");
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)Group.RPCAssignID;
         nw.observed = null;

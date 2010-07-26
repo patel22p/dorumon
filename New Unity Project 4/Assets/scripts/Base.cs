@@ -135,7 +135,7 @@ public class Base : MonoBehaviour
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)
                     return;
-            myNetworkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
+            networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
         }
     }
     

@@ -5,8 +5,8 @@ public class Spawn : Base
 {
     public Transform _Player;
 
-    
-    protected override void Start()
+
+    protected override void OnLevelWasLoaded(int level)
     {
         if (Network.peerType != NetworkPeerType.Disconnected)
             Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);            

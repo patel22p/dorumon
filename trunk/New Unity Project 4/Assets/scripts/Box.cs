@@ -4,7 +4,7 @@ public class Box : Base
 {
     Vector3 spawn;
     Quaternion rotation;
-    protected override void Start()
+    protected override void OnLoaded()
     {
         spawn = this.transform.position;
         rotation = this.transform.rotation;
@@ -16,7 +16,7 @@ public class Box : Base
             fx.breakForce = 20;
     }
     public Bounds bounds { get { return GameObject.Find("Cube").collider.bounds; } }
-    protected override void Update()
+    protected override void OnUpdate()
     {
         if (!bounds.Contains(this.transform.position))
             Reset();

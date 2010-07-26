@@ -6,7 +6,7 @@ using System;
 using System.Reflection;
 [assembly: AssemblyVersion("1.0.*")]
 
-public class GuiConnection : Base
+public class GuiConnection : MonoBehaviour
 {
     public static string gamename = "Swiborg";
     public string Nick;
@@ -17,18 +17,18 @@ public class GuiConnection : Base
         Network.useNat = false; 
         Network.InitializeServer(32, port);
         MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, Nick + "s Game");
-        LoadLevel(0);
+        
     }
-    protected override void Start()
+    void Start()
     {
         Nick = "G" + UnityEngine.Random.Range(99,999);        
     }
-    protected override void Update()
+    void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape)) Screen.lockCursor = false;
     }
     Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
-    protected override void OnGUI()
+    void OnGUI()
     {        
         
         if (GUILayout.Button("Active"))  
@@ -99,33 +99,29 @@ public class GuiConnection : Base
         return new Rect(u.x, u.y, v.x, v.y);
     }
 
-    private int lastLevelPrefix = 0;
+    //private int lastLevelPrefix = 0;
     
-    protected override void OnApplicationQuit()
-    {
-        enabled = false;
-        
-    }
+    
 
 
-    protected override void OnPlayerConnected(NetworkPlayer player)
-    {
-        networkView.RPC("LoadLevel", RPCMode.All, lastLevelPrefix + 1);
-    }
-    [RPC]
-    private void LoadLevel(int levelPrefix)
-    {
-        //lastLevelPrefix = levelPrefix;
-        //Network.SetSendingEnabled(0, false);	
-        Network.isMessageQueueRunning = false;
-        //Network.SetLevelPrefix(levelPrefix);
-        Application.LoadLevel(Application.loadedLevel);                
-    }
-    protected override void OnLevelWasLoaded(int level)
-    {
-        Network.isMessageQueueRunning = true;
-        //Network.SetSendingEnabled(0, true);
-    }
+    //protected override void OnPlayerConnected(NetworkPlayer player)
+    //{
+    //    networkView.RPC("LoadLevel", RPCMode.All, lastLevelPrefix + 1);
+    //}
+    //[RPC]
+    //private void LoadLevel(int levelPrefix)
+    //{
+    //    //lastLevelPrefix = levelPrefix;
+    //    //Network.SetSendingEnabled(0, false);	
+    //    Network.isMessageQueueRunning = false;
+    //    //Network.SetLevelPrefix(levelPrefix);
+    //    Application.LoadLevel(Application.loadedLevel);                
+    //}
+    //protected override void OnLevelWasLoaded(int level)
+    //{
+    //    Network.isMessageQueueRunning = true;
+    //    //Network.SetSendingEnabled(0, true);
+    //}
 }
 public class Trace : UnityEngine.Debug { }
 //protected override void OnDisconnectedFromServer()

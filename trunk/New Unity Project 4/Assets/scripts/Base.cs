@@ -11,17 +11,40 @@ public class Base : MonoBehaviour
     protected virtual void OnPlayerConnected(NetworkPlayer player) { }
     protected virtual void OnLevelWasLoaded(int level) { }
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info) { }
-    protected virtual void Start() { }
-    protected virtual void FixedUpdate() { }
-    protected virtual void Update() { }
+    protected virtual void OnLoaded() { }
+    protected virtual void OnFixedUpdate() { }
+    protected virtual void OnUpdate() { }
+    protected virtual void OnLateUpdate() { }
+
+    void Update()
+    {
+        if (loaded) OnUpdate();
+    }
+    void LateUpdate()
+    {
+        if (loaded) OnLateUpdate();
+    }
+
+    void FixedUpdate() {
+        if (loaded) OnFixedUpdate();
+    }
+    void Start()
+    {
+        if (loaded) OnLoaded();
+    }
     protected virtual void OnTriggerEnter(Collider other) { }
-    protected virtual void OnNetworkLoadedLevel() { }
+    static bool loaded;
+    void OnNetworkLoadedLevel()
+    {
+        loaded = true;
+        Start();
+    }
     protected virtual void OnGUI() { }
     protected virtual void OnConnectedToServer() { }
     protected virtual void OnDisconnectedFromServer() { }
     protected virtual void Awake() { }
     protected virtual void OnApplicationQuit(){}
-    protected virtual void LateUpdate() { }
+    
     protected virtual void OnMasterServerEvent(MasterServerEvent msEvent) { }
     protected virtual void OnPreRender() { }
     protected virtual void OnWillRenderObject() { }    
@@ -81,7 +104,7 @@ public class Base : MonoBehaviour
     }
     
     public void RPCSetOwner()
-    {
+    {        
         myNetworkView.RPC("RPCSetOwner", RPCMode.All, Network.player);                                
     }
 

@@ -9,7 +9,7 @@ public class BulletBase : Base
     protected IPlayer LocalPlayer { get { return (IPlayer)Find<Cam>().localplayer; } }
     protected Vector3 previousPosition;
 
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
         tm += Time.deltaTime;
         if (tm > 5) Destroy(gameObject);

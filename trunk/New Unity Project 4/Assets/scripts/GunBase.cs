@@ -16,13 +16,13 @@ public class GunBase : Base
         Show(false);
     }
 
-    protected override void Start()
+    protected override void OnLoaded()
     {
         
     }
     public Quaternion q;
     public bool car;
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
         UpdateAim();
         this.transform.rotation = q;
@@ -33,7 +33,7 @@ public class GunBase : Base
         if (isOwner && !car) q = Find<Cam>().transform.rotation;
     }
 
-    protected override void Update()
+    protected override void OnUpdate()
     {
         UpdateAim();
         transform.rotation = q;

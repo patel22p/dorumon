@@ -15,14 +15,14 @@ public class Cam : Base
     float y = 0.0f;
     public float yoffset = -3;
 
-    protected override void Start()
+    protected override void OnLoaded()
     {
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
     }
 
-    protected override void LateUpdate()
+    protected override void OnLateUpdate()
     {
         if (localplayer == null) return;
 

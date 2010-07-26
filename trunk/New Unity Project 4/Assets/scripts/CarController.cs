@@ -6,11 +6,11 @@ using doru;
 public class CarController : Car
 {
     Vector3 startpos;
-    protected override void Start()
+    protected override void OnLoaded()
     {
         startpos = transform.position;
         Life = 300;
-        base.Start();
+        base.OnLoaded();
         if (Network.peerType == NetworkPeerType.Disconnected) return;        
         if(!Network.isServer)
             networkView.RPC("RPCAddNetworkView", RPCMode.All, Network.AllocateViewID());
@@ -45,7 +45,7 @@ public class CarController : Car
         }
     }
     
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
         if (isOwner)
         {            
@@ -68,7 +68,7 @@ public class CarController : Car
             rigidbody.velocity = Vector3.zero;
         }
 
-        base.FixedUpdate();
+        base.OnFixedUpdate();
     }
 
     private void CarOut()

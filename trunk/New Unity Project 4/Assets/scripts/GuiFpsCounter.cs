@@ -9,7 +9,7 @@ public class GuiFpsCounter : Base
 {
     public TimerA timer = new TimerA();
 
-    protected override void Update()
+    protected override void OnUpdate()
     {
         timer.Update();
     }

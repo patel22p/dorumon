@@ -86,8 +86,8 @@ public class CarController : Car
     }
     public override void RPCSpawn()
     {
+        print("car spawn");
         Reset();     
-
         transform.position = startpos;
         Show(true);        
         Life = life;

@@ -8,6 +8,7 @@ using System.Reflection;
 
 public class GuiConnection : MonoBehaviour
 {
+    
     public static string gamename = "Swiborg";
     public string Nick;
     const int port = 5300;

@@ -32,7 +32,9 @@ function OnGUI ()
 		GUILayout.EndArea();
 	}
 }
-
+function OnPlayerConnected(player: NetworkPlayer) {
+    networkView.RPC( "LoadLevel", RPCMode.AllBuffered, "ztest", lastLevelPrefix + 1);
+}
 @RPC
 function LoadLevel (level : String, levelPrefix : int)
 {

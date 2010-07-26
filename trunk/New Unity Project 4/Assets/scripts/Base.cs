@@ -57,7 +57,7 @@ public class Base : MonoBehaviour
     protected virtual void OnTriggerStay(Collider collisionInfo) { }
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
-    public bool isMine { get { return myNetworkView!=null; } }
+    
     public bool isOwner { get { return OwnerID == Network.player; } }
     //public bool isMineControlled { get { return myNetworkView != null && myNetworkView.observed != null; } }
     public bool isControlled
@@ -112,15 +112,14 @@ public class Base : MonoBehaviour
     public void Show() { Show(true); }
     bool hidden;
     public void Show(bool value)
-    {
-        
+    {        
         if (rigidbody != null)
         {
-            rigidbody.collider.isTrigger = !value;
+            rigidbody.detectCollisions = value;
             rigidbody.useGravity = value;
             rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
+            if (!value) rigidbody.Sleep();                        
         }
-
         if (value)
         {
             if (hidden) { transform.localPosition += new Vector3(99999, 0, 0); hidden = false; }
@@ -152,14 +151,15 @@ public class Base : MonoBehaviour
         }
     }    
     public void CallRPC(params object[] obs)   
-    {        
-        if (isOwner)
-        {            
+    {
+
+        if (new System.Diagnostics.StackFrame(2, true).GetMethod() !=null)
+        {
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)
                     return;
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
-        }
+        }        
     }
     
 

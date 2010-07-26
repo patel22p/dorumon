@@ -12,10 +12,10 @@ public class BulletBazoka : BulletBase
     public int maxdamage = 400;
     public float velocity;
 
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
-        base.FixedUpdate();
+        base.OnFixedUpdate();
     }
 
 

@@ -5,7 +5,7 @@ using System.Collections;
 public class Blood : Base
 {
 
-    protected override void Update()
+    protected override void OnUpdate()
     {
         foreach (GUITexture a in this.GetComponentsInChildren<GUITexture>())
             if (a.guiTexture.color.a > 0)

@@ -56,7 +56,7 @@ public class Car : IPlayer
         public bool handbraked = false;
         public Quaternion originalRotation;
     };
-    protected override void Start()
+    protected override void OnLoaded()
     {
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)
@@ -233,7 +233,7 @@ public class Car : IPlayer
         steerVelo = Mathf.Clamp(steerVelo, -maxRotSteer, maxRotSteer);
         transform.Rotate(Vector3.up * steerVelo * 57.295788f);
     }
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
       
         if (onGround)

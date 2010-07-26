@@ -19,10 +19,10 @@ public class Player : IPlayer {
     
     public string Nick;
     public int score;
-    protected override void Start()
-    {        
+    protected override void OnLoaded()
+    {
         if (networkView.isMine)            
-        {
+        {            
             RPCSetNick(connectionGui.Nick);
             RPCSetOwner();            
             RPCSpawn();
@@ -43,7 +43,7 @@ public class Player : IPlayer {
         base.Awake();
     }
     
-    protected override void Update()
+    protected override void OnUpdate()
     {
 
         if (isMine)
@@ -66,7 +66,7 @@ public class Player : IPlayer {
         
     }
 
-    protected override void FixedUpdate()
+    protected override void OnFixedUpdate()
     {
         
         if (isMine) LocalMove();

@@ -5,16 +5,20 @@ using doru;
 
 public class CarController : Car
 {
+    Vector3 startpos;
     protected override void Start()
     {
+        startpos = transform.position;
+        Life = 300;
         base.Start();
         if (Network.peerType == NetworkPeerType.Disconnected) return;        
         if(!Network.isServer)
-            networkView.RPC("RPCNW",RPCMode.All,  Network.AllocateViewID());
-        
-    }
+            networkView.RPC("RPCAddNetworkView", RPCMode.All, Network.AllocateViewID());
+        Reset();
+    }    
+     
     [RPC]
-    public void RPCNW(NetworkViewID id)
+    public void RPCAddNetworkView(NetworkViewID id)
     {        
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)Group.RPCAssignID;
@@ -23,7 +27,7 @@ public class CarController : Car
         nw.viewID = id;
     }
 
-    Player localPlayer  { get { return Find<Player>("LocalPlayer"); } }
+    
     Cam _cam { get { return Find<Cam>(); } }
     
     protected override void  OnTriggerStay(Collider collisionInfo)
@@ -42,7 +46,7 @@ public class CarController : Car
     
     protected override void FixedUpdate()
     {
-        if (isMineControlled)
+        if (isOwner)
         {            
             brake = Mathf.Clamp01(-Input.GetAxis("Vertical"));
             handbrake = Input.GetButton("Jump") ? 1f : 0.0f;
@@ -50,11 +54,7 @@ public class CarController : Car
             motor = Mathf.Clamp01(Input.GetAxis("Vertical"));
             if (Input.GetKeyDown(KeyCode.F))
             {
-                print("car out");
-                localPlayer.Show(true);                
-                localPlayer.transform.position = transform.Find("door").position;
-                _cam.localplayer = localPlayer;
-                RPCResetOwner();
+                CarOut();
             }
             if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
         }
@@ -69,6 +69,35 @@ public class CarController : Car
 
         base.FixedUpdate();
     }
+
+    private void CarOut()
+    {
+        localPlayer.Show(true);
+        localPlayer.transform.position = transform.Find("door").position;
+        _cam.localplayer = localPlayer;
+        RPCResetOwner();
+    }
+    public override void RPCDie()
+    {
+        if(isMine)
+            CarOut();
+        base.RPCDie();
+    }
+    public override void RPCSpawn()
+    {
+        Reset();     
+
+        transform.position = startpos;
+        Show(true);        
+        Life = life;
+    }
+
+    private void Reset()
+    {
+        foreach (GunBase gunBase in gunlist)
+            gunBase.Reset();
+    }
+    const int life = 300;
     
 }
  

@@ -35,7 +35,8 @@ public class Base : MonoBehaviour
     protected virtual void OnNetworkInstantiate(NetworkMessageInfo info) { }
     public virtual void OnSetID() { }
     public bool isMine { get { return myNetworkView!=null; } }
-    public bool isMineControlled { get { return myNetworkView != null && myNetworkView.observed != null; } }
+    public bool isOwner { get { return OwnerID == Network.player; } }
+    //public bool isMineControlled { get { return myNetworkView != null && myNetworkView.observed != null; } }
     public bool isControlled
     {
         get
@@ -129,7 +130,7 @@ public class Base : MonoBehaviour
     }    
     public void CallRPC(params object[] obs)   
     {        
-        if (isMineControlled)
+        if (isOwner)
         {            
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)

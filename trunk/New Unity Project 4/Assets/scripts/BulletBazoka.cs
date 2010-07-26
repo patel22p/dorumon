@@ -2,13 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 public class BulletBazoka : BulletBase
 {
     
     public Transform exp;
     protected NetworkPlayer killby;
     public float maxdistance = 30;
-    public float maxdamage = 60;
+    public int maxdamage = 400;
     public float velocity;
 
     protected override void FixedUpdate()
@@ -25,11 +26,11 @@ public class BulletBazoka : BulletBase
         Destroy(dt, 10);
         Destroy(gameObject);        
         float dist = Vector3.Distance(LocalPlayer.transform.position, vector3);
-        int damage = (int)(Mathf.Max(maxdistance - dist, 0) * maxdamage);        
-        if (!LocalPlayer.isdead && damage != 0)
+
+        if (!LocalPlayer.isdead && dist < maxdistance)
         {            
             LocalPlayer.killedyby = OwnerID.Value;           
-            LocalPlayer.RPCSetLife(LocalPlayer.Life - damage);
+            LocalPlayer.RPCSetLife(LocalPlayer.Life - maxdamage);
         }
     }
 

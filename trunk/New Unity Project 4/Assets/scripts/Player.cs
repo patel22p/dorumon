@@ -3,7 +3,7 @@ using System.Collections;
 using doru;
 using System.Collections.Generic;
 
-public class Player : Base {
+public class Player : IPlayer {
     public float flyForce = 300;
     public float maxVelocityChange = 10.0f;
     Cam _cam { get { return Find<Cam>(); } }
@@ -13,10 +13,10 @@ public class Player : Base {
     GuiConnection connectionGui { get { return Find<GuiConnection>(); } }
     TimerA _TimerA { get { return Find<GuiFpsCounter>().timer; } }
     GameObject boxes { get { return GameObject.Find("box"); } }
-    public bool isdead { get { return !enabled; } }
+    
     public float force = 400;
     public float angularvel = 600;
-    public int Life;
+    
     public string Nick;
     public int score;
     protected override void Start()
@@ -28,16 +28,7 @@ public class Player : Base {
             RPCSpawn();
             _cam.localplayer = this;
         }
-
     }
-
-    //[RPC]
-    //public void RPCShow(bool value)
-    //{
-    //    CallRPC(value);
-    //    Show(value);
-
-    //}
 
     public override void OnSetID()
     {
@@ -64,7 +55,7 @@ public class Player : Base {
                 RCPSelectGun(2);
         }
     }
-    public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
+    
     [RPC]
     private void RCPSelectGun(int i)
     {
@@ -105,7 +96,7 @@ public class Player : Base {
     }
     
     [RPC]
-    public void RPCSetLife(int NwLife)
+    public override void RPCSetLife(int NwLife)
     {        
         CallRPC(NwLife);
         if (isMine)
@@ -116,15 +107,13 @@ public class Player : Base {
 
     }
     [RPC]
-    public void RPCSpawn()
+    public override void  RPCSpawn()
     {
         Show(true);
         CallRPC();        
         RCPSelectGun(1);
         foreach (GunBase gunBase in gunlist)
-            gunBase.Reset();
-        rigidbody.velocity = Vector3.zero;
-        rigidbody.angularVelocity = Vector3.zero;
+            gunBase.Reset();        
         Life = 100;
         transform.position = SpawnPoint();
     }
@@ -133,25 +122,8 @@ public class Player : Base {
     {        
         score = i;
     }
-    public void RPCDie()
-    {        
-        if (isMine)
-        {
-            _TimerA.AddMethod(2000, RPCSpawn);
-            foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
-                if (p.OwnerID == killedyby)
-                {                    
-                    if (p.isMine)
-                        networkView.RPC("RPCSetScore", RPCMode.All, score - 1);                        
-                    else
-                        p.networkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);                        
-                }
-
-        }
-
-        Show(false);                
-    }
-    public NetworkPlayer killedyby;
+    
+    
     public static Vector3 Clamp(Vector3 velocityChange,float maxVelocityChange)
     {
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);

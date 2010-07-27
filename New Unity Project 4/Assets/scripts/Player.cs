@@ -59,7 +59,7 @@ public class Player : IPlayer {
     [RPC]
     private void RCPSelectGun(int i)
     {
-        CallRPC(i);
+        CallRPC(true,i);
         foreach (GunBase gb in gunlist)
             gb.DisableGun();
         gunlist[i-1].EnableGun();      
@@ -91,14 +91,14 @@ public class Player : IPlayer {
     [RPC]
     void RPCSetNick(string nick)
     {
-        CallRPC(nick);
+        CallRPC(true,nick);
         Nick = nick;
     }
     
     [RPC]
     public override void RPCSetLife(int NwLife)
     {        
-        CallRPC(NwLife);
+        CallRPC(true,NwLife);
         if (isOwner)
             blood.Hit(Mathf.Abs(NwLife - Life));
         if (NwLife < 0)
@@ -115,18 +115,18 @@ public class Player : IPlayer {
                 if (p.OwnerID == killedyby)
                 {
                     if (p.isOwner)
-                        localPlayer.networkView.RPC("RPCSetScore", RPCMode.All, localPlayer.score - 1);
+                        localPlayer.networkView.RPC("RPCSetScore", RPCMode.AllBuffered, localPlayer.score - 1);
                     else
-                        p.networkView.RPC("RPCSetScore", RPCMode.All, p.score + 1);
+                        p.networkView.RPC("RPCSetScore", RPCMode.AllBuffered, p.score + 1);
                 }
         }
         Show(false);
     }
     [RPC]
     public void  RPCSpawn()
-    {
+    {        
         Show(true);
-        CallRPC();        
+        CallRPC(true);        
         RCPSelectGun(1);
         foreach (GunBase gunBase in gunlist)
             gunBase.Reset();        

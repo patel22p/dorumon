@@ -15,7 +15,7 @@ public class GuiScoreBoard : Base
 
             Vector2 v = new Vector2(500, 300) / 2;
             Rect r = new Rect((Screen.width / 2) - v.x, (Screen.height / 2) - v.y, v.x * 2, v.y * 2);
-            GUI.Box(r, "Group is here");
+            GUI.Box(r, "ScoreBoard");
             GUILayout.BeginArea(r);
             {
                 GUILayout.Space(20);

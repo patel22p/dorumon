@@ -14,7 +14,7 @@ public class GunMini : GunBase
     [RPC]
     private void RPCShoot(Vector3 vector3, Quaternion quaternion)
     {
-        CallRPC(vector3, quaternion);
+        CallRPC(false,vector3, quaternion);
         ((Transform)Instantiate(_Patron, vector3, quaternion)).GetComponent<Base>().OwnerID = OwnerID;
     }
 }

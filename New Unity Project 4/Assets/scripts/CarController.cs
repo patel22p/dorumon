@@ -13,7 +13,7 @@ public class CarController : Car
         base.OnLoaded();
         if (Network.peerType == NetworkPeerType.Disconnected) return;        
         if(!Network.isServer)
-            networkView.RPC("RPCAddNetworkView", RPCMode.All, Network.AllocateViewID());
+            networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         Reset();
     }    
      
@@ -91,7 +91,7 @@ public class CarController : Car
     public void RPCSpawn()
     {
         
-        CallRPC();        
+        CallRPC(true);        
         Show(true);
         transform.position = startpos;
         Life = life;

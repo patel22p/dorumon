@@ -13,7 +13,6 @@ public class BulletMini : BulletBase
         Destroy(Instantiate(impact, hit.point, transform.rotation), 3);
         if (hit.rigidbody)
         {
-            Trace.Log(rigidbodyPushForce);
             hit.rigidbody.AddForceAtPosition(rigidbodyPushForce * transform.TransformDirection(Vector3.forward), hit.point);
         }
         Destroy(gameObject);

@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\CreateFolders.cs" />
-    <Compile Include="Assets\Editor\TerrainToolkit.cs" />
     <Compile Include="Assets\scripts\Base.cs" />
     <Compile Include="Assets\scripts\Blood.cs" />
     <Compile Include="Assets\scripts\Box.cs" />
@@ -64,6 +63,7 @@
     <Compile Include="Assets\scripts\GunMini.cs" />
     <Compile Include="Assets\scripts\IPlayer.cs" />
     <Compile Include="Assets\scripts\IslandWater.cs" />
+    <Compile Include="Assets\scripts\Loader.cs" />
     <Compile Include="Assets\scripts\Player.cs" />
     <Compile Include="Assets\scripts\Skidmarks.cs" />
     <Compile Include="Assets\scripts\Spawn.cs" />

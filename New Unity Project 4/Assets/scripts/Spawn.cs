@@ -8,8 +8,19 @@ public class Spawn : Base
 
     protected override void OnLoaded()
     {
+        
         if (Network.peerType != NetworkPeerType.Disconnected)
             Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);            
+        
+    }
+    void Update()
+    {
+        
+        if (!Loader.Online && Network.peerType == NetworkPeerType.Disconnected && Input.GetMouseButtonDown(1))
+        {            
+            Network.InitializeServer(32, 5300);
+            OnLoaded();
+        }
     }
     protected override void OnPlayerDisconnected(NetworkPlayer player)
     {
@@ -34,7 +45,10 @@ public class Spawn : Base
     {
         Application.LoadLevel(Application.loadedLevel);      
     }
-    
-    
+
+    protected override void OnApplicationQuit()
+    {
+        Network.Disconnect();
+    }
 }
 public enum Group { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player }

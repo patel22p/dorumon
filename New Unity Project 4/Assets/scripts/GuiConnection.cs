@@ -10,7 +10,7 @@ public class GuiConnection : MonoBehaviour
 {
     
     public static string gamename = "Swiborg";
-    public string Nick;
+    public static string Nick="none";
     const int port = 5300;
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
     private void InitServer()

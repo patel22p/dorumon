@@ -19,8 +19,7 @@ public class GuiPlayer : Base
     {
         
         GUILayout.Label("Life: " + iplayer.Life);
-        GUILayout.Label("Frags: " + player.score);
-
+        GUILayout.Label("Frags: " + player.score);        
         foreach (GunBase gb in player.gunlist)
             GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
     }

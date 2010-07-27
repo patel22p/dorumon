@@ -10,7 +10,7 @@ public class Player : IPlayer {
     Blood blood { get { return Find<Blood>(); } }
     
     public static Spawn spawn { get { return Find<Spawn>(); } }
-    GuiConnection connectionGui { get { return Find<GuiConnection>(); } }
+    
     
     GameObject boxes { get { return GameObject.Find("box"); } }
     
@@ -22,8 +22,8 @@ public class Player : IPlayer {
     protected override void OnLoaded()
     {
         if (networkView.isMine)            
-        {            
-            RPCSetNick(connectionGui.Nick);
+        {
+            RPCSetNick(GuiConnection.Nick);
             RPCSetOwner();            
             RPCSpawn();
             _cam.localplayer = this;

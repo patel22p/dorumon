@@ -15,22 +15,23 @@ public class Base : MonoBehaviour
     protected virtual void OnFixedUpdate() { }
     protected virtual void OnUpdate() { }
     protected virtual void OnLateUpdate() { }
-
+    bool Offline { get { return !Loader.Online; } }
     void Update()
     {
-        if (loaded) OnUpdate();
+        
+        if (loaded || Offline) OnUpdate();
     }
     void LateUpdate()
     {
-        if (loaded) OnLateUpdate();
+        if (loaded || Offline) OnLateUpdate();
     }
 
     void FixedUpdate() {
-        if (loaded) OnFixedUpdate();
+        if (loaded || Offline) OnFixedUpdate();
     }
     void Start()
-    {
-        if (loaded) OnLoaded();
+    {        
+        if (loaded || Offline) OnLoaded();
     }
     protected virtual void OnTriggerEnter(Collider other) { }
     static bool loaded;

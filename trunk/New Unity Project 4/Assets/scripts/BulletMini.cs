@@ -10,8 +10,7 @@ public class BulletMini : BulletBase
     public Transform impact;
     protected override void Hit(RaycastHit hit )
     {
-
-        Destroy(Instantiate(impact, hit.point, transform.rotation), 5);
+        Destroy(Instantiate(impact, hit.point, transform.rotation), 3);
         if (hit.rigidbody)
         {
             Trace.Log(rigidbodyPushForce);

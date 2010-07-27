@@ -24,11 +24,11 @@ public class Cam : Base
 
     protected override void OnLateUpdate()
     {
+        if (Input.GetMouseButtonDown(1)) Screen.lockCursor = !Screen.lockCursor;
         if (localplayer == null) return;
-
         Vector3 pos = localplayer.transform.position;
         pos.y -= yoffset;
-        float distance = maxdistance;
+        float distance = maxdistance;        
         if (Screen.lockCursor)
         {
             x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;

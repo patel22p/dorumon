@@ -17,8 +17,7 @@ public class Base : MonoBehaviour
     protected virtual void OnLateUpdate() { }
     bool Offline { get { return !Loader.Online; } }
     void Update()
-    {
-        
+    {        
         if (loaded || Offline) OnUpdate();
     }
     void LateUpdate()
@@ -34,12 +33,13 @@ public class Base : MonoBehaviour
         if (loaded || Offline) OnLoaded();
     }
     protected virtual void OnTriggerEnter(Collider other) { }
-    static bool loaded;
+    public static bool loaded;
     void OnNetworkLoadedLevel()
     {
         loaded = true;
         Start();
     }
+    
     protected virtual void OnGUI() { }
     protected virtual void OnConnectedToServer() { }
     protected virtual void OnDisconnectedFromServer() { }
@@ -97,7 +97,7 @@ public class Base : MonoBehaviour
     [RPC]
     public void RPCResetOwner()
     {
-        CallRPC();
+        CallRPC(true);
         foreach (NetworkView otherView in this.GetComponents<NetworkView>())
             otherView.observed = null;
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
@@ -106,7 +106,7 @@ public class Base : MonoBehaviour
     
     public void RPCSetOwner()
     {        
-        myNetworkView.RPC("RPCSetOwner", RPCMode.All, Network.player);                                
+        myNetworkView.RPC("RPCSetOwner", RPCMode.AllBuffered, Network.player);                                
     }
 
     public void Hide() { Show(false); }
@@ -150,8 +150,9 @@ public class Base : MonoBehaviour
             t.transform.GetChild(i).gameObject.active = value;
             Active(value, t.transform.GetChild(i));
         }
-    }    
-    public void CallRPC(params object[] obs)   
+    }
+    
+    public void CallRPC(bool buffered,params object[] obs)   
     {
 
         if (new System.Diagnostics.StackFrame(2, true).GetMethod() !=null)
@@ -159,7 +160,7 @@ public class Base : MonoBehaviour
             foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
                 if (o is RPC)
                     return;
-            networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, RPCMode.Others, obs);            
+            networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered?RPCMode.OthersBuffered:RPCMode.Others, obs);            
         }        
     }
     

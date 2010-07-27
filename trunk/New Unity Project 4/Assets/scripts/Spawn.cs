@@ -22,6 +22,7 @@ public class Spawn : Base
             OnLoaded();
         }
     }
+    
     protected override void OnPlayerDisconnected(NetworkPlayer player)
     {
         foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
@@ -34,21 +35,15 @@ public class Spawn : Base
     [RPC]
     private void Destroy(NetworkViewID v)
     {
-        CallRPC(v);
+        CallRPC(false,v);
         NetworkView nw = NetworkView.Find(v);
         nw.viewID = NetworkViewID.unassigned;
         nw.enabled = false;
         Component.Destroy(nw);
-    }   
-
+    }
     protected override void OnDisconnectedFromServer()
     {
-        Application.LoadLevel(Application.loadedLevel);      
-    }
-
-    protected override void OnApplicationQuit()
-    {
-        Network.Disconnect();
+        Base.loaded = false;
     }
 }
 public enum Group { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player }

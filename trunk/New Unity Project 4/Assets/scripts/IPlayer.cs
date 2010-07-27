@@ -13,7 +13,7 @@ public class IPlayer :Base
     [RPC]
     public virtual void RPCSetLife(int NwLife)
     {
-        CallRPC(NwLife);        
+        CallRPC(true,NwLife);        
         if (NwLife < 0)
             RPCDie();
         Life = NwLife;

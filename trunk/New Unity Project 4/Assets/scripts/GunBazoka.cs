@@ -29,7 +29,7 @@ public class GunBazoka : GunBase
     [RPC]
     private void RPCShoot(Vector3 pos,Quaternion rot)
     {        
-        CallRPC(pos, rot);
+        CallRPC(false,pos, rot);
         ((Transform)Instantiate(_Patron, pos, rot)).GetComponent<Base>().OwnerID = OwnerID;
     }
 

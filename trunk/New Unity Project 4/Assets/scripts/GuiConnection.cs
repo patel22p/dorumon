@@ -22,6 +22,7 @@ public class GuiConnection : MonoBehaviour
     }
     void Start()
     {
+        print("congui start");
         Nick = "G" + UnityEngine.Random.Range(99,999);        
     }
     void Update()

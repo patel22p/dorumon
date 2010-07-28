@@ -4,7 +4,7 @@ using UnityEngine;
 using doru;
 public class IPlayer :Base
 {
-    public TimerA _TimerA { get { return Find<GuiFpsCounter>().timer; } }
+    public TimerA _TimerA { get { return Find<GuiHelper>().timer; } }
     public bool isdead { get { return !enabled; } }
     public NetworkPlayer killedyby;
             

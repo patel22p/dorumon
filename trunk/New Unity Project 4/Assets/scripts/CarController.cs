@@ -76,7 +76,7 @@ public class CarController : Car
         rigidbody.velocity = Vector3.zero;
 
         localPlayer.Show(true);
-        localPlayer.transform.position = transform.Find("door").position;
+        localPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
         _cam.localplayer = localPlayer;
         RPCResetOwner();
     }

@@ -8,7 +8,7 @@ public class Energy : Base
     public int gunIndex=2;
     public int bullets = 1000;
     public int spawnTime = 5000;
-    TimerA _TimerA { get { return Find<GuiFpsCounter>().timer; } }
+    TimerA _TimerA { get { return Find<GuiHelper>().timer; } }
     protected override void OnTriggerEnter(Collider other)
     {
         

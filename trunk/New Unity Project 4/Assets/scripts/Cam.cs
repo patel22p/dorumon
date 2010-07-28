@@ -39,8 +39,8 @@ public class Cam : Base
         Quaternion rotation = Quaternion.Euler(y, x, 0);
 
         RaycastHit hit;
-        if (Physics.Raycast(pos, transform.position - pos, out hit, maxdistance, LayerMask.NameToLayer("Default")))
-        {
+        if (Physics.Raycast(pos, transform.position - pos, out hit, maxdistance, LayerMask.NameToLayer("Untagged")))
+        {            
             distance = hit.distance;
         }
         Vector3 negDistance = new Vector3(0.0f, 0.0f, -distance);

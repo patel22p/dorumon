@@ -33,13 +33,14 @@ function OnGUI ()
 	}
 }
 var autostart:System.Boolean;
-function OnPlayerConnected(player: NetworkPlayer) {    
-    if(autostart){ networkView.RPC( "LoadLevel", RPCMode.AllBuffered, supportedNetworkLevels[0], lastLevelPrefix + 1); autostart=false; }
+function OnPlayerConnected(player: NetworkPlayer) {     
+    if(autostart){ networkView.RPC( "LoadLevel", RPCMode.AllBuffered, supportedNetworkLevels[0], lastLevelPrefix + 1);  }
     //else Application.LoadLevel(disconnectedLevel);
 }
 @RPC
 function LoadLevel (level : String, levelPrefix : int)
 {
+    autostart=false;
 	lastLevelPrefix = levelPrefix;
 
 		// There is no reason to send any more data over the network on the default channel,

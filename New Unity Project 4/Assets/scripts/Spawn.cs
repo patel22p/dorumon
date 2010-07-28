@@ -8,7 +8,7 @@ public class Spawn : Base
 
     protected override void OnLoaded()
     {
-        
+        AudioListener.volume = .1f;
         if (Network.peerType != NetworkPeerType.Disconnected)
             Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);            
         

@@ -9,12 +9,14 @@ public class BulletMini : BulletBase
     float rigidbodyPushForce=20;
     public Transform impact;
     protected override void Hit(RaycastHit hit )
-    {
+    {        
+        
         Destroy(Instantiate(impact, hit.point, transform.rotation), 3);
         if (hit.rigidbody)
         {
             hit.rigidbody.AddForceAtPosition(rigidbodyPushForce * transform.TransformDirection(Vector3.forward), hit.point);
         }
+         
         Destroy(gameObject);
         IPlayer iplayer = hit.collider.GetComponent<IPlayer>();        
         if (iplayer != null && !iplayer.isdead && iplayer.isOwner)

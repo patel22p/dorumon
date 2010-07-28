@@ -9,7 +9,7 @@ public class BulletBazoka : BulletBase
     public Transform exp;
     protected NetworkPlayer killby;
     public float maxdistance = 30;
-    public int maxdamage = 400;
+    public int maxdamage = 70;
     public float velocity;
 
     protected override void OnFixedUpdate()

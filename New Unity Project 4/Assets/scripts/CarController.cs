@@ -61,11 +61,7 @@ public class CarController : Car
         }
         else
         {
-            motor = 0;
-            steer = 0;
-            brake = 0;
-            handbrake = 0;
-            rigidbody.velocity = Vector3.zero;
+
         }
 
         base.OnFixedUpdate();
@@ -73,6 +69,12 @@ public class CarController : Car
 
     private void CarOut()
     {
+        motor = 0;
+        steer = 0;
+        brake = 0;
+        handbrake = 0;
+        rigidbody.velocity = Vector3.zero;
+
         localPlayer.Show(true);
         localPlayer.transform.position = transform.Find("door").position;
         _cam.localplayer = localPlayer;

@@ -28,7 +28,8 @@ public class GunBazoka : GunBase
 
     [RPC]
     private void RPCShoot(Vector3 pos,Quaternion rot)
-    {        
+    {
+        GetComponentInChildren<AudioSource>().Play();
         CallRPC(false,pos, rot);
         ((Transform)Instantiate(_Patron, pos, rot)).GetComponent<Base>().OwnerID = OwnerID;
     }

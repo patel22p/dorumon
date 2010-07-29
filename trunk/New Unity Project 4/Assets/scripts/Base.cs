@@ -115,11 +115,10 @@ public class Base : MonoBehaviour
     public void Show(bool value)
     {        
         if (rigidbody != null)
-        {
+        {            
             rigidbody.detectCollisions = value;
             rigidbody.useGravity = value;
-            rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
-            if (!value) rigidbody.Sleep();                        
+            rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;            
         }
         if (value)
         {
@@ -133,6 +132,8 @@ public class Base : MonoBehaviour
         foreach (Base r in this.GetComponentsInChildren<Base>())
             r.enabled = value;
     }    
+
+
     public IEnumerable<Transform> getChild(Transform t)
     {
         yield return t;

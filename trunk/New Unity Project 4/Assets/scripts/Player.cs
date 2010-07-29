@@ -136,9 +136,9 @@ public class Player : IPlayer {
     [RPC]
     public void RPCSetScore(int i)
     {        
-        score = i;
+        score = i; 
     }
-    
+
     
     public static Vector3 Clamp(Vector3 velocityChange,float maxVelocityChange)
     {

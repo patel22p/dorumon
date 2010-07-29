@@ -26,8 +26,12 @@ public class Spawn : Base
     protected override void OnPlayerDisconnected(NetworkPlayer player)
     {
         foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
+        {
+            foreach (Base bas in a.GetComponentsInChildren(typeof(Base)))
+                bas.OwnerID = null;
             foreach (NetworkView v in a.GetComponents<NetworkView>())
                 if (v.owner == player) Destroy(v.viewID);
+        }
 
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);        

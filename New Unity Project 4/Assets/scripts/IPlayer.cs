@@ -17,9 +17,22 @@ public class IPlayer :Base
         if (NwLife < 0)
             RPCDie();
         Life = NwLife;
-
     }
 
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {
+        Base b =collisionInfo.gameObject.GetComponent<Base>();
+        
+        if (b!=null &&
+            b.OwnerID != null && !b.isOwner &&
+            collisionInfo.rigidbody != null &&
+            collisionInfo.impactForceSum.sqrMagnitude > 50 &&
+            rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
+        {
+            RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
+        }
+
+    }
   
     public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
     public virtual void RPCDie()

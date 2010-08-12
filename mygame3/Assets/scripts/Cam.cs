@@ -15,15 +15,18 @@ public class Cam : Base
     float y = 0.0f;
     public float yoffset = -3;
 
-    protected override void OnStart()
+        void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
     }
     public bool spectator;
-    protected override void OnLateUpdate()
+    void LateUpdate()
     {
+        if (!started) return;
         
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) Screen.lockCursor = !Screen.lockCursor;
             

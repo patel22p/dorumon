@@ -18,11 +18,13 @@ public class Player : IPlayer {
     Blood blood { get { return Find<Blood>(); } }
     GameObject boxes { get { return GameObject.Find("box"); } }
     public static Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
-    protected override void OnStart()
+    void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
 
-        if (networkView.isMine)            
-        {            
+        if (networkView.isMine)
+        {
             RPCSetNick(GuiConnection.Nick);
             RPCSetOwner();            
             
@@ -42,8 +44,9 @@ public class Player : IPlayer {
         Life = 100;
         transform.position = SpawnPoint();
     }
-    protected override void OnUpdate()
+    protected override void Update()
     {
+        if (!started) return;
 
         if (isOwner && Screen.lockCursor)
         {
@@ -58,10 +61,11 @@ public class Player : IPlayer {
                 rigidbody.angularVelocity = Vector3.zero;
             }
         }
-        base.OnUpdate();
+        base.Update();
     }
-    protected override void OnFixedUpdate()
+    void FixedUpdate()
     {
+        if (!started) return;
         if (isOwner) LocalMove();
     }
     private void LocalMove()
@@ -125,7 +129,7 @@ public class Player : IPlayer {
         _Cam.spectator = true;
 
     }
-    protected override void OnCollisionEnter(Collision collisionInfo)
+    void OnCollisionEnter(Collision collisionInfo)
     {
         Base b = collisionInfo.gameObject.GetComponent<Base>();
 

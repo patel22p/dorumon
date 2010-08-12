@@ -5,8 +5,9 @@ public class Blood : Base
 {
     public float uron = 255f;
     public float repair = .4f;
-    protected override void OnUpdate()
+    void Update()
     {
+        if (!started) return;
         foreach (GUITexture a in this.GetComponentsInChildren<GUITexture>())
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);

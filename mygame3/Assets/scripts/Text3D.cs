@@ -1,14 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class Text3D : Base2{
-
-    
-    void Start()
-    {
-        
-    }
-	
+public class Text3D : Base2
+{
     void Update()
     {
 

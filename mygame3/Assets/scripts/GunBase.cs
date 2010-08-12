@@ -16,14 +16,17 @@ public class GunBase : Base
         Show(false);
     }
 
-    protected override void OnStart()
+        void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
         
     }
     public Quaternion q; 
     public bool car;
-    protected override void OnFixedUpdate()
+    protected virtual void FixedUpdate()
     {
+        if (!started) return;
         UpdateAim();
         this.transform.rotation = q;
     }
@@ -33,8 +36,9 @@ public class GunBase : Base
         if (isOwner && !car) q = Find<Cam>().transform.rotation;
     }
 
-    protected override void OnUpdate()
+    protected virtual void Update()
     {
+        if (!started) return;
         UpdateAim();
         transform.rotation = q;
         if (isOwner)
@@ -71,7 +75,7 @@ public class GunBase : Base
     {        
         UpdateAim();
     }
-    protected override void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (isOwner) q = Find<Cam>().transform.rotation;
         stream.Serialize(ref q);

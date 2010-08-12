@@ -11,10 +11,11 @@ public class BulletBazoka : BulletBase
     protected NetworkPlayer killby;    
     public float velocity;
 
-    protected override void OnFixedUpdate()
+    protected override void FixedUpdate()
     {
+        if (!started) return;
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
-        base.OnFixedUpdate();
+        base.FixedUpdate();
     }
 
 

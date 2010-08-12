@@ -5,8 +5,10 @@ using System.Collections;
 public class GuiPlayer : Base
 {
     Rect r;
-    protected override void OnStart()
+        void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
         float w = Screen.width;
         float h = Screen.height;
         r = Rect.MinMaxRect(w - w / 4, h - h / 5, Screen.width, Screen.height);

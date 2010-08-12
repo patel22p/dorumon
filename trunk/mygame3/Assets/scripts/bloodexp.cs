@@ -10,7 +10,7 @@ public class bloodexp : Base {
         transform.position += new Vector3(Random.Range(-r, r), 0, Random.Range(-r, r)) / 10;
         rigidbody.AddExplosionForce(40, transform.position + new Vector3(Random.Range(-r, r), -10, Random.Range(-r, r)), 50);
 	}
-    protected override void OnCollisionEnter(Collision collisionInfo)
+    void OnCollisionEnter(Collision collisionInfo)
     {
         
         if (!l && Root(collisionInfo.gameObject).name == "Level")

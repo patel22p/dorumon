@@ -6,8 +6,10 @@ public class Explosion : Base {
     public float maxdistance = 9;
     public int maxdamage = 40;
 	// Use this for initialization
-    protected override void OnStart()
+        void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
 
         float dist = Vector3.Distance(LocalIPlayer.transform.position, transform.position);
 

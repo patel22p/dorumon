@@ -11,9 +11,10 @@ public abstract class IPlayer : Base
     public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
     
     
-    [RPC]
-    protected override void OnUpdate()
+    
+    protected virtual void Update()
     {
+        if (!started) return;
 
         if (OwnerID != null && !isOwner && _localPlayer.team == Player.players[OwnerID.Value].team)
             title.GetComponent<TextMesh>().text = Player.players[OwnerID.Value].Nick;

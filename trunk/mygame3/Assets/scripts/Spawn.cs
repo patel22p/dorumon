@@ -5,11 +5,14 @@ using System;
 public class Spawn : Base
 {
     public Transform _Player;
-    
 
-    protected override void OnStart()    
+
+    void Start()
     {
-                
+
+        if (started || !levelLoaded) return;
+        started = true;
+        print("test");
         AudioListener.volume = .1f;
         if (Network.isServer)
         {
@@ -35,8 +38,9 @@ public class Spawn : Base
             if (Network.peerType == NetworkPeerType.Disconnected)
             {
                 Network.InitializeServer(32, 5300);
+                levelLoaded = true;
                 foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-                    go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
+                    go.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
             }
             Transform t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
             t.GetComponent<Player>().team = ata ? Team.ata : Team.def;
@@ -44,18 +48,14 @@ public class Spawn : Base
         }
         
     }
+    
 
     void Update()
     {        
-        _TimerA.Update();
-        if (!Loader.Online && Network.peerType == NetworkPeerType.Disconnected && Input.GetMouseButtonDown(1))
-        {            
-            Network.InitializeServer(32, 5300);            
-            OnStart();
-        }
+        _TimerA.Update();        
     }
     
-    protected override void OnPlayerDisconnected(NetworkPlayer player)
+    void OnPlayerDisconnected(NetworkPlayer player)
     {
         foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
         {
@@ -78,7 +78,7 @@ public class Spawn : Base
         nw.enabled = false;
         Component.Destroy(nw);
     }
-    protected override void OnDisconnectedFromServer(NetworkDisconnection info)
+    void OnDisconnectedFromServer(NetworkDisconnection info)
     {
         Base.levelLoaded = false;
     }    

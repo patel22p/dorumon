@@ -84,9 +84,7 @@
     <None Include="Assets\materials\ShadowProjection.shader" />
     <None Include="Assets\materials\Skidmarks.shader" />
     <None Include="Assets\Editor\HeightmapExportPNG.js" />
-    <None Include="Assets\scripts\GuiFpsCounter.js" />
     <None Include="Assets\scripts\LightmapperObjectUV.js" />
-    <None Include="Assets\scripts\LoadLevel.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

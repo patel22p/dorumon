@@ -2,19 +2,22 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class BulletBase : Base
+public abstract class BulletBase : Base
 {
     float tm;
 
     
     protected Vector3 previousPosition;
     public Transform decal;
-    protected override void OnStart()
+        void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
         previousPosition = transform.position;
     }
-    protected override void OnFixedUpdate()
+    protected virtual void FixedUpdate()
     {
+        if (!started) return;
         tm += Time.deltaTime;
         if (tm > 5) Destroy(gameObject);
 

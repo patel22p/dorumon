@@ -7,15 +7,17 @@ public class CarController : Car
 {
     public Transform exp;
 
-    protected Vector3 spawnpos;    
-    protected override void OnStart()
+    protected Vector3 spawnpos;
+    protected override void Start()
     {
+        if (started || !levelLoaded) return;
+        started = true;
         spawnpos = transform.position;
         Life = 200;
-        base.OnStart();
+        base.Start();
         Reset();
-        if (Network.peerType == NetworkPeerType.Disconnected) return;        
-        if(!Network.isServer)
+        if (Network.peerType == NetworkPeerType.Disconnected) return;
+        if (!Network.isServer)
             networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         
         
@@ -40,9 +42,10 @@ public class CarController : Car
     
     double timedown1;
     
-    protected override void OnUpdate()
+    protected override void Update()
     {
-        base.OnUpdate();
+        if (!started) return;
+        base.Update();
         if (_localPlayer == null) return;
         if (isOwner)
         {
@@ -79,8 +82,9 @@ public class CarController : Car
         
         
     }
-    protected override void OnFixedUpdate()
+    void FixedUpdate()
     {
+        if (!started) return;
         UpdateCar();
     }
     private void CarOut()

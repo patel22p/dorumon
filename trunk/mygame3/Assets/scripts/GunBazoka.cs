@@ -6,15 +6,17 @@ public class GunBazoka : GunBase
     
     
     
-    protected override void OnUpdate()
+    protected override void Update()
     {
-        base.OnUpdate();        
+        if (!started) return;
+        base.Update();        
     }
     
         
-    protected override void OnFixedUpdate()
+    protected override void FixedUpdate()
     {
-        base.OnFixedUpdate();
+        if (!started) return;
+        base.FixedUpdate();
     }
     
     public LayerMask Default;

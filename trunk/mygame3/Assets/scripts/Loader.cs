@@ -32,7 +32,7 @@ public class Loader : Base
         Network.RemoveRPCsInGroup(1);
         networkView.RPC("LoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
     }
-    protected override void OnServerInitialized()
+    void OnServerInitialized()
     {
         rpcwrite("Player joined " + GuiConnection.Nick);
     }
@@ -44,16 +44,16 @@ public class Loader : Base
         write(s);
     }
     public bool autostart;
-    protected override void OnPlayerConnected(NetworkPlayer player)
+    void OnPlayerConnected(NetworkPlayer player)
     {
         if (autostart) Find<Loader>().LoadLevelRPC(supportedNetworkLevels[0]);
     }
-    protected override void OnDisconnectedFromServer(NetworkDisconnection info)
+    void OnDisconnectedFromServer(NetworkDisconnection info)
     {
         rpcwrite("Player disconnected " + GuiConnection.Nick);
         Application.LoadLevel(disconnectedLevel);
     }
-    protected override void OnConnectedToServer()
+    void OnConnectedToServer()
     {
         rpcwrite("Player joined " + GuiConnection.Nick);
     }
@@ -69,7 +69,7 @@ public class Loader : Base
         Application.LoadLevel(level);
 
     }
-    protected override void OnLevelWasLoaded(int level)
+    void OnLevelWasLoaded(int level)
     {
         // Allow receiving data again
         Network.isMessageQueueRunning = true;

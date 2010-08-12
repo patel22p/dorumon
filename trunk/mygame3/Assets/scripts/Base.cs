@@ -44,12 +44,8 @@ public class Base : Base2
     public Loader _Loader { get { return Find<Loader>(); } }
     public Spawn spawn { get { return Find<Spawn>(); } }
     
-    protected virtual void OnLevelWasLoaded(int level) { } 
-    protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info) { }
-    protected virtual void OnStart() { }    
-    protected virtual void OnFixedUpdate() { }
-    protected virtual void OnUpdate() { }
-    protected virtual void OnLateUpdate() { }
+    
+    
     public static GameObject Root(GameObject g)
     {
         Transform p = g.transform;
@@ -59,32 +55,10 @@ public class Base : Base2
             p = p.parent;
         }
     }
-    void Start()
-    {
-        if (!started && levelLoaded)
-        {
-            OnStart();
-            started = true;
-        }
-    }
-    void Update()
-    {        
-        if (started) OnUpdate();
-    }
-    void LateUpdate()
-    {
-        if (started) OnLateUpdate();
-    }
-    void FixedUpdate() {
-        if (started) OnFixedUpdate();
-    }
+    
+    
     protected virtual void OnTriggerEnter(Collider other) { }
-    void OnNetworkLoadedLevel()
-    {
-        levelLoaded = true;        
-        Start();        
-            
-    }
+    
     [RPC]
     void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
     {        

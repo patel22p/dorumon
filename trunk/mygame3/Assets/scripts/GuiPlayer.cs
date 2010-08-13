@@ -7,8 +7,7 @@ public class GuiPlayer : Base
     Rect r;
         void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
+
         float w = Screen.width;
         float h = Screen.height;
         r = Rect.MinMaxRect(w - w / 4, h - h / 5, Screen.width, Screen.height);
@@ -25,7 +24,7 @@ public class GuiPlayer : Base
     {
         
         GUILayout.Label("Life: " + iplayer.Life);
-        GUILayout.Label("Frags: " + player.score);        
+        GUILayout.Label("Frags: " + player.frags);        
         foreach (GunBase gb in player.gunlist)
             GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
         GUI.DragWindow();

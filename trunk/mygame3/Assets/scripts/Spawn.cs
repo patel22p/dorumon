@@ -1,33 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class Spawn : Base
 {
     public Transform _Player;
 
+    [RPC]
+    void SetTowerLife(int life)
+    {
+        _Tower.Life = life;
+        CallRPC(true, life);
+    }
+    [RPC]
+    void SetGameTime(int gtime)
+    {
+        _Loader.gametime = gtime;
+        CallRPC(true, gtime);
+    }
 
     void Start()
     {
-
-        if (started || !levelLoaded) return;
-        started = true;
-        print("test");
+        
         AudioListener.volume = .1f;
         if (Network.isServer)
         {
+            SetTowerLife(_Loader.TowerLife);
+            SetGameTime(_Loader.GameTime);
             Network.incomingPassword = "started";
             MasterServer.UnregisterHost();
         }
         
         
     }
+    public Transform effects;
     void OnGUI()
     {
         if (!teamselected)
             GUI.Window(4, CenterRect(.6f, .4f), TeamSelectWindow, "Team Select");
     }
     bool teamselected;
+    public Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
     public void TeamSelectWindow(int a)
     {
         if (teamselected) return;
@@ -37,10 +51,7 @@ public class Spawn : Base
         {
             if (Network.peerType == NetworkPeerType.Disconnected)
             {
-                Network.InitializeServer(32, 5300);
-                levelLoaded = true;
-                foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-                    go.SendMessage("Start", SendMessageOptions.DontRequireReceiver);
+                Network.InitializeServer(32, 5300);                
             }
             Transform t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
             t.GetComponent<Player>().team = ata ? Team.ata : Team.def;
@@ -48,13 +59,7 @@ public class Spawn : Base
         }
         
     }
-    
-
-    void Update()
-    {        
-        _TimerA.Update();        
-    }
-    
+              
     void OnPlayerDisconnected(NetworkPlayer player)
     {
         foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
@@ -78,9 +83,6 @@ public class Spawn : Base
         nw.enabled = false;
         Component.Destroy(nw);
     }
-    void OnDisconnectedFromServer(NetworkDisconnection info)
-    {
-        Base.levelLoaded = false;
-    }    
+    
 }
 public enum Group { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player }

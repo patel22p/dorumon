@@ -15,10 +15,8 @@ public class Cam : Base
     float y = 0.0f;
     public float yoffset = -3;
 
-        void Start()
+    void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
@@ -26,27 +24,27 @@ public class Cam : Base
     public bool spectator;
     void LateUpdate()
     {
-        if (!started) return;
-        
+        transform.Find("pointer").rotation = Quaternion.LookRotation(this.transform.position- Find<Tower>().transform.position);
+
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) Screen.lockCursor = !Screen.lockCursor;
-            
+
         if (Screen.lockCursor)
         {
             x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;
             y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
         }
-        
-        y = ClampAngle(y, yMinLimit, yMaxLimit,45);
+
+        y = ClampAngle(y, yMinLimit, yMaxLimit, 45);
         if (spectator || localplayer == null || localplayer.isdead)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);
             moveDirection.Normalize();
-            transform.rotation = Quaternion.Euler(y, x , 0);
-            transform.position += moveDirection/3;
+            transform.rotation = Quaternion.Euler(y, x, 0);
+            transform.position += moveDirection / 3;
         }
         else
-        {            
+        {
             if (localplayer is CarController)
                 x = ClampAngle(x, yMinLimit, yMaxLimit, 30);
             bool car = localplayer is CarController;
@@ -59,12 +57,12 @@ public class Cam : Base
         }
     }
 
-    public static float ClampAngle(float angle, float min, float max,float clamp)
+    public static float ClampAngle(float angle, float min, float max, float clamp)
     {
         if (angle < -clamp)
             angle = -clamp;
         if (angle > clamp)
-            angle =  clamp;
+            angle = clamp;
         return Mathf.Clamp(angle, min, max);
     }
 

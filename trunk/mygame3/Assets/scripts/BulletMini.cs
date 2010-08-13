@@ -27,13 +27,13 @@ public class BulletMini : BulletBase
         {
             Transform a;
             a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal));
-            a.parent = hit.collider.gameObject.transform;
+            a.parent = ((CarController)iplayer).effects;                
         }
         if (iplayer as Player != null)
         {
             Transform a;
             Destroy(a = (Transform)Instantiate(blood, hit.point, transform.rotation),10);
-            a.parent = GameObject.Find("effects").transform;
+            a.parent = _Spawn.effects;
         }
         if (iplayer != null && !iplayer.isdead && iplayer.isOwner)
         {            
@@ -45,7 +45,7 @@ public class BulletMini : BulletBase
 
     protected override void FixedUpdate()
     {
-        if (!started) return;
+
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
         base.FixedUpdate();
     }

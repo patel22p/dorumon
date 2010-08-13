@@ -7,15 +7,26 @@ using System.Diagnostics;
 
 
 public class Base2 : MonoBehaviour
-{
-    [DebuggerStepThrough]
+{    
     public new void print(object ob)
     {
-        Loader.write("" + ob);
+        //string s="";
+        //if (ob is IEnumerable)
+        //{
+        //    foreach (object o in (IEnumerable)ob)
+        //    {
+        //        s += s + "," + o;
+                
+        //    }
+        //    Loader.write(s);
+        //}
+        //else
+            Loader.write("" + ob);
     }
 
     public static T Find<T>(string s) where T : Component
     {
+        
         GameObject g = GameObject.Find(s);
         if (g != null) return g.GetComponent<T>();
         return null;

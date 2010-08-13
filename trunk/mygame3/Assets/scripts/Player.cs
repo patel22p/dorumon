@@ -10,19 +10,17 @@ public class Player : IPlayer {
     public float flyForce = 300;
     public Transform bloodexp;
     public float force = 400;
+    public int frags;    
     public float angularvel = 600;
     public float maxVelocityChange = 10.0f;
     public string Nick;
-    public int score;
     Cam _cam { get { return Find<Cam>(); } }
     Blood blood { get { return Find<Blood>(); } }
     GameObject boxes { get { return GameObject.Find("box"); } }
-    public static Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
+
+    
     void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
-
         if (networkView.isMine)
         {
             RPCSetNick(GuiConnection.Nick);
@@ -44,17 +42,23 @@ public class Player : IPlayer {
         Life = 100;
         transform.position = SpawnPoint();
     }
+    int guni;
     protected override void Update()
     {
-        if (!started) return;
-
         if (isOwner && Screen.lockCursor)
         {
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+                guni++;
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                guni--;
+            if (guni > gunlist.Length - 1) guni = 0;
+            if (guni < 0) guni = gunlist.Length - 1; ;
+            if (Input.GetAxis("Mouse ScrollWheel") != 0) RCPSelectGun(guni);
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
-                RCPSelectGun(1);
+                RCPSelectGun(0);
             if (Input.GetKeyDown(KeyCode.Alpha2))
-                RCPSelectGun(2);
+                RCPSelectGun(1);
             if (Input.GetKey(KeyCode.Space))
             {
                 rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
@@ -65,7 +69,7 @@ public class Player : IPlayer {
     }
     void FixedUpdate()
     {
-        if (!started) return;
+
         if (isOwner) LocalMove();
     }
     private void LocalMove()
@@ -103,15 +107,15 @@ public class Player : IPlayer {
     {        
         CallRPC(true , t);
         team =   (Team)t;
-        this.renderer.material.color = team == Team.ata?Color.red:Color.blue;
+        
     }
     public override void OnSetID()
     {
         if (isOwner)
             name = "LocalPlayer";
         else
-            name = "RemotePlayer" + OwnerID;
-        players.Add(OwnerID.Value, this);
+            name = "RemotePlayer" + OwnerID;        
+        _Spawn.players.Add(OwnerID.Value, this);
     }
     [RPC]
     private void RCPSelectGun(int i)
@@ -119,7 +123,7 @@ public class Player : IPlayer {
         CallRPC(true,i);
         foreach (GunBase gb in gunlist)
             gb.DisableGun();
-        gunlist[i-1].EnableGun();      
+        gunlist[i].EnableGun();      
         
     }
     [RPC]
@@ -161,9 +165,10 @@ public class Player : IPlayer {
     }
     public override void RPCDie()
     {
+        
         Transform a;
         Destroy(a=(Transform)Instantiate(bloodexp, transform.position, Quaternion.identity),5);
-        a.parent = GameObject.Find("effects").transform;
+        a.parent = _Spawn.effects;
         if (isOwner)
         {
             _TimerA.AddMethod(2000, RPCSpawn);
@@ -173,27 +178,31 @@ public class Player : IPlayer {
                     if (p.isOwner)
                     {                        
                         _Loader.rpcwrite(_localPlayer.Nick + " died byself");
-                        _localPlayer.networkView.RPC("RPCSetScore", RPCMode.AllBuffered, _localPlayer.score - 1);
+                        _localPlayer.RPCSetFrags(-1);
                     }
                     else if (p.team != _localPlayer.team)
                     {
-                        _Loader.rpcwrite(p.Nick + " killed " + _localPlayer);
-                        p.networkView.RPC("RPCSetScore", RPCMode.AllBuffered, p.score + 1);
+                        _Loader.rpcwrite(p.Nick + " killed " + _localPlayer.Nick);
+                        p.RPCSetFrags(+1);
                     }
                     else
                     {
-                        _Loader.rpcwrite(p.Nick + " friendly fired " + _localPlayer);
-                        p.networkView.RPC("RPCSetScore", RPCMode.AllBuffered, p.score - 1);
+                        _Loader.rpcwrite(p.Nick + " friendly fired " + _localPlayer.Nick);
+                        p.RPCSetFrags(-1);
+                        
                     }
                 }
+            Screen.lockCursor = false;
         }
         
         Show(false);
     }
+
     [RPC]
-    public void RPCSetScore(int i)
-    {        
-        score = i; 
+    public void RPCSetFrags(int i)
+    {
+        CallRPC(true, i);        
+        frags += i; 
     }
     public static Vector3 Clamp(Vector3 velocityChange,float maxVelocityChange)
     {
@@ -204,7 +213,7 @@ public class Player : IPlayer {
     }
     public override Vector3 SpawnPoint()
     {
-        Transform t= spawn.transform.Find(team.ToString());
+        Transform t= _Spawn.transform.Find(team.ToString());
         return t.GetChild(UnityEngine.Random.Range(0, t.childCount)).transform.position;
     }
 }

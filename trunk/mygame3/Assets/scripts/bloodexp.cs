@@ -17,7 +17,7 @@ public class bloodexp : Base {
         {
             Transform a;
             Destroy(a = (Transform)Instantiate(blood, transform.position, Quaternion.identity),10);
-            a.parent = GameObject.Find("effects").transform;
+            a.parent = _Spawn.effects;
             l = true;
         }   
     }	

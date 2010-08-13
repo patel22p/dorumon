@@ -8,8 +8,7 @@ public class Explosion : Base {
 	// Use this for initialization
         void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
+
 
         float dist = Vector3.Distance(LocalIPlayer.transform.position, transform.position);
 

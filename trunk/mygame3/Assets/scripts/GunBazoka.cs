@@ -8,14 +8,13 @@ public class GunBazoka : GunBase
     
     protected override void Update()
     {
-        if (!started) return;
         base.Update();        
     }
     
         
     protected override void FixedUpdate()
     {
-        if (!started) return;
+
         base.FixedUpdate();
     }
     

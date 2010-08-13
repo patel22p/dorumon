@@ -58,9 +58,7 @@ public abstract class Car : IPlayer
     };
 
     protected virtual void Start()
-    {
-        print("startcall");        
-        print("car on start");
+    {        
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)
             wheels[i] = new WheelData();

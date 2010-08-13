@@ -8,23 +8,124 @@ using doru;
 public class Loader : Base
 {
     public static bool Online;
-    void Start()
-    {
-        center = CenterRect(.8f, .6f);
-        
-    }
     public String disconnectedLevel;
     public static int lastLevelPrefix = 0;
-
+    public bool autostart;
+    public double fps;
+    public GUISkin guiskin;
+    static string lastStr;
+    public static string input = "";
+    Rect center;
+    public Transform root;
+    public string[] supportedNetworkLevels = new string[] { "zredline", "zmyl", "zisland" };
+    public int gametime = 5;
+    float cmx { get { return Screen.height / 2; } }
     void Awake()
     {
+
+        
+        if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
         DontDestroyOnLoad(this);
         networkView.group = 1;
+        
+        center = CenterRect(.8f, .6f);
         if (Application.loadedLevel == 0)
         {
             Application.LoadLevel(disconnectedLevel);
             Online = true;
         }
+    }
+    
+    void Update()
+    {
+        
+        if (_TimerA.TimeElapsed(500))
+            fps = _TimerA.GetFps();
+        _TimerA.Update();
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (input != "")
+            {
+                foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
+                    go.SendMessage("OnConsole", input, SendMessageOptions.DontRequireReceiver);
+                input = "";
+            }
+        }
+
+
+    }
+    void OnGUI()
+    {
+        GUILayout.Label("fps: " + fps.ToString("f0"));
+
+        GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
+        if (Screen.lockCursor) return;
+        center = GUILayout.Window(0, center, ConsoleWindow, "Console");
+    }
+    public int TowerLife= 10000;
+    public int GameTime = 10;
+    private void ConsoleWindow(int id)
+    {
+        if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
+            foreach (string level in supportedNetworkLevels)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Tower Life:");
+                int.TryParse(GUILayout.TextField(TowerLife.ToString()), out TowerLife);
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Game Time Minutes:");
+                int.TryParse(GUILayout.TextField(GameTime.ToString()), out GameTime);
+                GUILayout.EndHorizontal();
+
+                if (GUILayout.Button(level))
+                    LoadLevelRPC(level);
+
+            }
+
+        if (_Spawn != null)
+        {
+            TimeSpan ts = TimeSpan.FromMinutes(gametime) - TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
+            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);
+            GUILayout.Label("Tower Life:" + Find<Tower>().Life);
+
+            if (ts.Milliseconds < 0 && _Tower.enabled)
+            {
+                _Tower.Hide();
+                write("team " + Team.def + " win");
+                _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
+                Screen.lockCursor = false;
+            }
+        }
+        
+
+        GUILayout.Space(20);
+        GUILayout.Label("Team " + Team.def);
+        foreach (Player a in FindObjectsOfType(typeof(Player)))
+            if (a.team == Team.def && a.OwnerID != null)
+                GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
+        GUILayout.Label("Team " + Team.ata);
+        foreach (Player a in FindObjectsOfType(typeof(Player)))
+            if (a.team == Team.ata && a.OwnerID!=null)
+                GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
+
+        if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
+        {
+            Network.Disconnect();
+        }
+        input = GUILayout.TextField(input);
+        output = GUILayout.TextField(output);
+        
+        
+    }
+    protected override void OnConsole(string s)
+    {
+        rpcwrite(GuiConnection.Nick + ": " + s);
     }
     public void LoadLevelRPC(string level)
     {
@@ -36,21 +137,20 @@ public class Loader : Base
     {
         rpcwrite("Player joined " + GuiConnection.Nick);
     }
-    
     [RPC]
     public void rpcwrite(string s)
     {
         CallRPC(true, s);
         write(s);
     }
-    public bool autostart;
     void OnPlayerConnected(NetworkPlayer player)
     {
         if (autostart) Find<Loader>().LoadLevelRPC(supportedNetworkLevels[0]);
     }
     void OnDisconnectedFromServer(NetworkDisconnection info)
-    {
+    {        
         rpcwrite("Player disconnected " + GuiConnection.Nick);
+        write("Disconnected from game");
         Application.LoadLevel(disconnectedLevel);
     }
     void OnConnectedToServer()
@@ -71,93 +171,14 @@ public class Loader : Base
     }
     void OnLevelWasLoaded(int level)
     {
-        // Allow receiving data again
         Network.isMessageQueueRunning = true;
-        // Now the level has been loaded and we can start sending out data to clients
         Network.SetSendingEnabled(0, true);
-
-        foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-            go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
     }
-    protected override void OnConsole(string s)
-    {
-        rpcwrite(GuiConnection.Nick + ": " + s);
-    }
-    protected void Update()
-    {
-
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            if (input != "")
-            {
-                foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-                    go.SendMessage("OnConsole", input, SendMessageOptions.DontRequireReceiver);
-                input = "";
-            }
-        }
-
-
-    }
-    static string lastStr;
     public static void write(string s)
     {
         lastStr = s;
         output = s + "\r\n" + output;
     }
-
-    public GUISkin guiskin;
-    public static string input = "";
-
-    Rect center = CenterRect(.5f, .6f);
-
-    void OnGUI()
-    {
-        GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
-        if (Screen.lockCursor) return;
-        center = GUILayout.Window(0, center, ConsoleWindow, "Console");
-    }
-
-
-    public string[] supportedNetworkLevels = new string[] { "zredline", "zmyl", "zisland" };
-    public int gametime = 5;    
-    private void ConsoleWindow(int id)
-    {
-        if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
-            foreach (string level in supportedNetworkLevels)
-            {
-                if (GUILayout.Button(level))
-                    Find<Loader>().LoadLevelRPC(level);
-            }
-
-        if (spawn != null)
-        {
-            TimeSpan ts = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
-            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);
-            GUILayout.Label("Base Life:" + Find<Tower>().Life);
-
-            if (ts.Milliseconds < 0)
-            {
-                write("team " + Team.def + " win");                
-            }
-        }
-
-        GUILayout.Space(20);
-        GUILayout.Label("Team " + Team.def);
-        foreach (Player a in FindObjectsOfType(typeof(Player)))
-            if (a.team == Team.def)
-                GUILayout.Label(a.Nick + "                                      Kills:" + a.score + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
-        GUILayout.Label("Team " + Team.ata);
-        foreach (Player a in FindObjectsOfType(typeof(Player)))
-            if (a.team == Team.ata)
-                GUILayout.Label(a.Nick + "                                      Kills:" + a.score + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
-
-
-        input = GUILayout.TextField(input);
-        output = GUILayout.TextField(output);
-        GUI.DragWindow();
-    }
-
-    float cmx { get { return Screen.height / 2; } }
     public Rect dockup()
     {
         Vector2 c = new Vector2(Screen.width, Screen.height);
@@ -180,6 +201,3 @@ a,s,d,w move keys
 ";
 }
 
-//GUILayout.Label("isMine:" + a.networkView.isMine + "  Owner:" + a.OwnerID.ToString() + "     Nick:" + a.Nick + " Score:" + a.score +
-//    "     Life:" + a.Life + "    Ping:" + Network.GetLastPing(a.OwnerID.Value) +
-//    "   IPAddress:" + a.OwnerID.Value.ipAddress + "port:" + a.OwnerID.Value.port);

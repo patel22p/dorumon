@@ -18,15 +18,14 @@ public class GunBase : Base
 
         void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
+
         
     }
     public Quaternion q; 
     public bool car;
     protected virtual void FixedUpdate()
     {
-        if (!started) return;
+
         UpdateAim();
         this.transform.rotation = q;
     }
@@ -38,7 +37,7 @@ public class GunBase : Base
 
     protected virtual void Update()
     {
-        if (!started) return;
+
         UpdateAim();
         transform.rotation = q;
         if (isOwner)

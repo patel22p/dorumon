@@ -7,7 +7,7 @@ public class Blood : Base
     public float repair = .4f;
     void Update()
     {
-        if (!started) return;
+
         foreach (GUITexture a in this.GetComponentsInChildren<GUITexture>())
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);

@@ -10,8 +10,8 @@ public class Base : Base2
     
     public int pwnerID2 = -2;
     bool hidden;
-    public bool started;
-    public static bool levelLoaded;
+    public Tower _Tower { get { return Find<Tower>(); } }
+    
     NetworkPlayer? _OwnerID;
     public NetworkPlayer? OwnerID
     {
@@ -42,16 +42,19 @@ public class Base : Base2
         }
     }
     public Loader _Loader { get { return Find<Loader>(); } }
-    public Spawn spawn { get { return Find<Spawn>(); } }
-    
-    
-    
+    public Spawn _Spawn { get { return Find<Spawn>(); } }
+
+
     public static GameObject Root(GameObject g)
     {
-        Transform p = g.transform;
+        return Root(g.transform).gameObject;
+    }
+    public static Transform Root(Transform g)
+    {
+        Transform p = g;
         while (true)
         {
-            if (p.parent == null) return p.gameObject;
+            if (p.parent == null) return p;
             p = p.parent;
         }
     }
@@ -74,7 +77,7 @@ public class Base : Base2
     }
     [RPC]
     public void RPCResetOwner()
-    {
+    {        
         CallRPC(true);
         foreach (NetworkView otherView in this.GetComponents<NetworkView>())
             otherView.observed = null;
@@ -113,7 +116,7 @@ public class Base : Base2
         foreach (Base r in this.GetComponentsInChildren<Base>())
             r.enabled = value;
     }    
-    public IEnumerable<Transform> getChild(Transform t)
+    public static IEnumerable<Transform> getChild(Transform t)
     {
         yield return t;
         for (int i = 0; i < t.childCount; i++)
@@ -132,14 +135,8 @@ public class Base : Base2
     }
     public void CallRPC(bool buffered,params object[] obs)
     {
-
         if (new System.Diagnostics.StackFrame(2, true).GetMethod() != null)
-        {
-            foreach (object o in new System.Diagnostics.StackFrame(2, true).GetMethod().GetCustomAttributes(true))
-                if (o is RPC)
-                    return;
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
-        }        
     }
     public static float clamp(float a)
     {

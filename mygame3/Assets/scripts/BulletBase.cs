@@ -11,13 +11,12 @@ public abstract class BulletBase : Base
     public Transform decal;
         void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
+
         previousPosition = transform.position;
     }
     protected virtual void FixedUpdate()
     {
-        if (!started) return;
+
         tm += Time.deltaTime;
         if (tm > 5) Destroy(gameObject);
 

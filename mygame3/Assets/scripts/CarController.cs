@@ -10,8 +10,7 @@ public class CarController : Car
     protected Vector3 spawnpos;
     protected override void Start()
     {
-        if (started || !levelLoaded) return;
-        started = true;
+
         spawnpos = transform.position;
         Life = 200;
         base.Start();
@@ -44,8 +43,8 @@ public class CarController : Car
     
     protected override void Update()
     {
-        if (!started) return;
         base.Update();
+
         if (_localPlayer == null) return;
         if (isOwner)
         {
@@ -83,8 +82,7 @@ public class CarController : Car
         
     }
     void FixedUpdate()
-    {
-        if (!started) return;
+    {        
         UpdateCar();
     }
     private void CarOut()
@@ -111,17 +109,22 @@ public class CarController : Car
             _localPlayer.killedyby = killedyby;
             _localPlayer.RPCSetLife(-2);
             _TimerA.AddMethod(2000, RPCSpawn);
+            Screen.lockCursor = false;
         }
         Destroy(Instantiate(brokencar, transform.position, transform.rotation), 20);
         Show(false);
-
+        
     }
     public Transform brokencar;
+    public Transform effects;
     [RPC]
     public void RPCSpawn()
-    {        
-        CallRPC(true);        
+    {
+        CallRPC(true);
         Show(true);
+        
+        foreach (Transform item in Base.getChild(effects))
+            Destroy(item);
         transform.position = spawnpos;
         Life = life;
         Reset();        

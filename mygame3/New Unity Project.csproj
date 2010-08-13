@@ -59,7 +59,6 @@
     <Compile Include="Assets\scripts\Generate2DReflection.cs" />
     <Compile Include="Assets\scripts\GuiConnection.cs" />
     <Compile Include="Assets\scripts\GuiPlayer.cs" />
-    <Compile Include="Assets\scripts\GuiScoreBoard.cs" />
     <Compile Include="Assets\scripts\GunBase.cs" />
     <Compile Include="Assets\scripts\GunBazoka.cs" />
     <Compile Include="Assets\scripts\GunMini.cs" />
@@ -67,12 +66,11 @@
     <Compile Include="Assets\scripts\IPlayer.cs" />
     <Compile Include="Assets\scripts\IslandWater.cs" />
     <Compile Include="Assets\scripts\Loader.cs" />
-    <Compile Include="Assets\scripts\Text3D.cs" />
     <Compile Include="Assets\scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\scripts\Player.cs" />
-    <Compile Include="Assets\scripts\PlayerView.cs" />
     <Compile Include="Assets\scripts\Skidmarks.cs" />
     <Compile Include="Assets\scripts\Spawn.cs" />
+    <Compile Include="Assets\scripts\Text3D.cs" />
     <Compile Include="Assets\scripts\Tower.cs" />
     <None Include="Assets\materials\FX-IslandWaterFull.shader" />
     <None Include="Assets\materials\FX-IslandWaterSimple.shader" />

@@ -13,7 +13,7 @@ public class BulletBazoka : BulletBase
 
     protected override void FixedUpdate()
     {
-        if (!started) return;
+
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
         base.FixedUpdate();
     }
@@ -30,7 +30,7 @@ public class BulletBazoka : BulletBase
         {
             Transform a;
             Destroy((a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal))), 10);
-            a.parent = GameObject.Find("effects").transform;
+            a.parent = _Spawn.effects;
         }
 
         Destroy(gameObject);        

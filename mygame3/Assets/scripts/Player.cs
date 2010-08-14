@@ -19,7 +19,7 @@ public class Player : IPlayer {
     GameObject boxes { get { return GameObject.Find("box"); } }
 
     
-    void Start()
+    protected override void Start()
     {
         if (networkView.isMine)
         {
@@ -67,7 +67,7 @@ public class Player : IPlayer {
         }
         base.Update();
     }
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {
 
         if (isOwner) LocalMove();

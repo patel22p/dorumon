@@ -57,8 +57,8 @@ public abstract class Car : IPlayer
         public Quaternion originalRotation;
     };
     
-    protected virtual void Start()
-    {        
+    public void StartCar()
+    {
         
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)

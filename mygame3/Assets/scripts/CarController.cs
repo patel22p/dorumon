@@ -10,17 +10,14 @@ public class CarController : Car
     protected Vector3 spawnpos;
     protected override void Start()
     {
-
-        spawnpos = transform.position;
-        Life = 200;
         base.Start();
+        StartCar();
+        spawnpos = transform.position;
+        Life = 200;        
         Reset();
-        if (Network.peerType == NetworkPeerType.Disconnected) return;
-        if (!Network.isServer)
-            networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
-        
-        
+        if (Network.peerType == NetworkPeerType.Disconnected) return;        
     }
+
     public override Vector3 SpawnPoint()
     {
         return spawnpos;
@@ -73,9 +70,10 @@ public class CarController : Car
         
         
     }
-    void FixedUpdate()
+    protected override void FixedUpdate()
     {        
         UpdateCar();
+        base.FixedUpdate();
     }
     private void CarOut()
     {        

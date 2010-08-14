@@ -7,12 +7,7 @@ public class Spawn : Base
 {
     public Transform _Player;
 
-    [RPC]
-    void SetTowerLife(int life)
-    {
-        _Tower.Life = life;
-        CallRPC(true, life);
-    }
+    
     [RPC]
     void SetGameTime(int gtime)
     {
@@ -25,8 +20,7 @@ public class Spawn : Base
         
         AudioListener.volume = .1f;
         if (Network.isServer)
-        {
-            SetTowerLife(_Loader.TowerLife);
+        {            
             SetGameTime(_Loader.GameTime);
             Network.incomingPassword = "started";
             MasterServer.UnregisterHost();
@@ -60,7 +54,7 @@ public class Spawn : Base
               
     void OnPlayerDisconnected(NetworkPlayer player)
     {
-        foreach (CarController a in GameObject.FindObjectsOfType(typeof(CarController)))
+        foreach (Box a in GameObject.FindObjectsOfType(typeof(Box)))
         {
             if (a.OwnerID == player)
                 a.RPCResetOwner();

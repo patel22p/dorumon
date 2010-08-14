@@ -66,17 +66,14 @@ public class Loader : Base
         if (Screen.lockCursor) return;
         center = GUILayout.Window(0, center, ConsoleWindow, "Console");
     }
-    public int TowerLife= 10000;
+    
     public int GameTime = 10;
     private void ConsoleWindow(int id)
     {
         if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
             foreach (string level in supportedNetworkLevels)
             {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Tower Life:");
-                int.TryParse(GUILayout.TextField(TowerLife.ToString()), out TowerLife);
-                GUILayout.EndHorizontal();
+                
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Game Time Minutes:");
@@ -91,12 +88,10 @@ public class Loader : Base
         if (_Spawn != null)
         {
             TimeSpan ts = TimeSpan.FromMinutes(gametime) - TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
-            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);
-            GUILayout.Label("Tower Life:" + Find<Tower>().Life);
+            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);            
 
-            if (ts.Milliseconds < 0 && _Tower.enabled)
-            {
-                _Tower.Hide();
+            if (ts.Milliseconds < 0 )
+            {                
                 write("team " + "Defenders" + " win");
                 _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
                 Screen.lockCursor = false;

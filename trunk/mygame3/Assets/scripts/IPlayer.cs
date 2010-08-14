@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using doru;
-public abstract class IPlayer : Base
+public abstract class IPlayer : Box
 {
     public Transform title;
     public Transform mesh;
@@ -40,9 +40,7 @@ public abstract class IPlayer : Base
     [RPC]
     public virtual void RPCSetLife(int NwLife)
     {
-        
-
-        CallRPC(true,NwLife);        
+        CallRPC(true, NwLife);        
         if (NwLife < 0)
             RPCDie();
         Life = NwLife;

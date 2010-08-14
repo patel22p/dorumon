@@ -26,25 +26,19 @@ public class Base : Base2
     {
         get
         {
-            foreach (NetworkView b in this.GetComponents<NetworkView>())
-                if (b.isMine) return b;
-            return null;
+            return GetNetworkView(Network.player);
         }
     }
-    public bool isControlled
+
+    public NetworkView GetNetworkView(NetworkPlayer pl )
     {
-        get
-        {
-            foreach (NetworkView b in this.GetComponents<NetworkView>())
-                if (b.observed != null)
-                    return true;
-            return false;
-        }
+        foreach (NetworkView b in this.GetComponents<NetworkView>())
+            if (b.owner == pl) return b;
+        return null;
     }
+    
     public Loader _Loader { get { return Find<Loader>(); } }
     public Spawn _Spawn { get { return Find<Spawn>(); } }
-
-
     public static GameObject Root(GameObject g)
     {
         return Root(g.transform).gameObject;
@@ -58,16 +52,11 @@ public class Base : Base2
             p = p.parent;
         }
     }
-    
-    
     protected virtual void OnTriggerEnter(Collider other) { }
-    
     [RPC]
     void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
-    {        
-        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
-            otherView.observed = null;
-        ownerView.networkView.observed = this.rigidbody; 
+    {
+        SetController(ownerView);
 
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
@@ -76,13 +65,35 @@ public class Base : Base2
         }       
     }
     [RPC]
+    public void SetController(NetworkMessageInfo ownerView)
+    {
+        
+        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
+            otherView.observed = null;
+        ownerView.networkView.observed = this.rigidbody;
+    }
+    [RPC]
     public void RPCResetOwner()
     {        
         CallRPC(true);
-        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
-            otherView.observed = null;
+        ResetController();
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
             bas.OwnerID = null;
+    }
+    [RPC]
+    private void ResetController()
+    {
+        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
+            otherView.observed = null;
+    }
+    [RPC]
+    public void RPCAddNetworkView(NetworkViewID id)
+    {
+        NetworkView nw = this.gameObject.AddComponent<NetworkView>();
+        nw.group = (int)Group.RPCAssignID;
+        nw.observed = null;
+        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        nw.viewID = id;
     }
     public void RPCSetOwner()
     {        
@@ -96,7 +107,7 @@ public class Base : Base2
         CallRPC(true, value);
         Show(value);
     }
-    public void Show(bool value)
+    public void Show(bool value) // bag s timerom
     {        
         if (rigidbody != null)
         {            

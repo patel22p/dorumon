@@ -47,12 +47,10 @@ public class Spawn : Base
         if (teamselected) return;
         GUI.BringWindowToFront(a);
         bool ata, def;
-        if ((ata = GUILayout.Button("ata")) || (def = GUILayout.Button("def")))
+        if ((ata = GUILayout.Button("Atackers")) || (def = GUILayout.Button("Defenders")))
         {
             if (Network.peerType == NetworkPeerType.Disconnected)
-            {
                 Network.InitializeServer(32, 5300);                
-            }
             Transform t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
             t.GetComponent<Player>().team = ata ? Team.ata : Team.def;
             teamselected = true;            

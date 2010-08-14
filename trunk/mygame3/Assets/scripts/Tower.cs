@@ -18,19 +18,19 @@ using System;
             
                 title.GetComponent<TextMesh>().text = Life.ToString();            
         }
+        [RPC]
         public override void RPCSetLife(int NwLife)
         {
-            base.RPCSetLife(NwLife);
+            
             Player p = _Spawn.players[killedyby];
-            if (p.team == Team.def)
-            {
-                p.RPCSetLife(p.Life - (Life - NwLife));
-            }
+            if (p.team != Team.def)
+                base.RPCSetLife(NwLife);
         }
+        [RPC]
         public override void RPCDie()
         {
             if (!enabled) return;
-            _Loader.rpcwrite("team " + Team.ata + " win");
+            _Loader.rpcwrite("team " + "Atackers" + " win");
             this.Hide();
             _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
             Screen.lockCursor = false;

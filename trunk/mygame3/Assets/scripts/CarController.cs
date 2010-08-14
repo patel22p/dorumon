@@ -25,15 +25,7 @@ public class CarController : Car
     {
         return spawnpos;
     }
-    [RPC]
-    public void RPCAddNetworkView(NetworkViewID id)
-    {        
-        NetworkView nw = this.gameObject.AddComponent<NetworkView>();
-        nw.group = (int)Group.RPCAssignID;
-        nw.observed = null;
-        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
-        nw.viewID = id;
-    }
+    
 
     
     Cam _cam { get { return Find<Cam>(); } }
@@ -48,7 +40,7 @@ public class CarController : Car
         if (_localPlayer == null) return;
         if (isOwner)
         {
-            if (Mathf.Abs(clamp(transform.rotation.eulerAngles.z)) > 90 || Mathf.Abs(clamp(transform.rotation.eulerAngles.x)) > 90)
+            if (Mathf.Abs(clamp(transform.rotation.eulerAngles.z)) > 70 || Mathf.Abs(clamp(transform.rotation.eulerAngles.x)) > 70)
                 timedown1 += _TimerA._SecodsElapsed;
             else
                 timedown1 = 0;
@@ -66,7 +58,7 @@ public class CarController : Car
             {
                 CarOut();
             }
-            if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
+            //if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
         }
         else
         {

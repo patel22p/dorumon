@@ -10,7 +10,7 @@ public class Base : Base2
     
     public int pwnerID2 = -2;
     bool hidden;
-    public Tower _Tower { get { return Find<Tower>(); } }
+
     
     NetworkPlayer? _OwnerID;
     public NetworkPlayer? OwnerID
@@ -19,6 +19,8 @@ public class Base : Base2
         set { _OwnerID = value; pwnerID2 = value.HasValue ? value.Value.GetHashCode() : -2; }
     }
     public bool isOwner { get { return OwnerID == Network.player; } }
+    public bool isOwnerOrNull { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
+    
     public TimerA _TimerA { get { return TimerA._This; } }
     public Cam _Cam { get { return Find<Cam>(); } }
     bool Offline { get { return !Loader.Online; } }

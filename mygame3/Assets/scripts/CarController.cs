@@ -92,15 +92,17 @@ public class CarController : Car
     {
         
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
+        if (isOwnerOrServer)
+            _TimerA.AddMethod(2000, RPCSpawn);
         if (isOwner)
         {
             _cam.localplayer = _localPlayer;
             RPCResetOwner();
             _localPlayer.killedyby = killedyby;
-            _localPlayer.RPCSetLife(-2);
-            _TimerA.AddMethod(2000, RPCSpawn);
+            _localPlayer.RPCSetLife(-2);            
             Screen.lockCursor = false;
         }
+        
         Destroy(Instantiate(brokencar, transform.position, transform.rotation), 20);
         Show(false);
         
@@ -112,7 +114,6 @@ public class CarController : Car
     {
         CallRPC(true);
         Show(true);
-        
         foreach (Transform item in Base.getChild(effects))
             Destroy(item);
         transform.position = spawnpos;

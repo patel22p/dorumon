@@ -35,7 +35,7 @@ public class BulletMini : BulletBase
             Destroy(a = (Transform)Instantiate(blood, hit.point, transform.rotation),10);
             a.parent = _Spawn.effects;
         }
-        if (iplayer != null && iplayer.isOwnerOrNull && !iplayer.isdead)
+        if (iplayer != null && iplayer.isOwnerOrServer && !iplayer.isdead)
         {            
             iplayer.killedyby = OwnerID.Value;
             iplayer.RPCSetLife(iplayer.Life - damage);

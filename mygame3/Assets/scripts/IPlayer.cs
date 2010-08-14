@@ -6,7 +6,7 @@ public abstract class IPlayer : Box
 {
     public Transform title;
     public Transform mesh;
-    public NetworkPlayer killedyby;
+    public NetworkPlayer? killedyby;
     public int Life;
     public bool isdead { get { return !enabled; } }
     public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }

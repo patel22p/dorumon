@@ -44,13 +44,13 @@ public class GunBase : Base
             LocalUpdate();
 
     }
-
+    public Transform cursor;
     public Transform GetRotation()
     {                
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
         ray.origin = ray.GetPoint(10);
         RaycastHit h;
-        Transform t = transform.Find("cursor");
+        Transform t = cursor;
         if (Physics.Raycast(ray, out h, float.MaxValue, 1 << 8))
             t.LookAt(h.point);
         else

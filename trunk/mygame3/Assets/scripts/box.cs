@@ -22,7 +22,7 @@ public class Box : Base
     public float pldist;
     protected virtual void FixedUpdate()
     {
-
+        print(this.name);
         if (Network.isServer && OwnerID == null)
         {
             float min = float.MaxValue;
@@ -36,6 +36,7 @@ public class Box : Base
                         nearp = p;
                     min = Math.Min(dist, min);
                     if (p is CarController) cardist = dist;
+
                     if (p is Player) pldist = dist;
                 }
             }

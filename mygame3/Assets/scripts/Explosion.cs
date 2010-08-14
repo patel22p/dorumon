@@ -10,18 +10,22 @@ public class Explosion : Base {
     {
 
 
-        float dist = Vector3.Distance(LocalIPlayer.transform.position, transform.position);
+        
 
-        if (!LocalIPlayer.isdead && dist < maxdistance)
+        
+        foreach (IPlayer ip in GameObject.FindObjectsOfType(typeof(IPlayer)))
         {
-            LocalIPlayer.killedyby = OwnerID.Value;
-            LocalIPlayer.RPCSetLife(LocalIPlayer.Life - maxdamage);
+            float dist = Vector3.Distance(ip.transform.position, transform.position);
+            if (!ip.isdead && dist < maxdistance)
+            {
+                ip.killedyby = OwnerID.Value;
+                ip.RPCSetLife(ip.Life - maxdamage);
+            }
         }
-
-        Tower t = Find<Tower>();
-        dist = Vector3.Distance(t.transform.position, transform.position);
-        if (dist < maxdistance)
-            t.RPCSetLife(t.Life - maxdamage);
+        //Tower t = Find<Tower>();
+        //dist = Vector3.Distance(t.transform.position, transform.position);
+        //if (dist < maxdistance)
+        //    t.RPCSetLife(t.Life - maxdamage);
     }
 
 

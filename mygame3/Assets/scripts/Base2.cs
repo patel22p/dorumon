@@ -21,7 +21,8 @@ public class Base2 : MonoBehaviour
         //    Loader.write(s);
         //}
         //else
-            Loader.write("" + ob);
+        UnityEngine.Debug.Log(ob);
+        Loader.write("" + ob);
     }
 
     public static T Find<T>(string s) where T : Component

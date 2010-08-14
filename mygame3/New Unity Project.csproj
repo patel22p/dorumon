@@ -48,6 +48,7 @@
     <Compile Include="Assets\scripts\Base2.cs" />
     <Compile Include="Assets\scripts\Blood.cs" />
     <Compile Include="Assets\scripts\bloodexp.cs" />
+    <Compile Include="Assets\scripts\box.cs" />
     <Compile Include="Assets\scripts\BulletBase.cs" />
     <Compile Include="Assets\scripts\BulletBazoka.cs" />
     <Compile Include="Assets\scripts\BulletMini.cs" />

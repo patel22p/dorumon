@@ -56,9 +56,10 @@ public abstract class Car : IPlayer
         public bool handbraked = false;
         public Quaternion originalRotation;
     };
-
+    
     protected virtual void Start()
     {        
+        
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)
             wheels[i] = new WheelData();
@@ -88,8 +89,10 @@ public abstract class Car : IPlayer
             t.spring = springs;
             t.damper = dampers;
             w.coll.suspensionSpring = t;
-            w.coll.forwardFriction = new WheelFrictionCurve();
-            w.coll.sidewaysFriction = new WheelFrictionCurve();
+            WheelFrictionCurve wf = new WheelFrictionCurve();
+            wf.stiffness = wf.extremumValue = wf.extremumSlip = wf.asymptoteSlip = wf.asymptoteValue = 2;
+            w.coll.forwardFriction = wf;
+            w.coll.sidewaysFriction = wf;
             w.coll.radius = wheelRadius;
         }
         wheelY = wheels[0].graphic.localPosition.y;

@@ -97,7 +97,7 @@ public class Loader : Base
             if (ts.Milliseconds < 0 && _Tower.enabled)
             {
                 _Tower.Hide();
-                write("team " + Team.def + " win");
+                write("team " + "Defenders" + " win");
                 _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
                 Screen.lockCursor = false;
             }
@@ -105,11 +105,11 @@ public class Loader : Base
         
 
         GUILayout.Space(20);
-        GUILayout.Label("Team " + Team.def);
+        GUILayout.Label("Team " + "Defenders");
         foreach (Player a in FindObjectsOfType(typeof(Player)))
             if (a.team == Team.def && a.OwnerID != null)
                 GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
-        GUILayout.Label("Team " + Team.ata);
+        GUILayout.Label("Team " + "Atackers");
         foreach (Player a in FindObjectsOfType(typeof(Player)))
             if (a.team == Team.ata && a.OwnerID!=null)
                 GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));

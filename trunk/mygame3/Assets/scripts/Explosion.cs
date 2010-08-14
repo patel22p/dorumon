@@ -13,9 +13,9 @@ public class Explosion : Base
         foreach (IPlayer ip in GameObject.FindObjectsOfType(typeof(IPlayer)))
         {
             float dist = Vector3.Distance(ip.transform.position, transform.position);
-            if (dist < maxdistance && ip.isOwnerOrNull && !ip.isdead)
+            if (dist < maxdistance && ip.isOwnerOrServer && !ip.isdead)
             {
-                ip.killedyby = OwnerID.Value;
+                ip.killedyby = OwnerID;
                 ip.RPCSetLife(ip.Life - maxdamage);
             }
         }

@@ -19,7 +19,7 @@ public class Base : Base2
         set { _OwnerID = value; pwnerID2 = value.HasValue ? value.Value.GetHashCode() : -2; }
     }
     public bool isOwner { get { return OwnerID == Network.player; } }
-    public bool isOwnerOrNull { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
+    public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
     
     public TimerA _TimerA { get { return TimerA._This; } }
     public Cam _Cam { get { return Find<Cam>(); } }

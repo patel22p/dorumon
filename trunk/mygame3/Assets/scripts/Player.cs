@@ -173,9 +173,9 @@ public class Player : IPlayer {
         {
             _TimerA.AddMethod(2000, RPCSpawn);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
-                if (p.OwnerID == killedyby)
+                if (p.OwnerID == killedyby || !killedyby.HasValue)
                 {
-                    if (p.isOwner)
+                    if (p.isOwner || !killedyby.HasValue)
                     {                        
                         _Loader.rpcwrite(_localPlayer.Nick + " died byself");
                         _localPlayer.RPCSetFrags(-1);

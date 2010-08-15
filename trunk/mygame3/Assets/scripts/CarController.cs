@@ -7,33 +7,25 @@ public class CarController : Car
 {
     public Transform exp;
 
-    protected Vector3 spawnpos;
+    
     protected override void Start()
     {
         base.Start();
+        rigidbody.angularDrag = 5;
         StartCar();
-        spawnpos = transform.position;
+        
         Life = 200;        
         Reset();
-        if (Network.peerType == NetworkPeerType.Disconnected) return;        
+        
     }
 
-    public override Vector3 SpawnPoint()
-    {
-        return spawnpos;
-    }
-    
 
     
     Cam _cam { get { return Find<Cam>(); } }
-    
-    
     double timedown1;
-    
     protected override void Update()
     {
         base.Update();
-
         if (_localPlayer == null) return;
         if (isOwner)
         {
@@ -70,10 +62,9 @@ public class CarController : Car
         
         
     }
-    protected override void FixedUpdate()
-    {        
-        UpdateCar();
-        base.FixedUpdate();
+    protected virtual void FixedUpdate()
+    {
+        FixedUpdateCar();                
     }
     private void CarOut()
     {        
@@ -82,8 +73,8 @@ public class CarController : Car
         brake = 0;
         handbrake = 0;
         rigidbody.velocity = Vector3.zero;
-
         _localPlayer.RPCShow(true);
+        _localPlayer.RCPSelectGun(1);
         _localPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
         _cam.localplayer = _localPlayer;
         RPCResetOwner();
@@ -123,7 +114,7 @@ public class CarController : Car
 
     private void Reset()
     {
-        foreach (GunBase gunBase in gunlist)
+        foreach (GunBase gunBase in guns)
             gunBase.Reset();
     }
     const int life = 300;

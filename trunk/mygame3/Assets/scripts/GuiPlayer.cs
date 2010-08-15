@@ -25,7 +25,7 @@ public class GuiPlayer : Base
         
         GUILayout.Label("Life: " + iplayer.Life);
         GUILayout.Label("Frags: " + player.frags);        
-        foreach (GunBase gb in player.gunlist)
+        foreach (GunBase gb in player.guns)
             GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
         GUI.DragWindow();
     }

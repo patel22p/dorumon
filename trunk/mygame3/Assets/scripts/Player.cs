@@ -37,7 +37,7 @@ public class Player : IPlayer {
         Show(true);
         CallRPC(true);
         RCPSelectGun(1);
-        foreach (GunBase gunBase in gunlist)
+        foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = 100;
         transform.position = SpawnPoint();
@@ -51,14 +51,16 @@ public class Player : IPlayer {
                 guni++;
             if (Input.GetAxis("Mouse ScrollWheel") < 0)
                 guni--;
-            if (guni > gunlist.Length - 1) guni = 0;
-            if (guni < 0) guni = gunlist.Length - 1; ;
+            if (guni > guns.Length - 1) guni = 0;
+            if (guni < 0) guni = guns.Length - 1; ;
             if (Input.GetAxis("Mouse ScrollWheel") != 0) RCPSelectGun(guni);
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 RCPSelectGun(0);
             if (Input.GetKeyDown(KeyCode.Alpha2))
                 RCPSelectGun(1);
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+                RCPSelectGun(2);
             if (Input.GetKey(KeyCode.Space))
             {
                 rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
@@ -67,9 +69,8 @@ public class Player : IPlayer {
         }
         base.Update();
     }
-    protected override void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
-
         if (isOwner) LocalMove();
     }
     private void LocalMove()
@@ -118,12 +119,12 @@ public class Player : IPlayer {
         _Spawn.players.Add(OwnerID.Value, this);
     }
     [RPC]
-    private void RCPSelectGun(int i)
+    public void RCPSelectGun(int i)
     {
         CallRPC(true,i);
-        foreach (GunBase gb in gunlist)
+        foreach (GunBase gb in guns)
             gb.DisableGun();
-        gunlist[i].EnableGun();      
+        guns[i].EnableGun();      
         
     }
     [RPC]
@@ -137,9 +138,9 @@ public class Player : IPlayer {
     {
         Base b = collisionInfo.gameObject.GetComponent<Base>();
 
-        if (b != null && isOwner &&
-            b.OwnerID != null && !b.isOwner && b is CarController &&
-            collisionInfo.impactForceSum.sqrMagnitude > 50 &&
+        if (b != null && isOwner && !b.isOwner &&
+            b is Box && !(b is Player) &&
+            collisionInfo.impactForceSum.sqrMagnitude > 100 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
             RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);

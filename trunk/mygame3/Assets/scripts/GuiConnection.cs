@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Diagnostics;
-using System.Threading;
+
 using System;
 using System.Reflection;
 [assembly: AssemblyVersion("1.0.*")]
@@ -14,7 +14,7 @@ public class GuiConnection : Base2
     public Rect r = new Rect(0, 0, 200, 300);
     public Rect r2;
     internal int port = 5300;
-    public static string Nick { get { return PlayerPrefs.GetString("Nick"); } set { PlayerPrefs.SetString("Nick", value); } }
+    public static string Nick = "Guest " + UnityEngine.Random.Range(0, 99);
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
     public string ip2 { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }    
     Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
@@ -91,8 +91,10 @@ public class GuiConnection : Base2
             GUILayout.Label("NickName:");
             Nick = GUILayout.TextField(Nick);
 
-            if (GUILayout.Button("host") && Nick.Length > 0)
-                InitServer();            
+            if (GUILayout.Button("host"))
+                if (Nick.Length > 0)
+                    InitServer();
+                else print("Enter Nick Name");
             GUI.DragWindow();                     
 
     }

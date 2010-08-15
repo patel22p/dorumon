@@ -7,11 +7,11 @@ using System.Diagnostics;
 using doru;
 public class Base : Base2
 {
-    
+
     public int pwnerID2 = -2;
     bool hidden;
 
-    
+
     NetworkPlayer? _OwnerID;
     public NetworkPlayer? OwnerID
     {
@@ -20,7 +20,7 @@ public class Base : Base2
     }
     public bool isOwner { get { return OwnerID == Network.player; } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
-    
+
     public TimerA _TimerA { get { return TimerA._This; } }
     public Cam _Cam { get { return Find<Cam>(); } }
     bool Offline { get { return !Loader.Online; } }
@@ -32,13 +32,13 @@ public class Base : Base2
         }
     }
 
-    public NetworkView GetNetworkView(NetworkPlayer pl )
+    public NetworkView GetNetworkView(NetworkPlayer pl)
     {
         foreach (NetworkView b in this.GetComponents<NetworkView>())
             if (b.owner == pl) return b;
         return null;
     }
-    
+
     public Loader _Loader { get { return Find<Loader>(); } }
     public Spawn _Spawn { get { return Find<Spawn>(); } }
     public static GameObject Root(GameObject g)
@@ -58,48 +58,45 @@ public class Base : Base2
     [RPC]
     void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
     {
-        SetController(ownerView);
-
+        SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
             bas.OwnerID = owner;
             bas.OnSetID();
-        }       
+        }
     }
     [RPC]
-    public void SetController(NetworkMessageInfo ownerView)
-    {
-        
-        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
-            otherView.observed = null;
-        ownerView.networkView.observed = this.rigidbody;
+    public void SetController(NetworkPlayer owner)
+    {        
+        lock ("ser")
+            GetComponent<NetworkRigidbody>().selected = owner;
     }
+    
     [RPC]
     public void RPCResetOwner()
-    {        
+    {
         CallRPC(true);
-        ResetController();
+        GetComponent<NetworkRigidbody>().selected=null;
+        //foreach (NetworkView otherView in this.GetComponents<NetworkView>())
+        //    otherView.observed = null;
+
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
             bas.OwnerID = null;
+
     }
-    [RPC]
-    private void ResetController()
-    {
-        foreach (NetworkView otherView in this.GetComponents<NetworkView>())
-            otherView.observed = null;
-    }
+
     [RPC]
     public void RPCAddNetworkView(NetworkViewID id)
     {
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)Group.RPCAssignID;
-        nw.observed = null;
+        nw.observed = GetComponent<NetworkRigidbody>();
         nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
         nw.viewID = id;
     }
     public void RPCSetOwner()
-    {        
-        myNetworkView.RPC("RPCSetOwner", RPCMode.AllBuffered, Network.player);                                
+    {
+        myNetworkView.RPC("RPCSetOwner", RPCMode.AllBuffered, Network.player);
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
@@ -110,12 +107,12 @@ public class Base : Base2
         Show(value);
     }
     public void Show(bool value) // bag s timerom
-    {        
+    {
         if (rigidbody != null)
-        {            
+        {
             rigidbody.detectCollisions = value;
             rigidbody.useGravity = value;
-            rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;            
+            rigidbody.velocity = rigidbody.angularVelocity = Vector3.zero;
         }
         if (value)
         {
@@ -124,18 +121,18 @@ public class Base : Base2
         else
         {
             if (!hidden) { transform.localPosition -= new Vector3(99999, 0, 0); hidden = true; }
-            
-        }        
+
+        }
         foreach (Base r in this.GetComponentsInChildren<Base>())
             r.enabled = value;
-    }    
+    }
+     
+    
     public static IEnumerable<Transform> getChild(Transform t)
-    {
-        yield return t;
+    {        
         for (int i = 0; i < t.childCount; i++)
         {
-            foreach (Transform a in getChild(t.GetChild(i)))
-                yield return a;
+            yield return t.GetChild(i);
         }
     }
     private void Active(bool value, Transform t)
@@ -146,7 +143,7 @@ public class Base : Base2
             Active(value, t.transform.GetChild(i));
         }
     }
-    public void CallRPC(bool buffered,params object[] obs)
+    public void CallRPC(bool buffered, params object[] obs)
     {
         if (new System.Diagnostics.StackFrame(2, true).GetMethod() != null)
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
@@ -155,6 +152,6 @@ public class Base : Base2
     {
         if (a > 180) return a - 360f;
         return a;
-    }    
+    }
 }
 

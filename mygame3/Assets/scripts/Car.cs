@@ -90,7 +90,7 @@ public abstract class Car : IPlayer
             t.damper = dampers;
             w.coll.suspensionSpring = t;
             WheelFrictionCurve wf = new WheelFrictionCurve();
-            wf.stiffness = wf.extremumValue = wf.extremumSlip = wf.asymptoteSlip = wf.asymptoteValue = 2;
+            wf.stiffness = wf.extremumValue = wf.extremumSlip = wf.asymptoteSlip = wf.asymptoteValue = 6;
             w.coll.forwardFriction = wf;
             w.coll.sidewaysFriction = wf;
             w.coll.radius = wheelRadius;
@@ -237,7 +237,7 @@ public abstract class Car : IPlayer
         steerVelo = Mathf.Clamp(steerVelo, -maxRotSteer, maxRotSteer);
         transform.Rotate(Vector3.up * steerVelo * 57.295788f);
     }
-    protected void UpdateCar()
+    protected void FixedUpdateCar()
     {
 
         if (onGround)

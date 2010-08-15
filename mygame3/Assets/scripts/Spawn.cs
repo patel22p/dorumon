@@ -29,27 +29,20 @@ public class Spawn : Base
         
     }
     public Transform effects;
-    void OnGUI()
-    {
-        if (!teamselected)
-            GUI.Window(4, CenterRect(.6f, .4f), TeamSelectWindow, "Team Select");
-    }
-    bool teamselected;
+    
+    
     public Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
-    public void TeamSelectWindow(int a)
+    public void OnTeamSelect(bool ata)
     {
-        if (teamselected) return;
-        GUI.BringWindowToFront(a);
-        bool ata, def;
-        if ((ata = GUILayout.Button("Atackers")) || (def = GUILayout.Button("Defenders")))
-        {
-            if (Network.peerType == NetworkPeerType.Disconnected)
-                Network.InitializeServer(32, 5300);                
-            Transform t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
-            t.GetComponent<Player>().team = ata ? Team.ata : Team.def;
-            teamselected = true;            
-        }
-        
+        if (Network.peerType == NetworkPeerType.Disconnected)
+            Network.InitializeServer(32, 5300);
+        Transform t;
+        if (_localPlayer == null)
+            t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
+        else
+            t = _localPlayer.transform;
+        t.GetComponent<Player>().team = ata ? Team.ata : Team.def;            
+
     }
               
     void OnPlayerDisconnected(NetworkPlayer player)

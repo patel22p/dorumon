@@ -9,11 +9,11 @@ public abstract class IPlayer : Box
     public NetworkPlayer? killedyby;
     public int Life;
     public bool isdead { get { return !enabled; } }
-    public GunBase[] gunlist { get { return this.GetComponentsInChildren<GunBase>(); } }
+    public GunBase[] guns { get { return this.GetComponentsInChildren<GunBase>(); } }
     
     
     
-    protected virtual void Update()
+    protected override void Update()
     {
         Team team = Team.ata;
         if (mesh != null)
@@ -31,11 +31,8 @@ public abstract class IPlayer : Box
             title.GetComponent<TextMesh>().text = _Spawn.players[OwnerID.Value].Nick;
         else
             title.GetComponent<TextMesh>().text = "";
-        if (!GameObject.Find("bounds").collider.bounds.Contains(this.transform.position) && !isdead)
-        {
-            transform.position = SpawnPoint();
-            rigidbody.velocity = Vector3.zero;
-        }
+        base.Update();
+        
     }
     [RPC]
     public virtual void RPCSetLife(int NwLife)
@@ -45,7 +42,7 @@ public abstract class IPlayer : Box
             RPCDie();
         Life = NwLife;
     }
-    public abstract Vector3 SpawnPoint();
+    
     [RPC]
     public abstract void RPCDie();
 

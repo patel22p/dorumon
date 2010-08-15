@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
-using System.Threading;
+
 using doru;
 
 public class Loader : Base
@@ -23,7 +23,7 @@ public class Loader : Base
     void Awake()
     {
 
-        
+
         if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
         {
             Destroy(this.gameObject);
@@ -31,7 +31,7 @@ public class Loader : Base
         }
         DontDestroyOnLoad(this);
         networkView.group = 1;
-        
+
         center = CenterRect(.8f, .6f);
         if (Application.loadedLevel == 0)
         {
@@ -39,10 +39,10 @@ public class Loader : Base
             Online = true;
         }
     }
-    
+
     void Update()
     {
-        
+
         if (_TimerA.TimeElapsed(500))
             fps = _TimerA.GetFps();
         _TimerA.Update();
@@ -66,14 +66,14 @@ public class Loader : Base
         if (Screen.lockCursor) return;
         center = GUILayout.Window(0, center, ConsoleWindow, "Console");
     }
-    
+
     public int GameTime = 10;
     private void ConsoleWindow(int id)
     {
         if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
             foreach (string level in supportedNetworkLevels)
             {
-                
+
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Game Time Minutes:");
@@ -88,16 +88,16 @@ public class Loader : Base
         if (_Spawn != null)
         {
             TimeSpan ts = TimeSpan.FromMinutes(gametime) - TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
-            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);            
+            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);
 
-            if (ts.Milliseconds < 0 )
-            {                
+            if (ts.Milliseconds < 0)
+            {
                 write("team " + "Defenders" + " win");
                 _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
                 Screen.lockCursor = false;
             }
         }
-        
+
 
         GUILayout.Space(20);
         GUILayout.Label("Team " + "Defenders");
@@ -106,17 +106,23 @@ public class Loader : Base
                 GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
         GUILayout.Label("Team " + "Atackers");
         foreach (Player a in FindObjectsOfType(typeof(Player)))
-            if (a.team == Team.ata && a.OwnerID!=null)
+            if (a.team == Team.ata && a.OwnerID != null)
                 GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
-
+        GUILayout.BeginHorizontal();
         if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
         {
             Network.Disconnect();
         }
+        bool ata = false;
+        if (Find<Spawn>() != null)
+            if (ata = GUILayout.Button("Atackers") || GUILayout.Button("Defenders"))
+                Find<Spawn>().OnTeamSelect(ata);
+
+        GUILayout.EndHorizontal();
         input = GUILayout.TextField(input);
         output = GUILayout.TextField(output);
-        
-        
+
+
     }
     protected override void OnConsole(string s)
     {
@@ -143,7 +149,7 @@ public class Loader : Base
         if (autostart) Find<Loader>().LoadLevelRPC(supportedNetworkLevels[0]);
     }
     void OnDisconnectedFromServer(NetworkDisconnection info)
-    {        
+    {
         rpcwrite("Player disconnected " + GuiConnection.Nick);
         write("Disconnected from game");
         Application.LoadLevel(disconnectedLevel);

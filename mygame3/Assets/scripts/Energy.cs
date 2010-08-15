@@ -17,7 +17,7 @@ public class Energy : Base
         if (player != null)
         {            
             player.transform.FindChild("Reload").GetComponent<AudioSource>().Play();
-            player.gunlist[gunIndex - 1].bullets += bullets;
+            player.guns[gunIndex - 1].bullets += bullets;
             Hide();
             
             _TimerA.AddMethod(spawnTime, Show);

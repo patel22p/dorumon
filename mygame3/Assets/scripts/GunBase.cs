@@ -62,8 +62,7 @@ public class GunBase : Base
     protected virtual void LocalUpdate()
     {        
         if (Time.time - lt > interval && Input.GetMouseButton(0) && Screen.lockCursor && bullets > 0)
-        {
-            
+        {            
             bullets--;
             lt = Time.time;
             LocalShoot();

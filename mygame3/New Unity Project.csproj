@@ -58,6 +58,7 @@
      <Compile Include="Assets\scripts\CarController.cs" />
      <Compile Include="Assets\scripts\Energy.cs" />
      <Compile Include="Assets\scripts\Explosion.cs" />
+     <Compile Include="Assets\scripts\Flag.cs" />
      <Compile Include="Assets\scripts\Generate2DReflection.cs" />
      <Compile Include="Assets\scripts\GuiConnection.cs" />
      <Compile Include="Assets\scripts\GuiPlayer.cs" />
@@ -69,7 +70,7 @@
      <Compile Include="Assets\scripts\IPlayer.cs" />
      <Compile Include="Assets\scripts\IslandWater.cs" />
      <Compile Include="Assets\scripts\Loader.cs" />
-     <Compile Include="Assets\scripts\NewBehaviourScript.cs" />
+     <Compile Include="Assets\scripts\NetworkRigidbody.cs" />
      <Compile Include="Assets\scripts\Player.cs" />
      <Compile Include="Assets\scripts\Skidmarks.cs" />
      <Compile Include="Assets\scripts\Spawn.cs" />

@@ -55,13 +55,13 @@ public class CarController : Car
                 && _localPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == null)
             {
                 _localPlayer.RPCShow(false);
+                transform.Find("door").GetComponent<AudioSource>().Play();
                 RPCSetOwner();
                 _cam.localplayer = this;
             }
-        }
-        
-        
+        }                
     }
+    
     protected virtual void FixedUpdate()
     {
         FixedUpdateCar();                
@@ -84,7 +84,7 @@ public class CarController : Car
         
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
         if (isOwnerOrServer)
-            _TimerA.AddMethod(2000, RPCSpawn);
+            _TimerA.AddMethod(10000, RPCSpawn);
         if (isOwner)
         {
             _cam.localplayer = _localPlayer;

@@ -11,13 +11,13 @@ public class Loader : Base
     public String disconnectedLevel;
     public static int lastLevelPrefix = 0;
     public bool autostart;
-    public double fps;
+    public int fps;
     public GUISkin guiskin;
     static string lastStr;
     public static string input = "";
     Rect center;
     public Transform root;
-    public string[] supportedNetworkLevels = new string[] { "zredline", "zmyl", "zisland" };
+    public string[] supportedNetworkLevels;
     public int gametime = 5;
     float cmx { get { return Screen.height / 2; } }
     void Awake()
@@ -44,7 +44,7 @@ public class Loader : Base
     {
 
         if (_TimerA.TimeElapsed(500))
-            fps = _TimerA.GetFps();
+            fps = (int)_TimerA.GetFps();
         _TimerA.Update();
         if (Input.GetKeyDown(KeyCode.Return))
         {
@@ -60,7 +60,7 @@ public class Loader : Base
     }
     void OnGUI()
     {
-        GUILayout.Label("fps: " + fps.ToString("f0"));
+        GUILayout.Label("fps: " + fps);
 
         GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
         if (Screen.lockCursor) return;
@@ -92,7 +92,7 @@ public class Loader : Base
 
             if (ts.Milliseconds < 0)
             {
-                write("team " + "Defenders" + " win");
+                write("team " + "Blue Team" + " win");
                 _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
                 Screen.lockCursor = false;
             }
@@ -100,23 +100,24 @@ public class Loader : Base
 
 
         GUILayout.Space(20);
-        GUILayout.Label("Team " + "Defenders");
-        foreach (Player a in FindObjectsOfType(typeof(Player)))
-            if (a.team == Team.def && a.OwnerID != null)
-                GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
-        GUILayout.Label("Team " + "Atackers");
-        foreach (Player a in FindObjectsOfType(typeof(Player)))
-            if (a.team == Team.ata && a.OwnerID != null)
-                GUILayout.Label(a.Nick + "                                      Kills:" + a.frags + "               Ping:" + Network.GetLastPing(a.OwnerID.Value));
+        GUILayout.Label("Team " + "Blue Team");
+        foreach (Player pl in FindObjectsOfType(typeof(Player)))
+            if (pl.team == Team.def && pl.OwnerID != null)
+                GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+        GUILayout.Label("Team " + "Red Team");
+        foreach (Player pl in FindObjectsOfType(typeof(Player)))
+            if (pl.team == Team.ata && pl.OwnerID != null)
+                GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+        
         GUILayout.BeginHorizontal();
         if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
         {
             Network.Disconnect();
         }
-        bool ata = false;
+        bool ata ,def;
         if (Find<Spawn>() != null)
-            if (ata = GUILayout.Button("Atackers") || GUILayout.Button("Defenders"))
-                Find<Spawn>().OnTeamSelect(ata);
+            if ((ata = GUILayout.Button("Red Team")) || (def = GUILayout.Button("Blue Team")))
+                Find<Spawn>().OnTeamSelect(ata ? Team.ata : Team.def);
 
         GUILayout.EndHorizontal();
         input = GUILayout.TextField(input);

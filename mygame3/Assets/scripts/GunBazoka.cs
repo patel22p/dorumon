@@ -18,7 +18,7 @@ public class GunBazoka : GunBase
         base.FixedUpdate();
     }
     
-    public LayerMask Default;
+    
     protected override void LocalShoot()
     {
         Transform t = GetRotation();

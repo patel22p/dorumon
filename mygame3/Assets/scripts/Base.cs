@@ -45,6 +45,7 @@ public class Base : Base2
     {
         return Root(g.transform).gameObject;
     }
+    public int collmask = 1 << 8 | 1 << 9;
     public static Transform Root(Transform g)
     {
         Transform p = g;
@@ -54,7 +55,7 @@ public class Base : Base2
             p = p.parent;
         }
     }
-    protected virtual void OnTriggerEnter(Collider other) { }
+    
     [RPC]
     void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
     {

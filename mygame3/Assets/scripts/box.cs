@@ -7,23 +7,37 @@ using System.Diagnostics;
 using doru;
 
 
+[AddComponentMenu("_Box")]
 public class Box : Base
 {
+    
     protected virtual void Start()
     {
+        spawnpos = transform.position;
+        rigidbody.angularDrag = 30;
         if (Network.peerType == NetworkPeerType.Disconnected) return;
         if (!Network.isServer)
         {
             networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
-
         }
     }
     public float cardist;
     public float pldist;
-    protected virtual void FixedUpdate()
+    protected Vector3 spawnpos;
+    public virtual Vector3 SpawnPoint()
     {
-        print(this.name);
-        if (Network.isServer && OwnerID == null)
+        return spawnpos;
+    }
+    protected virtual void Update()
+    {
+        if (!GameObject.Find("bounds").collider.bounds.Contains(this.transform.position) && enabled)
+        {
+            transform.position = SpawnPoint();
+            rigidbody.velocity = Vector3.zero;
+        }
+
+        if (this is Player) return;
+        if (Network.isServer)
         {
             float min = float.MaxValue;
             IPlayer nearp = null;
@@ -34,20 +48,15 @@ public class Box : Base
                     float dist = Vector3.Distance(p.transform.position, this.transform.position);
                     if (min > dist)
                         nearp = p;
-                    min = Math.Min(dist, min);
-                    if (p is CarController) cardist = dist;
-
-                    if (p is Player) pldist = dist;
+                    min = Math.Min(dist, min);                    
                 }
             }
-            if (nearp == null) return;
-            NetworkView nw = GetNetworkView(nearp.OwnerID.Value);
-
-            if (nw.observed == null)
-            {
-                print("set Controll " + nw.isMine + " " + this);
-                nw.RPC("SetController", RPCMode.AllBuffered);
-            }
+            if (nearp == null || nearp.OwnerID == null) return;
+         //   NetworkView nw = GetNetworkView(nearp.OwnerID.Value);            
+            if (GetComponent<NetworkRigidbody>().selected != nearp.OwnerID)
+                networkView.RPC("SetController", RPCMode.AllBuffered, nearp.OwnerID.Value);
         }
     }
+
+
 }

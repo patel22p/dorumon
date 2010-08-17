@@ -32,7 +32,7 @@ public class Spawn : Base
     
     
     public Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
-    public void OnTeamSelect(bool ata)
+    public void OnTeamSelect(Team team)
     {
         if (Network.peerType == NetworkPeerType.Disconnected)
             Network.InitializeServer(32, 5300);
@@ -41,7 +41,7 @@ public class Spawn : Base
             t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
         else
             t = _localPlayer.transform;
-        t.GetComponent<Player>().team = ata ? Team.ata : Team.def;            
+        t.GetComponent<Player>().RPCSetTeam((int)team);            
 
     }
               

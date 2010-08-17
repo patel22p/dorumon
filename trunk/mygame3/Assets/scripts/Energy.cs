@@ -8,7 +8,7 @@ public class Energy : Base
     public int gunIndex=2;
     public int bullets = 1000;
     public int spawnTime = 5000;    
-    protected override void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         
         if (!enabled) return;

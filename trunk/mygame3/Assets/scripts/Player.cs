@@ -43,8 +43,20 @@ public class Player : IPlayer {
         transform.position = SpawnPoint();
     }
     int guni;
+
+    public int fps;
+    public int ping;
+    [RPC]
+    void RPCPingFps(NetworkPlayer p,  int ping, int fps)
+    {
+        CallRPC(true, p, ping, fps);
+        this.fps = fps;
+        this.ping = ping;
+    }
     protected override void Update()
     {
+        if (Network.isServer && OwnerID != null && _TimerA.TimeElapsed(1000))
+            RPCPingFps(OwnerID.Value, Network.GetLastPing(OwnerID.Value), _Loader.fps);
         if (isOwner && Screen.lockCursor)
         {
             if (Input.GetAxis("Mouse ScrollWheel") > 0)
@@ -104,7 +116,7 @@ public class Player : IPlayer {
         }
     }
     [RPC]
-    private void RPCSetTeam(int t)
+    public void RPCSetTeam(int t)
     {        
         CallRPC(true , t);
         team =   (Team)t;
@@ -140,9 +152,10 @@ public class Player : IPlayer {
 
         if (b != null && isOwner && !b.isOwner &&
             b is Box && !(b is Player) &&
-            collisionInfo.impactForceSum.sqrMagnitude > 100 &&
+            collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
+            killedyby = b.OwnerID;
             RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
         }
 
@@ -172,7 +185,7 @@ public class Player : IPlayer {
         a.parent = _Spawn.effects;
         if (isOwner)
         {
-            _TimerA.AddMethod(2000, RPCSpawn);
+            _TimerA.AddMethod(10000, RPCSpawn);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
                 if (p.OwnerID == killedyby || !killedyby.HasValue)
                 {

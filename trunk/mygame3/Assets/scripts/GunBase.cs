@@ -51,7 +51,7 @@ public class GunBase : Base
         ray.origin = ray.GetPoint(10);
         RaycastHit h;
         Transform t = cursor;
-        if (Physics.Raycast(ray, out h, float.MaxValue, 1 << 8))
+        if (Physics.Raycast(ray, out h, float.MaxValue, collmask))
             t.LookAt(h.point);
         else
             t.rotation = cam.transform.rotation;
@@ -60,7 +60,8 @@ public class GunBase : Base
     
     public Transform _Patron;
     protected virtual void LocalUpdate()
-    {        
+    {
+        
         if (Time.time - lt > interval && Input.GetMouseButton(0) && Screen.lockCursor && bullets > 0)
         {            
             bullets--;

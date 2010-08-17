@@ -23,7 +23,7 @@ public abstract class BulletBase : Base
         Vector3 movementThisStep = transform.position - previousPosition;
         RaycastHit hitInfo;
 
-        if (Physics.Raycast(previousPosition, movementThisStep, out hitInfo, movementThisStep.magnitude + 1, 1 << 8))
+        if (Physics.Raycast(previousPosition, movementThisStep, out hitInfo, movementThisStep.magnitude + 1, collmask))
         {
             if (!hitInfo.collider.isTrigger || hitInfo.collider.gameObject.name == "hit")
                 Hit(hitInfo);

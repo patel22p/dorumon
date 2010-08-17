@@ -11,12 +11,23 @@ public class GunPhysix : GunBase
     public float expradius = 40;
 
     public bool power;
+    IEnumerable<Base> getparts()
+    {
+        foreach (Base b in GameObject.FindObjectsOfType(typeof(Box)))
+            yield return b;
+        foreach (Base b in GameObject.FindObjectsOfType(typeof(bloodexp)))
+            yield return b;        
+    }
+    
     protected override void FixedUpdate()
     {
+        
+        
         if (power)
         {
-            foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
-                if (b.GetType() == typeof(Box))
+            if (bullets < exp) bullets+=20;
+            foreach (Base b in getparts())
+                if (b is bloodexp || b.GetType() == typeof(Box))
                 {
                     b.rigidbody.AddExplosionForce(-gravitaty, cursor.position, radius);
                     b.rigidbody.velocity *= .97f;
@@ -33,11 +44,11 @@ public class GunPhysix : GunBase
         power = enable;
         if (!enable)
         {            
-            foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
-                if (typeof(Box) == b.GetType() && Vector3.Distance(b.transform.position, cursor.position) < expradius)
-                {
-                    b.rigidbody.AddForce(this.transform.rotation  * new Vector3(0,0,exp));
-                }
+            foreach (Base b in getparts())
+                if ((b is bloodexp || typeof(Box) == b.GetType())
+                    && Vector3.Distance(b.transform.position, cursor.position) < expradius)
+                    b.rigidbody.AddForce(this.transform.rotation  * new Vector3(0,0,bullets));
+            bullets = 0;
 
         }
     }

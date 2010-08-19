@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Blood : Base
+public class GuiBlood : Base
 {
+    public static GuiBlood _This;
     public float uron = 255f;
     public float repair = .4f;
+    void Start()
+    {
+        _This = this;
+    }
     void Update()
     {
 

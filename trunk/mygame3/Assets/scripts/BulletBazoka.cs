@@ -28,6 +28,7 @@ public class BulletBazoka : BulletBase
         o.GetComponent<Explosion>().OwnerID = OwnerID;
         if (Root(hit.collider.gameObject).tag == "Level" && decal != null)
         {
+            
             Transform a;
             Destroy((a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal))), 10);
             a.parent = _Spawn.effects;

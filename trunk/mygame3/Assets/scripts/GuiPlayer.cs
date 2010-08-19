@@ -15,17 +15,16 @@ public class GuiPlayer : Base
     void OnGUI()
     {
         
-        if (player != null)
-            r = GUILayout.Window(3, r, DrawWind, "");
+        if (_LocalPlayer != null && _localiplayer !=null)
+            r = GUILayout.Window(3, r, PlayerWindow, "");
     }
-    Player player { get { return Find<Player>("LocalPlayer"); } }
-    IPlayer iplayer { get { return Find<Cam>().localplayer; } }
-    public void DrawWind(int q)
+     
+    
+    public void PlayerWindow(int q)
     {
-        
-        GUILayout.Label("Life: " + iplayer.Life);
-        GUILayout.Label("Frags: " + player.frags);        
-        foreach (GunBase gb in player.guns)
+        GUILayout.Label("Life: " + _localiplayer.Life);        
+        GUILayout.Label("Frags: " + _LocalPlayer.frags);        
+        foreach (GunBase gb in _LocalPlayer.guns)
             GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
         GUI.DragWindow();
     }

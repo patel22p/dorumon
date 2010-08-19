@@ -18,15 +18,13 @@ public class CarController : Car
         Reset();
         
     }
-
-
-    
-    Cam _cam { get { return Find<Cam>(); } }
+        
     double timedown1;
     protected override void Update()
     {
         base.Update();
-        if (_localPlayer == null) return;
+        if (_LocalPlayer == null) return;
+        rigidbody.drag = OwnerID == null ? 1 : 0;
         if (isOwner)
         {
             if (Mathf.Abs(clamp(transform.rotation.eulerAngles.z)) > 70 || Mathf.Abs(clamp(transform.rotation.eulerAngles.x)) > 70)
@@ -43,6 +41,7 @@ public class CarController : Car
             handbrake = Input.GetButton("Jump") ? 1f : 0.0f;
             steer = Input.GetAxis("Horizontal");
             motor = Mathf.Clamp01(Input.GetAxis("Vertical"));
+            
             if (Input.GetKeyDown(KeyCode.F))
             {
                 CarOut();
@@ -51,13 +50,13 @@ public class CarController : Car
         }
         else
         {
-            if (transform.Find("door").collider.bounds.Contains(_localPlayer.transform.position)
-                && _localPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == null)
+            if (transform.Find("door").collider.bounds.Contains(_LocalPlayer.transform.position)
+                && _LocalPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == null)
             {
-                _localPlayer.RPCShow(false);
+                _LocalPlayer.RPCShow(false);
                 transform.Find("door").GetComponent<AudioSource>().Play();
                 RPCSetOwner();
-                _cam.localplayer = this;
+                _localiplayer = this;
             }
         }                
     }
@@ -73,10 +72,10 @@ public class CarController : Car
         brake = 0;
         handbrake = 0;
         rigidbody.velocity = Vector3.zero;
-        _localPlayer.RPCShow(true);
-        _localPlayer.RCPSelectGun(1);
-        _localPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
-        _cam.localplayer = _localPlayer;
+        _LocalPlayer.RPCShow(true);
+        _LocalPlayer.RCPSelectGun(1);
+        _LocalPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
+        _localiplayer = _LocalPlayer;
         RPCResetOwner();
     }
     public override void RPCDie()
@@ -87,10 +86,10 @@ public class CarController : Car
             _TimerA.AddMethod(10000, RPCSpawn);
         if (isOwner)
         {
-            _cam.localplayer = _localPlayer;
+            _localiplayer = _LocalPlayer;
             RPCResetOwner();
-            _localPlayer.killedyby = killedyby;
-            _localPlayer.RPCSetLife(-2);            
+            _LocalPlayer.killedyby = killedyby;
+            _LocalPlayer.RPCSetLife(-2);            
             Screen.lockCursor = false;
         }
         

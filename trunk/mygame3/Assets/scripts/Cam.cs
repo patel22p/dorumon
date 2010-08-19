@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections;
 public class Cam : Base
 {
-    public IPlayer localplayer;
-
+    
+    
     public float maxdistance = 5.0f;
     public float xSpeed = 120.0f;
     public float ySpeed = 120.0f;
@@ -15,8 +15,13 @@ public class Cam : Base
     float y = 0.0f;
     public float yoffset = -3;
 
+    void Awake()
+    {
+        _Cam = this;
+    }
     void Start()
     {
+        
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
@@ -24,9 +29,10 @@ public class Cam : Base
     public bool spectator;
     void LateUpdate()
     {
+        
         //transform.Find("pointer").rotation = Quaternion.LookRotation(this.transform.position- Find<Tower>().transform.position);
 
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
 
         if (Screen.lockCursor)
         {
@@ -35,7 +41,7 @@ public class Cam : Base
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 45);
-        if (spectator || localplayer == null || localplayer.isdead)
+        if (spectator || _localiplayer == null || _localiplayer.isdead)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);
@@ -45,18 +51,22 @@ public class Cam : Base
         }
         else
         {
-            if (localplayer is CarController)
+            if (_localiplayer is CarController)
                 x = ClampAngle(x, yMinLimit, yMaxLimit, 30);
-            bool car = localplayer is CarController;
-            Quaternion rotation = Quaternion.Euler(y, x + (car ? localplayer.transform.rotation.eulerAngles.y : 0), 0);
-            Vector3 pos = localplayer.transform.position;
+            bool car = _localiplayer is CarController;
+            Quaternion rotation = Quaternion.Euler(y, x + (car ? _localiplayer.transform.rotation.eulerAngles.y : 0), 0);
+            Vector3 pos = _localiplayer.transform.position;
             Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -maxdistance) + pos;
             pos2.y -= yoffset;
             transform.position = pos2;
             transform.rotation = rotation;
         }
+        
+        transform.Find("MainCam").localPosition = new Vector3(Random.Range(-ran, ran), Random.Range(-ran, ran), Random.Range(-ran, ran));
+        ran -= .1f;
+        if (ran < 0) ran = 0;
     }
-
+    internal float ran;
     public static float ClampAngle(float angle, float min, float max, float clamp)
     {
         if (angle < -clamp)

@@ -96,6 +96,7 @@ public abstract class Car : IPlayer
             w.coll.radius = wheelRadius;
         }
         wheelY = wheels[0].graphic.localPosition.y;
+        
         Skidmarks skidmarks = (Skidmarks)FindObjectOfType(typeof(Skidmarks));
         gear = 1;
     }

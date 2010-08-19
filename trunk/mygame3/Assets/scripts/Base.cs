@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using doru;
-public class Base : Base2
+public class Base : Base2 , IDisposable
 {
 
     public int pwnerID2 = -2;
@@ -22,7 +22,7 @@ public class Base : Base2
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
 
     public TimerA _TimerA { get { return TimerA._This; } }
-    public Cam _Cam { get { return Find<Cam>(); } }
+    
     bool Offline { get { return !Loader.Online; } }
     public NetworkView myNetworkView
     {
@@ -39,8 +39,7 @@ public class Base : Base2
         return null;
     }
 
-    public Loader _Loader { get { return Find<Loader>(); } }
-    public Spawn _Spawn { get { return Find<Spawn>(); } }
+    
     public static GameObject Root(GameObject g)
     {
         return Root(g.transform).gameObject;
@@ -153,6 +152,23 @@ public class Base : Base2
     {
         if (a > 180) return a - 360f;
         return a;
+    }
+
+
+    public void Destroy()
+    {
+        Destroy(this.gameObject);        
+        Dispose();
+    }
+    public void Destroy(int time)
+    {        
+        _TimerA.AddMethod(time, Destroy);
+    }
+
+
+    public virtual void Dispose()
+    {
+        
     }
 }
 

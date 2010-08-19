@@ -31,7 +31,7 @@ public class GuiConnection : Base2
     void Start()
     {
         
-        if (Find<Loader>().autostart)
+        if (_Loader.autostart)
         {
             Network.Connect(ip, port);            
         }

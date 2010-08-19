@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 using doru;
+using System.IO;
 
 public class Loader : Base
 {
@@ -15,15 +16,23 @@ public class Loader : Base
     public GUISkin guiskin;
     static string lastStr;
     public static string input = "";
-    Rect center;
+    Rect ConsoleRect;
     public Transform root;
     public string[] supportedNetworkLevels;
-    public int gametime = 5;
+    internal int gametime = 53;
     float cmx { get { return Screen.height / 2; } }
+    void onLog(string condition, string stackTrace, LogType type)
+    {
+        StreamWriter a; 
+        using (a = new StreamWriter(File.Open("log.txt", FileMode.Append, FileAccess.Write)))
+            a.WriteLine("Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
+    }
     void Awake()
     {
-
-
+        //File.Delete("log.txt");
+        //Application.RegisterLogCallback(onLog);
+        print("start");
+        _Loader = this;
         if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
         {
             Destroy(this.gameObject);
@@ -32,7 +41,7 @@ public class Loader : Base
         DontDestroyOnLoad(this);
         networkView.group = 1;
 
-        center = CenterRect(.8f, .6f);
+        ConsoleRect = CenterRect(.8f, .6f);
         if (Application.loadedLevel == 0)
         {
             Application.LoadLevel(disconnectedLevel);
@@ -61,13 +70,32 @@ public class Loader : Base
     void OnGUI()
     {
         GUILayout.Label("fps: " + fps);
-
         GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
         if (Screen.lockCursor) return;
-        center = GUILayout.Window(0, center, ConsoleWindow, "Console");
-    }
+        ConsoleRect = GUILayout.Window(0, ConsoleRect, ConsoleWindow, "Console");
+        if (options) optionsrect = GUILayout.Window(5, optionsrect, OptionsWindow, "Options");
 
+    }
+    Rect optionsrect = new Rect(0,0,300,300);
     public int GameTime = 10;
+    public int selectedTeam = 0;
+
+    internal int quality = 3;
+    int oldquality = 3;
+    private void OptionsWindow(int id)
+    {
+
+        string[] qs= new string[] { "Fastest", "Fast", "Simple", "Good", "Beautiful", "Fantastic" };
+        if (oldquality != (quality = GUILayout.Toolbar(quality, qs)))
+        {
+            oldquality = quality;
+            QualitySettings.currentLevel = (QualityLevel)quality;
+        }
+
+        if (GUILayout.Button("close")) options = false;
+        GUI.DragWindow();
+    }
+    
     private void ConsoleWindow(int id)
     {
         if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
@@ -98,39 +126,62 @@ public class Loader : Base
             }
         }
 
-
+        
         GUILayout.Space(20);
+        int rs= 0, bs= 0;
         GUILayout.Label("Team " + "Blue Team");
         foreach (Player pl in FindObjectsOfType(typeof(Player)))
             if (pl.team == Team.def && pl.OwnerID != null)
+            {
                 GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+                rs += pl.frags;
+            }
+        GUILayout.Label("Red Team Score:" + rs);
         GUILayout.Label("Team " + "Red Team");
         foreach (Player pl in FindObjectsOfType(typeof(Player)))
             if (pl.team == Team.ata && pl.OwnerID != null)
+            {
                 GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
-        
+                bs += pl.frags;
+            }
+        GUILayout.Label("Blue Team Score:" + bs);
+        GUILayout.Label("Zombie Stage:" + _Spawn.stage);
         GUILayout.BeginHorizontal();
         if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
         {
-            Network.Disconnect();
+            if (Network.isServer && _Spawn != null)
+                LoadLevelRPC(disconnectedLevel);
+            else
+                Network.Disconnect();
         }
-        bool ata ,def;
-        if (Find<Spawn>() != null)
-            if ((ata = GUILayout.Button("Red Team")) || (def = GUILayout.Button("Blue Team")))
-                Find<Spawn>().OnTeamSelect(ata ? Team.ata : Team.def);
-
+        if (GUILayout.Button("Options"))
+        {
+            GUI.BringWindowToFront(5);
+            options = true;
+        }
         GUILayout.EndHorizontal();
+        if (_Spawn != null)
+        {
+            if ((selectedTeam = GUILayout.Toolbar(selectedTeam, new string[] { "Spectator", "Red Team", "Blue Team" })) != old)
+            {
+                old = selectedTeam;
+                _Spawn.OnTeamSelect(selectedTeam == 1 ? Team.ata : Team.def);
+            }
+        }
+        
         input = GUILayout.TextField(input);
         output = GUILayout.TextField(output);
-
-
+        GUI.DragWindow();
     }
+    bool options;
+    int old = 0;
     protected override void OnConsole(string s)
     {
         rpcwrite(GuiConnection.Nick + ": " + s);
     }
     public void LoadLevelRPC(string level)
     {
+        old = selectedTeam = 0;
         Network.RemoveRPCsInGroup(0);
         Network.RemoveRPCsInGroup(1);
         networkView.RPC("LoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
@@ -147,7 +198,7 @@ public class Loader : Base
     }
     void OnPlayerConnected(NetworkPlayer player)
     {
-        if (autostart) Find<Loader>().LoadLevelRPC(supportedNetworkLevels[0]);
+        if (autostart) _Loader.LoadLevelRPC(supportedNetworkLevels[0]);
     }
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {

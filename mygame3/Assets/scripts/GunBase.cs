@@ -10,18 +10,18 @@ public class GunBase : Base
     {
         bullets = def;
     }
-    Cam cam { get { return Find<Cam>(); } }
+    
     public virtual void DisableGun()
-    {        
+    {
         Show(false);
     }
 
-        void Start()
+    void Start()
     {
 
-        
+
     }
-    public Quaternion q; 
+    public Quaternion q;
     public bool car;
     protected virtual void FixedUpdate()
     {
@@ -32,7 +32,7 @@ public class GunBase : Base
 
     private void UpdateAim()
     {
-        if (isOwner && !car) q = Find<Cam>().transform.rotation;
+        if (isOwner && !car) q = _Cam.transform.rotation;
     }
 
     protected virtual void Update()
@@ -46,7 +46,7 @@ public class GunBase : Base
     }
     public Transform cursor;
     public Transform GetRotation()
-    {                
+    {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
         ray.origin = ray.GetPoint(10);
         RaycastHit h;
@@ -54,38 +54,45 @@ public class GunBase : Base
         if (Physics.Raycast(ray, out h, float.MaxValue, collmask))
             t.LookAt(h.point);
         else
-            t.rotation = cam.transform.rotation;
+            t.rotation = _Cam.transform.rotation;
         return t;
     }
-    
+
     public Transform _Patron;
     protected virtual void LocalUpdate()
     {
-        
-        if (Time.time - lt > interval && Input.GetMouseButton(0) && Screen.lockCursor && bullets > 0)
-        {            
-            bullets--;
-            lt = Time.time;
-            LocalShoot();
+
+        if (Time.time - lt > interval && Input.GetMouseButton(0) && Screen.lockCursor)
+        {
+            if (bullets > 0)
+            {
+                bullets--;
+                lt = Time.time;
+                LocalShoot();
+            }
+            else
+            {                
+                _LocalPlayer.NextGun(1);
+            }
         }
     }
 
     protected virtual void LocalShoot()
-    {        
+    {
         UpdateAim();
     }
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-        if (isOwner) q = Find<Cam>().transform.rotation;
+        if (isOwner) q = _Cam .transform.rotation;
         stream.Serialize(ref q);
-        transform.rotation = q;        
+        transform.rotation = q;
     }
-    
-    
+
+
     public virtual void EnableGun()
-    {        
+    {
         Show(true);
     }
 
-    
+
 }

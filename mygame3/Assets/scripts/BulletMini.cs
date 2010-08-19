@@ -7,19 +7,18 @@ public class BulletMini : BulletBase
     public float velocity = 100;
     public int damage=34;
     public Transform blood;
-    float rigidbodyPushForce=20;
     public Transform impact;
-    
-    
+    public float exp=10;
+    public float exprad = 2;
     protected override void Hit(RaycastHit hit )
     {
 
         base.Hit(hit);
-        Destroy(Instantiate(impact, hit.point, transform.rotation), 3);        
-        if (hit.rigidbody)
-        {
-            hit.rigidbody.AddForceAtPosition(rigidbodyPushForce * transform.TransformDirection(Vector3.forward), hit.point);
-        }        
+        Destroy(Instantiate(impact, hit.point, transform.rotation), 3);
+        Transform b = Root(hit.collider.gameObject.transform);
+        if (b.rigidbody != null)
+            b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
+ 
         
         Destroy(gameObject);
         IPlayer iplayer = Root(hit.collider.gameObject).GetComponent<IPlayer>();

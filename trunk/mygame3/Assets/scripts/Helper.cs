@@ -46,7 +46,7 @@ namespace doru
             {
                 oldtime = miliseconds;
                 fpstimes++;
-                totalfps += 1000 / _MilisecondsElapsed;
+                totalfps += Time.timeScale / Time.deltaTime;
                 UpdateActions();
             }
         }

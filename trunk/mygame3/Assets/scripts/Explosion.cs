@@ -13,7 +13,7 @@ public class Explosion : Base
         foreach (IPlayer ip in GameObject.FindObjectsOfType(typeof(IPlayer)))
         {            
             float dist = Vector3.Distance(ip.transform.position, transform.position);
-            if (dist < maxdistance && ip.isOwnerOrServer && !ip.isdead)
+            if (dist < maxdistance && ip.isController && !ip.isdead)
             {
                 if (ip.isOwner)
                     _Cam.ran = r;

@@ -7,18 +7,14 @@ using System.IO;
 
 public class Spawn : Base
 {
+    public bool zmatch;
     public Transform _Player;
     public Transform Zombie;
     public List<IPlayer> iplayers = new List<IPlayer>();
     public List<Zombie> zombies = new List<Zombie>();
     public List<Base> dynamic = new List<Base>();
 
-    [RPC]
-    void SetGameTime(int gtime)
-    {
-        _Loader.gametime = gtime;
-        CallRPC(true, gtime);
-    }
+    
     void Awake()
     {
         _Spawn = this;
@@ -28,8 +24,7 @@ public class Spawn : Base
 
         AudioListener.volume = .1f;
         if (Network.isServer)
-        {
-            SetGameTime(_Loader.GameTime);
+        {            
             Network.incomingPassword = "started";
             MasterServer.UnregisterHost();
         }
@@ -46,33 +41,38 @@ public class Spawn : Base
     
     [RPC]
     void Update()
-    {        
-        waittime -= Time.deltaTime;
-        if (waittime < 0 && _localiplayer != null && Network.isServer)
-        {            
-            if (_TimerA.TimeElapsed(2000) && zombilesleft != 0)
+    {
+        if (zmatch)
+        {
+            waittime -= Time.deltaTime;
+            if (waittime < 0 && _localiplayer != null && Network.isServer)
             {
-                Transform zsp = transform.Find("zsp");
-                Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
-                CreateZombie(a.position, a.rotation, 5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage));
-                zombilesleft--;
-            }
-            if (zombilesleft == 0 && zombies.Count == 0)
-            {
-                waittime = 2;
-                zombilesleft = ZombieStageLimit;
-                stage++;                
+                if (_TimerA.TimeElapsed(2000) && zombilesleft != 0)
+                {
+                    Transform zsp = transform.Find("zsp");
+                    Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
+                    CreateZombie(a.position, a.rotation, 5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage), Network.AllocateViewID());
+                    zombilesleft--;
+                }
+                if (zombilesleft == 0 && zombies.Count == 0)
+                {
+                    waittime = 2;
+                    zombilesleft = ZombieStageLimit;
+                    stage++;
+                }
             }
         }
     }
     [RPC]
-    public void CreateZombie(Vector3 p, Quaternion r, float zombiespeed)
-    {
-        CallRPC(true, p, r, zombiespeed);
-        Zombie z = ((Transform)Instantiate(Zombie, p, r)).GetComponent<Zombie>();
+    public void CreateZombie(Vector3 p, Quaternion r, float zombiespeed, NetworkViewID nwid)
+    {        
+        CallRPC(true, p, r, zombiespeed,nwid);
+        Zombie z = ((Transform)Instantiate(Zombie, p, r)).GetComponent<Zombie>();        
+        z.networkView.viewID =nwid; 
         z.speed = zombiespeed;
     }
     public Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
+    
     public void OnTeamSelect(Team team)
     {
 

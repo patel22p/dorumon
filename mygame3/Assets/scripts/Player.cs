@@ -7,6 +7,7 @@ using System;
 public enum Team : int { ata, def }
 public class Player : IPlayer
 {
+    public CarController car;
     internal new Team team;
     public float flyForce = 300;
     public Transform bloodexp;
@@ -19,6 +20,7 @@ public class Player : IPlayer
 
     protected override void Start()
     {
+        base.Start();
         if (networkView.isMine)
         {            
             _localiplayer =_LocalPlayer = this;
@@ -69,11 +71,7 @@ public class Player : IPlayer
             RPCPingFps(Network.GetLastPing(serverPl.OwnerID.Value), _Loader.fps);
         if (isOwner && Screen.lockCursor)
         {
-
-
             NextGun(Input.GetAxis("Mouse ScrollWheel"));
-            
-
             if (Input.GetKeyDown(KeyCode.Alpha1))
                 RCPSelectGun(0);
             if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -191,9 +189,10 @@ public class Player : IPlayer
     [RPC]
     public override void RPCSetLife(int NwLife)
     {
+        
         CallRPC(true, NwLife);
         if (isOwner)
-            blood.Hit(Mathf.Abs(NwLife - Life));
+            blood.Hit(Mathf.Abs(NwLife - Life));        
         if (killedyby == null || _Spawn.players[killedyby.Value].team != team)
             Life = NwLife;
 
@@ -253,5 +252,12 @@ public class Player : IPlayer
     {
         Transform t= _Spawn.transform.Find(team.ToString());
         return t.GetChild(UnityEngine.Random.Range(0, t.childCount)).transform.position;
+    }
+    [RPC]
+    public void RPCCarIn()
+    {
+        CallRPC(true);
+        
+        Show(false);                
     }
 }

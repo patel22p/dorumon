@@ -19,7 +19,7 @@ public class Loader : Base
     Rect ConsoleRect;
     public Transform root;
     public string[] supportedNetworkLevels;
-    internal int gametime = 53;
+    
     float cmx { get { return Screen.height / 2; } }
     void onLog(string condition, string stackTrace, LogType type)
     {
@@ -29,26 +29,25 @@ public class Loader : Base
     }
     void Awake()
     {
-        //File.Delete("log.txt");
-        //Application.RegisterLogCallback(onLog);
-        print("start");
-        _Loader = this;
         if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
         {
             Destroy(this.gameObject);
             return;
         }
+        File.Delete("log.txt");
+        Application.RegisterLogCallback(onLog);
+        print("start");
+        _Loader = this;
         DontDestroyOnLoad(this);
         networkView.group = 1;
 
         ConsoleRect = CenterRect(.8f, .6f);
         if (Application.loadedLevel == 0)
-        {
+        { 
             Application.LoadLevel(disconnectedLevel);
             Online = true;
         }
     }
-
     void Update()
     {
 
@@ -64,8 +63,6 @@ public class Loader : Base
                 input = "";
             }
         }
-
-
     }
     void OnGUI()
     {
@@ -77,7 +74,7 @@ public class Loader : Base
 
     }
     Rect optionsrect = new Rect(0,0,300,300);
-    public int GameTime = 10;
+    
     public int selectedTeam = 0;
 
     internal int quality = 3;
@@ -98,54 +95,36 @@ public class Loader : Base
     
     private void ConsoleWindow(int id)
     {
+        
+
         if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
             foreach (string level in supportedNetworkLevels)
-            {
-
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Game Time Minutes:");
-                int.TryParse(GUILayout.TextField(GameTime.ToString()), out GameTime);
-                GUILayout.EndHorizontal();
-
                 if (GUILayout.Button(level))
                     LoadLevelRPC(level);
 
-            }
-
+        GUILayout.Space(20);
         if (_Spawn != null)
         {
-            TimeSpan ts = TimeSpan.FromMinutes(gametime) - TimeSpan.FromSeconds(Time.timeSinceLevelLoad);
-            GUILayout.Label("Time Left:" + ts.ToString().Split('.')[0]);
+            int rs = 0, bs = 0;
 
-            if (ts.Milliseconds < 0)
-            {
-                write("team " + "Blue Team" + " win");
-                _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
-                Screen.lockCursor = false;
-            }
+            GUILayout.Label("Team " + "Blue Team");
+            foreach (Player pl in FindObjectsOfType(typeof(Player)))
+                if (pl.team == Team.def && pl.OwnerID != null)
+                {
+                    GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+                    rs += pl.frags;
+                }
+            GUILayout.Label("Red Team Score:" + rs);
+            GUILayout.Label("Team " + "Red Team");
+            foreach (Player pl in FindObjectsOfType(typeof(Player)))
+                if (pl.team == Team.ata && pl.OwnerID != null)
+                {
+                    GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+                    bs += pl.frags;
+                }
+            GUILayout.Label("Blue Team Score:" + bs);
+            GUILayout.Label("Zombie Stage:" + _Spawn.stage);
         }
-
-        
-        GUILayout.Space(20);
-        int rs= 0, bs= 0;
-        GUILayout.Label("Team " + "Blue Team");
-        foreach (Player pl in FindObjectsOfType(typeof(Player)))
-            if (pl.team == Team.def && pl.OwnerID != null)
-            {
-                GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
-                rs += pl.frags;
-            }
-        GUILayout.Label("Red Team Score:" + rs);
-        GUILayout.Label("Team " + "Red Team");
-        foreach (Player pl in FindObjectsOfType(typeof(Player)))
-            if (pl.team == Team.ata && pl.OwnerID != null)
-            {
-                GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
-                bs += pl.frags;
-            }
-        GUILayout.Label("Blue Team Score:" + bs);
-        GUILayout.Label("Zombie Stage:" + _Spawn.stage);
         GUILayout.BeginHorizontal();
         if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
         {

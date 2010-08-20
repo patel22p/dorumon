@@ -21,8 +21,7 @@ public class GunBase : Base
 
 
     }
-    public Quaternion q;
-    public bool car;
+    public Quaternion q;    
     protected virtual void FixedUpdate()
     {
 
@@ -32,7 +31,7 @@ public class GunBase : Base
 
     private void UpdateAim()
     {
-        if (isOwner && !car) q = _Cam.transform.rotation;
+        if (isOwner) q = _Cam.transform.rotation;
     }
 
     protected virtual void Update()

@@ -20,6 +20,7 @@ public class Base : Base2 , IDisposable
     }
     public bool isOwner { get { return OwnerID == Network.player; } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
+    
 
     public TimerA _TimerA { get { return TimerA._This; } }
     
@@ -69,14 +70,14 @@ public class Base : Base2 , IDisposable
     public void SetController(NetworkPlayer owner)
     {        
         lock ("ser")
-            GetComponent<NetworkRigidbody>().selected = owner;
+            ((box)this).selected = owner;
     }
     
     [RPC]
     public void RPCResetOwner()
     {
         CallRPC(true);
-        GetComponent<NetworkRigidbody>().selected=null;
+        ((box)this).selected=null;
         //foreach (NetworkView otherView in this.GetComponents<NetworkView>())
         //    otherView.observed = null;
 
@@ -88,9 +89,10 @@ public class Base : Base2 , IDisposable
     [RPC]
     public void RPCAddNetworkView(NetworkViewID id)
     {
+        
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)Group.RPCAssignID;
-        nw.observed = GetComponent<NetworkRigidbody>();
+        nw.observed = this;
         nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
         nw.viewID = id;
     }

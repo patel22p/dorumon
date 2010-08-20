@@ -3,8 +3,11 @@ using System.Collections;
 
 public class Zombie : IPlayer
 {
+    [RPC]
     public override void RPCDie()
     {
+        CallRPC(true);
+        if (!enabled) Debug.Log("Zombie AlreadY Dead");
         Destroy(3000);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", dead);
         enabled = false;
@@ -23,10 +26,12 @@ public class Zombie : IPlayer
     }
     protected override void Update()
     {
-        //base.Update();
-        if (_localiplayer != null)
+        base.Update();
+        if (selected != null)
         {
-            Vector3 v3 = _localiplayer.transform.position - transform.position;
+            Player pl = _Spawn.players[selected.Value];
+            IPlayer ipl = pl.car != null ? (IPlayer)pl.car : pl;
+            Vector3 v3 = ipl.transform.position - transform.position;
             v3.y = 0;
             if (v3.sqrMagnitude > 6)
             {
@@ -35,15 +40,17 @@ public class Zombie : IPlayer
                 oldpos = p;
             }
             else
-                if (_TimerA.TimeElapsed(1000)) _localiplayer.RPCSetLife(_localiplayer.Life - 10);
-
+                if (ipl.isOwner && _TimerA.TimeElapsed(1000))
+                {                    
+                    _localiplayer.killedyby = null;
+                    _localiplayer.RPCSetLife(ipl.Life - 10);
+                }
         }
     }
-
     void OnCollisionEnter(Collision collisionInfo)
     {
         Base b = collisionInfo.gameObject.GetComponent<Base>();
-        if (b != null && b is box && !(b is Player) && !(b is Zombie) &&
+        if (b != null && b is box && !(b is Player) && enabled &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
@@ -51,8 +58,6 @@ public class Zombie : IPlayer
             RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
         }
     }
-
-
     public float speed = .3f;
     public float up = 1f;
     public Vector3 oldpos;

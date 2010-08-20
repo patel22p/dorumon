@@ -20,9 +20,7 @@ public class box : Base
         if (Network.peerType == NetworkPeerType.Disconnected) return;
         if (!Network.isServer)
             networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
-    }
-    public float cardist;
-    public float pldist;
+    }    
     protected Vector3 spawnpos;
     public virtual Vector3 SpawnPoint()
     {
@@ -30,6 +28,11 @@ public class box : Base
     }
     protected virtual void Update()
     {
+        if (selected.HasValue)
+            id = selected.GetHashCode();
+        else
+            id = -2;        
+
         if (bounds!=null && !bounds.collider.bounds.Contains(this.transform.position) && enabled)
         {
             transform.position = SpawnPoint();
@@ -45,19 +48,61 @@ public class box : Base
             foreach (IPlayer p in _Spawn.iplayers)
             {
                 if (p.enabled && p.OwnerID != null)
-                {
+                {                    
                     float dist = Vector3.Distance(p.transform.position, this.transform.position);
                     if (min > dist)
                         nearp = p;
                     min = Math.Min(dist, min);                    
                 }
             }
-            if (nearp == null || nearp.OwnerID == null) return;
-         //   NetworkView nw = GetNetworkView(nearp.OwnerID.Value);            
-            if (GetComponent<NetworkRigidbody>().selected != nearp.OwnerID)
+            
+            if (nearp == null || nearp.OwnerID == null) return;            
+            if (selected != nearp.OwnerID)
+            {
+                
                 networkView.RPC("SetController", RPCMode.AllBuffered, nearp.OwnerID.Value);
+            }
         }
     }
 
+    public bool isController { get { return selected==Network.player; } }
+    public Vector3 pos;
+    Quaternion rot;
+    Vector3 velocity;
+    Vector3 angularVelocity;
+    
+    public NetworkPlayer? selected;
+    public int id = -3;
+
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    {
+
+
+        if (selected == Network.player || stream.isReading || (Network.isServer && info.networkView.owner == selected))
+        {
+            lock ("ser")
+            {
+                if (stream.isWriting)
+                {
+                    pos = rigidbody.position;
+                    rot = rigidbody.rotation;
+                    velocity = rigidbody.velocity;
+                    angularVelocity = rigidbody.angularVelocity;
+                }
+                stream.Serialize(ref pos);
+                stream.Serialize(ref rot);
+                stream.Serialize(ref velocity);
+                stream.Serialize(ref angularVelocity);
+
+                if (stream.isReading && pos != default(Vector3))
+                {
+                    rigidbody.position = pos;
+                    rigidbody.velocity = velocity;
+                    rigidbody.rotation = rot;
+                    rigidbody.angularVelocity = angularVelocity;
+                }
+            }
+        }
+    }
 
 }

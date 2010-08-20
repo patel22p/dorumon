@@ -44,7 +44,12 @@ public class CarController : Car
             
             if (Input.GetKeyDown(KeyCode.F))
             {
-                CarOut();
+                _LocalPlayer.RPCShow(true);
+                _LocalPlayer.RCPSelectGun(1);
+                _LocalPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
+                _localiplayer = _LocalPlayer;
+                RPCCarOut(Network.player);
+                RPCResetOwner();
             }
             //if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
         }
@@ -54,29 +59,33 @@ public class CarController : Car
                 && _LocalPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == null)
             {
                 _LocalPlayer.RPCShow(false);
-                transform.Find("door").GetComponent<AudioSource>().Play();
                 RPCSetOwner();
                 _localiplayer = this;
+                RPCCarIn(Network.player);
             }
         }                
+    }
+    [RPC]
+    private void RPCCarIn(NetworkPlayer np)
+    {
+        _Spawn.players[np].car = this;
+        transform.Find("door").GetComponent<AudioSource>().Play();
     }
     
     protected virtual void FixedUpdate()
     {
         FixedUpdateCar();                
     }
-    private void CarOut()
-    {        
+    [RPC]
+    private void RPCCarOut(NetworkPlayer np)
+    {
+        CallRPC(true,np);
         motor = 0;
         steer = 0;
         brake = 0;
         handbrake = 0;
         rigidbody.velocity = Vector3.zero;
-        _LocalPlayer.RPCShow(true);
-        _LocalPlayer.RCPSelectGun(1);
-        _LocalPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
-        _localiplayer = _LocalPlayer;
-        RPCResetOwner();
+        _Spawn.players[np].car = null;
     }
     public override void RPCDie()
     {

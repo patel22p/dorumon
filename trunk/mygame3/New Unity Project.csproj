@@ -55,7 +55,9 @@
     <Compile Include="Assets\scripts\BulletBase.cs" />
     <Compile Include="Assets\scripts\BulletBazoka.cs" />
     <Compile Include="Assets\scripts\BulletMini.cs" />
-    <Compile Include="Assets\scripts\Cam.cs" />
+    <Compile Include="..\..\Desktop\Cam.cs">
+      <Link>Assets\scripts\Cam.cs</Link>
+    </Compile>
     <Compile Include="Assets\scripts\Car.cs" />
     <Compile Include="Assets\scripts\CarController.cs" />
     <Compile Include="Assets\scripts\Energy.cs" />

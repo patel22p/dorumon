@@ -34,12 +34,10 @@ public class Spawn : Base
     public Transform effects;
     internal int ZombieStageLimit = 20;
     int zombilesleft = 5;
-    float ZombieSpeed = 2;
+    float ZombieSpeed = 1;
     float waittime = 2;
     internal int stage = 1;
-    
-    
-    [RPC]
+            
     void Update()
     {
         if (zmatch)
@@ -51,7 +49,9 @@ public class Spawn : Base
                 {
                     Transform zsp = transform.Find("zsp");
                     Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
-                    CreateZombie(a.position, a.rotation, 5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage), Network.AllocateViewID());
+                    CreateZombie(a.position
+                        , a.rotation, 5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage),
+                        100 + 10 * stage, Network.AllocateViewID());
                     zombilesleft--;
                 }
                 if (zombilesleft == 0 && zombies.Count == 0)
@@ -64,14 +64,15 @@ public class Spawn : Base
         }
     }
     [RPC]
-    public void CreateZombie(Vector3 p, Quaternion r, float zombiespeed, NetworkViewID nwid)
+    public void CreateZombie(Vector3 p, Quaternion r, float zombiespeed,int zombieLife, NetworkViewID nwid)
     {        
-        CallRPC(true, p, r, zombiespeed,nwid);
+        CallRPC(true, p, r, zombiespeed,zombieLife,nwid);
         Zombie z = ((Transform)Instantiate(Zombie, p, r)).GetComponent<Zombie>();        
         z.networkView.viewID =nwid; 
         z.speed = zombiespeed;
+        z.Life = zombieLife;
     }
-    public Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
+    public new Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
     
     public void OnTeamSelect(Team team)
     {

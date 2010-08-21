@@ -12,8 +12,7 @@ public class CarController : Car
     {
         base.Start();
         rigidbody.angularDrag = 5;
-        StartCar();
-        
+        StartCar();        
         Life = 200;        
         Reset();
         
@@ -22,7 +21,8 @@ public class CarController : Car
     double timedown1;
     protected override void Update()
     {
-        base.Update();
+        
+            base.Update();
         if (_LocalPlayer == null) return;
         rigidbody.drag = OwnerID == null ? 1 : 0;
         if (isOwner)
@@ -68,22 +68,20 @@ public class CarController : Car
     [RPC]
     private void RPCCarIn(NetworkPlayer np)
     {
+        CallRPC(true, np);
         _Spawn.players[np].car = this;
         transform.Find("door").GetComponent<AudioSource>().Play();
     }
     
     protected virtual void FixedUpdate()
     {
-        FixedUpdateCar();                
+        if (OwnerID != null)
+            FixedUpdateCar();                
     }
     [RPC]
     private void RPCCarOut(NetworkPlayer np)
     {
-        CallRPC(true,np);
-        motor = 0;
-        steer = 0;
-        brake = 0;
-        handbrake = 0;
+        CallRPC(true,np);                
         rigidbody.velocity = Vector3.zero;
         _Spawn.players[np].car = null;
     }
@@ -95,6 +93,7 @@ public class CarController : Car
             _TimerA.AddMethod(10000, RPCSpawn);
         if (isOwner)
         {
+            RPCCarOut(Network.player);
             _localiplayer = _LocalPlayer;
             RPCResetOwner();
             _LocalPlayer.killedyby = killedyby;

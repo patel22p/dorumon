@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Collections.Generic;
 using UnityEngine;
 using doru;
@@ -53,7 +54,8 @@ public abstract class IPlayer : box
     [RPC]
     public virtual void RPCSetLife(int NwLife)
     {
-        CallRPC(true, NwLife);
+        CallRPC(true, NwLife);        
+        if (!enabled) return;
         if(killedyby == null || _Spawn.players[killedyby.Value].team != team)
             Life = NwLife;
 

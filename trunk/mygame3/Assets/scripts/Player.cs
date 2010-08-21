@@ -170,9 +170,9 @@ public class Player : IPlayer
     
     void OnCollisionEnter(Collision collisionInfo)
     {
-        Base b = collisionInfo.gameObject.GetComponent<Base>();
-        if (b != null && isOwner && !b.isOwner &&
-            b is box && !(b is Player) && !(b is Zombie) &&
+        box b = collisionInfo.gameObject.GetComponent<box>();
+        if (b != null && isOwner && !b.isOwner && b.OwnerID != null && players[b.OwnerID.Value].team != team &&
+            !(b is Player) && !(b is Zombie) && 
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
@@ -203,12 +203,12 @@ public class Player : IPlayer
     public override void RPCDie()
     {
 
-        Transform a = (Transform)Instantiate(bloodexp, transform.position, Quaternion.identity);
-        Destroy(a.gameObject, 5);
-        a.parent = _Spawn.effects;
+        Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
+        a.Destroy(5000);
+        a.transform.parent = _Spawn.effects;
         if (isOwner)
         {
-            _TimerA.AddMethod(10000, RPCSpawn);
+            if (!_Spawn.zmatch) _TimerA.AddMethod(10000, RPCSpawn);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
                 if (p.OwnerID == killedyby || !killedyby.HasValue)
                 {

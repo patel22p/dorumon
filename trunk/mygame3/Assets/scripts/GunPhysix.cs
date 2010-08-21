@@ -20,7 +20,7 @@ public class GunPhysix : GunBase
         if (power)
         {
             
-            if (bullets < exp) bullets+=40;
+            if (bullets < exp) bullets+=80;
             foreach (Base b in _Spawn.dynamic)
             {
                 

@@ -95,8 +95,6 @@ public class Loader : Base
     
     private void ConsoleWindow(int id)
     {
-        
-
         if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
             foreach (string level in supportedNetworkLevels)
                 if (GUILayout.Button(level))
@@ -144,7 +142,7 @@ public class Loader : Base
             if ((selectedTeam = GUILayout.Toolbar(selectedTeam, new string[] { "Spectator", "Red Team", "Blue Team" })) != old)
             {
                 old = selectedTeam;
-                _Spawn.OnTeamSelect(selectedTeam == 1 ? Team.ata : Team.def);
+                _Spawn.OnTeamSelect(Team.ata); //(selectedTeam == 1 ? Team.ata : Team.def);
             }
         }
         
@@ -160,6 +158,7 @@ public class Loader : Base
     }
     public void LoadLevelRPC(string level)
     {
+        Screen.lockCursor = false;
         old = selectedTeam = 0;
         Network.RemoveRPCsInGroup(0);
         Network.RemoveRPCsInGroup(1);

@@ -28,9 +28,9 @@ public class bloodexp : Base {
         }
         if (!l && Root(collisionInfo.gameObject).name == "Level")
         {
-            bloodexp a = ((Transform)Instantiate(blood, transform.position, Quaternion.identity)).GetComponent<bloodexp>();
-            a.Destroy(10);
-            a.transform.parent = _Spawn.effects;
+            Transform a = ((Transform)Instantiate(blood, transform.position, Quaternion.identity));
+            Destroy(a.gameObject, 10);
+            a.parent = _Spawn.effects;
             l = true;
         }   
     }	

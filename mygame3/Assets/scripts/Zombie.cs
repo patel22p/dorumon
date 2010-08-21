@@ -6,8 +6,8 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie()
     {
-        CallRPC(true);
-        if (!enabled) Debug.Log("Zombie AlreadY Dead");
+        CallRPC(true);        
+        if (!enabled) { Debug.Log("Zombie AlreadY Dead"); return; }
         Destroy(3000);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", dead);
         enabled = false;

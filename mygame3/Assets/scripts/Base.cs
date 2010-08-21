@@ -147,8 +147,14 @@ public class Base : Base2 , IDisposable
     }
     public void CallRPC(bool buffered, params object[] obs)
     {
-        if (new System.Diagnostics.StackFrame(2, true).GetMethod() != null)
+        MethodBase mb = new System.Diagnostics.StackFrame(2, true).GetMethod();
+
+        if (mb != null)
+        {
+            foreach (object o in mb.GetCustomAttributes(false))
+                if (o is RPC) return;
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
+        }
     }
     public static float clamp(float a)
     {
@@ -156,11 +162,13 @@ public class Base : Base2 , IDisposable
         return a;
     }
 
-
+    public Dictionary<NetworkPlayer,Player> players { get { return _Spawn.players; } }
     public void Destroy()
-    {
+    {        
+        foreach (Base b in this.GetComponentsInChildren<Base>())
+            b.Dispose();
         Destroy(this.gameObject);        
-        Dispose();
+        
     }
     public void Destroy(int time)
     {        

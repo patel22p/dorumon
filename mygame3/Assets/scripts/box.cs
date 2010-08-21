@@ -13,13 +13,17 @@ public class box : Base
     public Transform bounds;
     protected virtual void Start()
     {
+        
         _Spawn.dynamic.Add(this);
         bounds = GameObject.Find("bounds").transform;
         spawnpos = transform.position;
-        rigidbody.angularDrag = 10;
-        if (Network.peerType == NetworkPeerType.Disconnected) return;
-        if (!Network.isServer)
-            networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
+        if (!(this is Player))
+        {
+            rigidbody.angularDrag = 30;
+            if (Network.peerType == NetworkPeerType.Disconnected) return;
+            if (!Network.isServer)
+                networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
+        }
     }    
     protected Vector3 spawnpos;
     public virtual Vector3 SpawnPoint()
@@ -76,8 +80,6 @@ public class box : Base
 
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-
-
         if (selected == Network.player || stream.isReading || (Network.isServer && info.networkView.owner == selected))
         {
             lock ("ser")

@@ -10,18 +10,7 @@ public class Base2 : MonoBehaviour
 {    
     public new void print(object ob)
     {
-        //string s="";
-        //if (ob is IEnumerable)
-        //{
-        //    foreach (object o in (IEnumerable)ob)
-        //    {
-        //        s += s + "," + o;
                 
-        //    }
-        //    Loader.write(s);
-        //}
-        //else
-        UnityEngine.Debug.Log(ob);
         Loader.write("" + ob);
     }
     public static Cam _Cam;

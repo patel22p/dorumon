@@ -59,7 +59,7 @@ public abstract class Car : IPlayer
     
     public void StartCar()
     {
-        
+        skidmarks = (Skidmarks)FindObjectOfType(typeof(Skidmarks));
         wheels = new WheelData[4];
         for (int i = 0; i < 4; i++)
             wheels[i] = new WheelData();
@@ -97,7 +97,7 @@ public abstract class Car : IPlayer
         }
         wheelY = wheels[0].graphic.localPosition.y;
         
-        Skidmarks skidmarks = (Skidmarks)FindObjectOfType(typeof(Skidmarks));
+        
         gear = 1;
     }
     void UpdateWheels()

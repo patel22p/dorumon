@@ -7,9 +7,9 @@ public abstract class IPlayer : box
 {
     public Transform title;
     public Transform mesh;
-    public NetworkPlayer? killedyby;
+    public IPlayer killedyby;
     public int Life;
-    
+    public Transform CamPos;
     public bool isdead { get { return !enabled; } }
     public GunBase[] guns { get { return this.GetComponentsInChildren<GunBase>(); } }
     internal Team? team
@@ -34,6 +34,8 @@ public abstract class IPlayer : box
 
     protected override void Update()
     {
+        nitro += Time.deltaTime / 5;
+
         if (mesh != null)
         {
             if (OwnerID != null)
@@ -51,14 +53,15 @@ public abstract class IPlayer : box
         base.Update();
         
     }
+    public float nitro =10;
     [RPC]
     public virtual void RPCSetLife(int NwLife)
-    {
-        CallRPC(true, NwLife);        
-        if (!enabled) return;
-        if(killedyby == null || _Spawn.players[killedyby.Value].team != team)
-            Life = NwLife;
+    {        
+        if (!enabled) return;        
+        CallRPC(true, NwLife);
 
+        if (killedyby == null || killedyby.team != team)
+            Life = NwLife;
         if (NwLife < 0)
             RPCDie();
     }

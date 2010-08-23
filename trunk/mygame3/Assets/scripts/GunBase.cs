@@ -24,7 +24,8 @@ public class GunBase : Base
     public Quaternion q;    
     protected virtual void FixedUpdate()
     {
-
+        //if(Root(this.gameObject).name == "LocalPlayer")
+        //    Debug.Log(enabled);
         UpdateAim();
         this.transform.rotation = q;
     }
@@ -82,6 +83,7 @@ public class GunBase : Base
     }
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
+        if (!enabled) return;
         if (isOwner) q = _Cam .transform.rotation;
         stream.Serialize(ref q);
         transform.rotation = q;

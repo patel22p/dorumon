@@ -7,7 +7,7 @@ using System.IO;
 
 public class Spawn : Base
 {
-    public bool zmatch;
+    public bool zombiesenabled;
     public Transform _Player;
     public Transform Zombie;
     public List<IPlayer> iplayers = new List<IPlayer>();
@@ -40,7 +40,7 @@ public class Spawn : Base
             
     void Update()
     {
-        if (zmatch)
+        if (zombiesenabled)
         {
             waittime -= Time.deltaTime;
             if (waittime < 0 && _localiplayer != null && Network.isServer)
@@ -49,29 +49,28 @@ public class Spawn : Base
                 {
                     Transform zsp = transform.Find("zsp");
                     Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
-                    CreateZombie(a.position
-                        , a.rotation, 5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage),
-                        100 + 10 * stage, Network.AllocateViewID());
+                    Zombie z = ((Transform)Network.Instantiate(Zombie, a.position, a.rotation, (int)Group.Zombie)).GetComponent<Zombie>();
+                    z.RPCSetup(5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage),
+                        100 + 10 * stage);
+                    
                     zombilesleft--;
                 }
                 if (zombilesleft == 0 && zombies.Count == 0)
                 {
                     waittime = 2;
                     zombilesleft = ZombieStageLimit;
-                    stage++;
+                    NextStage();
                 }
             }
         }
     }
     [RPC]
-    public void CreateZombie(Vector3 p, Quaternion r, float zombiespeed,int zombieLife, NetworkViewID nwid)
-    {        
-        CallRPC(true, p, r, zombiespeed,zombieLife,nwid);
-        Zombie z = ((Transform)Instantiate(Zombie, p, r)).GetComponent<Zombie>();        
-        z.networkView.viewID =nwid; 
-        z.speed = zombiespeed;
-        z.Life = zombieLife;
+    private void NextStage()
+    {
+        CallRPC(true);
+        stage++;
     }
+    
     public new Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
     
     public void OnTeamSelect(Team team)

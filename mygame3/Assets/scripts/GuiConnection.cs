@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Diagnostics;
+
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 [assembly: AssemblyVersion("1.0.*")]
 
 public class GuiConnection : Base2
@@ -27,6 +28,11 @@ public class GuiConnection : Base2
         if (ip2 != "") MasterServer.ipAddress = ip2;
         MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, Nick + "s Game");
         
+    }
+    public static GuiConnection _This;
+    void Awake()
+    {
+        _This = this;
     }
     void Start()
     {
@@ -96,10 +102,21 @@ public class GuiConnection : Base2
                     InitServer();
                 else print("Enter Nick Name");
             GUI.DragWindow();                     
-
+    }
+    public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
+    int GetPing(string ip)
+    {
+        Ping p;
+        if (!hdps.ContainsKey(ip))
+            hdps.Add(ip, p = new Ping(ip));
+        else
+            p = hdps[ip];
+        
+        return p.time;
     }
     void ServerListWindow(int q)
     {
+         
         GUILayout.Label("your version is: " + version);
         if (GUILayout.Button("refresh server list"))
         {
@@ -108,22 +125,27 @@ public class GuiConnection : Base2
         }
 
         HostData[] data = MasterServer.PollHostList();
-        foreach (HostData element in data)
+        foreach (HostData element in data) 
         {
+            
             GUILayout.BeginHorizontal();
             string name = element.gameName + " " + element.connectedPlayers + " / " + element.playerLimit;
             GUILayout.Label(name);
             GUILayout.Space(5);
 
             string hostInfo = "[";
-            foreach (string host in element.ip)
+            foreach (string host in element.ip) 
                 hostInfo = hostInfo + host + ":" + element.port + " ";
             hostInfo = hostInfo + "]";
-            GUILayout.Label(hostInfo);
+            GUILayout.Label(hostInfo); 
             GUILayout.Space(5);
             GUILayout.Label(element.comment);
-            GUILayout.Space(5);
+            GUILayout.Label("ping:" + GetPing(element.ip[0]));
+            
             GUILayout.FlexibleSpace();
+            GUILayout.Space(5);
+
+
             if (GUILayout.Button("Copy IP"))
             {
                 Network.useNat = element.useNat;
@@ -140,9 +162,15 @@ public class GuiConnection : Base2
         }
         GUI.DragWindow();
     }
+    void OnLevelWasLoaded(int level)
+    {
+        foreach (Ping p in hdps.Values)
+            p.DestroyPing();
+        hdps.Clear();
+    }
     void OnFailedToConnect(NetworkConnectionError error)
     {
-        print("Could not connect to server: " + error);
+        print("Could not connect to server: " + error.ToString().Replace("InvalidPassword", "Game Already Started"));
     }
     void OnFailedToConnectToMasterServer(NetworkConnectionError error)
     {

@@ -19,11 +19,11 @@ public class Loader : Base
     Rect ConsoleRect;
     public Transform root;
     public string[] supportedNetworkLevels;
-    
+
     float cmx { get { return Screen.height / 2; } }
     void onLog(string condition, string stackTrace, LogType type)
     {
-        StreamWriter a; 
+        StreamWriter a;
         using (a = new StreamWriter(File.Open("log.txt", FileMode.Append, FileAccess.Write)))
             a.WriteLine("Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
     }
@@ -43,7 +43,7 @@ public class Loader : Base
 
         ConsoleRect = CenterRect(.8f, .6f);
         if (Application.loadedLevel == 0)
-        { 
+        {
             Application.LoadLevel(disconnectedLevel);
             Online = true;
         }
@@ -73,8 +73,8 @@ public class Loader : Base
         if (options) optionsrect = GUILayout.Window(5, optionsrect, OptionsWindow, "Options");
 
     }
-    Rect optionsrect = new Rect(0,0,300,300);
-    
+    Rect optionsrect = new Rect(0, 0, 300, 300);
+
     public int selectedTeam = 0;
 
     internal int quality = 3;
@@ -82,7 +82,7 @@ public class Loader : Base
     private void OptionsWindow(int id)
     {
 
-        string[] qs= new string[] { "Fastest", "Fast", "Simple", "Good", "Beautiful", "Fantastic" };
+        string[] qs = new string[] { "Fastest", "Fast", "Simple", "Good", "Beautiful", "Fantastic" };
         if (oldquality != (quality = GUILayout.Toolbar(quality, qs)))
         {
             oldquality = quality;
@@ -92,13 +92,16 @@ public class Loader : Base
         if (GUILayout.Button("close")) options = false;
         GUI.DragWindow();
     }
-    
+    GuiConnection _GuiConnection { get { return GuiConnection._This; } }
     private void ConsoleWindow(int id)
     {
-        if (Application.loadedLevelName == disconnectedLevel && Network.isServer)
-            foreach (string level in supportedNetworkLevels)
-                if (GUILayout.Button(level))
-                    LoadLevelRPC(level);
+        if (Application.loadedLevelName == disconnectedLevel)
+        {
+            if (Network.isServer)
+                foreach (string level in supportedNetworkLevels)
+                    if (GUILayout.Button(level))
+                        LoadLevelRPC(level);            
+        }
 
         GUILayout.Space(20);
         if (_Spawn != null)
@@ -132,8 +135,7 @@ public class Loader : Base
                 Network.Disconnect();
         }
         if (GUILayout.Button("Options"))
-        {
-            GUI.BringWindowToFront(5);
+        {            
             options = true;
         }
         GUILayout.EndHorizontal();
@@ -142,10 +144,10 @@ public class Loader : Base
             if ((selectedTeam = GUILayout.Toolbar(selectedTeam, new string[] { "Spectator", "Red Team", "Blue Team" })) != old)
             {
                 old = selectedTeam;
-                _Spawn.OnTeamSelect(Team.ata); //(selectedTeam == 1 ? Team.ata : Team.def);
+                _Spawn.OnTeamSelect(selectedTeam == 1 ? Team.ata : Team.def);
             }
         }
-        
+
         input = GUILayout.TextField(input);
         output = GUILayout.TextField(output);
         GUI.DragWindow();
@@ -158,8 +160,7 @@ public class Loader : Base
     }
     public void LoadLevelRPC(string level)
     {
-        Screen.lockCursor = false;
-        old = selectedTeam = 0;
+        
         Network.RemoveRPCsInGroup(0);
         Network.RemoveRPCsInGroup(1);
         networkView.RPC("LoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
@@ -188,11 +189,10 @@ public class Loader : Base
     {
         rpcwrite("Player joined " + GuiConnection.Nick);
     }
+    
     [RPC]
     void LoadLevel(String level, int levelPrefix)
     {
-
-
         lastLevelPrefix = levelPrefix;
         Network.SetSendingEnabled(0, false);
         Network.isMessageQueueRunning = false;
@@ -202,11 +202,15 @@ public class Loader : Base
     }
     void OnLevelWasLoaded(int level)
     {
+        old = selectedTeam = 0;
+        Screen.lockCursor = false;
+
         Network.isMessageQueueRunning = true;
         Network.SetSendingEnabled(0, true);
     }
     public static void write(string s)
     {
+        UnityEngine.Debug.Log(s);
         lastStr = s;
         output = s + "\r\n" + output;
     }

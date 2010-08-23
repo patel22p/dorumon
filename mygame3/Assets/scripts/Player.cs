@@ -14,12 +14,12 @@ public class Player : IPlayer
     public float force = 400;
     public int frags;
     public float angularvel = 600;
+    public float frozentime;
     public float maxVelocityChange = 10.0f;
     public string Nick;    
-    GuiBlood blood { get { return GuiBlood._This; } }
-
+    GuiBlood blood { get { return GuiBlood._This; } }    
     protected override void Start()
-    {
+    {        
         base.Start();
         if (networkView.isMine)
         {            
@@ -53,22 +53,23 @@ public class Player : IPlayer
         this.fps = fps;
 
     }
-    public Player serverPl
-    {
-        get
-        {
-            return Network.isServer ? _LocalPlayer : _Spawn.players[Network.connections[0]];
-        }
-    }
+    //public Player serverPl
+    //{
+    //    get
+    //    {
+    //        print(Network.connections[0]);
+    //        return Network.isServer ? _LocalPlayer : _Spawn.players[Network.connections[0]];
+    //    }
+    //}
     
-    protected override void Update()
+    protected override void Update() 
     {        
         
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
-        
 
-        if (_TimerA.TimeElapsed(1000) && isOwner && _Spawn.players.Count > 0)
-            RPCPingFps(Network.GetLastPing(serverPl.OwnerID.Value), _Loader.fps);
+
+        if (_TimerA.TimeElapsed(1000) && isOwner && _Spawn.players.Count > 0 && Network.connections.Length > 0)
+            RPCPingFps(Network.GetLastPing(Network.connections[0]), _Loader.fps);
         if (isOwner && Screen.lockCursor)
         {
             NextGun(Input.GetAxis("Mouse ScrollWheel"));
@@ -76,6 +77,14 @@ public class Player : IPlayer
                 RCPSelectGun(0);
             if (Input.GetKeyDown(KeyCode.Alpha2))
                 RCPSelectGun(1);
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                if (nitro > 10)
+                {
+                    nitro -= 10;
+                    RCPJump();
+                }
+            }
             if (Input.GetKeyDown(KeyCode.Alpha3))
                 RCPSelectGun(2);
             if (Input.GetKey(KeyCode.Space))
@@ -85,6 +94,13 @@ public class Player : IPlayer
             }
         }
         base.Update();
+    }
+    
+    [RPC]
+    private void RCPJump()
+    {
+        CallRPC(true);        
+        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));
     }
 
     public void NextGun(float a)
@@ -176,6 +192,8 @@ public class Player : IPlayer
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
+            print("ErroR FrFire" + players[b.OwnerID.Value].team + " " + team);
+            Debug.Break();
             killedyby = b.OwnerID;
             RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
         }
@@ -189,30 +207,26 @@ public class Player : IPlayer
     [RPC]
     public override void RPCSetLife(int NwLife)
     {
-        
+        if (!enabled) return;
         CallRPC(true, NwLife);
         if (isOwner)
             blood.Hit(Mathf.Abs(NwLife - Life));        
-        if (killedyby == null || _Spawn.players[killedyby.Value].team != team)
-            Life = NwLife;
-
-        if (NwLife < 0)
-            RPCDie();
+        base.RPCSetLife(NwLife);
 
     }
     public override void RPCDie()
-    {
-
+    {        
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
         a.Destroy(5000);
         a.transform.parent = _Spawn.effects;
         if (isOwner)
         {
-            if (!_Spawn.zmatch) _TimerA.AddMethod(10000, RPCSpawn);
+            if (!_Spawn.zombiesenabled) _TimerA.AddMethod(10000, RPCSpawn);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
-                if (p.OwnerID == killedyby || !killedyby.HasValue)
+            {
+                if (p.OwnerID == killedyby)
                 {
-                    if (p.isOwner || !killedyby.HasValue)
+                    if (p.isOwner)
                     {                        
                         _Loader.rpcwrite(_LocalPlayer.Nick + " died byself");
                         _LocalPlayer.RPCSetFrags(-1);
@@ -226,13 +240,20 @@ public class Player : IPlayer
                     {
                         _Loader.rpcwrite(p.Nick + " friendly fired " + _LocalPlayer.Nick);
                         p.RPCSetFrags(-1);
-                        
+
                     }
                 }
+            }
+            if (killedyby==null)
+            {
+                _Loader.rpcwrite(_LocalPlayer.Nick + " screwed");
+                _LocalPlayer.RPCSetFrags(-1);
+            }
+
             Screen.lockCursor = false;
-        }
-        
+        }        
         Show(false);
+        
     }
 
     [RPC]

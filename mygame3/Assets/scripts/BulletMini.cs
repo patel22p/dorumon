@@ -7,9 +7,11 @@ public class BulletMini : BulletBase
     public float velocity = 100;
     public int damage=34;
     public Transform blood;
+    public Transform bloodmat1;
     public Transform impact;
+    
     public float exp=10;
-    public float exprad = 2;
+    public float exprad = 2; 
     protected override void Hit(RaycastHit hit )
     {
 
@@ -34,6 +36,13 @@ public class BulletMini : BulletBase
             Destroy(a = (Transform)Instantiate(blood, hit.point, transform.rotation),10);
             a.parent = _Spawn.effects;
         }
+        if (iplayer as Zombie != null)
+        {
+            Transform a;
+            Destroy(a = (Transform)Instantiate(bloodmat1, hit.point, transform.rotation), 10);
+             a.parent =iplayer.transform;
+        }
+
         if (iplayer != null && iplayer.isController && !iplayer.isdead)
         {            
             iplayer.killedyby = OwnerID.Value;

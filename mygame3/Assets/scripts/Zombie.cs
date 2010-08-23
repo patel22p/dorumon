@@ -8,11 +8,17 @@ public class Zombie : IPlayer
     {
         CallRPC(true);        
         if (!enabled) { Debug.Log("Zombie AlreadY Dead"); return; }
-        Destroy(3000);
+        if (Network.isServer)
+            _TimerA.AddMethod(3000, RPCDestroy);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", dead);
         enabled = false;
     }
-
+    [RPC]
+    void RPCDestroy()
+    {
+        CallRPC(true);
+        Destroy();
+    }
     public Texture dead;
     protected override void Start()
     {
@@ -39,16 +45,15 @@ public class Zombie : IPlayer
                 p += r * new Vector3(0, 0, speed * Time.deltaTime);
                 oldpos = p;
             }
-            else
-                if (ipl.isOwner && _TimerA.TimeElapsed(1000))
-                {                    
-                    _localiplayer.killedyby = null;
-                    _localiplayer.RPCSetLife(ipl.Life - 10);
+            else if (ipl.isOwner && _TimerA.TimeElapsed(1000))
+                {
+                    ipl.killedyby = null;
+                    ipl.RPCSetLife(ipl.Life - 10);
                 }
         }
     }
     void OnCollisionEnter(Collision collisionInfo)
-    {
+    {        
         Base b = collisionInfo.gameObject.GetComponent<Base>();
         if (b != null && b is box && !(b is Player) && enabled &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
@@ -65,4 +70,11 @@ public class Zombie : IPlayer
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
 
 
+    [RPC]    
+    public void RPCSetup(float zombiespeed, int zombieLife)
+    {
+        CallRPC(true, zombiespeed, zombieLife);                
+        speed = zombiespeed;
+        Life = zombieLife;
+    }
 }

@@ -44,9 +44,9 @@ public class BulletMini : BulletBase
         }
 
         if (iplayer != null && iplayer.isController && !iplayer.isdead)
-        {            
-            iplayer.killedyby = OwnerID.Value;
-            iplayer.RPCSetLife(iplayer.Life - damage);
+        {
+
+            iplayer.RPCSetLife(-damage, OwnerID.Value);
         }
         
     }

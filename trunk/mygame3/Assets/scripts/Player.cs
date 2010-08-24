@@ -4,7 +4,7 @@ using doru;
 using System.Collections.Generic;
 using System;
 
-public enum Team : int { ata, def }
+public enum Team : int { None, ata, def }
 public class Player : IPlayer
 {
     public CarController car;
@@ -13,13 +13,15 @@ public class Player : IPlayer
     public Transform bloodexp;
     public float force = 400;
     public int frags;
-    public float angularvel = 600;
+    internal float angularvel = 1000;
     public float frozentime;
     public float maxVelocityChange = 10.0f;
+    public Renderer FrozenRender;
     public string Nick;    
     GuiBlood blood { get { return GuiBlood._This; } }    
     protected override void Start()
     {        
+        
         base.Start();
         if (networkView.isMine)
         {            
@@ -63,8 +65,13 @@ public class Player : IPlayer
     //}
     
     protected override void Update() 
-    {        
-        
+    {
+        if (frozentime > 0)
+        {
+            frozentime -= Time.deltaTime;
+            FrozenRender.enabled = true;
+        }
+        else FrozenRender.enabled=false;
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
 
 
@@ -87,11 +94,12 @@ public class Player : IPlayer
             }
             if (Input.GetKeyDown(KeyCode.Alpha3))
                 RCPSelectGun(2);
-            if (Input.GetKey(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
                 rigidbody.angularVelocity = Vector3.zero;
             }
+            
         }
         base.Update();
     }
@@ -130,8 +138,7 @@ public class Player : IPlayer
             moveDirection.y = 0;
             moveDirection.Normalize();
             this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.deltaTime * angularvel);
-
-            this.rigidbody.AddForce(moveDirection * Time.deltaTime * force);
+            this.rigidbody.maxAngularVelocity = (FrozenRender.enabled || Input.GetKey(KeyCode.Space) ? 10 : 30);            
         }
     }
     protected override void OnConsole(string s)  
@@ -194,8 +201,8 @@ public class Player : IPlayer
         {
             print("ErroR FrFire" + players[b.OwnerID.Value].team + " " + team);
             Debug.Break();
-            killedyby = b.OwnerID;
-            RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
+
+            RPCSetLife(-(int)collisionInfo.impactForceSum.sqrMagnitude / 2, b.OwnerID);
         }
     }
     [RPC]
@@ -205,33 +212,48 @@ public class Player : IPlayer
         Nick = nick;
     }
     [RPC]
-    public override void RPCSetLife(int NwLife)
-    {
+    public override void RPCSetLife(int NwLife, NetworkPlayer killedby)
+    {        
         if (!enabled) return;
-        CallRPC(true, NwLife);
+        CallRPC(true, NwLife, killedby);
         if (isOwner)
-            blood.Hit(Mathf.Abs(NwLife - Life));        
-        base.RPCSetLife(NwLife);
+            blood.Hit(Mathf.Abs(NwLife)*4);
+
+
+        if (killedby == de || dm || players[killedby].team != team)
+        {
+            if (killedby == de || dm)
+                Life += NwLife;
+            else
+            {
+                if (zombi)
+                    frozentime += NwLife;
+                else if (tdm)
+                    Life += NwLife;
+            }
+        }
+        if (Life < 0)
+            Die(killedby);
 
     }
-    public override void RPCDie()
+    public override void Die(NetworkPlayer killedby)
     {        
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
         a.Destroy(5000);
         a.transform.parent = _Spawn.effects;
         if (isOwner)
         {
-            if (!_Spawn.zombiesenabled) _TimerA.AddMethod(10000, RPCSpawn);
+            if (!zombi) _TimerA.AddMethod(10000, RPCSpawn);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
             {
-                if (p.OwnerID == killedyby)
+                if (p.OwnerID == killedby)
                 {
                     if (p.isOwner)
                     {                        
                         _Loader.rpcwrite(_LocalPlayer.Nick + " died byself");
                         _LocalPlayer.RPCSetFrags(-1);
                     }
-                    else if (p.team != _LocalPlayer.team)
+                    else if (p.team != _LocalPlayer.team || dm)
                     {
                         _Loader.rpcwrite(p.Nick + " killed " + _LocalPlayer.Nick);
                         p.RPCSetFrags(+1);
@@ -244,7 +266,7 @@ public class Player : IPlayer
                     }
                 }
             }
-            if (killedyby==null)
+            if (killedby==null)
             {
                 _Loader.rpcwrite(_LocalPlayer.Nick + " screwed");
                 _LocalPlayer.RPCSetFrags(-1);
@@ -270,8 +292,9 @@ public class Player : IPlayer
         return velocityChange;
     }
     public override Vector3 SpawnPoint()
-    {
+    {        
         Transform t= _Spawn.transform.Find(team.ToString());
+        
         return t.GetChild(UnityEngine.Random.Range(0, t.childCount)).transform.position;
     }
     [RPC]

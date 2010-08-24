@@ -7,7 +7,7 @@ using System.IO;
 
 public class Spawn : Base
 {
-    public bool zombiesenabled;
+    
     public Transform _Player;
     public Transform Zombie;
     public List<IPlayer> iplayers = new List<IPlayer>();
@@ -40,7 +40,7 @@ public class Spawn : Base
             
     void Update()
     {
-        if (zombiesenabled)
+        if (zombi)
         {
             waittime -= Time.deltaTime;
             if (waittime < 0 && _localiplayer != null && Network.isServer)
@@ -83,7 +83,8 @@ public class Spawn : Base
             t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
         else
             t = _LocalPlayer.transform;
-        t.GetComponent<Player>().RPCSetTeam((int)team);
+        if (tdm || zombi)
+            t.GetComponent<Player>().RPCSetTeam((int)team);
 
     }
     

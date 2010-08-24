@@ -17,18 +17,13 @@ public class GunBazoka : GunBase
 
         base.FixedUpdate();
     }
-    
-    
-    protected override void LocalShoot()
-    {
-        Transform t = GetRotation();
-        RPCShoot(t.position, t.rotation);        
-    }
+
+
 
     
 
     [RPC]
-    private void RPCShoot(Vector3 pos,Quaternion rot)
+    protected override void RPCShoot(Vector3 pos,Quaternion rot)
     {
         CallRPC(false, pos, rot);
         GetComponentInChildren<AudioSource>().Play();       

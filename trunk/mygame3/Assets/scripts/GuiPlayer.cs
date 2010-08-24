@@ -22,7 +22,7 @@ public class GuiPlayer : Base
 
     public void PlayerWindow(int q)
     {
-        if (_Spawn.zombiesenabled)
+        if (zombi)
         {
             GUILayout.Label("Stage: " + _Spawn.stage);
             GUILayout.Label("Zombies Left: " + _Spawn.zombies.Count);

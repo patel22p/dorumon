@@ -83,9 +83,13 @@ public class CarController : Car
     bool nitroenabled;
     protected virtual void FixedUpdate()
     {
+        
 
-        if (nitroenabled && nitro > 0)
+        if (nitroenabled)
         {
+            if (nitro < 0 && isOwner)
+                RPCNitro(false);
+
             foreach (Renderer r in nitropref.GetComponentsInChildren<Renderer>())
                 r.enabled = true;
             this.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, 50000));
@@ -105,7 +109,7 @@ public class CarController : Car
         rigidbody.velocity = Vector3.zero;
         _Spawn.players[np].car = null;
     }
-    public override void RPCDie()
+    public override void Die(NetworkPlayer killedby)
     {
 
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
@@ -116,8 +120,7 @@ public class CarController : Car
             RPCCarOut(Network.player);
             _localiplayer = _LocalPlayer;
             RPCResetOwner();
-            _LocalPlayer.killedyby = killedyby;
-            _LocalPlayer.RPCSetLife(-2);
+            _LocalPlayer.RPCSetLife(-200, killedby); 
             Screen.lockCursor = false;
         }
 

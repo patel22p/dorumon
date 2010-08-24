@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-public class GunBase : Base
+public abstract class GunBase : Base
 {
     public float interval = 1;
     float lt;
@@ -10,7 +10,7 @@ public class GunBase : Base
     {
         bullets = def;
     }
-    
+
     public virtual void DisableGun()
     {
         Show(false);
@@ -21,7 +21,7 @@ public class GunBase : Base
 
 
     }
-    public Quaternion q;    
+    public Quaternion q;
     protected virtual void FixedUpdate()
     {
         //if(Root(this.gameObject).name == "LocalPlayer")
@@ -47,16 +47,17 @@ public class GunBase : Base
     public Transform cursor;
     public Transform GetRotation()
     {
-        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
-        ray.origin = ray.GetPoint(10);
-        RaycastHit h;
+        RaycastHit h = ScreenRay();
+
         Transform t = cursor;
-        if (Physics.Raycast(ray, out h, float.MaxValue, collmask))
+        if (h.point != default(Vector3))
             t.LookAt(h.point);
         else
             t.rotation = _Cam.transform.rotation;
         return t;
     }
+
+    
 
     public Transform _Patron;
     protected virtual void LocalUpdate()
@@ -71,20 +72,23 @@ public class GunBase : Base
                 LocalShoot();
             }
             else
-            {                
+            {
                 _LocalPlayer.NextGun(1);
             }
         }
     }
 
+    protected virtual void RPCShoot(Vector3 pos, Quaternion rot) { }
+
     protected virtual void LocalShoot()
     {
-        UpdateAim();
+        Transform t = GetRotation();
+        RPCShoot(t.position, t.rotation);
     }
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled) return;
-        if (isOwner) q = _Cam .transform.rotation;
+        if (isOwner) q = _Cam.transform.rotation;
         stream.Serialize(ref q);
         transform.rotation = q;
     }

@@ -3,16 +3,24 @@ using System.Collections;
 
 public class Zombie : IPlayer
 {
-    [RPC]
-    public override void RPCDie()
-    {
-        CallRPC(true);        
+    
+    public override void Die(NetworkPlayer killedyby)
+    {        
         if (!enabled) { Debug.Log("Zombie AlreadY Dead"); return; }
         if (Network.isServer)
             _TimerA.AddMethod(3000, RPCDestroy);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", dead);
         enabled = false;
+        foreach (Player p in players.Values)
+        {
+            if (p.OwnerID == killedyby)
+            {                
+                p.RPCSetFrags(+1);
+            }
+        }
     }
+
+
     [RPC]
     void RPCDestroy()
     {
@@ -46,21 +54,20 @@ public class Zombie : IPlayer
                 oldpos = p;
             }
             else if (ipl.isOwner && _TimerA.TimeElapsed(1000))
-                {
-                    ipl.killedyby = null;
-                    ipl.RPCSetLife(ipl.Life - 10);
-                }
+            {                                
+                ipl.RPCSetLife(-10,de);
+            }
         }
     }
     void OnCollisionEnter(Collision collisionInfo)
-    {        
+    {
         Base b = collisionInfo.gameObject.GetComponent<Base>();
         if (b != null && b is box && !(b is Player) && enabled &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
-            killedyby = b.OwnerID;
-            RPCSetLife(Life - (int)collisionInfo.impactForceSum.sqrMagnitude / 2);
+
+            RPCSetLife(-(int)collisionInfo.impactForceSum.sqrMagnitude / 2, b.OwnerID);
         }
     }
     public float speed = .3f;
@@ -70,10 +77,10 @@ public class Zombie : IPlayer
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
 
 
-    [RPC]    
+    [RPC]
     public void RPCSetup(float zombiespeed, int zombieLife)
     {
-        CallRPC(true, zombiespeed, zombieLife);                
+        CallRPC(true, zombiespeed, zombieLife);
         speed = zombiespeed;
         Life = zombieLife;
     }

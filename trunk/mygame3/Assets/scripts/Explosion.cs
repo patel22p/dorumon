@@ -16,9 +16,8 @@ public class Explosion : Base
             if (dist < maxdistance && ip.isController && !ip.isdead)
             {
                 if (ip.isOwner)
-                    _Cam.ran = r;
-                ip.killedyby = OwnerID;
-                ip.RPCSetLife(ip.Life - maxdamage);
+                    _Cam.ran = r;                
+                ip.RPCSetLife(- maxdamage,OwnerID);
             }
         }
     }

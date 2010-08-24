@@ -7,7 +7,7 @@ public abstract class IPlayer : box
 {
     public Transform title;
     public Transform mesh;
-    public IPlayer killedyby;
+    
     public int Life;
     public Transform CamPos;
     public bool isdead { get { return !enabled; } }
@@ -31,21 +31,29 @@ public abstract class IPlayer : box
         base.Start();
     }
 
-
+    //float shownicktime;
+    bool IsPointed()
+    {
+        RaycastHit rah = ScreenRay();
+        if (rah.collider == null) return false;
+        return rah.collider.gameObject == this.gameObject;
+    }
     protected override void Update()
     {
-        nitro += Time.deltaTime / 5;
+        if(isOwner)
+            nitro += Time.deltaTime / 5;
 
         if (mesh != null)
         {
-            if (OwnerID != null)
+            if (OwnerID != null && (team == Team.ata || team == Team.def))
                 mesh.renderer.material.color = team == Team.ata ? Color.red : Color.blue;
             else
                 mesh.renderer.material.color = Color.white;
         }
-        if (title != null)
+        
+        if (title != null && _TimerA.TimeElapsed(5000))
         {
-            if (OwnerID != null && !isOwner && _LocalPlayer != null && _LocalPlayer.team == team)
+            if (OwnerID != null && !isOwner && _LocalPlayer != null && ((_LocalPlayer.team == team && !dm) || IsPointed()))
                 title.GetComponent<TextMesh>().text = _Spawn.players[OwnerID.Value].Nick;
             else
                 title.GetComponent<TextMesh>().text = "";
@@ -55,19 +63,21 @@ public abstract class IPlayer : box
     }
     public float nitro =10;
     [RPC]
-    public virtual void RPCSetLife(int NwLife)
-    {        
+    public virtual void RPCSetLife(int NwLife, NetworkPlayer killedby)
+    {
+        
         if (!enabled) return;        
-        CallRPC(true, NwLife);
+        CallRPC(true, NwLife,killedby);
 
-        if (killedyby == null || killedyby.team != team)
-            Life = NwLife;
-        if (NwLife < 0)
-            RPCDie();
+        if (killedby == de || players[killedby].team != team)
+            Life += NwLife;
+
+        if (Life < 0)
+            Die(killedby);
     }
     
     [RPC]
-    public abstract void RPCDie();
+    public abstract void Die(NetworkPlayer killedby);
 
 
     

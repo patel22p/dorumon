@@ -2,18 +2,14 @@
 using System.Collections;
 public class GunMini : GunBase
 {
-    protected override void LocalShoot()
-    {
-        
-        Transform t = GetRotation();
-        RPCShoot(t.position, t.rotation);        
-    }
+
+    
     public Renderer render;
     public Light light1;
     public Transform gilza;
     public Transform gilzaPlaceHolder;
     [RPC]
-    private void RPCShoot(Vector3 vector3, Quaternion quaternion)
+    protected override void RPCShoot(Vector3 vector3, Quaternion quaternion)
     {        
         CallRPC(false, vector3, quaternion);
         if (gilza != null)

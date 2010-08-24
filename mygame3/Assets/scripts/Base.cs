@@ -39,13 +39,21 @@ public class Base : Base2 , IDisposable
             if (b.owner == pl) return b;
         return null;
     }
+    public static NetworkPlayer de;
+    public static RaycastHit ScreenRay()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
+        ray.origin = ray.GetPoint(10);
+        RaycastHit h;
+        Physics.Raycast(ray, out h, float.MaxValue, collmask);
+        return h;
+    }
 
-    
     public static GameObject Root(GameObject g)
     {
         return Root(g.transform).gameObject;
     }
-    public int collmask = 1 << 8 | 1 << 9;
+    static internal int collmask = 1 << 8 | 1 << 9;
     public static Transform Root(Transform g)
     {
         Transform p = g;
@@ -137,6 +145,9 @@ public class Base : Base2 , IDisposable
             yield return t.GetChild(i);
         }
     }
+    public bool zombi { get { return _Loader.gameMode == Loader.GameMode.TeamZombieSurvive; } }
+    public bool tdm { get { return _Loader.gameMode == Loader.GameMode.TeamDeathMatch; } }
+    public bool dm { get { return _Loader.gameMode == Loader.GameMode.DeathMatch; } }
     private void Active(bool value, Transform t)
     {
         for (int i = 0; i < t.transform.childCount; i++)

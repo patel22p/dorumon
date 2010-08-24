@@ -93,38 +93,57 @@ public class Loader : Base
         GUI.DragWindow();
     }
     GuiConnection _GuiConnection { get { return GuiConnection._This; } }
+    public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive }
+    internal GameMode gameMode = GameMode.TeamZombieSurvive;
     private void ConsoleWindow(int id)
     {
         if (Application.loadedLevelName == disconnectedLevel)
         {
             if (Network.isServer)
+            {
                 foreach (string level in supportedNetworkLevels)
                     if (GUILayout.Button(level))
-                        LoadLevelRPC(level);            
+                    {
+                        SetGameMode((int)gameMode);
+                        LoadLevelRPC(level);
+                    }
+                gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive" });
+            }
         }
 
         GUILayout.Space(20);
         if (_Spawn != null)
         {
-            int rs = 0, bs = 0;
-
-            GUILayout.Label("Team " + "Blue Team");
-            foreach (Player pl in FindObjectsOfType(typeof(Player)))
-                if (pl.team == Team.def && pl.OwnerID != null)
+            if (dm)
+            {
+                foreach (Player pl in FindObjectsOfType(typeof(Player)))
+                    if (pl.OwnerID != null)
+                        PrintPlayer(pl);
+            }
+            else
+            {
+                int rs = 0, bs = 0;
+                
+                foreach (Player pl in FindObjectsOfType(typeof(Player)))
+                    if (pl.team == Team.ata && pl.OwnerID != null)
+                    {
+                        PrintPlayer(pl);
+                        rs += pl.frags;
+                    }
+                GUILayout.Label("Red Team Score:" + rs);                
+                foreach (Player pl in FindObjectsOfType(typeof(Player)))
+                    if (pl.team == Team.def && pl.OwnerID != null)
+                    {
+                        PrintPlayer(pl);
+                        bs += pl.frags;
+                    }
+                GUILayout.Label("Blue Team Score:" + bs);
+                if (zombi)
                 {
-                    GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
-                    rs += pl.frags;
+                    
+                    GUILayout.Label("Zombie Stage:" + _Spawn.stage);
                 }
-            GUILayout.Label("Red Team Score:" + rs);
-            GUILayout.Label("Team " + "Red Team");
-            foreach (Player pl in FindObjectsOfType(typeof(Player)))
-                if (pl.team == Team.ata && pl.OwnerID != null)
-                {
-                    GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
-                    bs += pl.frags;
-                }
-            GUILayout.Label("Blue Team Score:" + bs);
-            GUILayout.Label("Zombie Stage:" + _Spawn.stage);
+            }
         }
         GUILayout.BeginHorizontal();
         if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
@@ -141,7 +160,8 @@ public class Loader : Base
         GUILayout.EndHorizontal();
         if (_Spawn != null)
         {
-            if ((selectedTeam = GUILayout.Toolbar(selectedTeam, new string[] { "Spectator", "Red Team", "Blue Team" })) != old)
+            string[] arr = dm ? new string[] { "Spectator", "Join Game" } : new string[] { "Spectator", "Red Team", "Blue Team" };
+            if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
             {
                 old = selectedTeam;
                 _Spawn.OnTeamSelect(selectedTeam == 1 ? Team.ata : Team.def);
@@ -151,6 +171,17 @@ public class Loader : Base
         input = GUILayout.TextField(input);
         output = GUILayout.TextField(output);
         GUI.DragWindow();
+    }
+    [RPC]
+    private void SetGameMode(int p)
+    {
+        CallRPC(true,p);
+        gameMode = (GameMode)p;
+    }
+
+    private static void PrintPlayer(Player pl)
+    {
+        GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
     }
     bool options;
     int old = 0;

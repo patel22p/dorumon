@@ -12,10 +12,8 @@ public class box : Base
 {
     public Transform bounds;
     protected virtual void Start()
-    {
-
+    {        
         _Spawn.dynamic.Add(this);
-        bounds = GameObject.Find("bounds").transform;
         spawnpos = transform.position;
         if (!(this is Player))
         {
@@ -24,6 +22,7 @@ public class box : Base
             if (!Network.isServer)
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         }
+        bounds = GameObject.Find("bounds").transform;
     }
     protected Vector3 spawnpos;
     public virtual Vector3 SpawnPoint()
@@ -32,7 +31,7 @@ public class box : Base
     }
     protected virtual void Update()
     {
-        if (selected.HasValue)
+        if (selected != -1)
             id = selected.GetHashCode();
         else
             id = -2;
@@ -51,7 +50,7 @@ public class box : Base
             IPlayer nearp = null;
             foreach (IPlayer p in _Spawn.iplayers)
             {
-                if (p.enabled && p.OwnerID != null)
+                if (p.enabled && p.OwnerID != -1)
                 {
                     float dist = Vector3.Distance(p.transform.position, this.transform.position);
                     if (min > dist)
@@ -60,28 +59,27 @@ public class box : Base
                 }
             }
 
-            if (nearp == null || nearp.OwnerID == null) return;
+            if (nearp == null || nearp.OwnerID == -1) return;
             if (selected != nearp.OwnerID)
             {
-
-                networkView.RPC("SetController", RPCMode.AllBuffered, nearp.OwnerID.Value);
+                networkView.RPC("SetController", RPCMode.AllBuffered, nearp.OwnerID);
             }
         }
     }
 
-    public bool isController { get { return selected == Network.player; } }
-    public Vector3 pos;
-    Quaternion rot;
+    public bool isController { get { return selected == Network.player.GetHashCode(); } }
+    Vector3 pos;
+    Quaternion rot;  
     Vector3 velocity;
     Vector3 angularVelocity;
 
-    public NetworkPlayer? selected;
+    public int selected = -1;
     public int id = -3;
 
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled) return;
-        if (selected == Network.player || stream.isReading || (Network.isServer && info.networkView.owner == selected))
+        if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
             lock ("ser")
             {
@@ -94,7 +92,7 @@ public class box : Base
                 }
                 stream.Serialize(ref pos);
                 stream.Serialize(ref rot);
-                if (!(this is Zombie))
+                if (!(this is Zombie && ((Zombie)this).Alive))
                 {
                     stream.Serialize(ref velocity);
                     stream.Serialize(ref angularVelocity);

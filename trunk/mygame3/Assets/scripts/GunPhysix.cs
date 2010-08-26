@@ -9,7 +9,7 @@ public class GunPhysix : GunBase
     public float radius = 50;
     public float exp = 2000;
     public float expradius = 40;
-
+    public float scalefactor = 10;
     public bool power;
     
     
@@ -23,11 +23,9 @@ public class GunPhysix : GunBase
             if (bullets < exp) bullets+=80;
             foreach (Base b in _Spawn.dynamic)
             {
-                
                 if (b is bloodexp || b.GetType() == typeof(box))
                 {
-
-                    b.rigidbody.AddExplosionForce(-gravitaty, cursor.position, radius);
+                    b.rigidbody.AddExplosionForce(-gravitaty*scalefactor, cursor.position, radius);
                     b.rigidbody.velocity *= .97f;
                     b.OwnerID = Root(this.gameObject).GetComponent<Player>().OwnerID;
                 }
@@ -51,7 +49,7 @@ public class GunPhysix : GunBase
             foreach (Base b in _Spawn.dynamic)
                 if ((b is bloodexp || typeof(box) == b.GetType())
                     && Vector3.Distance(b.transform.position, cursor.position) < expradius)
-                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, bullets));
+                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, bullets*scalefactor));
             bullets = 0;
 
         }

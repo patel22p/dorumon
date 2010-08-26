@@ -27,7 +27,7 @@ public class Cam : Base
         x = angles.y;
         y = angles.x;
     }
-    public bool spectator;
+    
     float blurtime;
     void FixedUpdate()
     {
@@ -45,16 +45,16 @@ public class Cam : Base
 
         //transform.Find("pointer").rotation = Quaternion.LookRotation(this.transform.position- Find<Tower>().transform.position);
 
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab)) lockCursor = !lockCursor;
 
-        if (Screen.lockCursor)
+        if (lockCursor)
         {
             x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;
             y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 45);
-        if (spectator || _localiplayer == null || _localiplayer.isdead)
+        if (_localiplayer == null || _localiplayer.isdead)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Assets\Builtin skin\ShowSkin.cs" />
     <Compile Include="Assets\Editor\CreateFolders.cs" />
+    <Compile Include="Assets\Editor\MassMaterialEditor.cs" />
     <Compile Include="Assets\materials\GlowEffect.cs" />
     <Compile Include="Assets\materials\ImageEffectBase.cs" />
     <Compile Include="Assets\materials\ImageEffects.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Assets\scripts\GuiPlayer.cs" />
     <Compile Include="Assets\scripts\GunBase.cs" />
     <Compile Include="Assets\scripts\GunBazoka.cs" />
+    <Compile Include="Assets\scripts\GunHealth.cs" />
     <Compile Include="Assets\scripts\GunMini.cs" />
     <Compile Include="Assets\scripts\GunPhysix.cs" />
     <Compile Include="Assets\scripts\Helper.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Assets\scripts\Spawn.cs" />
     <Compile Include="Assets\scripts\Text3D.cs" />
     <Compile Include="Assets\scripts\Zombie.cs" />
+    <None Include="Assets\materials\ExternalLightmappingTool-Diffuse.shader" />
     <None Include="Assets\materials\FX-IslandWaterFull.shader" />
     <None Include="Assets\materials\FX-IslandWaterSimple.shader" />
     <None Include="Assets\materials\FX-UnderwaterSurface.shader" />
@@ -90,6 +93,9 @@
     <None Include="Assets\materials\Skidmarks.shader" />
     <None Include="Assets\Editor\HeightmapExportPNG.js" />
     <None Include="Assets\scripts\LightmapperObjectUV.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

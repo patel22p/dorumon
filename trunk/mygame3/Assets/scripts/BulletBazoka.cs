@@ -8,7 +8,7 @@ public class BulletBazoka : BulletBase
     
     public Transform exp;
     
-    protected NetworkPlayer killby;    
+    
     public float velocity;
 
     protected override void FixedUpdate()
@@ -26,6 +26,7 @@ public class BulletBazoka : BulletBase
         Transform o;
         Destroy(o = (Transform)Instantiate(exp, vector3, Quaternion.identity), 10);
         o.GetComponent<Explosion>().OwnerID = OwnerID;
+        
         if (Root(hit.collider.gameObject).tag == "Level" && decal != null)
         {
             

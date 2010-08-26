@@ -36,17 +36,16 @@ public class BulletMini : BulletBase
             Destroy(a = (Transform)Instantiate(blood, hit.point, transform.rotation),10);
             a.parent = _Spawn.effects;
         }
-        if (iplayer as Zombie != null)
-        {
-            Transform a;
-            Destroy(a = (Transform)Instantiate(bloodmat1, hit.point, transform.rotation), 10);
-             a.parent =iplayer.transform;
-        }
+        //if (iplayer as Zombie != null)
+        //{
+        //    Transform a;
+        //    Destroy(a = (Transform)Instantiate(bloodmat1, hit.point, transform.rotation), 10);
+        //     a.parent =iplayer.transform;
+        //}
 
         if (iplayer != null && iplayer.isController && !iplayer.isdead)
         {
-
-            iplayer.RPCSetLife(-damage, OwnerID.Value);
+            iplayer.RPCSetLife(-damage, OwnerID);
         }
         
     }

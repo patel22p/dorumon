@@ -8,18 +8,15 @@ using doru;
 public class Base : Base2 , IDisposable
 {
 
-    public int pwnerID2 = -2;
+    
     bool hidden;
 
 
-    NetworkPlayer? _OwnerID;
-    public NetworkPlayer? OwnerID
-    {
-        get { return _OwnerID; }
-        set { _OwnerID = value; pwnerID2 = value.HasValue ? value.Value.GetHashCode() : -2; }
-    }
-    public bool isOwner { get { return OwnerID == Network.player; } }
-    public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == null)); } }
+
+    public int OwnerID = -1;
+    
+    public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
+    public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }
     
 
     public TimerA _TimerA { get { return TimerA._This; } }
@@ -39,7 +36,7 @@ public class Base : Base2 , IDisposable
             if (b.owner == pl) return b;
         return null;
     }
-    public static NetworkPlayer de;
+    
     public static RaycastHit ScreenRay()
     {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
@@ -53,7 +50,7 @@ public class Base : Base2 , IDisposable
     {
         return Root(g.transform).gameObject;
     }
-    static internal int collmask = 1 << 8 | 1 << 9;
+    static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12;
     public static Transform Root(Transform g)
     {
         Transform p = g;
@@ -65,7 +62,7 @@ public class Base : Base2 , IDisposable
     }
     
     [RPC]
-    void RPCSetOwner(NetworkPlayer owner, NetworkMessageInfo ownerView)
+    void RPCSetOwner(int owner, NetworkMessageInfo ownerView)
     {
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
@@ -75,7 +72,7 @@ public class Base : Base2 , IDisposable
         }
     }
     [RPC]
-    public void SetController(NetworkPlayer owner)
+    public void SetController(int owner)
     {        
         lock ("ser")
             ((box)this).selected = owner;
@@ -85,12 +82,12 @@ public class Base : Base2 , IDisposable
     public void RPCResetOwner()
     {
         CallRPC(true);
-        ((box)this).selected=null;
+        ((box)this).selected=-1;
         //foreach (NetworkView otherView in this.GetComponents<NetworkView>())
         //    otherView.observed = null;
 
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
-            bas.OwnerID = null;
+            bas.OwnerID = -1;
 
     }
 
@@ -106,7 +103,7 @@ public class Base : Base2 , IDisposable
     }
     public void RPCSetOwner()
     {
-        myNetworkView.RPC("RPCSetOwner", RPCMode.AllBuffered, Network.player);
+        myNetworkView.RPC("RPCSetOwner", RPCMode.AllBuffered, Network.player.GetHashCode());
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
@@ -148,6 +145,8 @@ public class Base : Base2 , IDisposable
     public bool zombi { get { return _Loader.gameMode == Loader.GameMode.TeamZombieSurvive; } }
     public bool tdm { get { return _Loader.gameMode == Loader.GameMode.TeamDeathMatch; } }
     public bool dm { get { return _Loader.gameMode == Loader.GameMode.DeathMatch; } }
+    static bool _lockCursor;
+    public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
     private void Active(bool value, Transform t)
     {
         for (int i = 0; i < t.transform.childCount; i++)
@@ -173,7 +172,7 @@ public class Base : Base2 , IDisposable
         return a;
     }
 
-    public Dictionary<NetworkPlayer,Player> players { get { return _Spawn.players; } }
+    public Dictionary<int,Player> players { get { return _Spawn.players; } }
     public void Destroy()
     {        
         foreach (Base b in this.GetComponentsInChildren<Base>())

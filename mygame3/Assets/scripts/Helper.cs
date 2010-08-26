@@ -84,7 +84,10 @@ namespace doru
             ca._Miliseconds = _Miliseconds;
             _List.Add(ca);
         }
-
+        public void Clear()
+        {
+            _List.Clear();
+        }
         List<CA> _List = new List<CA>();
         class CA
         {

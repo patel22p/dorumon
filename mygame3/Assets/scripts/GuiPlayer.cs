@@ -26,12 +26,13 @@ public class GuiPlayer : Base
         {
             GUILayout.Label("Stage: " + _Spawn.stage);
             GUILayout.Label("Zombies Left: " + _Spawn.zombies.Count);
+            GUILayout.Label("FrozenTime: " + (int)_LocalPlayer.frozentime);
         }
 
         GUILayout.Label("Nitro: " + (int)_localiplayer.nitro);
         GUILayout.Label("Life: " + _localiplayer.Life);
         GUILayout.Label("Frags: " + _LocalPlayer.frags);
-        GUILayout.Label("Frozen: " + _LocalPlayer.frozentime);
+        
         foreach (GunBase gb in _LocalPlayer.guns)
             GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
         GUI.DragWindow();

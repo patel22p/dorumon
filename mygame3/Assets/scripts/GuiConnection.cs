@@ -46,7 +46,7 @@ public class GuiConnection : Base2
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) Screen.lockCursor = false;
+        //if (Input.GetKeyDown(KeyCode.Escape)) lockCursor = false;
     }            
     void OnGUI()
     {
@@ -79,9 +79,9 @@ public class GuiConnection : Base2
 
             GUILayout.Label("ipaddress:   port:5300");
             GUILayout.BeginHorizontal();    
-            ip = GUILayout.TextField(ip);
+            ip = GUILayout.TextField(ip,20);
             
-            int.TryParse(GUILayout.TextField(port.ToString()), out port);
+            int.TryParse(GUILayout.TextField(port.ToString(),10), out port);
             GUILayout.EndHorizontal();
             if (GUILayout.Button("Connect"))
             {
@@ -93,9 +93,9 @@ public class GuiConnection : Base2
                     print("Enter username first");
             }
             GUILayout.Label("MasterServer:");
-            ip2 = GUILayout.TextField(ip2);
+            ip2 = GUILayout.TextField(ip2, 20);
             GUILayout.Label("NickName:");
-            Nick = GUILayout.TextField(Nick);
+            Nick = GUILayout.TextField(Nick,20);
 
             if (GUILayout.Button("host"))
                 if (Nick.Length > 0)

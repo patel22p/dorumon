@@ -17,15 +17,15 @@ public class Player : IPlayer
     public float frozentime;
     public float maxVelocityChange = 10.0f;
     public Renderer FrozenRender;
-    public string Nick;    
-    GuiBlood blood { get { return GuiBlood._This; } }    
+    public string Nick;
+    GuiBlood blood { get { return GuiBlood._This; } }
     protected override void Start()
-    {        
-        
+    {
+
         base.Start();
         if (networkView.isMine)
-        {            
-            _localiplayer =_LocalPlayer = this;
+        {
+            _localiplayer = _LocalPlayer = this;
             RPCSetNick(GuiConnection.Nick);
             RPCSetOwner();
             RPCSpawn();
@@ -37,7 +37,7 @@ public class Player : IPlayer
     {
         CallRPC(true);
         Show(true);
-        RCPSelectGun(1);
+        RPCSelectGun(1);
         foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = 100;
@@ -63,27 +63,31 @@ public class Player : IPlayer
     //        return Network.isServer ? _LocalPlayer : _Spawn.players[Network.connections[0]];
     //    }
     //}
-    
-    protected override void Update() 
+
+    protected override void Update()
     {
-        if (frozentime > 0)
+        if (frozentime >= 0)
         {
-            frozentime -= Time.deltaTime;
+            frozentime -= Time.deltaTime * 5;
             FrozenRender.enabled = true;
         }
-        else FrozenRender.enabled=false;
+        else FrozenRender.enabled = false;
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
 
 
         if (_TimerA.TimeElapsed(1000) && isOwner && _Spawn.players.Count > 0 && Network.connections.Length > 0)
             RPCPingFps(Network.GetLastPing(Network.connections[0]), _Loader.fps);
-        if (isOwner && Screen.lockCursor)
+        if (isOwner && lockCursor)
         {
             NextGun(Input.GetAxis("Mouse ScrollWheel"));
             if (Input.GetKeyDown(KeyCode.Alpha1))
-                RCPSelectGun(0);
+                RPCSelectGun(0);
             if (Input.GetKeyDown(KeyCode.Alpha2))
-                RCPSelectGun(1);
+                RPCSelectGun(1);
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+                RPCSelectGun(2);
+            if (Input.GetKeyDown(KeyCode.Alpha4))
+                RPCSelectGun(3);
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
                 if (nitro > 10)
@@ -92,27 +96,26 @@ public class Player : IPlayer
                     RCPJump();
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-                RCPSelectGun(2);
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
                 rigidbody.angularVelocity = Vector3.zero;
             }
-            
+
         }
         base.Update();
     }
-    
+
     [RPC]
     private void RCPJump()
     {
-        CallRPC(true);        
+        CallRPC(true);
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));
     }
 
     public void NextGun(float a)
-    {        
+    {
         if (a != 0)
         {
             transform.Find("Guns").GetComponent<AudioSource>().Play();
@@ -122,7 +125,7 @@ public class Player : IPlayer
                 guni--;
             if (guni > guns.Length - 1) guni = 0;
             if (guni < 0) guni = guns.Length - 1;
-            RCPSelectGun(guni);
+            RPCSelectGun(guni);
         }
     }
     protected virtual void FixedUpdate()
@@ -131,78 +134,60 @@ public class Player : IPlayer
     }
     private void LocalMove()
     {
-        if (Screen.lockCursor)
+        if (lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
             moveDirection.y = 0;
             moveDirection.Normalize();
             this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.deltaTime * angularvel);
-            this.rigidbody.maxAngularVelocity = (FrozenRender.enabled || Input.GetKey(KeyCode.Space) ? 10 : 30);            
+            this.rigidbody.maxAngularVelocity = (FrozenRender.enabled || Input.GetKey(KeyCode.Space) ? 10 : 30);
         }
     }
-    protected override void OnConsole(string s)  
-    {
-        if (s == "spec" && isOwner)
-        {
-            if (_Cam.spectator == true)
-            {
-                _Cam.spectator = false;
-                RPCSpawn();
-            }
-            else
-                if (_Cam.spectator == false && enabled)
-                {
-                    print("u are now spectator");
-                    RPCSpec();
-                }
 
-        }
-    }
     [RPC]
     public void RPCSetTeam(int t)
     {
         CallRPC(true, t);
-        team =   (Team)t;
-        
+        team = (Team)t;
     }
+    public bool dead { get { return !enabled && car == null; } }
     public override void OnSetID()
     {
         if (isOwner)
             name = "LocalPlayer";
         else
-            name = "RemotePlayer" + OwnerID;        
-        _Spawn.players.Add(OwnerID.Value, this);
+            name = "RemotePlayer" + OwnerID;
+        _Spawn.players.Add(OwnerID, this);
     }
     [RPC]
-    public void RCPSelectGun(int i)
+    public void RPCSelectGun(int i)
     {
         CallRPC(true, i);
         foreach (GunBase gb in guns)
             gb.DisableGun();
-        guns[i].EnableGun();      
-        
+        guns[i].EnableGun();
+
     }
     [RPC]
     private void RPCSpec()
     {
         Show(false);
-        _Cam.spectator = true;
-
     }
-    
+    public override void Dispose()
+    {
+        players.Remove(networkView.owner.GetHashCode());
+        base.Dispose();
+    }
     void OnCollisionEnter(Collision collisionInfo)
     {
         box b = collisionInfo.gameObject.GetComponent<box>();
-        if (b != null && isOwner && !b.isOwner && b.OwnerID != null && players[b.OwnerID.Value].team != team &&
-            !(b is Player) && !(b is Zombie) && 
+        if (b != null && isOwner && b.OwnerID != -1 && (b.isOwner || players[b.OwnerID].team != team || dm) &&
+            !(b is Player) && !(b is Zombie) &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
-            print("ErroR FrFire" + players[b.OwnerID.Value].team + " " + team);
-            Debug.Break();
-
-            RPCSetLife(-(int)collisionInfo.impactForceSum.sqrMagnitude / 2, b.OwnerID);
+            RPCSetLife(-Math.Min(110, (int)collisionInfo.impactForceSum.sqrMagnitude / 2), b.OwnerID);
         }
     }
     [RPC]
@@ -211,23 +196,33 @@ public class Player : IPlayer
         CallRPC(true, nick);
         Nick = nick;
     }
+    const int life = 100;
     [RPC]
-    public override void RPCSetLife(int NwLife, NetworkPlayer killedby)
-    {        
-        if (!enabled) return;
+    public override void RPCHealth()
+    {
+        CallRPC(true);
+        if (Life < life)
+            Life += 10;
+        if (frozentime > 0)
+            frozentime -= 20;
+        guns[0].bullets += 10;
+    }
+
+    [RPC]
+    public override void RPCSetLife(int NwLife, int killedby)
+    {
         CallRPC(true, NwLife, killedby);
         if (isOwner)
-            blood.Hit(Mathf.Abs(NwLife)*4);
+            blood.Hit(Mathf.Abs(NwLife) * 2);
 
-
-        if (killedby == de || dm || players[killedby].team != team)
+        if (isEnemy(killedby))
         {
-            if (killedby == de || dm)
+            if (killedby == -1 || dm)
                 Life += NwLife;
             else
             {
                 if (zombi)
-                    frozentime += NwLife;
+                    frozentime -= NwLife;
                 else if (tdm)
                     Life += NwLife;
             }
@@ -236,20 +231,21 @@ public class Player : IPlayer
             Die(killedby);
 
     }
-    public override void Die(NetworkPlayer killedby)
-    {        
+    public override void Die(int killedby)
+    {
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
         a.Destroy(5000);
         a.transform.parent = _Spawn.effects;
         if (isOwner)
         {
             if (!zombi) _TimerA.AddMethod(10000, RPCSpawn);
+            print(_Loader.gameMode);
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
             {
                 if (p.OwnerID == killedby)
                 {
                     if (p.isOwner)
-                    {                        
+                    {
                         _Loader.rpcwrite(_LocalPlayer.Nick + " died byself");
                         _LocalPlayer.RPCSetFrags(-1);
                     }
@@ -266,25 +262,25 @@ public class Player : IPlayer
                     }
                 }
             }
-            if (killedby==null)
+            if (killedby == -1)
             {
                 _Loader.rpcwrite(_LocalPlayer.Nick + " screwed");
                 _LocalPlayer.RPCSetFrags(-1);
             }
 
-            Screen.lockCursor = false;
-        }        
+            lockCursor = false;
+        }
         Show(false);
-        
+
     }
 
     [RPC]
     public void RPCSetFrags(int i)
     {
         CallRPC(true, i);
-        frags += i; 
+        frags += i;
     }
-    public static Vector3 Clamp(Vector3 velocityChange,float maxVelocityChange)
+    public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
         velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
@@ -292,16 +288,16 @@ public class Player : IPlayer
         return velocityChange;
     }
     public override Vector3 SpawnPoint()
-    {        
-        Transform t= _Spawn.transform.Find(team.ToString());
-        
+    {
+        Transform t = _Spawn.transform.Find(team.ToString());
+
         return t.GetChild(UnityEngine.Random.Range(0, t.childCount)).transform.position;
     }
     [RPC]
     public void RPCCarIn()
     {
         CallRPC(true);
-        
-        Show(false);                
+
+        Show(false);
     }
 }

@@ -7,13 +7,14 @@ public class CarController : Car
 {
     public Transform exp;
     public Transform nitropref;
-
+    Renderer[] nitroprerrenderrs;
     protected override void Start()
     {
+        nitroprerrenderrs = nitropref.GetComponentsInChildren<Renderer>();
         base.Start();
         rigidbody.angularDrag = 5;
         StartCar();
-        Life = 200;
+        Life = life;
         Reset();
 
     }
@@ -21,10 +22,10 @@ public class CarController : Car
     double timedown1;
     protected override void Update()
     {
-        audio.enabled = OwnerID != null;
+        audio.enabled = OwnerID != -1;
         base.Update();
         if (_LocalPlayer == null) return;
-        rigidbody.drag = OwnerID == null ? 1 : 0;
+        rigidbody.drag = OwnerID == -1 ? 1 : 0;
         if (isOwner)
         {
             if (Mathf.Abs(clamp(transform.rotation.eulerAngles.z)) > 70 || Mathf.Abs(clamp(transform.rotation.eulerAngles.x)) > 70)
@@ -35,8 +36,6 @@ public class CarController : Car
             {
                 transform.rotation = Quaternion.identity;
             }
-
-
             brake = Mathf.Clamp01(-Input.GetAxis("Vertical"));
             handbrake = Input.GetButton("Jump") ? 1f : 0.0f;
             steer = Input.GetAxis("Horizontal");
@@ -47,10 +46,10 @@ public class CarController : Car
             if (Input.GetKeyDown(KeyCode.F))
             {
                 _LocalPlayer.RPCShow(true);
-                _LocalPlayer.RCPSelectGun(1);
+                _LocalPlayer.RPCSelectGun(1);
                 _LocalPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
                 _localiplayer = _LocalPlayer;
-                RPCCarOut(Network.player);
+                RPCCarOut(Network.player.GetHashCode());
                 RPCResetOwner();
             }
             //if (Input.GetButton("Jump")) rigidbody.velocity *= .99f;
@@ -58,12 +57,12 @@ public class CarController : Car
         else
         {
             if (transform.Find("door").collider.bounds.Contains(_LocalPlayer.transform.position)
-                && _LocalPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == null)
+                && _LocalPlayer.enabled && Input.GetKeyDown(KeyCode.F) && OwnerID == -1)
             {
                 _LocalPlayer.RPCShow(false);
                 RPCSetOwner();
                 _localiplayer = this;
-                RPCCarIn(Network.player);
+                RPCCarIn(Network.player.GetHashCode());
             }
         }
     }
@@ -74,7 +73,7 @@ public class CarController : Car
         nitroenabled = p;
     }
     [RPC]
-    private void RPCCarIn(NetworkPlayer np)
+    private void RPCCarIn(int np)
     {
         CallRPC(true, np);
         _Spawn.players[np].car = this;
@@ -90,38 +89,47 @@ public class CarController : Car
             if (nitro < 0 && isOwner)
                 RPCNitro(false);
 
-            foreach (Renderer r in nitropref.GetComponentsInChildren<Renderer>())
+            foreach (Renderer r in nitroprerrenderrs)
                 r.enabled = true;
             this.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, 50000));
             nitro -= .2f;
         }
         else
-            foreach (Renderer r in nitropref.GetComponentsInChildren<Renderer>())
+            foreach (Renderer r in nitroprerrenderrs)
                 r.enabled = false;
                 
-        if (OwnerID != null)
+        if (OwnerID != -1)
             FixedUpdateCar();
     }
     [RPC]
-    private void RPCCarOut(NetworkPlayer np)
+    private void RPCCarOut(int np)
     {
         CallRPC(true, np);
         rigidbody.velocity = Vector3.zero;
         _Spawn.players[np].car = null;
     }
-    public override void Die(NetworkPlayer killedby)
-    {
 
+    [RPC]
+    public override void RPCHealth()
+    {
+        CallRPC(true);
+        if (Life < life)
+            Life += 30;
+        guns[0].bullets += 50;
+    }
+
+    public override void Die(int killedby)
+    {        
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
         if (isOwnerOrServer)
             _TimerA.AddMethod(10000, RPCSpawn);
         if (isOwner)
         {
-            RPCCarOut(Network.player);
+            RPCCarOut(Network.player.GetHashCode());
             _localiplayer = _LocalPlayer;
-            RPCResetOwner();
+            RPCResetOwner();            
             _LocalPlayer.RPCSetLife(-200, killedby); 
-            Screen.lockCursor = false;
+            lockCursor = false;
         }
 
         Destroy(Instantiate(brokencar, transform.position, transform.rotation), 20);

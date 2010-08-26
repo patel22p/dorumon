@@ -63,7 +63,7 @@ public abstract class GunBase : Base
     protected virtual void LocalUpdate()
     {
 
-        if (Time.time - lt > interval && Input.GetMouseButton(0) && Screen.lockCursor)
+        if (Time.time - lt > interval && Input.GetMouseButton(0) && lockCursor && _LocalPlayer.frozentime<0)
         {
             if (bullets > 0)
             {

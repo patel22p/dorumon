@@ -21,7 +21,7 @@ public class Spawn : Base
     }
     void Start()
     {
-
+        zombiesleft = _Loader.fraglimit;
         AudioListener.volume = .1f;
         if (Network.isServer)
         {            
@@ -32,50 +32,65 @@ public class Spawn : Base
 
     }
     public Transform effects;
-    internal int ZombieStageLimit = 20;
-    int zombilesleft = 5;
-    float ZombieSpeed = 1;
-    float waittime = 2;
+    internal int zombiesleft;
+    float ZombieSpeed = 1;    
     internal int stage = 1;
-            
+    bool wait;  
     void Update()
     {
         if (zombi)
-        {
-            waittime -= Time.deltaTime;
-            if (waittime < 0 && _localiplayer != null && Network.isServer)
+        {            
+            if (players.Count != 0 && Network.isServer)
             {
-                if (_TimerA.TimeElapsed(2000) && zombilesleft != 0)
+                if (_TimerA.TimeElapsed(2000) && zombiesleft != 0)
                 {
                     Transform zsp = transform.Find("zsp");
                     Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
-                    Zombie z = ((Transform)Network.Instantiate(Zombie, a.position, a.rotation, (int)Group.Zombie)).GetComponent<Zombie>();
-                    z.RPCSetup(5 + ZombieSpeed * stage + UnityEngine.Random.Range(-2 * stage, 2 * stage),
-                        100 + 10 * stage);
-                    
-                    zombilesleft--;
+                    CreateZombie(a.position);                    
+                    zombiesleft--;
                 }
-                if (zombilesleft == 0 && zombies.Count == 0)
+                if (zombiesleft == 0 && zombies.Count == 0 && !wait)
                 {
-                    waittime = 2;
-                    zombilesleft = ZombieStageLimit;
-                    NextStage();
-                }
-            }
+                    wait = true;
+                    _TimerA.AddMethod(5000, RPCNextStage);                    
+                }                
+                
+            }            
         }
     }
-    [RPC]
-    private void NextStage()
+
+    private void CreateZombie(Vector3 a)
     {
+        
+        Zombie z = ((Transform)Network.Instantiate(Zombie, a, Quaternion.identity, (int)Group.Zombie)).GetComponent<Zombie>();
+        z.RPCSetup(5 + ZombieSpeed * stage + UnityEngine.Random.Range(-ZombieSpeed * stage, ZombieSpeed * stage),
+            100 + 10 * stage);
+        wait = false;
+    }
+    [RPC]
+    private void RPCNextStage()
+    {
+        
         CallRPC(true);
+        
         stage++;
+        foreach (Zombie z in GameObject.FindObjectsOfType(typeof(Zombie)))
+        {            
+            Vector3 pos = z.transform.position;
+            z.Destroy();
+            if(Network.isServer)
+                CreateZombie(pos);
+        }
+        foreach (Player p in players.Values)
+            if (p.dead)
+                p.RPCSpawn();
     }
     
-    public new Dictionary<NetworkPlayer, Player> players = new Dictionary<NetworkPlayer, Player>();
+    public new Dictionary<int, Player> players = new Dictionary<int, Player>();
     
     public void OnTeamSelect(Team team)
     {
-
+        lockCursor = true;
         if (Network.peerType == NetworkPeerType.Disconnected)
             Network.InitializeServer(32, 5300);
         Transform t;
@@ -87,20 +102,30 @@ public class Spawn : Base
             t.GetComponent<Player>().RPCSetTeam((int)team);
 
     }
-    
-    void OnPlayerDisconnected(NetworkPlayer player)
+    internal void Spectator()
     {
+        if (_LocalPlayer.car == null)
+        {
+            lockCursor = true;
+            _LocalPlayer.RPCShow(false);            
+        }
+    }
+
+
+    void OnPlayerDisconnected(NetworkPlayer player2)
+    {
+        int player = player2.GetHashCode();
+        players[player].Destroy();
         foreach (box a in GameObject.FindObjectsOfType(typeof(box)))
         {
             if (a.OwnerID == player)
                 a.RPCResetOwner();
 
             foreach (NetworkView v in a.GetComponents<NetworkView>())
-                if (v.owner == player) Destroy(v.viewID);
-        }
-
-        Network.DestroyPlayerObjects(player);
-        Network.RemoveRPCs(player);
+                if (v.owner.GetHashCode() == player) Destroy(v.viewID);
+        }        
+        Network.DestroyPlayerObjects(player2);
+        Network.RemoveRPCs(player2);
     }
     [RPC]
     private void Destroy(NetworkViewID v)
@@ -112,5 +137,7 @@ public class Spawn : Base
         Component.Destroy(nw);
     }
 
+
+    
 }
 public enum Group { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie }

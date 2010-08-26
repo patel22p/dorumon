@@ -4,65 +4,60 @@ using System.Collections;
 public class Zombie : IPlayer
 {
     
-    public override void Die(NetworkPlayer killedyby)
+    public override void Die(int killedby)
     {        
-        if (!enabled) { Debug.Log("Zombie AlreadY Dead"); return; }
-        if (Network.isServer)
-            _TimerA.AddMethod(3000, RPCDestroy);
-        this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", dead);
-        enabled = false;
+        if (!Alive) { return; }
+        _Spawn.zombies.Remove(this);
+        this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", deadTexture);
+        Alive = false;
         foreach (Player p in players.Values)
         {
-            if (p.OwnerID == killedyby)
+            if (p.OwnerID == killedby)
             {                
                 p.RPCSetFrags(+1);
             }
         }
+        
     }
 
-
-    [RPC]
-    void RPCDestroy()
-    {
-        CallRPC(true);
-        Destroy();
-    }
-    public Texture dead;
+    internal bool Alive = true;
+    public Texture deadTexture;
     protected override void Start()
     {
-        _Spawn.zombies.Add(this);
+        
         base.Start();
     }
-    public override void Dispose()
-    {
-        _Spawn.zombies.Remove(this);
-        base.Dispose();
-    }
+    float zombiewait = 2;
     protected override void Update()
-    {
+    {                
         base.Update();
-        if (selected != null)
+        if (!Alive) return;
+        if ((zombiewait -= Time.deltaTime) < 0 && selected != -1)
         {
-            Player pl = _Spawn.players[selected.Value];
+            Player pl = _Spawn.players[selected];
             IPlayer ipl = pl.car != null ? (IPlayer)pl.car : pl;
-            Vector3 v3 = ipl.transform.position - transform.position;
-            v3.y = 0;
-            if (v3.sqrMagnitude > 6)
+            if (ipl.enabled)
             {
-                r = Quaternion.LookRotation(v3.normalized);
-                p += r * new Vector3(0, 0, speed * Time.deltaTime);
-                oldpos = p;
-            }
-            else if (ipl.isOwner && _TimerA.TimeElapsed(1000))
-            {                                
-                ipl.RPCSetLife(-10,de);
+                Vector3 v3 = ipl.transform.position - transform.position;
+                v3.y = 0;
+                if (v3.sqrMagnitude > 6)
+                {
+                    r = Quaternion.LookRotation(v3.normalized);
+                    p += r * new Vector3(0, 0, speed * Time.deltaTime);
+                    oldpos = p;
+                }
+                else if (ipl.isOwner && _TimerA.TimeElapsed(1000))
+                {
+                    ipl.RPCSetLife(-10, -1);
+                }
             }
         }
     }
     void OnCollisionEnter(Collision collisionInfo)
     {
+        if (!Alive) return;
         Base b = collisionInfo.gameObject.GetComponent<Base>();
-        if (b != null && b is box && !(b is Player) && enabled &&
+        if (b != null && b is box && !(b is Player) && Alive &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
@@ -81,6 +76,7 @@ public class Zombie : IPlayer
     public void RPCSetup(float zombiespeed, int zombieLife)
     {
         CallRPC(true, zombiespeed, zombieLife);
+        _Spawn.zombies.Add(this);
         speed = zombiespeed;
         Life = zombieLife;
     }

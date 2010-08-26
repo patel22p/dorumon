@@ -1,0 +1,7 @@
+
+timelimit by cannot host
+version check if non development build 
+
+die otdelno hostom 
+
+add lamp on book

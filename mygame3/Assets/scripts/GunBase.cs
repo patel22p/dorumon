@@ -60,10 +60,11 @@ public abstract class GunBase : Base
     
 
     public Transform _Patron;
+    public int fr { get { return _LocalPlayer.freezedt < 0 ? 1:3; } }
     protected virtual void LocalUpdate()
     {
 
-        if (Time.time - lt > interval && Input.GetMouseButton(0) && lockCursor && _LocalPlayer.frozentime<0)
+        if (Time.time - lt > interval * fr && Input.GetMouseButton(0) && lockCursor)
         {
             if (bullets > 0)
             {

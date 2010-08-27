@@ -10,7 +10,7 @@ public class GuiPlayer : Base
         
         float w = Screen.width;
         float h = Screen.height;
-        r = Rect.MinMaxRect(w - w / 4, h - h / 5, Screen.width, Screen.height);
+        r = Rect.MinMaxRect(w - w / 4, 0, Screen.width, 0);
     }
     void OnGUI()
     {
@@ -26,7 +26,7 @@ public class GuiPlayer : Base
         {
             GUILayout.Label("Stage: " + _Spawn.stage);
             GUILayout.Label("Zombies Left: " + _Spawn.zombies.Count);
-            GUILayout.Label("FrozenTime: " + (int)_LocalPlayer.frozentime);
+            GUILayout.Label("FrozenTime: " + (int)_LocalPlayer.freezedt);
         }
 
         GUILayout.Label("Nitro: " + (int)_localiplayer.nitro);

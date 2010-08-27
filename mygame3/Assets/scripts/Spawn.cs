@@ -118,7 +118,7 @@ public class Spawn : Base
         players[player].Destroy();
         foreach (box a in GameObject.FindObjectsOfType(typeof(box)))
         {
-            if (a.OwnerID == player)
+            if (a.id == player )
                 a.RPCResetOwner();
 
             foreach (NetworkView v in a.GetComponents<NetworkView>())

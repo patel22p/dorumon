@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 using doru;
 public class Base : Base2 , IDisposable
 {
@@ -50,7 +50,7 @@ public class Base : Base2 , IDisposable
     {
         return Root(g.transform).gameObject;
     }
-    static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12;
+    static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     public static Transform Root(Transform g)
     {
         Transform p = g;
@@ -78,6 +78,12 @@ public class Base : Base2 , IDisposable
             ((box)this).selected = owner;
     }
     
+    //public void Enable(GameObject t , bool b)
+    //{
+    //    foreach (Behaviour a in t.GetComponentsInChildren<Behaviour>())
+    //        a.enabled = b;
+    //}
+
     [RPC]
     public void RPCResetOwner()
     {
@@ -162,7 +168,7 @@ public class Base : Base2 , IDisposable
         if (mb != null)
         {
             foreach (object o in mb.GetCustomAttributes(false))
-                if (o is RPC) return;
+                if (o is RPC) UnityEngine.Debug.Log("Dublicate");
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
         }
     }

@@ -5,19 +5,22 @@ public class GunHealth : GunBase
 {
     public bool power;
     public Renderer render;
+    public Light render1;
+   
     protected override void Update()
     {
         if (power)
         {
             foreach (IPlayer p in _Spawn.iplayers)
-                if (!(p is Zombie) && p.enabled && Vector3.Distance(p.transform.position, this.cursor.position) < 3)
+                if (_TimerA.TimeElapsed(500) && isOwner && !p.isOwner && !(p is Zombie) && p.enabled && Vector3.Distance(p.transform.position, this.cursor.position) < 3)
                 {
-                    if (!p.isOwner && _TimerA.TimeElapsed(500)) p.RPCHealth();
+                    p.RPCHealth();
                 }
-            render.enabled = true;
+
+            render.enabled = render1.enabled = true;
         }
         else
-            render.enabled = false;
+            render.enabled = render1.enabled = false;
         base.Update();
     }
     protected override void LocalUpdate()

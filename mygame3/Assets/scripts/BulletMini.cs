@@ -24,12 +24,12 @@ public class BulletMini : BulletBase
         
         Destroy(gameObject);
         IPlayer iplayer = Root(hit.collider.gameObject).GetComponent<IPlayer>();
-        if (iplayer as CarController != null)
-        {
-            Transform a;
-            a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal));
-            a.parent = ((CarController)iplayer).effects;                
-        }
+        //if (iplayer as CarController != null)
+        //{
+        //    Transform a;
+        //    a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal));
+        //    a.parent = ((CarController)iplayer).effects;                
+        //}
         if (iplayer as Player != null)
         {
             Transform a;

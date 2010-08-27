@@ -3,29 +3,41 @@ using System.Collections;
 
 public class Zombie : IPlayer
 {
-    
-    public override void Die(int killedby)
-    {        
+    [RPC]
+    public override void RPCDie(int killedby)
+    {
+        CallRPC(true, killedby);
+        audio.Play();
         if (!Alive) { return; }
         _Spawn.zombies.Remove(this);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", deadTexture);
         Alive = false;
-        foreach (Player p in players.Values)
-        {
-            if (p.OwnerID == killedby)
-            {                
-                p.RPCSetFrags(+1);
+        if (isController)
+            foreach (Player p in players.Values)
+            {
+                if (p.OwnerID == killedby)
+                {
+                    p.RPCSetFrags(+1);
+                }
             }
-        }
         
     }
 
     internal bool Alive = true;
     public Texture deadTexture;
+    
     protected override void Start()
     {
-        
+        _TimerA.AddMethod(Random.Range(5000, 50000), PlayRandom);        
         base.Start();
+    }
+
+    private void PlayRandom()
+    {
+        _TimerA.AddMethod(Random.Range(5000, 50000),PlayRandom);
+        AudioSource[] au = transform.Find("zombiesounds").GetComponents<AudioSource>();
+        AudioSource a = au[Random.Range(0, au.Length - 1)];
+        a.Play();
     }
     float zombiewait = 2;
     protected override void Update()

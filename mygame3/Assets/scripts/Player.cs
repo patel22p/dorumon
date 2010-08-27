@@ -14,7 +14,7 @@ public class Player : IPlayer
     public float force = 400;
     public int frags;
     internal float angularvel = 1000;
-    public float frozentime;
+    public float freezedt;
     public float maxVelocityChange = 10.0f;
     public Renderer FrozenRender;
     public string Nick;
@@ -37,11 +37,14 @@ public class Player : IPlayer
     {
         CallRPC(true);
         Show(true);
-        RPCSelectGun(1);
+        if(isOwner)
+            RPCSelectGun(1);
         foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = 100;
+        freezedt = 0;
         transform.position = SpawnPoint();
+        transform.rotation = Quaternion.identity;
     }
     int guni;
 
@@ -66,9 +69,9 @@ public class Player : IPlayer
 
     protected override void Update()
     {
-        if (frozentime >= 0)
+        if (freezedt >= 0)
         {
-            frozentime -= Time.deltaTime * 5;
+            freezedt -= Time.deltaTime * 5;
             FrozenRender.enabled = true;
         }
         else FrozenRender.enabled = false;
@@ -163,7 +166,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCSelectGun(int i)
     {
-        CallRPC(true, i);
+        CallRPC(true, i);        
         foreach (GunBase gb in guns)
             gb.DisableGun();
         guns[i].EnableGun();
@@ -203,8 +206,8 @@ public class Player : IPlayer
         CallRPC(true);
         if (Life < life)
             Life += 10;
-        if (frozentime > 0)
-            frozentime -= 20;
+        if (freezedt > 0)
+            freezedt = 0;
         guns[0].bullets += 10;
     }
 
@@ -222,24 +225,25 @@ public class Player : IPlayer
             else
             {
                 if (zombi)
-                    frozentime -= NwLife;
+                    freezedt -= NwLife;
                 else if (tdm)
                     Life += NwLife;
             }
         }
-        if (Life < 0)
-            Die(killedby);
+        if (Life < 0 && isOwner)
+            RPCDie(killedby);
 
     }
-    public override void Die(int killedby)
+    [RPC]
+    public override void RPCDie(int killedby)
     {
+        CallRPC(true, killedby);
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
-        a.Destroy(5000);
+        a.Destroy(10000);
         a.transform.parent = _Spawn.effects;
         if (isOwner)
         {
-            if (!zombi) _TimerA.AddMethod(10000, RPCSpawn);
-            print(_Loader.gameMode);
+            if (!zombi) _TimerA.AddMethod(10000, RPCSpawn);            
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
             {
                 if (p.OwnerID == killedby)

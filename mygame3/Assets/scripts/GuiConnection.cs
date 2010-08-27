@@ -114,6 +114,8 @@ public class GuiConnection : Base2
         
         return p.time;
     }
+    HostData[] data;
+    SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
     void ServerListWindow(int q)
     {
          
@@ -124,8 +126,14 @@ public class GuiConnection : Base2
             MasterServer.RequestHostList(gamename);
         }
 
-        HostData[] data = MasterServer.PollHostList();
-        foreach (HostData element in data) 
+        if (MasterServer.PollHostList() != data)
+        {
+            data = MasterServer.PollHostList();
+            sorteddata.Clear();
+            foreach (HostData d in data)
+                sorteddata.Add(GetPing(d.ip[0]), d);
+        }
+        foreach (HostData element in sorteddata.Values) 
         {
             
             GUILayout.BeginHorizontal();

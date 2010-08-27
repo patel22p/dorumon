@@ -115,11 +115,13 @@ public class CarController : Car
         CallRPC(true);
         if (Life < life)
             Life += 30;
-        guns[0].bullets += 50;
+        guns[0].bullets = guns[1].bullets += 50;
     }
 
-    public override void Die(int killedby)
-    {        
+    [RPC]
+    public override void RPCDie(int killedby)
+    {
+        CallRPC(true, killedby);
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
         if (isOwnerOrServer)
             _TimerA.AddMethod(10000, RPCSpawn);
@@ -146,6 +148,7 @@ public class CarController : Car
         foreach (Transform item in Base.getChild(effects))
             Destroy(item);
         transform.position = spawnpos;
+        transform.rotation = Quaternion.identity;
         Life = life;
         Reset();
     }

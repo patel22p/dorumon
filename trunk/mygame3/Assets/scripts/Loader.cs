@@ -25,7 +25,7 @@ public class Loader : Base
     {
         StreamWriter a;
         using (a = new StreamWriter(File.Open("log.txt", FileMode.Append, FileAccess.Write)))
-            a.WriteLine("Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
+            a.WriteLine("fps:" + fps + "Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
     }
     void OnLevelWasLoaded(int level)
     {
@@ -138,7 +138,7 @@ public class Loader : Base
                     if (pl.OwnerID != -1)
                     {
                         PrintPlayer(pl);
-                        if (Network.isServer && !win &&  pl.frags == fraglimit)
+                        if (Network.isServer && !win &&  pl.frags >= fraglimit)
                         {
                             rpcwrite(pl.Nick + " Win");
                             win = true;
@@ -247,12 +247,15 @@ public class Loader : Base
         fraglimit = frag;
     }
 
-    private static void PrintPlayer(Player pl)
+    private void PrintPlayer(Player pl)
     {
         GUILayout.BeginHorizontal();
         GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
         if (Network.isServer && pl.networkView.owner != Network.player && GUILayout.Button("Kick"))
+        {
+            rpcwrite(pl.Nick + " kicked");
             Network.CloseConnection(pl.networkView.owner, true);
+        }
         GUILayout.EndHorizontal();
     }
     bool options;
@@ -284,7 +287,7 @@ public class Loader : Base
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
         rpcwrite("Player disconnected " + GuiConnection.Nick);
-        write("Disconnected from game");
+        write("Disconnected from game:"+info);
         Application.LoadLevel(disconnectedLevel);
     }
     void OnConnectedToServer()
@@ -321,13 +324,14 @@ public class Loader : Base
     }
     public static string output = @"
 alt enter - fullscreen
-Escape - close/open console
-tab - scoreboard
+tab - close/open console
 f - go in/out car
+shift - nitro
 a,s,d,w move keys
 1 - machinegun 
 2 - rocketlauncher
-
+3 - physxgun
+4 - healthgun
 ";
 }
 

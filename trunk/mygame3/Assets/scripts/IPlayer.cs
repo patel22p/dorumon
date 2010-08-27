@@ -47,7 +47,7 @@ public abstract class IPlayer : box
     {
         RaycastHit rah = ScreenRay();
         if (rah.collider == null) return false;
-        return rah.collider.gameObject == this.gameObject;
+        return Root(rah.collider.gameObject) == this.gameObject;
     }
     protected override void Update()
     {
@@ -87,12 +87,12 @@ public abstract class IPlayer : box
         if (isEnemy(killedby))
             Life += NwLife;
 
-        if (Life < 0)
-            Die(killedby);
+        if (Life < 0 && isController)
+            RPCDie(killedby);
     }
     public bool isEnemy(int killedby) { return killedby != OwnerID && (killedby == -1 || players[killedby].team != team || dm); }
     [RPC]
-    public abstract void Die(int killedby);
+    public abstract void RPCDie(int killedby);
 
 
     

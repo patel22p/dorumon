@@ -75,7 +75,7 @@ public class box : Base
 
     public int selected = -1;
     public int id = -3;
-
+    public bool zombiealive { get { return (this is Zombie && ((Zombie)this).Alive); } }
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled) return;
@@ -91,20 +91,19 @@ public class box : Base
                     angularVelocity = rigidbody.angularVelocity;
                 }
                 stream.Serialize(ref pos);
-                stream.Serialize(ref rot);
-                if (!(this is Zombie && ((Zombie)this).Alive))
+                stream.Serialize(ref velocity);
+                if (!zombiealive)
                 {
-                    stream.Serialize(ref velocity);
+                    stream.Serialize(ref rot);                    
                     stream.Serialize(ref angularVelocity);
                 }
-
                 if (stream.isReading && pos != default(Vector3))
                 {
                     rigidbody.position = pos;
                     rigidbody.velocity = velocity;
-                    if (!(this is Zombie))
+                    if (!zombiealive)
                     {
-                        rigidbody.rotation = rot;
+                        rigidbody.rotation = rot;                        
                         rigidbody.angularVelocity = angularVelocity;
                     }
                 }

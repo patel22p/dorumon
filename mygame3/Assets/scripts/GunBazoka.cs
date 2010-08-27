@@ -17,9 +17,6 @@ public class GunBazoka : GunBase
 
         base.FixedUpdate();
     }
-
-
-
     
 
     [RPC]

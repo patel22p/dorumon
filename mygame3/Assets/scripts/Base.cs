@@ -1,18 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 using System.Reflection;
 using System.Collections.Generic;
 
 using doru;
-public class Base : Base2 , IDisposable
+public class Base : Base2 , System.IDisposable
 {
 
-    
     bool hidden;
-
-
-
     public int OwnerID = -1;
     
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
@@ -36,7 +31,19 @@ public class Base : Base2 , IDisposable
             if (b.owner == pl) return b;
         return null;
     }
-    
+
+
+    public IEnumerable<Player> TP(Team t)
+    {
+        foreach (Player p in players.Values)
+            if (p.team == t) yield return p;
+    }
+
+    public void PlayRandSound(AudioClip[] au)
+    {
+        audio.PlayOneShot(au[UnityEngine.Random.Range(0, au.Length - 1)]);
+    }
+
     public static RaycastHit ScreenRay()
     {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
@@ -151,6 +158,7 @@ public class Base : Base2 , IDisposable
     public bool zombi { get { return _Loader.gameMode == Loader.GameMode.TeamZombieSurvive; } }
     public bool tdm { get { return _Loader.gameMode == Loader.GameMode.TeamDeathMatch; } }
     public bool dm { get { return _Loader.gameMode == Loader.GameMode.DeathMatch; } }
+    public bool zombisurive { get { return _Loader.gameMode == Loader.GameMode.ZombieSurive; } }
     static bool _lockCursor;
     public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
     private void Active(bool value, Transform t)
@@ -167,8 +175,8 @@ public class Base : Base2 , IDisposable
 
         if (mb != null)
         {
-            foreach (object o in mb.GetCustomAttributes(false))
-                if (o is RPC) UnityEngine.Debug.Log("Dublicate");
+            //foreach (object o in mb.GetCustomAttributes(false))
+            //    if (o is RPC) UnityEngine.Debug.Log("Dublicate");
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
         }
     }

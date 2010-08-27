@@ -43,7 +43,7 @@ public class BulletMini : BulletBase
         //     a.parent =iplayer.transform;
         //}
 
-        if (iplayer != null && iplayer.isController && !iplayer.isdead)
+        if (iplayer != null && iplayer.isController && !iplayer.dead)
         {
             iplayer.RPCSetLife(-damage, OwnerID);
         }

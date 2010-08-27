@@ -10,7 +10,7 @@ public abstract class IPlayer : box
 
     public int Life;
     public Transform CamPos;
-    public bool isdead { get { return !enabled; } }
+    public virtual bool dead { get { return !enabled; } }
     public GunBase[] guns;
     internal Team? team
     {
@@ -90,7 +90,7 @@ public abstract class IPlayer : box
         if (Life < 0 && isController)
             RPCDie(killedby);
     }
-    public bool isEnemy(int killedby) { return killedby != OwnerID && (killedby == -1 || players[killedby].team != team || dm); }
+    public bool isEnemy(int killedby) { return this is Zombie || killedby != OwnerID && (killedby == -1 || players[killedby].team != team || dm); }
     [RPC]
     public abstract void RPCDie(int killedby);
 

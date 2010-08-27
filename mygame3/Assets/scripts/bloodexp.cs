@@ -15,16 +15,12 @@ public class bloodexp : Base {
     {
         _Spawn.dynamic.Remove(this);        
     }
+    public AudioClip[] gibsound;
     void OnCollisionEnter(Collision collisionInfo)
-    {
-        AudioSource[] au = GetComponents<AudioSource>();
-
+    {        
         if (collisionInfo.impactForceSum.magnitude >10 )
         {
-
-            AudioSource a = au[Random.Range(0, au.Length - 1)];
-            a.volume = .7f;
-            a.Play();
+            PlayRandSound(gibsound);
         }
         if (!l && Root(collisionInfo.gameObject).name == "Level")
         {
@@ -33,5 +29,6 @@ public class bloodexp : Base {
             a.parent = _Spawn.effects;
             l = true;
         }   
-    }	
+    }
+    
 }

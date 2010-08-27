@@ -11,7 +11,7 @@ public class Loader : Base
     public static bool Online;
     public String disconnectedLevel;
     public static int lastLevelPrefix = 0;
-    public bool autostart;
+    
     public int fps;
     public GUISkin guiskin;
     static string lastStr;
@@ -29,7 +29,7 @@ public class Loader : Base
     }
     void OnLevelWasLoaded(int level)
     {
-        win = false;
+        
         old = selectedTeam = 0;
         lockCursor = false;
         _TimerA.Clear();
@@ -104,10 +104,11 @@ public class Loader : Base
         GUI.DragWindow();
     }
     GuiConnection _GuiConnection { get { return GuiConnection._This; } }
-    public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive }
+    public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive , ZombieSurive}
     internal GameMode gameMode = GameMode.TeamZombieSurvive;
-    bool win;
+    
     internal int fraglimit = 20;
+    
     private void ConsoleWindow(int id)
     {
         if (Application.loadedLevelName == disconnectedLevel)
@@ -115,12 +116,13 @@ public class Loader : Base
             if (Network.isServer)
             {
                 foreach (string level in supportedNetworkLevels)
-                    if (GUILayout.Button(level))
+                    if (GUILayout.Button("Start Game: "+level))
                     {
                         SetGameMode((int)gameMode,fraglimit);
                         LoadLevelRPC(level);
                     }
-                gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive" });
+                gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive", "Zombie Survive" });
+                
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Zombie/Frag limit:", GUILayout.ExpandWidth(false));
                 int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out fraglimit);
@@ -138,65 +140,16 @@ public class Loader : Base
                     if (pl.OwnerID != -1)
                     {
                         PrintPlayer(pl);
-                        if (Network.isServer && !win &&  pl.frags >= fraglimit)
-                        {
-                            rpcwrite(pl.Nick + " Win");
-                            win = true;
-                            _TimerA.AddMethod(5000,WinGame);
-                        }
                     }
             }
             else
             {
-                int rs = 0, bs = 0;
-
-                foreach (Player pl in players.Values)
-                    if (pl.team == Team.ata && pl.OwnerID != -1)
-                    {
+                GUILayout.Label("Red Team Score:" + _Spawn.RedFrags);
+                foreach (Player pl in TP(Team.ata))                    
                         PrintPlayer(pl);
-                        rs += pl.frags;
-                    }
-                GUILayout.Label("Red Team Score:" + rs);
-                foreach (Player pl in players.Values)
-                    if (pl.team == Team.def && pl.OwnerID != -1)
-                    {
+                GUILayout.Label("Blue Team Score:" + _Spawn.BlueFrags);
+                foreach (Player pl in TP(Team.def))                    
                         PrintPlayer(pl);
-                        bs += pl.frags;
-                    }
-                GUILayout.Label("Blue Team Score:" + bs);
-                if (zombi)
-                {
-                    if (Network.isServer && !win && _TimerA.TimeElapsed(1000))
-                    {
-                        bool BlueteamLive = false, RedteamLive = false;                        
-                        int rcount = 0, bcount = 0;                        
-                        foreach (Player p in TP(Team.def))
-                        {
-                            rcount++;
-                            if (!p.dead) BlueteamLive = true;
-                        }
-                        foreach (Player p in TP(Team.ata))
-                        {
-                            bcount++;
-                            if (!p.dead) RedteamLive = true;
-                        }
-
-                        if (rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive))
-                        {
-                            rpcwrite((!RedteamLive ? "Blue" : "Red") + " Team Win");
-                            win = true;
-                            _TimerA.AddMethod(5000, WinGame);
-                        }
-                    }
-
-                }
-                else if (Network.isServer && !win && (bs == fraglimit || rs == fraglimit))
-                {
-                    rpcwrite((bs > rs ? "Blue" : "Red") + " Team Win");
-                    win = true;
-                    _TimerA.AddMethod(5000, WinGame);
-                }
-                
             }
         }
         
@@ -215,7 +168,7 @@ public class Loader : Base
         GUILayout.EndHorizontal();
         if (_Spawn != null)
         {
-            string[] arr = dm ? new string[] { "Spectator", "Join Game" } : new string[] { "Spectator", "Red Team", "Blue Team" };
+            string[] arr = dm || zombisurive? new string[] { "Spectator", "Join Game" } : new string[] { "Spectator", "Red Team", "Blue Team" };
             if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
             {
                 old = selectedTeam;
@@ -229,16 +182,8 @@ public class Loader : Base
         GUILayout.TextField(output);
         GUI.DragWindow();
     }
-    IEnumerable<Player> TP(Team t)
-    {
-        foreach (Player p in players.Values)
-            if (p.team == t) yield return p;
-    }
-    private void WinGame()
-    {
-        
-        LoadLevelRPC(disconnectedLevel);
-    }
+    
+    
     [RPC]
     private void SetGameMode(int p,int frag)
     {
@@ -246,11 +191,15 @@ public class Loader : Base
         gameMode = (GameMode)p;
         fraglimit = frag;
     }
-
+    public GUIStyle _GUIStyle;
     private void PrintPlayer(Player pl)
     {
+
+        const string table = "{0,10}{1,20}{2,10}{3,10}{4,10}";
+        GUILayout.Label(String.Format(table, "", "Kills", "Ping", "Fps", "Dead"), _GUIStyle);
         GUILayout.BeginHorizontal();
-        GUILayout.Label(pl.Nick + "                                      Kills:" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps);
+        GUILayout.Label(String.Format(table, pl.Nick, pl.frags, pl.ping, pl.fps, pl.dead), _GUIStyle);
+        //GUILayout.Label(pl.Nick + "         Kills:{0,10}" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps + "         Dead:" + pl.dead);
         if (Network.isServer && pl.networkView.owner != Network.player && GUILayout.Button("Kick"))
         {
             rpcwrite(pl.Nick + " kicked");
@@ -280,10 +229,7 @@ public class Loader : Base
         CallRPC(true, s);
         write(s);
     }
-    void OnPlayerConnected(NetworkPlayer player)
-    {
-        if (autostart) _Loader.LoadLevelRPC(supportedNetworkLevels[0]);
-    }
+    
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
         rpcwrite("Player disconnected " + GuiConnection.Nick);

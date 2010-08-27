@@ -52,7 +52,7 @@ public class Player : IPlayer
     public int ping;
     [RPC]
     void RPCPingFps(int ping, int fps)
-    {
+    {        
         CallRPC(true, ping, fps);
         this.ping = ping;
         this.fps = fps;
@@ -77,7 +77,7 @@ public class Player : IPlayer
         else FrozenRender.enabled = false;
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
 
-
+        
         if (_TimerA.TimeElapsed(1000) && isOwner && _Spawn.players.Count > 0 && Network.connections.Length > 0)
             RPCPingFps(Network.GetLastPing(Network.connections[0]), _Loader.fps);
         if (isOwner && lockCursor)
@@ -154,7 +154,7 @@ public class Player : IPlayer
         CallRPC(true, t);
         team = (Team)t;
     }
-    public bool dead { get { return !enabled && car == null; } }
+    public override bool dead { get { return !enabled && car == null; } }
     public override void OnSetID()
     {
         if (isOwner)

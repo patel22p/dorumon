@@ -7,7 +7,7 @@ public class Zombie : IPlayer
     public override void RPCDie(int killedby)
     {
         CallRPC(true, killedby);
-        audio.Play();
+        PlayRandSound(gibsound);
         if (!Alive) { return; }
         _Spawn.zombies.Remove(this);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", deadTexture);
@@ -22,23 +22,27 @@ public class Zombie : IPlayer
             }
         
     }
-
+    public override bool dead { get { return !Alive; } }
     internal bool Alive = true;
     public Texture deadTexture;
-    
+    public AudioClip[] zombiesound;
+    public AudioClip[] gibsound;
     protected override void Start()
     {
-        _TimerA.AddMethod(Random.Range(5000, 50000), PlayRandom);        
+        
         base.Start();
     }
-
+    
     private void PlayRandom()
     {
-        _TimerA.AddMethod(Random.Range(5000, 50000),PlayRandom);
-        AudioSource[] au = transform.Find("zombiesounds").GetComponents<AudioSource>();
-        AudioSource a = au[Random.Range(0, au.Length - 1)];
-        a.Play();
+        if (Alive)
+        {
+            _TimerA.AddMethod(Random.Range(5000, 50000), PlayRandom);            
+            PlayRandSound(zombiesound);
+        }
     }
+
+    
     float zombiewait = 2;
     protected override void Update()
     {                
@@ -67,7 +71,7 @@ public class Zombie : IPlayer
     }
     void OnCollisionEnter(Collision collisionInfo)
     {
-        if (!Alive) return;
+        if (dead) return;
         Base b = collisionInfo.gameObject.GetComponent<Base>();
         if (b != null && b is box && !(b is Player) && Alive &&
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
@@ -87,6 +91,7 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, int zombieLife)
     {
+        _TimerA.AddMethod(Random.Range(0, 1000), PlayRandom);        
         CallRPC(true, zombiespeed, zombieLife);
         _Spawn.zombies.Add(this);
         speed = zombiespeed;

@@ -54,13 +54,13 @@ public class Cam : Base
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 45);
-        if (_localiplayer == null || _localiplayer.isdead)
+        if (_localiplayer == null || _localiplayer.dead)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);
             moveDirection.Normalize();
             transform.rotation = Quaternion.Euler(y, x, 0);
-            transform.position += moveDirection / 3;
+            transform.position += moveDirection * Time.deltaTime * 40;
         }
         else
         {

@@ -36,11 +36,6 @@ public class GuiConnection : Base2
     }
     void Start()
     {
-        
-        if (_Loader.autostart)
-        {
-            Network.Connect(ip, port);            
-        }
         r2 = CenterRect(.6f, .5f);
         Network.incomingPassword = "";        
     }

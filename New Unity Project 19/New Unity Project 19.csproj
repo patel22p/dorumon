@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0B87394D-7E98-DD7B-500C-EF5E87ABAD8C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Irrelevant</RootNamespace>
+    <AssemblyName>Irrelvant</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/lib/UnityEngine-Debug.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/lib/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\H.cs" />
+    <Compile Include="Assets\Test.cs" />
+    <Compile Include="Assets\WebServer.cs" />
+    <Compile Include="Assets\ZLib\BZip2\BZip2.cs" />
+    <Compile Include="Assets\ZLib\BZip2\BZip2Constants.cs" />
+    <Compile Include="Assets\ZLib\BZip2\BZip2Exception.cs" />
+    <Compile Include="Assets\ZLib\BZip2\BZip2InputStream.cs" />
+    <Compile Include="Assets\ZLib\BZip2\BZip2OutputStream.cs" />
+    <Compile Include="Assets\ZLib\Checksums\Adler32.cs" />
+    <Compile Include="Assets\ZLib\Checksums\CRC32.cs" />
+    <Compile Include="Assets\ZLib\Checksums\IChecksum.cs" />
+    <Compile Include="Assets\ZLib\Checksums\StrangeCRC.cs" />
+    <Compile Include="Assets\ZLib\Core\FileSystemScanner.cs" />
+    <Compile Include="Assets\ZLib\Core\INameTransform.cs" />
+    <Compile Include="Assets\ZLib\Core\IScanFilter.cs" />
+    <Compile Include="Assets\ZLib\Core\NameFilter.cs" />
+    <Compile Include="Assets\ZLib\Core\PathFilter.cs" />
+    <Compile Include="Assets\ZLib\Core\StreamUtils.cs" />
+    <Compile Include="Assets\ZLib\Core\WindowsPathUtils.cs" />
+    <Compile Include="Assets\ZLib\Encryption\PkzipClassic.cs" />
+    <Compile Include="Assets\ZLib\Encryption\ZipAESStream.cs" />
+    <Compile Include="Assets\ZLib\Encryption\ZipAESTransform.cs" />
+    <Compile Include="Assets\ZLib\GZip\GZIPConstants.cs" />
+    <Compile Include="Assets\ZLib\GZip\GZipException.cs" />
+    <Compile Include="Assets\ZLib\GZip\GzipInputStream.cs" />
+    <Compile Include="Assets\ZLib\GZip\GzipOutputStream.cs" />
+    <Compile Include="Assets\ZLib\SharpZipBaseException.cs" />
+    <Compile Include="Assets\ZLib\Tar\InvalidHeaderException.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarArchive.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarBuffer.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarEntry.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarException.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarHeader.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarInputStream.cs" />
+    <Compile Include="Assets\ZLib\Tar\TarOutputStream.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Deflater.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\DeflaterConstants.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\DeflaterEngine.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\DeflaterHuffman.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\DeflaterPending.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Inflater.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\InflaterDynHeader.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\InflaterHuffmanTree.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\PendingBuffer.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Streams\InflaterInputStream.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Streams\OutputWindow.cs" />
+    <Compile Include="Assets\ZLib\Zip\Compression\Streams\StreamManipulator.cs" />
+    <Compile Include="Assets\ZLib\Zip\FastZip.cs" />
+    <Compile Include="Assets\ZLib\Zip\IEntryFactory.cs" />
+    <Compile Include="Assets\ZLib\Zip\WindowsNameTransform.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipConstants.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipEntry.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipEntryFactory.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipException.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipExtraData.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipFile.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipHelperStream.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipInputStream.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipNameTransform.cs" />
+    <Compile Include="Assets\ZLib\Zip\ZipOutputStream.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

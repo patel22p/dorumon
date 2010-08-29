@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 
 
 public class H
@@ -151,6 +152,33 @@ public class H
     public static byte[] Cut(Stream source, string pattern)
     {
         return Cut(source, Encoding.Default.GetBytes(pattern));
+    }
+
+    public static void Write(Stream s, string _str)
+    {
+        Write(s,ToBytes(_str));
+    }
+
+    public static string getMd5Hash(string input)
+    {
+        MD5 md5Hasher = MD5.Create();
+        byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
+        StringBuilder sBuilder = new StringBuilder();
+        for (int i = 0; i < data.Length; i++)
+        {
+            sBuilder.Append(data[i].ToString("x2"));
+        }
+        return sBuilder.ToString();
+    }
+
+    public static string Replace(string s, params string[] ss)
+    {
+        for (int i = 0; i < ss.Length; i++)
+        {
+            if (!s.Contains(ss[i])) throw new Exception(ss[i] + " cannot be replaced");
+            s = s.Replace(ss[i], ss[++i]);
+        }
+        return s;
     }
 
     public static void Write(Stream _Stream, byte[] _bytes)

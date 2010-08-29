@@ -27,13 +27,12 @@ public class Test : Base
     
     void Start() {
 
-        Vkontakte _Vkontakte = new Vkontakte();
+        Vkontakte _Vkontakte = this.GetComponent<Vkontakte>();
         _Vkontakte.Start("dorumon@mail.ru", "er54s4");
-        User user = _Vkontakte.GetUserInfo(_Vkontakte.userid);
-        print(user.avatar);        
+        //User user = _Vkontakte.GetUserInfo(_Vkontakte.userid);
+        //print(user.avatar);        
         
-	}
-    WWW www;
+	}    
     void LogCallback1(string condition, string stackTrace, LogType type) 
     {
         console += "\r\n"+type + stackTrace + condition;
@@ -51,5 +50,5 @@ public class Test : Base
     {
 
     }
-    internal string console = @"8";
+    internal string console = @"10";
 }

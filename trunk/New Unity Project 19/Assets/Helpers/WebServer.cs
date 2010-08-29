@@ -73,7 +73,7 @@ public class Http : H
         {
             _Content = Unpack(_Content);
         }
-        return Join(_headerbytes,_Content);
+        return Join(_headerbytes, _Content);
 
     }
 
@@ -97,7 +97,7 @@ public class Http : H
         int count = _GZipStream.Read(_buffer2, 0, _buffer2.Length);
         return Substr(_buffer2, count);
     }
-    
+
 
     static readonly byte[] _rn = new byte[] { 13, 10 };
     public static byte[] ReadChunk(Stream _Stream)

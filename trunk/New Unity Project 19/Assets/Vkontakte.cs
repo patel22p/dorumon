@@ -24,31 +24,46 @@ public class Vkontakte :Base
     string password = "";
     string login = "";
     void Start() { }
+    IEnumerator ie;
     public void Start(string login, string password)
     {
+        
         this.password = WWW.EscapeURL(password);
         this.login = WWW.EscapeURL(login);
-        Connect();
+        ie = Connect().GetEnumerator();
+        ie.MoveNext();
     }
+
     string secret { get { return PlayerPrefs.GetString("secret"); } set { PlayerPrefs.SetString("secret",value); } }
     string mid { get { return PlayerPrefs.GetString("mid"); } set { PlayerPrefs.SetString("mid", value); } }
     string sid { get { return PlayerPrefs.GetString("sid"); } set { PlayerPrefs.SetString("sid", value); } }
-    public int userid { get { return PlayerPrefs.GetInt("userid"); } set { PlayerPrefs.SetInt("userid", value); } }
-    private void Connect()
+    internal int userid; //{ get { return PlayerPrefs.GetInt("userid"); } set { PlayerPrefs.SetInt("userid", value); } }
+    private IEnumerable Connect()
     {
         if (userid == 0)
         {
             print("vkontakte started" + login + password);
-            string apphash = Write(S.s1);
+            Write1("http://vkontakte.ru/login.php?app=1932732&layout=popup&type=browser");            
+            yield return 1;
+
+            string apphash = data;
             print("success1");
             apphash = Regex.Match(apphash, "var app_hash = '(.*?)';").Groups[1].Value;
-            string s2 = H.Replace(S.s2, "(apphash)", apphash, "(email)", login, "(pass)", password);            
-            string r1 = Write(s2);            
+            string s2 = H.Replace("act=login&app=1932732&app_hash=(apphash)&vk=&captcha_sid=&captcha_key=&email=(email)&pass=(pass)&expire=0&permanent=1"
+                , "(apphash)", apphash, "(email)", login, "(pass)", password);                        
+            Write1("http://login.vk.com", H.ToBytes(s2));
+            yield return 1;
+
+            string r1 = data;
             print("success2");
             string passkey = Regex.Match(r1, @"name='s' value='(.*?)'").Groups[1].Value;
             string apphash2 = Regex.Match(r1, "name=\"app_hash\" value=\"(.*?)\"").Groups[1].Value;
-            string s4 = H.Replace(S.s4, "(apphash)", apphash2, "(passkey)", passkey);
-            string result = Write(s4);
+            string s4 = H.Replace("s=(passkey)&act=auth_result&m=4&permanent=&expire=1&app=1932732&app_hash=(apphash)"
+                , "(apphash)", apphash2, "(passkey)", passkey);
+            Write1("http://vkontakte.ru/login.php", H.ToBytes(s4));
+            yield return 1;
+
+            string result = data;
             print("success3");
             Match match = Regex.Match(result, "\"mid\":(.*?),\"sid\":\"(.*?)\",\"secret\":\"(.*?)\"");
             print(match.Success.ToString());
@@ -56,9 +71,28 @@ public class Vkontakte :Base
             sid = match.Groups[2].Value;
             secret = match.Groups[3].Value;            
             userid = int.Parse(GetGlobalVariable(1280));            
-        }                
+        }
+        yield return 1;     
     }
-    
+    string data;
+    WWW www;
+    void Write1(string url,byte[] wwwform)
+    {
+        www = new WWW(url, wwwform);                        
+    }
+    void Update()
+    {
+        if (www != null && www.isDone)
+        {
+            data = H.ToStr(www.bytes);
+            www = null;
+            ie.MoveNext();
+        }        
+    }
+    void Write1(string url)
+    {        
+        www = new WWW(url);                
+    }
     public User GetUserInfo(int userid)
     {
         string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,

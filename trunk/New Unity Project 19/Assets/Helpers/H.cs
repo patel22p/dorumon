@@ -156,7 +156,7 @@ public class H
 
     public static void Write(Stream s, string _str)
     {
-        Write(s,ToBytes(_str));
+        Write(s, ToBytes(_str));
     }
 
     public static string getMd5Hash(string input)

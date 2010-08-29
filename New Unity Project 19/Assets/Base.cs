@@ -9,9 +9,9 @@ using System.Collections.Generic;
 
 public class Base : MonoBehaviour
 {
-    public new void print(object ob)
+    public new static void print(object ob)
     {
-        test.console += "\r\n";
+        test.console += "\r\n" + ob;        
     }
     public static Test test;
     public static Vkontakte vkontakte;

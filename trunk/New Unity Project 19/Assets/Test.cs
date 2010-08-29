@@ -18,26 +18,27 @@ public class User
 public class Test : Base
 {
     internal string d = "mpme";
-    
+
     void Awake()
     {
         Application.RegisterLogCallback(LogCallback1);
         test = this;
     }
-    
-    void Start() {
 
-        Vkontakte _Vkontakte = this.GetComponent<Vkontakte>();
-        _Vkontakte.Start("dorumon@mail.ru", "er54s4");
-        //User user = _Vkontakte.GetUserInfo(_Vkontakte.userid);
-        //print(user.avatar);        
-        
-	}    
-    void LogCallback1(string condition, string stackTrace, LogType type) 
+    void Start()
     {
-        console += "\r\n"+type + stackTrace + condition;
+
+        Vkontakte _Vkontakte = new Vkontakte();
+        _Vkontakte.Start("dorumon@mail.ru", "er54s4");
+        User user = _Vkontakte.GetUserInfo(_Vkontakte.userid);
+        print(user.avatar);
+
+    }    
+    void LogCallback1(string condition, string stackTrace, LogType type)
+    {
+        console += "\r\n" + type + stackTrace + condition;
     }
-    
+
     Vector2 scrollPosition;
     void OnGUI()
     {
@@ -50,5 +51,5 @@ public class Test : Base
     {
 
     }
-    internal string console = @"10";
+    internal string console = @"8";
 }

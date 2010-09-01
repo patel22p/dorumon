@@ -9,34 +9,24 @@ using System.IO;
 public class Loader : Base
 {
     public static bool Online;
-    public String disconnectedLevel;
+    public new String disconnectedLevel;
     public static int lastLevelPrefix = 0;
-    
     public int fps;
-    public GUISkin guiskin;
-    static string lastStr;
-    public static string input = "";
-    Rect ConsoleRect;
     public Transform root;
     public string[] supportedNetworkLevels;
-
     float cmx { get { return Screen.height / 2; } }
     void onLog(string condition, string stackTrace, LogType type)
     {
+        
         StreamWriter a;
         using (a = new StreamWriter(File.Open("log.txt", FileMode.Append, FileAccess.Write)))
             a.WriteLine("fps:" + fps + "Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
     }
     void OnLevelWasLoaded(int level)
     {
-        
-        old = selectedTeam = 0;
-        lockCursor = false;
-        _TimerA.Clear();
         Network.isMessageQueueRunning = true;
         Network.SetSendingEnabled(0, true);
-    }
-
+    }    
     void Awake()
     {
         if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
@@ -44,14 +34,16 @@ public class Loader : Base
             Destroy(this.gameObject);
             return;
         }
-        File.Delete("log.txt");
-        Application.RegisterLogCallback(onLog);
-        print("start");
+        if (Application.platform != RuntimePlatform.WindowsWebPlayer)
+        {
+            File.Delete("log.txt");
+            Application.RegisterLogCallback(onLog);
+        }        
         _Loader = this;
         DontDestroyOnLoad(this);
         networkView.group = 1;
 
-        ConsoleRect = CenterRect(.8f, .6f);
+        
         if (Application.loadedLevel == 0)
         {
             Application.LoadLevel(disconnectedLevel);
@@ -64,155 +56,17 @@ public class Loader : Base
         if (_TimerA.TimeElapsed(500))
             fps = (int)_TimerA.GetFps();
         _TimerA.Update();
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            if (input != "")
-            {
-                foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-                    go.SendMessage("OnConsole", input, SendMessageOptions.DontRequireReceiver);
-                input = "";
-            }
-        }
+
     }
     void OnGUI()
     {
-        GUILayout.Label("fps: " + fps);
-        GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
-        if (lockCursor) return;
-        ConsoleRect = GUILayout.Window(0, ConsoleRect, ConsoleWindow, "Console");
-        if (options) optionsrect = GUILayout.Window(5, optionsrect, OptionsWindow, "Options");
+        GUILayout.Label("fps: " + fps);        
+        if (lockCursor) return;                
 
-    }
-    Rect optionsrect = new Rect(0, 0, 300, 300);
-
-    public int selectedTeam = 0;
-
-    internal int quality = 3;
-    int oldquality = 3;
-    private void OptionsWindow(int id)
-    {
-
-        string[] qs = new string[] { "Fastest", "Fast", "Simple", "Good", "Beautiful", "Fantastic" };
-        if (oldquality != (quality = GUILayout.Toolbar(quality, qs)))
-        {
-            oldquality = quality;            
-            QualitySettings.currentLevel = (QualityLevel)quality;
-            print("Set Quality" + QualitySettings.currentLevel);
-        }
-
-        if (GUILayout.Button("close")) options = false;
-        GUI.DragWindow();
     }
     GuiConnection _GuiConnection { get { return GuiConnection._This; } }
-    public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive , ZombieSurive}
-    internal GameMode gameMode = GameMode.TeamZombieSurvive;
-    
-    internal int fraglimit = 20;
-    
-    private void ConsoleWindow(int id)
-    {
-        if (Application.loadedLevelName == disconnectedLevel)
-        {
-            if (Network.isServer)
-            {
-                foreach (string level in supportedNetworkLevels)
-                    if (GUILayout.Button("Start Game: "+level))
-                    {
-                        SetGameMode((int)gameMode,fraglimit);
-                        LoadLevelRPC(level);
-                    }
-                gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive", "Zombie Survive" });
-                
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Zombie/Frag limit:", GUILayout.ExpandWidth(false));
-                int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out fraglimit);
-                GUILayout.EndHorizontal();
-            }
-        }
-
-        GUILayout.Space(20);
-        if (_Spawn != null)
-        {
-            GUILayout.Label("Frags Limit:" + fraglimit);
-            if (dm)
-            {
-                foreach (Player pl in players.Values)
-                    if (pl.OwnerID != -1)
-                    {
-                        PrintPlayer(pl);
-                    }
-            }
-            else
-            {
-                GUILayout.Label("Red Team Score:" + _Spawn.RedFrags);
-                foreach (Player pl in TP(Team.ata))                    
-                        PrintPlayer(pl);
-                GUILayout.Label("Blue Team Score:" + _Spawn.BlueFrags);
-                foreach (Player pl in TP(Team.def))                    
-                        PrintPlayer(pl);
-            }
-        }
-        
-        GUILayout.BeginHorizontal();
-        if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
-        {
-            if (Network.isServer && _Spawn != null)
-                LoadLevelRPC(disconnectedLevel);
-            else
-                Network.Disconnect();
-        }
-        if (GUILayout.Button("Options"))
-        {            
-            options = true;
-        }
-        GUILayout.EndHorizontal();
-        if (_Spawn != null)
-        {
-            string[] arr = dm || zombisurive? new string[] { "Spectator", "Join Game" } : new string[] { "Spectator", "Red Team", "Blue Team" };
-            if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
-            {
-                old = selectedTeam;
-                if (selectedTeam == 0) _Spawn.Spectator();
-                if (selectedTeam == 1) _Spawn.OnTeamSelect(Team.ata);
-                if (selectedTeam == 2) _Spawn.OnTeamSelect(Team.def);                
-            }
-        }
-
-        input = GUILayout.TextField(input);
-        GUILayout.TextField(output);
-        GUI.DragWindow();
-    }
-    
-    
-    [RPC]
-    private void SetGameMode(int p,int frag)
-    {
-        CallRPC(true,p,frag);
-        gameMode = (GameMode)p;
-        fraglimit = frag;
-    }
     public GUIStyle _GUIStyle;
-    private void PrintPlayer(Player pl)
-    {
-
-        const string table = "{0,10}{1,20}{2,10}{3,10}{4,10}";
-        GUILayout.Label(String.Format(table, "", "Kills", "Ping", "Fps", "Dead"), _GUIStyle);
-        GUILayout.BeginHorizontal();
-        GUILayout.Label(String.Format(table, pl.Nick, pl.frags, pl.ping, pl.fps, pl.dead), _GUIStyle);
-        //GUILayout.Label(pl.Nick + "         Kills:{0,10}" + pl.frags + "               Ping:" + pl.ping + "               Fps:" + pl.fps + "         Dead:" + pl.dead);
-        if (Network.isServer && pl.networkView.owner != Network.player && GUILayout.Button("Kick"))
-        {
-            rpcwrite(pl.Nick + " kicked");
-            Network.CloseConnection(pl.networkView.owner, true);
-        }
-        GUILayout.EndHorizontal();
-    }
-    bool options;
-    int old = 0;
-    protected override void OnConsole(string s)
-    {
-        rpcwrite(GuiConnection.Nick + ": " + s);
-    }
+    
     public void LoadLevelRPC(string level)
     {
         for (int i = 0; i < 20; i++)
@@ -223,12 +77,7 @@ public class Loader : Base
     {
         rpcwrite("Player joined " + GuiConnection.Nick);
     }
-    [RPC]
-    public void rpcwrite(string s)
-    {
-        CallRPC(true, s);
-        write(s);
-    }
+    
     
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
@@ -252,12 +101,7 @@ public class Loader : Base
 
     }
     
-    public static void write(string s)
-    {
-        UnityEngine.Debug.Log(s);
-        lastStr = s;
-        output = s + "\r\n" + output;
-    }
+    
     public Rect dockup()
     {
         Vector2 c = new Vector2(Screen.width, Screen.height);
@@ -268,16 +112,6 @@ public class Loader : Base
         Vector2 c = new Vector2(Screen.width, Screen.height);
         return new Rect(0, c.y - cmx, c.x, c.y);
     }
-    public static string output = @"
-alt enter - fullscreen
-tab - close/open console
-f - go in/out car
-shift - nitro
-a,s,d,w move keys
-1 - machinegun 
-2 - rocketlauncher
-3 - physxgun
-4 - healthgun
-";
+
 }
 

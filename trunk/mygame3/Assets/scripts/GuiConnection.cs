@@ -17,17 +17,16 @@ public class GuiConnection : Base2
     internal int port = 5300;
     public static string Nick = "Guest " + UnityEngine.Random.Range(0, 99);
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
-    public string ip2 { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }    
+    public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }    
     Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
     
     private void InitServer()
-    {        
+    { 
         
         Network.useNat = false; 
         Network.InitializeServer(32, port);
-        if (ip2 != "") MasterServer.ipAddress = ip2;
+        if (masterip != "") MasterServer.ipAddress = masterip;
         MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, Nick + "s Game");
-        
     }
     public static GuiConnection _This;
     void Awake()
@@ -37,16 +36,11 @@ public class GuiConnection : Base2
     void Start()
     {
         r2 = CenterRect(.6f, .5f);
-        Network.incomingPassword = "";        
+        Network.incomingPassword = "";// version.ToString();
+        print(Network.incomingPassword);
     }
-    void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.Escape)) lockCursor = false;
-    }            
     void OnGUI()
     {
-        
-        //GUI.skin = Find<Loader>().guiskin;
         if (Network.peerType == NetworkPeerType.Disconnected)
         {
             r = GUILayout.Window(2, r, ConnWindow, "connection");
@@ -58,21 +52,12 @@ public class GuiConnection : Base2
                 guiloaded = true;
             }                    
         }        
-
-        //GUILayout.BeginArea(new Rect(0, Screen.height - 30, Screen.width, 30));
-        //GUILayout.BeginHorizontal();
-
-
-        //GUILayout.FlexibleSpace();
-        //GUILayout.EndHorizontal();
-        //GUILayout.EndArea();
-
     }
     public void ConnWindow(int id)
     {
         
 
-            GUILayout.Label("ipaddress:   port:5300");
+            GUILayout.Label("Ipaddress:   port:5300");
             GUILayout.BeginHorizontal();    
             ip = GUILayout.TextField(ip,20);
             
@@ -82,13 +67,13 @@ public class GuiConnection : Base2
             {
                 if (Nick.Length > 0)
                 {
-                    Network.Connect(ip, port);                    
+                    Network.Connect(ip, port,Network.incomingPassword);                    
                 }
                 else
                     print("Enter username first");
             }
             GUILayout.Label("MasterServer:");
-            ip2 = GUILayout.TextField(ip2, 20);
+            masterip = GUILayout.TextField(masterip, 20);
             GUILayout.Label("NickName:");
             Nick = GUILayout.TextField(Nick,20);
 
@@ -117,7 +102,7 @@ public class GuiConnection : Base2
         GUILayout.Label("your version is: " + version);
         if (GUILayout.Button("refresh server list"))
         {
-            if (ip2 != "") MasterServer.ipAddress = ip2;
+            if (masterip != "") MasterServer.ipAddress = masterip;
             MasterServer.RequestHostList(gamename);
         }
 
@@ -179,7 +164,5 @@ public class GuiConnection : Base2
     {
         print("Could not connect to master server: " + error);
     }
-    
-    
 }
 public class Trace : UnityEngine.Debug { }

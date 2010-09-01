@@ -53,16 +53,17 @@ namespace doru
 
         private void UpdateActions()
         {
-            for (int i = _List.Count - 1; i >= 0; i--)
-            {
-                CA _CA = _List[i];
-                _CA._Miliseconds -= _MilisecondsElapsed;
-                if (_CA._Miliseconds < 0)
+            lock ("timer")
+                for (int i = _List.Count - 1; i >= 0; i--)
                 {
-                    _List.Remove(_CA);
-                    _CA._Action();
+                    CA _CA = _List[i];
+                    _CA._Miliseconds -= _MilisecondsElapsed;
+                    if (_CA._Miliseconds < 0)
+                    {
+                        _List.Remove(_CA);
+                        _CA._Action();
+                    }
                 }
-            }
         }
 
         public int _MilisecondsElapsed = 0;
@@ -77,12 +78,17 @@ namespace doru
             else
                 return false;
         }
+        public void AddMethod(Action _Action)
+        {
+            AddMethod(-1, _Action);
+        }
         public void AddMethod(int _Miliseconds, Action _Action)
         {
             CA ca = new CA();
             ca._Action = _Action;
             ca._Miliseconds = _Miliseconds;
-            _List.Add(ca);
+            lock("timer")
+                _List.Add(ca);
         }
         public void Clear()
         {

@@ -3,21 +3,31 @@ using System.Collections;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 
 
 public class Base2 : MonoBehaviour
 {    
     public new void print(object ob)
-    {
-                
-        Loader.write("" + ob);
+    {        
+        ConsoleWindow.write("" + ob);
     }
+
     public static Cam _Cam;
     public static Loader _Loader;
     public static Spawn _Spawn;
     public static IPlayer _localiplayer;
     public static Player _LocalPlayer;
+    static bool _lockCursor;
+    public static ConsoleWindow _cw;
+    public static OptionsWindow _options;
+    public static Vkontakte _vk;
+    public static VkontakteWindow _Vkontakte;
+    public static string disconnectedLevel { get { return _Loader.disconnectedLevel; } }
+    public static void rpcwrite(string s) { _cw.rpcwrite(s); }
+    public static void write(string s) { ConsoleWindow.write(s); }
+    public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
+
     //public static T Find<T>(string s) where T : Component
     //{
         

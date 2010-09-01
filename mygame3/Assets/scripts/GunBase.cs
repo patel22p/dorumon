@@ -75,7 +75,8 @@ public abstract class GunBase : Base
             }
             else
             {
-                audio.PlayOneShot(_nobullets);
+                if (_nobullets != null && audio != null)
+                    audio.PlayOneShot(_nobullets);
                 //_LocalPlayer.NextGun(1);
             }
         }

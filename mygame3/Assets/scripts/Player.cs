@@ -250,17 +250,17 @@ public class Player : IPlayer
                 {
                     if (p.isOwner)
                     {
-                        _Loader.rpcwrite(_LocalPlayer.Nick + " died byself");
+                        _cw.rpcwrite(_LocalPlayer.Nick + " died byself");
                         _LocalPlayer.RPCSetFrags(-1);
                     }
                     else if (p.team != _LocalPlayer.team || dm)
                     {
-                        _Loader.rpcwrite(p.Nick + " killed " + _LocalPlayer.Nick);
+                        rpcwrite(p.Nick + " killed " + _LocalPlayer.Nick);
                         p.RPCSetFrags(+1);
                     }
                     else
                     {
-                        _Loader.rpcwrite(p.Nick + " friendly fired " + _LocalPlayer.Nick);
+                        rpcwrite(p.Nick + " friendly fired " + _LocalPlayer.Nick);
                         p.RPCSetFrags(-1);
 
                     }
@@ -268,7 +268,7 @@ public class Player : IPlayer
             }
             if (killedby == -1)
             {
-                _Loader.rpcwrite(_LocalPlayer.Nick + " screwed");
+                rpcwrite(_LocalPlayer.Nick + " screwed");
                 _LocalPlayer.RPCSetFrags(-1);
             }
 

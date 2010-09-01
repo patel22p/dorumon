@@ -21,7 +21,7 @@ public class Spawn : Base
     }
     void Start()
     {
-        zombiesleft = _Loader.fraglimit;
+        zombiesleft = _cw.fraglimit;
         AudioListener.volume = .1f;
         if (Network.isServer)
         {
@@ -57,7 +57,8 @@ public class Spawn : Base
             if (!p.dead) live++;
         if (live == 0 && players.Values.Count != 0)
         {
-            _Loader.rpcwrite("You died on " + stage + " level");
+            
+            rpcwrite("You died on " + stage + " level");
             win = true;
             _TimerA.AddMethod(5000, WinGame);
         }
@@ -68,9 +69,9 @@ public class Spawn : Base
         foreach (Player pl in players.Values)
             if (pl.OwnerID != -1)
             {
-                if (Network.isServer && !win && pl.frags >= _Loader.fraglimit)
+                if (Network.isServer && !win && pl.frags >= _cw.fraglimit)
                 {
-                    _Loader.rpcwrite(pl.Nick + " Win");
+                    rpcwrite(pl.Nick + " Win");
                     win = true;
                     _TimerA.AddMethod(5000, WinGame);
                 }
@@ -86,9 +87,9 @@ public class Spawn : Base
         foreach (Player pl in TP(Team.def))            
                 BlueFrags += pl.frags;
 
-        if ((BlueFrags >= _Loader.fraglimit || RedFrags >= _Loader.fraglimit))
+        if ((BlueFrags >= _cw.fraglimit || RedFrags >= _cw.fraglimit))
         {
-            _Loader.rpcwrite((BlueFrags > RedFrags ? "Blue" : "Red") + " Team Win");
+            rpcwrite((BlueFrags > RedFrags ? "Blue" : "Red") + " Team Win");
             win = true;
             _TimerA.AddMethod(5000, WinGame);
         }
@@ -111,7 +112,7 @@ public class Spawn : Base
 
         if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive))
         {
-            _Loader.rpcwrite((!RedteamLive ? "Blue" : "Red") + " Team Win");
+            rpcwrite((!RedteamLive ? "Blue" : "Red") + " Team Win");
             win = true;
             _TimerA.AddMethod(5000, WinGame);
         }
@@ -151,7 +152,7 @@ public class Spawn : Base
     {
 
         Zombie z = ((Transform)Network.Instantiate(Zombie, a, Quaternion.identity, (int)Group.Zombie)).GetComponent<Zombie>();
-        z.RPCSetup(5 + ZombieSpeed * stage + UnityEngine.Random.Range(-ZombieSpeed * stage, ZombieSpeed * stage), 60);
+        z.RPCSetup(5 + ZombieSpeed * stage + UnityEngine.Random.Range(-ZombieSpeed * stage, ZombieSpeed * stage), 100);
         wait = false;
     }
     [RPC]

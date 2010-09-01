@@ -155,12 +155,11 @@ public class Base : Base2 , System.IDisposable
             yield return t.GetChild(i);
         }
     }
-    public bool zombi { get { return _Loader.gameMode == Loader.GameMode.TeamZombieSurvive; } }
-    public bool tdm { get { return _Loader.gameMode == Loader.GameMode.TeamDeathMatch; } }
-    public bool dm { get { return _Loader.gameMode == Loader.GameMode.DeathMatch; } }
-    public bool zombisurive { get { return _Loader.gameMode == Loader.GameMode.ZombieSurive; } }
-    static bool _lockCursor;
-    public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
+    public bool zombi { get { return _cw.gameMode == GameMode.TeamZombieSurvive; } }
+    public bool tdm { get { return _cw.gameMode == GameMode.TeamDeathMatch; } }
+    public bool dm { get { return _cw.gameMode == GameMode.DeathMatch; } }
+    public bool zombisurive { get { return _cw.gameMode == GameMode.ZombieSurive; } }
+    
     private void Active(bool value, Transform t)
     {
         for (int i = 0; i < t.transform.childCount; i++)

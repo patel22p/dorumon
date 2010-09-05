@@ -2,121 +2,179 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System;
 
 
 
 public class VkontakteWindow : Base
 {
     int id;
-    Vkontakte vk;
+    Vk vk;
+    MessageWindow chat;
+    StatsBoard statsboard;
     void Start()
     {
-        id = Random.Range(0, int.MaxValue);
+        print("Vkontakte start");
+        statsboard = this.GetComponent<StatsBoard>();
+        chat = this.GetComponent<MessageWindow>();
+        id = UnityEngine.Random.Range(0, int.MaxValue);
         _Vkontakte = this;
-        vk = this.GetComponent<Vkontakte>();
-        rect = new Rect (Screen.width - 200, 0,0,0);
-    }
+        vk = this.GetComponent<Vk>();
+        rect = new Rect(Screen.width - 200, 0, 0, 0);
+        
+
+    } 
     internal Rect rect;
 
 
     void OnGUI()
     {
-
-        rect = GUILayout.Window(id, rect, Window, "vkontakte", GUILayout.Width(200), GUILayout.Height(300));        
-        
-    }
-    string login { get { return PlayerPrefs.GetString("vklogin"); } set { PlayerPrefs.SetString("vklogin", value); } }
-    string password { get { return PlayerPrefs.GetString("password"); } set { PlayerPrefs.SetString("password", value); } }
-    
-    public void onConnected()
-    {
-        new WWW2(_User.photo).done += delegate(WWW2 www)
+        try
         {
-            _User.texture = www.texture;
-        };
-
+            rect = GUILayout.Window(id, rect, Window, "vkontakte", GUILayout.Width(200), GUILayout.Height(300));            
+        }
+        catch (Exception e) { print(e); }
     }
 
+
+    public void onVkConnected()
+    {
+        Application.LoadLevel(Level.z2menu.ToString());        
+    }
+    private void OnServerInitialized()
+    {
+        if (_vk._Status == Vk.Status.connected)
+        {
+            _vk.SetStatus("in Game");            
+        }
+    }
+    private void OnConnectedToServer()
+    {
+        if (_vk._Status == Vk.Status.connected)
+        {
+            _vk.SetStatus("in Game");            
+        }
+    }
+    public Dictionary<int, Vk.user> friends { get { return _vk.friends; } }
     void Update()
     {
-        WWW2.Update();
-        //if (loginbtn && vk._Status == Vkontakte.Status.disconnected)
-        //{
-        //    vk.Start(login, password);            
-        //}
-
-        if (vk._Status == Vkontakte.Status.connected && _TimerA.TimeElapsed(2503))
+        if (vk._Status == Vk.Status.connected)
         {
-            _vk.GetMessages();
-        }
-        foreach (Vkontakte.response resp in _vk.GetResponses())
-        {
-            foreach (Vkontakte.user user in resp.users)
-            {                
-                LoadAvatar(user);
-                users.Add(user.uid, user);
-            }
-            foreach (Vkontakte.message_info msg in resp.messages)
+            if (_TimerA.TimeElapsed(5000))
+                _vk.GetChatMessages(0);
+            if (_TimerA.TimeElapsed(6000))
+                _vk.GetMessages();
+            if (_TimerA.TimeElapsed(10000))
             {
-                if (msg.message.StartsWith(_User.uid.ToString()))
-                    if (users.ContainsKey(msg.uid))
+                
+                _vk.GetNews();
+            }
+
+            foreach (Vk.response resp in _vk.GetResponses())
+            {
+                                
+                foreach (Vk.message_info msg in resp.messages)
+                {
+                    msg.message = WWW.UnEscapeURL(msg.message);
+                    chat.Write(msg.message);
+                }
+                foreach (Vk.status st in resp.statuses)
+                {
+                    if (friends.ContainsKey(st.uid))
                     {
-                        GetWindow(users[msg.uid]).Write(msg.message); ;
+                        if (friends[st.uid].st.timestamp < st.timestamp)
+                        {
+                            friends[st.uid].st = st;
+                            friends[st.uid].online = true;
+                        }
+                    }                    
+                    else
+                        Debug.Log("status user not exists" + st.uid);
+                }
+                
+
+                foreach (Vk.message msg in resp.personal)
+                {
+                    msg.body = WWW.UnEscapeURL(msg.body);
+                    if (friends.ContainsKey(msg.uid))
+                    {
+                        Vk.user user = friends[msg.uid];
+                        MessageWindow w = GetWindow(user);
+                        w.Write(user.nick + ":" + msg.body);
+                        printC("(" + user + ")" + msg.body);
                     }
-                print(msg.user_name + ":" + msg.message);
+                    else Debug.Log("user not exists" + msg.uid);
+                }
             }
         }
     }
-    Dictionary<int, Vkontakte.user> users = new Dictionary<int, Vkontakte.user>();
-    private void LoadAvatar(Vkontakte.user user)
-    {
-        WWW2 w = new WWW2(user.photo);
-        w.done += delegate(WWW2 w2)
-        {
-            user.texture = w2.texture;
-        };
-    }
-    bool loginbtn;
-    public Vkontakte.user _User { get { return _vk._User; } }
+            
     Vector2 scrollPosition;
+    string login { get { return PlayerPrefs.GetString("login"); } set { PlayerPrefs.SetString("login",value); } }
+    public GUIStyle linkstyle ;
     void Window(int id)
-    {
-
-        if (vk._Status == Vkontakte.Status.disconnected)
+    {        
+        if (vk._Status == Vk.Status.disconnected)
         {
-            GUILayout.Label("Email:");
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Url:",GUILayout.ExpandWidth(false));
             login = GUILayout.TextArea(login);
-            GUILayout.Label("Password:"); 
-            password = GUILayout.PasswordField(password, '*');
-            loginbtn = GUILayout.Button("Login");
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("Login"))
+                vk.Start(login);
+            if (GUILayout.Button("В Контакте Авторизация"))
+                OpenUrl("http://vkontakte.ru/login.php?app=1935303&layout=popup&type=browser&settings=15615");
+            GUILayout.Label("Скопируйте адресс в поле логин");
 
+            if (GUILayout.Button("login as guest"))
+                Application.LoadLevel(Level.z2menu.ToString());
             if (GUILayout.Button("gmail.ru"))
                 vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2295853480%22%2C%22secret%22%3A%225b6c1208fe%22%2C%22sid%22%3A%22d8c3fed16ab9665e41062ac50e381ba646ab88eecaeec3c1629b2f48e1%22%7D");
             if (GUILayout.Button("dorumonstr@gmail.com"))
                 vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%229684567%22%2C%22secret%22%3A%22bbf034c0a0%22%2C%22sid%22%3A%224b116f646fd75b3c357532c6302ded441469b682d0df94af62665ef4e5%22%7D");
             if (GUILayout.Button("dorumon@mail.ru"))
                 vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2257109080%22%2C%22secret%22%3A%224454a797a5%22%2C%22sid%22%3A%2292d99c49f8d3b1bb45270e2775f475bd4d68960015cb38eb62c4e9bde7%22%7D");
-                
-
         }
-        if (_vk._Status == Vkontakte.Status.connected && _User != null)
+        if (_vk._Status == Vk.Status.connected && localuser != null)
         {
+            
+            GUILayout.Label(_vk.time.ToShortDateString() + " " + _vk.time.ToShortTimeString());
+            if (GUILayout.Button("Chat"))
+                chat.enabled = true;
+            if (GUILayout.Button("Score Board"))
+                statsboard.enabled = true;
+
             scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-            GUILayout.Label("Name:" + _User.nick);
-            GUILayout.Box(_User.texture);
-            foreach (Vkontakte.user user in users.Values)
-            {
-                GUILayout.Label("Name: " + user.nick);
-                if (GUILayout.Button(user.texture, GUILayout.Height(40)) && !windows.ContainsKey(user.uid))
+            GUILayout.Label("Name:" + localuser.nick);
+            GUILayout.Label("Status:" + localuser.st.text);
+            GUILayout.Box(localuser.texture);
+            foreach (Vk.user user in friends.Values)
+                if (user.uid != localuser.uid && user.online)
                 {
-                    GetWindow(user);
+                    GUILayout.Label("Name: " + user.nick);
+                    GUILayout.Label("Status:" + user.st.text);
+                    if (!user.installed && GUILayout.Button("Пригласить друга в игру"))
+                    {
+                        user.installed = true;
+                        _vk.SendWallMsg(user.uid, user.nick + " приглашает вас сыграть с ним в шутер physxwars");
+                    }
+                    if (GUILayout.Button(user.texture, GUILayout.Height(40)) && !windows.ContainsKey(user.uid))
+                        GetWindow(user);
                 }
-            }
             GUILayout.EndScrollView();
         }
         GUI.DragWindow();
     }
-    private MessageWindow GetWindow(Vkontakte.user user)
+
+    private static void OpenUrl(string url)
+    {
+        if (Application.platform == RuntimePlatform.OSXWebPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer)
+            Application.ExternalCall("OpenURL", url);
+        else
+            Application.OpenURL(url);
+    }
+    private MessageWindow GetWindow(Vk.user user)
     {
         MessageWindow msgw;
         if (windows.ContainsKey(user.uid))
@@ -130,8 +188,8 @@ public class VkontakteWindow : Base
         return msgw;
     }
     public Dictionary<int, MessageWindow> windows = new Dictionary<int, MessageWindow>();
-    public Vkontakte.response resp;
-    
+    public Vk.response resp;
+
 }
 
 //public class User : Vkontakte.user

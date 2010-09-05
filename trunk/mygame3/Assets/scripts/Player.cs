@@ -8,37 +8,46 @@ public enum Team : int { None, ata, def }
 public class Player : IPlayer
 {
     public CarController car;
-    internal new Team team;
+    
+    internal new Team team { get { return userview.team; }  set { userview.team=value; } }
     public float flyForce = 300;
     public Transform bloodexp;
     public float force = 400;
-    public int frags;
+    
     internal float angularvel = 1000;
     public float freezedt;
     public float maxVelocityChange = 10.0f;
     public Renderer FrozenRender;
-    public string Nick;
+    public string Nick { get { return userview.nick; } }
+    public int frags { get { return userview.frags; } set { userview.frags = value; } }
+
+    public Vk.user userview;
     GuiBlood blood { get { return GuiBlood._This; } }
     protected override void Start()
     {
-
+        
         base.Start();
+        
         if (networkView.isMine)
         {
             _localiplayer = _LocalPlayer = this;
-            RPCSetNick(GuiConnection.Nick);
             RPCSetOwner();
             RPCSpawn();
-            RPCSetTeam((int)team);
+            
         }
     }
+    
     [RPC]
     public void RPCSpawn()
     {
         CallRPC(true);
+        
         Show(true);
-        if(isOwner)
+        if (isOwner)
+        {
             RPCSelectGun(1);
+            RPCSetTeam((int)_Spawn.team);
+        }
         foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = 100;
@@ -48,16 +57,7 @@ public class Player : IPlayer
     }
     int guni;
 
-    public int fps;
-    public int ping;
-    [RPC]
-    void RPCPingFps(int ping, int fps)
-    {        
-        CallRPC(true, ping, fps);
-        this.ping = ping;
-        this.fps = fps;
-
-    }
+    
     //public Player serverPl
     //{
     //    get
@@ -78,8 +78,7 @@ public class Player : IPlayer
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
 
         
-        if (_TimerA.TimeElapsed(1000) && isOwner && _Spawn.players.Count > 0 && Network.connections.Length > 0)
-            RPCPingFps(Network.GetLastPing(Network.connections[0]), _Loader.fps);
+
         if (isOwner && lockCursor)
         {
             NextGun(Input.GetAxis("Mouse ScrollWheel"));
@@ -135,8 +134,14 @@ public class Player : IPlayer
     {
         if (isOwner) LocalMove();
     }
+    
     private void LocalMove()
     {
+        if (DebugKey(KeyCode.G))
+        {
+            RPCSetFrags(20);
+            RPCSetLife(-200, -1);
+        }
         if (lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -151,17 +156,20 @@ public class Player : IPlayer
     [RPC]
     public void RPCSetTeam(int t)
     {
+        print("set team");
         CallRPC(true, t);
         team = (Team)t;
     }
     public override bool dead { get { return !enabled && car == null; } }
-    public override void OnSetID()
+    public override void OnSetOwner()
     {
+        print("set owner");
         if (isOwner)
             name = "LocalPlayer";
         else
             name = "RemotePlayer" + OwnerID;
         _Spawn.players.Add(OwnerID, this);
+        userview = userviews[OwnerID];
     }
     [RPC]
     public void RPCSelectGun(int i)
@@ -193,12 +201,7 @@ public class Player : IPlayer
             RPCSetLife(-Math.Min(110, (int)collisionInfo.impactForceSum.sqrMagnitude / 2), b.OwnerID);
         }
     }
-    [RPC]
-    void RPCSetNick(string nick)
-    {
-        CallRPC(true, nick);
-        Nick = nick;
-    }
+    
     const int life = 100;
     [RPC]
     public override void RPCHealth()
@@ -241,9 +244,10 @@ public class Player : IPlayer
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
         a.Destroy(10000);
         a.transform.parent = _Spawn.effects;
+        userview.deaths++;
         if (isOwner)
         {
-            if (!zombi) _TimerA.AddMethod(10000, RPCSpawn);            
+            if (!zombi && !zombisurive) _TimerA.AddMethod(10000, RPCSpawn);            
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
             {
                 if (p.OwnerID == killedby)

@@ -7,83 +7,95 @@ using System.Reflection;
 using System.Collections.Generic;
 [assembly: AssemblyVersion("1.0.*")]
 
-public class GuiConnection : Base2
+public class Menu : Base
 {
-    
-    public static string gamename = "Swiborg";        
+    public static string gamename = "Swiborg";
     bool guiloaded;
     public Rect r = new Rect(0, 0, 200, 300);
     public Rect r2;
     internal int port = 5300;
-    public static string Nick = "Guest " + UnityEngine.Random.Range(0, 99);
+    public static string Nick { get { return Base.localuser.nick; } set { Base.localuser.nick = value; } }
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
-    public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }    
+    public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }
     Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
-    
-    private void InitServer()
-    { 
-        
-        Network.useNat = false; 
-        Network.InitializeServer(32, port);
-        if (masterip != "") MasterServer.ipAddress = masterip;
-        MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, Nick + "s Game");
-    }
-    public static GuiConnection _This;
+    public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
+    HostData[] data;
+    SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
+
     void Awake()
     {
-        _This = this;
+        Online = true;
+        _menu = this;
     }
     void Start()
     {
+        print("menu start");
+        if (logged)
+        {
+            _vk.enabled = _Vkontakte.enabled = true;
+            _vk.SetLocalVariable((int)Vk.Keys.playerstats, tostring(new object[] { localuser.totalkills, localuser.totaldeaths, localuser.totalzombiekills, localuser.totalzombiedeaths }));
+        }
+        else
+        {
+            _vk.enabled = _Vkontakte.enabled = false;
+            Nick = "Guest " + UnityEngine.Random.Range(0, 99);
+        }
         r2 = CenterRect(.6f, .5f);
         Network.incomingPassword = "";// version.ToString();
-        print(Network.incomingPassword);
+        //printC(Network.incomingPassword);
     }
     void OnGUI()
     {
-        if (Network.peerType == NetworkPeerType.Disconnected)
+        try
         {
-            r = GUILayout.Window(2, r, ConnWindow, "connection");
-            r2 = GUILayout.Window(1, r2 , ServerListWindow, "Servers");
+            r = GUILayout.Window(2, r, Window, "connection");
+            r2 = GUILayout.Window(1, r2, ServerListWindow, "Servers");
             if (!guiloaded)
             {
                 GUI.BringWindowToFront(2);
                 GUI.BringWindowToFront(1);
                 guiloaded = true;
-            }                    
-        }        
-    }
-    public void ConnWindow(int id)
-    {
-        
-
-            GUILayout.Label("Ipaddress:   port:5300");
-            GUILayout.BeginHorizontal();    
-            ip = GUILayout.TextField(ip,20);
-            
-            int.TryParse(GUILayout.TextField(port.ToString(),10), out port);
-            GUILayout.EndHorizontal();
-            if (GUILayout.Button("Connect"))
-            {
-                if (Nick.Length > 0)
-                {
-                    Network.Connect(ip, port,Network.incomingPassword);                    
-                }
-                else
-                    print("Enter username first");
             }
-            GUILayout.Label("MasterServer:");
-            masterip = GUILayout.TextField(masterip, 20);
-            GUILayout.Label("NickName:");
-            Nick = GUILayout.TextField(Nick,20);
-
-            if (GUILayout.Button("host"))
-                if (Nick.Length > 0)
-                    InitServer();
-                else print("Enter Nick Name");
-            GUI.DragWindow();                     
+        }
+        catch (Exception e) { print(e); }
     }
-    public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
+    public void Window(int id)
+    {
+        GUILayout.Label("Ipaddress:   port:5300");
+        GUILayout.BeginHorizontal();
+        ip = GUILayout.TextField(ip);
+
+        int.TryParse(GUILayout.TextField(port.ToString(), 10), out port);
+        GUILayout.EndHorizontal();
+        if (GUILayout.Button("Connect"))
+        {
+            if (Nick.Length > 0)
+            {
+                Network.Connect(ip.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries), port, Network.incomingPassword);
+            }
+            else
+                printC("Enter username first");
+        }
+        GUILayout.Label("MasterServer:");
+        masterip = GUILayout.TextField(masterip, 20);
+        if (!logged)
+        {
+            GUILayout.Label("NickName:");
+            Nick = GUILayout.TextField(Nick, 20);
+        }
+        if (GUILayout.Button("host"))
+            if (Nick.Length > 0)
+                InitServer();
+            else printC("Enter Nick Name");
+        GUI.DragWindow();
+    }
+    private void InitServer()
+    {
+        Network.useNat = false;
+        Network.InitializeServer(32, port);
+        if (masterip != "") MasterServer.ipAddress = masterip;
+        MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, _Loader.ips);
+    }
     int GetPing(string ip)
     {
         Ping p;
@@ -91,14 +103,12 @@ public class GuiConnection : Base2
             hdps.Add(ip, p = new Ping(ip));
         else
             p = hdps[ip];
-        
+
         return p.time;
     }
-    HostData[] data;
-    SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
     void ServerListWindow(int q)
     {
-         
+
         GUILayout.Label("your version is: " + version);
         if (GUILayout.Button("refresh server list"))
         {
@@ -113,23 +123,23 @@ public class GuiConnection : Base2
             foreach (HostData d in data)
                 sorteddata.Add(GetPing(d.ip[0]), d);
         }
-        foreach (HostData element in sorteddata.Values) 
+        foreach (HostData element in sorteddata.Values)
         {
-            
+
             GUILayout.BeginHorizontal();
             string name = element.gameName + " " + element.connectedPlayers + " / " + element.playerLimit;
             GUILayout.Label(name);
             GUILayout.Space(5);
 
             string hostInfo = "[";
-            foreach (string host in element.ip) 
+            foreach (string host in element.ip)
                 hostInfo = hostInfo + host + ":" + element.port + " ";
             hostInfo = hostInfo + "]";
-            GUILayout.Label(hostInfo); 
+            GUILayout.Label(hostInfo);
             GUILayout.Space(5);
             GUILayout.Label(element.comment);
             GUILayout.Label("ping:" + GetPing(element.ip[0]));
-            
+
             GUILayout.FlexibleSpace();
             GUILayout.Space(5);
 
@@ -141,7 +151,9 @@ public class GuiConnection : Base2
                 //    print("Using Nat punchthrough to connect to host");
                 //else
                 //     print("Connecting directly to host");
-                ip = element.ip[0];
+                ip = element.comment;
+                if (!ip.Contains(element.ip[0]))
+                    ip = element.ip[0] + "," + ip;
                 port = element.port;
 
             }
@@ -158,11 +170,11 @@ public class GuiConnection : Base2
     }
     void OnFailedToConnect(NetworkConnectionError error)
     {
-        print("Could not connect to server: " + error.ToString().Replace("InvalidPassword", "Game Already Started"));
+        printC("Could not connect to server: " + error.ToString().Replace("InvalidPassword", "Game Already Started"));
     }
     void OnFailedToConnectToMasterServer(NetworkConnectionError error)
     {
-        print("Could not connect to master server: " + error);
+        printC("Could not connect to master server: " + error);
     }
 }
 public class Trace : UnityEngine.Debug { }

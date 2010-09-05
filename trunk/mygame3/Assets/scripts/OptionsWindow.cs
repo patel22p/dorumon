@@ -26,7 +26,7 @@ public class OptionsWindow : Base {
         {
             oldquality = quality;            
             QualitySettings.currentLevel = (QualityLevel)quality;
-            print("Set Quality" + QualitySettings.currentLevel);
+            printC("Set Quality" + QualitySettings.currentLevel);
         }
 
         if (GUILayout.Button("close")) enabled = false;

@@ -21,6 +21,8 @@ public class Spawn : Base
     }
     void Start()
     {
+        localuser.frags = localuser.deaths = 0;
+        _Vkontakte.enabled = _vk.enabled = false;
         zombiesleft = _cw.fraglimit;
         AudioListener.volume = .1f;
         if (Network.isServer)
@@ -52,12 +54,12 @@ public class Spawn : Base
 
     private void ZombieSuriveCheck()
     {
-        int live =0;
+        int live = 0;
         foreach (Player p in players.Values)
             if (!p.dead) live++;
         if (live == 0 && players.Values.Count != 0)
         {
-            
+
             rpcwrite("You died on " + stage + " level");
             win = true;
             _TimerA.AddMethod(5000, WinGame);
@@ -81,11 +83,11 @@ public class Spawn : Base
     private void TDMCheck()
     {
         BlueFrags = RedFrags = 0;
-        foreach (Player pl in TP(Team.ata))            
-                RedFrags += pl.frags;
-        
-        foreach (Player pl in TP(Team.def))            
-                BlueFrags += pl.frags;
+        foreach (Vk.user pl in TP(Team.ata))
+            RedFrags += pl.frags;
+
+        foreach (Vk.user pl in TP(Team.def))
+            BlueFrags += pl.frags;
 
         if ((BlueFrags >= _cw.fraglimit || RedFrags >= _cw.fraglimit))
         {
@@ -99,12 +101,12 @@ public class Spawn : Base
     {
         bool BlueteamLive = false, RedteamLive = false;
         int rcount = 0, bcount = 0;
-        foreach (Player p in TP(Team.def))
+        foreach (Player p in TP2(Team.def))
         {
             rcount++;
             if (!p.dead) BlueteamLive = true;
         }
-        foreach (Player p in TP(Team.ata))
+        foreach (Player p in TP2(Team.ata))
         {
             bcount++;
             if (!p.dead) RedteamLive = true;
@@ -144,9 +146,26 @@ public class Spawn : Base
             }
         }
     }
+    
+
     private void WinGame()
     {
-        _Loader.LoadLevelRPC(_Loader.disconnectedLevel);
+        foreach (Vk.user user in userviews.Values)
+        {
+            if (dm || tdm)
+            {
+
+                user.totaldeaths += user.deaths;
+                user.totalkills += user.frags;
+            }
+            else
+            {
+                user.totalzombiedeaths += user.deaths;
+                user.totalzombiekills += user.frags;
+            }
+        }
+        
+        _Loader.RPCLoadLevel(Level.z3labby.ToString());
     }
     private void CreateZombie(Vector3 a)
     {
@@ -187,9 +206,10 @@ public class Spawn : Base
         else
             t = _LocalPlayer.transform;
         if (tdm || zombi)
-            t.GetComponent<Player>().RPCSetTeam((int)team);
+            this.team = team;
 
     }
+    internal Team team;
     internal void Spectator()
     {
         if (_LocalPlayer.car == null)

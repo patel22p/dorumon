@@ -1,49 +1,58 @@
 using UnityEngine;
 using System.Collections;
-
 public class MessageWindow : Base
 {
-
+    public bool chat;
     public Rect rect;
     int id;
     void Start()
     {
         id = Random.Range(0, int.MaxValue);        
-        rect = new Rect(0, Screen.height - 200, 200, 200);
+        rect = new Rect(0, Screen.height - 200, 0, 0);
     }
-    public Vkontakte.user user;
+    public Vk.user user;
     public override void Dispose()
-    {
-        _Vkontakte.windows.Remove(user.uid);
+    {        
+            _Vkontakte.windows.Remove(user.uid);
         base.Dispose();
     }
+
     void OnGUI()
     {
-        
-        rect = GUILayout.Window(id, rect, Window, user.nick);
+        rect = GUILayout.Window(id, rect, Window, chat ? "Chat Window" : user.nick, GUILayout.Height(300), GUILayout.Width(400));
     }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
             if (input != "")
             {
-                _vk.SendMsg(user.uid + ":" + input.Trim());
-                input = "";
+                input = input.Trim();
+                if (chat) _vk.SendChatMsg(localuser.nick + ":" + input);
+                else
+                {
+                    _vk.SendMsg(user.uid, input);
+                    output = localuser.nick + ":" + input + "\r\n" + output;
+                }
+                input = "";                
             }
     } 
     void Window(int i)
     {
         if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
         {
-            Dispose();
-            Destroy(this);
+            if (chat)
+                enabled = false;
+            else
+            {
+                Dispose();
+                Destroy(this);
+            }
         }
-        GUILayout.Label(user.texture);
-        
-        input = GUILayout.TextArea(input, GUILayout.ExpandHeight(false));
+        if (!chat) GUILayout.Label(user.texture, GUILayout.Height(40));
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.TextArea(output, GUILayout.ExpandHeight(true));
         GUILayout.EndScrollView();
+        input = GUILayout.TextArea(input, GUILayout.ExpandHeight(false));        
         GUI.DragWindow();
     }
     Vector2 scrollPosition;
@@ -53,7 +62,6 @@ public class MessageWindow : Base
 
     internal void Write(string p)
     {
-        input += "\r\n" + user.nick + ":" + p;
-        
+        output = p + "\r\n" + output;        
     }
 }

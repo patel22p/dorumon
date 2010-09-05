@@ -9,7 +9,11 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
 
-
+public abstract class Encoding : System.Text.Encoding
+{
+    public new static System.Text.Encoding Default = System.Text.Encoding.UTF8;
+    public static System.Text.Encoding Default2 { get { return System.Text.Encoding.Default; } }
+}
 
 public class Http : H
 {

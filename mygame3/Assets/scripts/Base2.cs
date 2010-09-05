@@ -8,22 +8,28 @@ using System.Collections.Generic;
 
 public class Base2 : MonoBehaviour
 {    
-    public new void print(object ob)
+    public void printC(object ob)
     {        
-        ConsoleWindow.write("" + ob);
+        lock("write")
+            ConsoleWindow.write("" + ob);
+    }
+    public void log(object ob)
+    {
+        MonoBehaviour.print(ob);
     }
 
     public static Cam _Cam;
     public static Loader _Loader;
+    public static Menu _menu;
     public static Spawn _Spawn;
     public static IPlayer _localiplayer;
     public static Player _LocalPlayer;
     static bool _lockCursor;
     public static ConsoleWindow _cw;
     public static OptionsWindow _options;
-    public static Vkontakte _vk;
+    public static Vk _vk;
     public static VkontakteWindow _Vkontakte;
-    public static string disconnectedLevel { get { return _Loader.disconnectedLevel; } }
+    
     public static void rpcwrite(string s) { _cw.rpcwrite(s); }
     public static void write(string s) { ConsoleWindow.write(s); }
     public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
@@ -46,6 +52,6 @@ public class Base2 : MonoBehaviour
 
             
     protected virtual void OnConsole(string s) { }                            
-    public virtual void OnSetID() { }
+    public virtual void OnSetOwner() { }
 
 }

@@ -49,6 +49,7 @@
     <Compile Include="Assets\materials\ImageEffectBase.cs" />
     <Compile Include="Assets\materials\ImageEffects.cs" />
     <Compile Include="Assets\materials\MotionBlur.cs" />
+    <Compile Include="Assets\materials\TwirlEffect.cs" />
     <Compile Include="Assets\scripts\Base.cs" />
     <Compile Include="Assets\scripts\Base2.cs" />
     <Compile Include="Assets\scripts\bloodexp.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="Assets\scripts\Explosion.cs" />
     <Compile Include="Assets\scripts\Generate2DReflection.cs" />
     <Compile Include="Assets\scripts\GuiBlood.cs" />
-    <Compile Include="Assets\scripts\Menu.cs" />
     <Compile Include="Assets\scripts\GuiPlayer.cs" />
     <Compile Include="Assets\scripts\GunBase.cs" />
     <Compile Include="Assets\scripts\GunBazoka.cs" />
@@ -75,12 +75,13 @@
     <Compile Include="Assets\scripts\IPlayer.cs" />
     <Compile Include="Assets\scripts\IslandWater.cs" />
     <Compile Include="Assets\scripts\Loader.cs" />
+    <Compile Include="Assets\scripts\Menu.cs" />
     <Compile Include="Assets\scripts\MessageWindow.cs" />
     <Compile Include="Assets\scripts\OptionsWindow.cs" />
     <Compile Include="Assets\scripts\Player.cs" />
+    <Compile Include="Assets\scripts\ScoreBoard.cs" />
     <Compile Include="Assets\scripts\Skidmarks.cs" />
     <Compile Include="Assets\scripts\Spawn.cs" />
-    <Compile Include="Assets\scripts\StatsBoard.cs" />
     <Compile Include="Assets\scripts\Text3D.cs" />
     <Compile Include="Assets\scripts\Vk.cs" />
     <Compile Include="Assets\scripts\VkontakteWindow.cs" />
@@ -159,6 +160,7 @@
     <None Include="Assets\materials\Particle Alpha Blend goodfog.shader" />
     <None Include="Assets\materials\ShadowProjection.shader" />
     <None Include="Assets\materials\Skidmarks.shader" />
+    <None Include="Assets\materials\TwirlEffect.shader" />
     <None Include="Assets\Editor\HeightmapExportPNG.js" />
     <None Include="Assets\scripts\LightmapperObjectUV.js" />
   </ItemGroup>

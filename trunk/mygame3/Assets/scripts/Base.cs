@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using System;
 public class Base : Base2 , System.IDisposable
 {
+    public static bool iswebplayer = Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer;
     public static Level _Level;
     public static bool Online;
     bool hidden;
@@ -19,11 +20,23 @@ public class Base : Base2 , System.IDisposable
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }
 
+    protected bool Duplicate()
+    {
+        if (GameObject.FindObjectsOfType(this.GetType()).Length == 2)
+        {
+            foreach (Behaviour b in this.GetComponentsInChildren<Behaviour>())
+                b.enabled = false;            
+            Destroy(this.gameObject);
+            return true;
+        }
+        return false;
+    }
+
     public bool DebugKey(KeyCode key)
     {
         return Input.GetKeyDown(key);
     }
-    public static string tostring(object[] o)
+    public static string tostring(params object[] o)
     {
         string s = "";
         foreach (object a in o)

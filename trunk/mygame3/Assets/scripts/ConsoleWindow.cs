@@ -12,12 +12,13 @@ public partial class  ConsoleWindow : Base
     
     void Awake()
     {
-        _cw = this;
+        
     }
 
     void Start()
     {
-        
+        _cw = this;
+        printC(" start " + Application.absoluteURL);
         ConsoleRect = CenterRect(.8f, .6f);
     }
     Rect ConsoleRect;
@@ -36,8 +37,7 @@ public partial class  ConsoleWindow : Base
         {
             if (input != "")
             {
-                foreach (GameObject go in FindObjectsOfType(typeof(GameObject)))
-                    go.SendMessage("OnConsole", input, SendMessageOptions.DontRequireReceiver);
+                rpcwrite(Menu.Nick + ": " + input);
                 input = "";
             }
         }
@@ -122,11 +122,12 @@ public partial class  ConsoleWindow : Base
     
 
     [RPC]
-    void RPCPingFps(int id,int ping, int fps)
+    void RPCPingFps(int id,int ping, int fps,float loaded)
     {
-        CallRPC(true, id, ping, fps);
+        CallRPC(true, id, ping, fps,loaded);
         userviews[id].fps = fps;
-        userviews[id].ping = ping;        
+        userviews[id].ping = ping;
+        userviews[id].loaded = loaded;
     }
 
 
@@ -218,8 +219,18 @@ public partial class  ConsoleWindow : Base
         {
             if (GUILayout.Button("Start Game"))
             {
-                SetGameMode((int)gameMode, fraglimit);
-                _Loader.RPCLoadLevel(Level.z4game.ToString());
+                bool loaded = true;
+                foreach (Vk.user u in userviews.Values)
+                    if (u.loaded != 1)
+                    {
+                        printC("not all users loaded map");
+                        loaded = false;
+                    }
+                if (loaded)
+                {
+                    SetGameMode((int)gameMode, fraglimit);
+                    _Loader.RPCLoadLevel(Level.z4game.ToString());
+                }
             }
             gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive", "Zombie Survive" });
 
@@ -232,18 +243,20 @@ public partial class  ConsoleWindow : Base
         if (_Level == Level.z3labby)
         {
 
-            if (_TimerA.TimeElapsed(1000) && Network.connections.Length > 0)
-                RPCPingFps(Network.player.GetHashCode(), Network.GetLastPing(Network.connections[0]), _Loader.fps);
+            if (_TimerA.TimeElapsed(1000))
+                RPCPingFps(Network.player.GetHashCode(),
+                    (Network.connections.Length > 0 ? Network.GetLastPing(Network.connections[0]) : 0),
+                    _Loader.fps,
+                    (iswebplayer ? Application.GetStreamProgressForLevel(4) : 1));
 
-            const string table = "{0,30}{1,20}{2,10}{3,10}{4,10}{5,10}{6,10}";
-            GUILayout.Label(String.Format(table, "", "ZombieKills", "ZDeaths", "kills", "deaths", "Ping", "Fps"), _Loader._GUIStyle);
+            const string table = "{0,30}{1,20}{2,10}{3,10}{4,10}{5,10}{6,10}{7,10}";
+            GUILayout.Label(String.Format(table, "", "ZombieKills", "ZDeaths", "kills", "deaths", "Ping", "Fps", "Level Loaded"), _Loader._GUIStyle);
 
             foreach (Vk.user user in userviews.Values)
             {
                 GUILayout.BeginHorizontal();
-
-                //GUILayout.Label(String.Format(table,       "",     "ZombieKills",         "ZDeaths",    "kills",    "deaths",    "Ping",    "Fps"), _Loader._GUIStyle);
-                GUILayout.Label(String.Format(table, user.nick, user.totalzombiekills, user.totalzombiedeaths, user.totalkills, user.totaldeaths, user.ping, user.fps), _Loader._GUIStyle);
+                
+                GUILayout.Label(String.Format(table, user.nick, user.totalzombiekills, user.totalzombiedeaths, user.totalkills, user.totaldeaths, user.ping, user.fps, (int)(user.loaded * 100)), _Loader._GUIStyle);
                 AddKickButton(user);
                 GUILayout.EndHorizontal();
             }
@@ -269,13 +282,11 @@ public partial class  ConsoleWindow : Base
         {
             rpcwrite(user.nick + " kicked");
             Network.CloseConnection(user.nwid, true);
+            RPCUserDisconnected(user.nwid.GetHashCode());
         }
         GUILayout.Label(user.texture, GUILayout.Width(50), GUILayout.Height(40));
     }
-    protected override void OnConsole(string s)
-    {
-        rpcwrite(Menu.Nick + ": " + s);
-    }
+    
     public static string output = @"
 alt enter - fullscreen
 tab - close/open console

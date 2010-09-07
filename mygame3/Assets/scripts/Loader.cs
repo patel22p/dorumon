@@ -23,13 +23,8 @@ public class Loader : Base
 
     void Awake()
     {
-        
-        if (GameObject.FindObjectsOfType(typeof(Loader)).Length == 2)
-        {
-            enabled = false;
-            Destroy(this.gameObject);            
-            return;
-        }
+        if (Duplicate()) return;
+        print("loader awake");        
         if (Application.platform != RuntimePlatform.WindowsWebPlayer)
         {
             //print(Directory.GetCurrentDirectory());
@@ -46,12 +41,18 @@ public class Loader : Base
         localuser = new Vk.user();
 
         foreach (IPAddress ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-            ips += ip + ",";
+            ips += ip + ",";        
+    }
 
+    
+    void Start()
+    {
+        
         
     }
     void Update()
     {        
+
         WWW2.Update();
         if (_TimerA.TimeElapsed(500))
             fps = (int)_TimerA.GetFps();

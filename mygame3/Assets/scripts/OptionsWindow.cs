@@ -20,7 +20,7 @@ public class OptionsWindow : Base {
     }
     private void Window(int id)
     {
-
+        GUILayout.Label("quality:");
         string[] qs = new string[] { "Fastest", "Fast", "Simple", "Good", "Beautiful", "Fantastic" };
         if (oldquality != (quality = GUILayout.Toolbar(quality, qs)))
         {
@@ -28,6 +28,17 @@ public class OptionsWindow : Base {
             QualitySettings.currentLevel = (QualityLevel)quality;
             printC("Set Quality" + QualitySettings.currentLevel);
         }
+        GUILayout.Label("screen resolution:");
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("1024x768"))
+            Screen.SetResolution(1024, 768, Screen.fullScreen);
+        if (GUILayout.Button("800x600"))
+            Screen.SetResolution(800, 600, Screen.fullScreen);
+        if (GUILayout.Button("1280x720"))
+            Screen.SetResolution(1280, 720, Screen.fullScreen);
+        if (GUILayout.Button("1280x768"))
+            Screen.SetResolution(1280, 768, Screen.fullScreen);
+        GUILayout.EndHorizontal();
 
         if (GUILayout.Button("close")) enabled = false;
         GUI.DragWindow();

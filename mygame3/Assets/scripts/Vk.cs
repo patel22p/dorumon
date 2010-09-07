@@ -12,6 +12,7 @@ using System.Threading;
 
 public partial class Vk : Base
 {
+    public delegate void Action();
     internal enum Status { disconnected, connecting, connected }
     internal enum Keys { playerstats = 1300 }
     internal Status _Status;
@@ -23,12 +24,52 @@ public partial class Vk : Base
     
     NetworkStream nw;
     int ap_id = 1935303;
-
-    void Start() { _vk = this; }
-
-    public void Start(string url)
+    void Awake()
     {
+        
+    }
+    void Start()
+    {
+        _vk = this;
         print("vk start");
+        thread = new Thread(StartThreads);
+        thread.IsBackground = true;
+        thread.Name = "VK";
+        thread.Start();
+        
+        new WWW2("http://www.timeanddate.com/worldclock/").done += delegate(WWW2 w)
+        {
+            try
+            {
+                time = DateTime.Parse(Regex.Match(H.ToStr(w.bytes), @"\d\d:\d\d:\d\d").Value).AddHours(4);
+            }
+            catch (Exception e) { printC(e); }
+        };
+
+    }
+    
+    List<Action> actions = new List<Action>();
+    void StartThreads()
+    {
+        while (true)
+        {
+            if (actions.Count > 0)
+            {
+                List<Action> actions1 = actions;
+                actions = new List<Action>();
+                foreach (Action a in actions1)
+                    try
+                    {
+                        a();
+                    }
+                    catch (Exception e) { print(a.Method.Name + "() " + e); }
+            }
+            Thread.Sleep(500);
+        }
+    }
+    
+    public void Start(string url)
+    {        
         _Status = Status.connecting;
         newThread(delegate()
             {
@@ -40,10 +81,34 @@ public partial class Vk : Base
                     sid = Regex.Match(url, @"""sid"":""(\w*)").Groups[1].Value;
                     secret = Regex.Match(url, @"""secret"":""(\w*)").Groups[1].Value;
                     print(mid + "," + secret + "," + sid);
-                    GetUserData();
+
+                    userid = int.Parse(GetGlobalVariable(1280));
+                    Thread.Sleep(500);
+                    localuser = GetUserInfo(userid);
+                    time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(int.Parse(GetGlobalVariable(0))).AddHours(4);
+                    SetLastStatusCheckTime();                                                            
+                    new WWW2(localuser.photo).done += delegate(WWW2 www)
+                    {
+                        print("loaded texture");
+                        localuser.texture = www.texture;
+                        DontDestroyOnLoad(localuser.texture);
+                    };
+                    int i = 500;
+                    
+                    GetFriends(false);
+                    Thread.Sleep(i);
+                    GetChatMessages(10, false);
+                    Thread.Sleep(i);
+                    GetAppUsers(false);
+                    Thread.Sleep(i);
+                    GetOwnStats(false);
+                    _Status = Status.connected;
+                    _TimerA.AddMethod(_Vkontakte.onVkConnected);
                 }
-                catch (System.Exception e) { _Status = Status.disconnected; print(e); }
+                catch (System.Exception e) { _Status = Status.disconnected; printC("вход вконтакте не удался, убедитесь что вы дали приложению все права\r\n" + e); }
             });
+        
+        
     }
     string secret; //{ get { return PlayerPrefs.GetString("secret"); } set { PlayerPrefs.SetString("secret", value); } }
     string mid; //{ get { return PlayerPrefs.GetString("mid"); } set { PlayerPrefs.SetString("mid", value); } }
@@ -57,59 +122,38 @@ public partial class Vk : Base
             time = time.AddSeconds(Time.deltaTime);
 
     }
+    
     private void GetUserData()
     {
-        int i = 500;
-        userid = int.Parse(GetGlobalVariable(1280));
-        Thread.Sleep(i);
-        localuser = GetUserInfo(userid);
-        Thread.Sleep(i);
-        time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(int.Parse(GetGlobalVariable(0)));
-        SetUnixTime();
-        Thread.Sleep(i);
-        GetFriends();
-        Thread.Sleep(i);
-        GetChatMessages(10);
-        Thread.Sleep(i);
-        GetScoreBoard();
-        Thread.Sleep(i);
-        GetAppUsers();
-        Thread.Sleep(i);
-        GetStats();
-        Thread.Sleep(i);
-        SetStatus("In PhysxWars GameLabby " + time.ToShortTimeString());        
-        _Status = Status.connected;
-        printC("success");
-        _TimerA.AddMethod(_Vkontakte.onVkConnected);        
-        friends.Add(localuser.uid, localuser);
-        new WWW2(localuser.photo).done += delegate(WWW2 www)
-        {
-            print("loaded texture");
-            localuser.texture = www.texture;
-            DontDestroyOnLoad(localuser.texture);
-        };
+                                
+        printC("success");        
+        
 
     }
 
-    private void GetStats()
+    private void GetOwnStats(bool async)
     {
-        string[] ss = GetLocalVariable((int)Keys.playerstats).Split(',');
-        if (ss.Length != 4)
-            print("empty stats" + ss.Length);
-        else
+        newThread(async,delegate()
         {
-            localuser.totalkills = int.Parse(ss[0]);
-            localuser.totaldeaths = int.Parse(ss[1]);
-            localuser.totalzombiekills= int.Parse(ss[2]);
-            localuser.totalzombiedeaths= int.Parse(ss[3]);
-            print("stats set" + localuser.totalkills);
-        }
+            string[] ss = GetLocalVariable((int)Keys.playerstats).Split(',');
+            if (ss.Length != 4)
+                print("empty stats" + ss.Length);
+            else
+            {
+                localuser.totalkills = int.Parse(ss[0]);
+                localuser.totaldeaths = int.Parse(ss[1]);
+                localuser.totalzombiekills = int.Parse(ss[2]);
+                localuser.totalzombiedeaths = int.Parse(ss[3]);
+                print("stats set" + localuser.totalkills);
+            }
+        });
     }
 
 
 
     private user GetUserInfo(int userid)
     {
+
         string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
                     new string[][]
                     { 
@@ -143,24 +187,39 @@ public partial class Vk : Base
         
         return Regex.Match(res, "<response>(.*?)</response>").Groups[1].Value;
     }
-    List<Thread> threads = new List<Thread>();
-    void newThread(ThreadStart  a)
+    void newThread(Action a) { newThread(true, a); }
+    void newThread(bool async, Action a)
     {
-        Thread t = new Thread(a);
-        t.IsBackground = true;
-        threads.Add(t);
-        t.Start();
+        if (async)
+            actions.Add(a);
+        else
+            a();
     }
+    
+    Thread thread;
     void OnApplicationQuit()
     {
-        foreach (Thread t in threads)
-            if (t.IsAlive)
-                t.Abort();
+        if(thread!=null)
+            thread.Abort();
+    }
+
+    void SetGlobalVariable(int key, string value)
+    {
+
+        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
+                    { 
+                        new string[]{"method","putVariable"},                                            
+                        new string[]{"key",key.ToString()},
+                        new string[]{"value",value},                        
+                        new string[]{"test_mode","2"} 
+                    });
+        string res = Write(sendfunc);
     }
 
     public void SetLocalVariable(int key, string value)
     {
-
+        
         newThread(delegate()
             {
                 string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
@@ -176,42 +235,70 @@ public partial class Vk : Base
                 
             });
     }
-    List<score_info> scores = new List<score_info>();
-    void GetScoreBoard()
-    {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
-                    { 
-                        new string[]{"method","getHighScores"},                                                
-                    });
 
-        string res = Write(sendfunc);
-        res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
-        res = "<response><scores>" + res + "</scores></response>";
-        response r = (response)xml.Deserialize(new StringReader(res));
-        scores = r.scores;
-        foreach (score_info s in scores)
+    public SortedList<float, user> highscoresZombie = new SortedList<float, user>();
+    public SortedList<float, user> highscores = new SortedList<float, user>();
+    public void KillsTop(bool zombie)
+    {        
+        newThread(delegate()
         {
-            if (friends.ContainsKey(s.user_id))
-                friends[s.user_id].stats = s.score;
-        }
-        print("get scores" + r.scores.Count);
-        
-
-    }
-    void GetGlobalVariables(int key, int count)
-    {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+            try
+            {
+                 int key = zombie ? 100 : 150;
+                string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                            new string[][]
                     { 
                         new string[]{"method","getVariables"},                                                                    
                         new string[]{"test_mode","2"},
                         new string[]{"count","32"},
-                        new string[]{"key","100"},
+                        new string[]{"key",key.ToString()},
                     });
 
-        string res = Write(sendfunc);
+                string res = Write(sendfunc);
+                int min = localuser.totalzombiekills;
+                int id = -1;
+                SortedList<float, user> scores =(zombie ? highscoresZombie : highscores);
+                scores.Clear();
+                bool found = false;
+                for (int i = 0; i < 32; i++)
+                {
+                    Match m = Regex.Matches(res, "<value>(.*?)</value>")[i];
+                    string[] ss = m.Groups[1].Value.Split(',');
+                    user u = new user();
+                    u.uid = int.Parse(ss[0]);
+                    u.nick = ss[1];
+                    u.photo = ss[2];
 
+                    u.totalkills = int.Parse(ss[3]);
+                    u.totaldeaths = int.Parse(ss[4]);
+
+
+                    scores.Add((float)u.totalkills + UnityEngine.Random.value, u);
+                    if (!found)
+                    {
+                        if (u.totalkills < min)
+                        {
+                            min = u.totalkills;
+                            id = i;
+                        }
+                        if (u.uid == localuser.uid)
+                        {
+                            found = true;
+                            id = i;
+                        }
+                    }
+                }
+                Thread.Sleep(500);
+                if (id != -1)
+                    SetGlobalVariable(key + id, tostring(localuser.uid, localuser.nick, localuser.photo,
+                        zombie ? localuser.totalzombiekills : localuser.totalkills,
+                        zombie ? localuser.totalzombiedeaths : localuser.totaldeaths));
+                else
+                    print("rank is to low");
+                print("killstop success" + highscoresZombie.Values.Count);
+            }
+            catch (Exception e) { print(e); }
+        });
     }
 
     internal void SendWallMsg(int userid, string text)
@@ -257,48 +344,55 @@ public partial class Vk : Base
 
     //
 
-    private void GetAppUsers()
+    private void GetAppUsers(bool async)
     {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(async,delegate()
+        {
+            string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
                     { 
                         new string[]{"method","friends.getAppUsers"},                                                
                     });
-        string res = Write(sendfunc);
-        res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
-        res = "<response><appusers>" + res + "</appusers></response>";
-        response r = (response)xml.Deserialize(new StringReader(res));
-        print("appusers" + r.appusers.Count);
-        foreach (int id in r.appusers)
-        {
-            if (friends.ContainsKey(id))
-                friends[id].installed = true;
-        }
+            string res = Write(sendfunc);
+            res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
+            res = "<response><appusers>" + res + "</appusers></response>";
+            response r = (response)xml.Deserialize(new StringReader(res));
+            print("appusers" + r.appusers.Count);
+            foreach (int id in r.appusers)
+            {
+                if (friends.ContainsKey(id))
+                    friends[id].installed = true;
+            }
+        });
     }
 
     
-    private void GetFriends()
+    public void GetFriends(bool async)
     {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(async,delegate()
+        {
+            string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
                     { 
                         new string[]{"method","friends.get"},                        
                         new string[]{"fields","nickname,first_name,last_name,photo,online,uid"}                           
                     });
-        
-        string res = Write(sendfunc);        
 
-        res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
-        res = "<response><users>" + res + "</users></response>";
-        response r = (response)xml.Deserialize(new StringReader(res));
-        print("get friends " + r.users.Count);
+            string res = Write(sendfunc);
 
-        foreach (user user in r.users)
-        {
-            LoadAvatar(user);
-            friends.Add(user.uid, user);
-            user.st.text = user.online ? "online" : "offline";
-        }        
+            res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
+            res = "<response><users>" + res + "</users></response>";
+            response r = (response)xml.Deserialize(new StringReader(res));
+            print("get friends " + r.users.Count);
+            friends.Clear();
+            friends.Add(localuser.uid, localuser);
+            foreach (user user in r.users)
+            {
+                LoadAvatar(user);
+                friends.Add(user.uid, user);
+                user.st.text = user.online ? "online" : "offline";
+            }
+        });
     }
 
     
@@ -314,38 +408,36 @@ public partial class Vk : Base
 
     public void GetNews()
     {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+
+        newThread(delegate()
+        {
+            string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
                     { 
                         new string[]{"timestamp",unixTime.ToString()},                                                
                         new string[]{"method","activity.getNews"},                                                
                     });
 
-        newThread(delegate()
-        {
-            try
+            string res = Write(sendfunc);
+            print("status");
+            response resp = new response();
+            foreach (Match m in Regex.Matches(res, "<uid>(.*?)</uid>.*?<timestamp>(.*?)</timestamp>.*?<text>(.*?)</text>", RegexOptions.Singleline))
             {
-                string res = Write(sendfunc);
-                print("status");
-                response resp = new response();
-                foreach (Match m in Regex.Matches(res, "<uid>(.*?)</uid>.*?<timestamp>(.*?)</timestamp>.*?<text>(.*?)</text>", RegexOptions.Singleline))
-                {
-                    status st = new status();
-                    st.uid = int.Parse(m.Groups[1].Value);
-                    st.timestamp = int.Parse(m.Groups[2].Value);
-                    st.text = m.Groups[3].Value;
-                    resp.statuses.Add(st);
-                    print("set status" + st.text);
-                }
-                Add(resp);
+                status st = new status();
+                st.uid = int.Parse(m.Groups[1].Value);
+                st.timestamp = int.Parse(m.Groups[2].Value);
+                st.text = m.Groups[3].Value;
+                resp.statuses.Add(st);
+                print("set status" + st.text);
             }
-            catch (System.Exception e) { print(e); }
+            Add(resp);
         });
-        SetUnixTime();
+        SetLastStatusCheckTime();
     }
 
-    private void SetUnixTime()
+    private void SetLastStatusCheckTime()
     {
+
         TimeSpan ts = (_vk.time - new DateTime(1970, 1, 1, 0, 0, 0));
         unixTime = (int)ts.TotalSeconds;
     }
@@ -367,24 +459,25 @@ public partial class Vk : Base
         }
     }
 
-    
+
 
     public void SendMsg(int uid, string message)
     {
-        print("send msg");
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(delegate()
+        {
+            try
+            {
+                print("send msg");
+                string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                            new string[][]
                     {                         
                         new string[]{"method","messages.send"}, 
                         new string[]{"uid",uid.ToString()},
                         new string[]{"message", WWW.EscapeURL(message)},                        
                     });
-        newThread(delegate()
-        {
-            try
-            {
+
                 string res = Write(sendfunc);
-                
+
             }
             catch { printC("error message not sended to " + uid); }
         });
@@ -394,19 +487,20 @@ public partial class Vk : Base
 
     public void SendChatMsg(string message)
     {
-        print("send chat message");
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(delegate()
+        {
+            try
+            {
+                print("send chat message");
+                string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                            new string[][]
                     {                         
                         new string[]{"method","sendMessage"}, 
                         new string[]{"message", WWW.EscapeURL(message)},
                         new string[]{"test_mode","2"} ,                    
                     });
-        newThread(delegate()
-        {
-            try
-            {
-                string res = Write(sendfunc);                
+
+                string res = Write(sendfunc);
             }
             catch (Exception e) { printC("message not sended" + e); }
         });
@@ -415,44 +509,44 @@ public partial class Vk : Base
 
     public void GetMessages()
     {
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(delegate()
+        {
+            string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
                     { 
                         new string[]{"method","messages.get"},
                         new string[]{"filters","1"},
                     });
-        newThread(delegate()
-        {
-            try
-            {
-                string res = Write(sendfunc);
-                
-                res = Regex.Match(res, "<count>.*?</count>(.*)</response>", RegexOptions.Singleline).Groups[1].Value;
-                res = "<response><personal>" + res + "</personal></response>";
-                response r = (response)xml.Deserialize(new StringReader(res));
 
-                Add(r);
-                if (r.personal.Count > 0)
-                {
-                    string mids = "";
-                    foreach (message m in r.personal)
-                        mids += m.mid + ",";
-                    sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                        new string[][]
+            string res = Write(sendfunc);
+
+            res = Regex.Match(res, "<count>.*?</count>(.*)</response>", RegexOptions.Singleline).Groups[1].Value;
+            res = "<response><personal>" + res + "</personal></response>";
+            response r = (response)xml.Deserialize(new StringReader(res));
+
+            Add(r);
+            if (r.personal.Count > 0)
+            {
+                string mids = "";
+                foreach (message m in r.personal)
+                    mids += m.mid + ",";
+                sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                    new string[][]
                     { 
                         new string[]{"method","messages.markAsRead"},
                         new string[]{"mids",mids.TrimEnd(',')},
                     });
 
-                    print(Write(sendfunc));
-                }
+                print(Write(sendfunc));
             }
-            catch (System.Exception e) { print(e); }
         });
     }
 
-    public void GetChatMessages(int get)
+    public void GetChatMessages(int get,bool async)
     {
+
+        newThread(async, delegate()
+        {
         string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
                     new string[][]
                     { 
@@ -460,32 +554,29 @@ public partial class Vk : Base
                         new string[]{"messages_to_get",get.ToString()},
                         new string[]{"test_mode","2"} ,                        
                     });
-        newThread(delegate()
-            {
-                try
-                {
+        
                     string res = Write(sendfunc);
                     
                     res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value;
                     res = "<response><messages>" + res + "</messages></response>";
                     response r = (response)xml.Deserialize(new StringReader(res));
                     Add(r);
-                }
-                catch { }
             });
     }
     public void SetStatus(string text)
     {
-        
-        string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
-                    new string[][]
+        newThread(delegate()
+        {
+            string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
+                        new string[][]
                     { 
                         new string[]{"method","activity.set"},                        
                         new string[]{"text", text}                        
                     });
 
-        string resp = Write(sendfunc);
-        print("set Status" + resp);
+            string resp = Write(sendfunc);
+            print("set Status" + resp);
+        });
     }
 
 

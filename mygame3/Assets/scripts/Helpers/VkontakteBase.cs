@@ -72,15 +72,16 @@ Cookie: remixchk=5; remixsid=nonenone
 }
 
 public partial class Vk
-{
+{ 
+    
     public class response
-    {
+    {        
         public List<int> appusers = new List<int>();
         public List<status> statuses = new List<status>();
         public List<user> users = new List<user>();
         public List<message_info> messages = new List<message_info>();
         public List<message> personal = new List<message>();
-        public List<score_info> scores = new List<score_info>();
+        
     }
     public class status
     {
@@ -118,6 +119,7 @@ public partial class Vk
         //{
         //    return ((user)obj).nwid == this.nwid;
         //}
+        public float loaded;
         public string first_name = "";
         public string last_name = "";
         public string nickname = "";
@@ -125,8 +127,7 @@ public partial class Vk
         public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
         public string photo ="";
         public int uid;
-        public NetworkPlayer nwid;
-        public int stats;
+        public NetworkPlayer nwid;        
         public int totalzombiekills;
         public int totalzombiedeaths;        
         public int totalkills;
@@ -140,12 +141,7 @@ public partial class Vk
         public int fps;        
         public Team team;
     }
-    public class score_info
-    {
-        public int score;
-        public int user_id;
-        public string user_name;
-    }
+    
     
 }
 public class WWW2 : WWW
@@ -155,21 +151,23 @@ public class WWW2 : WWW
     public event Action done;
     public WWW2(string s)
         : base(s)
-    {        
-        ws.Add(this);
+    {
+        lock ("www")
+            ws.Add(this);
     }
     public static void Update()
     {
         List<WWW2> remove = new List<WWW2>();
-        foreach (WWW2 w in ws)
-        {
-            if (w.isDone)
-            {                
-                w.done(w);                
-                w.Dispose();
-                remove.Add(w);
+        lock ("www")
+            foreach (WWW2 w in ws)
+            {
+                if (w.isDone)
+                {
+                    w.done(w);
+                    w.Dispose();
+                    remove.Add(w);
+                }
             }
-        }
         foreach (WWW2 w in remove)
             ws.Remove(w);
     }

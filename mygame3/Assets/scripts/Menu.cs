@@ -32,8 +32,11 @@ public class Menu : Base
         print("menu start");
         if (logged)
         {
+            //_vk.SetStatus("");                    
             _vk.enabled = _Vkontakte.enabled = true;
             _vk.SetLocalVariable((int)Vk.Keys.playerstats, tostring(new object[] { localuser.totalkills, localuser.totaldeaths, localuser.totalzombiekills, localuser.totalzombiedeaths }));
+            _vk.KillsTop(true);
+            _vk.KillsTop(false);
         }
         else
         {
@@ -48,6 +51,7 @@ public class Menu : Base
     {
         try
         {
+            if (DebugKey(KeyCode.G)) Application.LoadLevel(0);
             r = GUILayout.Window(2, r, Window, "connection");
             r2 = GUILayout.Window(1, r2, ServerListWindow, "Servers");
             if (!guiloaded)

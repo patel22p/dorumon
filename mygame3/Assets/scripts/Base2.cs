@@ -51,7 +51,7 @@ public class Base2 : MonoBehaviour
     }
 
             
-    protected virtual void OnConsole(string s) { }                            
+    
     public virtual void OnSetOwner() { }
 
 }

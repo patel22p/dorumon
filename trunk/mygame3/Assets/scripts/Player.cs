@@ -7,17 +7,17 @@ using System;
 public enum Team : int { None, ata, def }
 public class Player : IPlayer
 {
-    public CarController car;
+    internal CarController car;
     
-    internal new Team team { get { return userview.team; }  set { userview.team=value; } }
-    public float flyForce = 300;
+    internal new Team team { get { return userview.team; }  set { userview.team=value; } }    
+    
     public Transform bloodexp;
     public float force = 400;
     
-    internal float angularvel = 1000;
-    public float freezedt;
-    public float maxVelocityChange = 10.0f;
-    public Renderer FrozenRender;
+    
+    internal float freezedt;
+    public float tormoza = 1.5f;
+    public ParticleEmitter frozenRender;
     public string Nick { get { return userview.nick; } }
     public int frags { get { return userview.frags; } set { userview.frags = value; } }
 
@@ -72,9 +72,9 @@ public class Player : IPlayer
         if (freezedt >= 0)
         {
             freezedt -= Time.deltaTime * 5;
-            FrozenRender.enabled = true;
+            frozenRender.emit = true;
         }
-        else FrozenRender.enabled = false;
+        else frozenRender.emit = false;
         //this.transform.Find("Sphere").rotation = Quaternion.Euler(this.rigidbody.angularVelocity);
 
         
@@ -142,14 +142,29 @@ public class Player : IPlayer
             RPCSetFrags(20);
             RPCSetLife(-200, -1);
         }
+        //f400,a20,4,4,6,min,max
         if (lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
             moveDirection.y = 0;
             moveDirection.Normalize();
-            this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.deltaTime * angularvel);
-            this.rigidbody.maxAngularVelocity = (FrozenRender.enabled || Input.GetKey(KeyCode.Space) ? 10 : 30);
+            //this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.deltaTime * angularvel);
+             ;
+            
+            Vector3 v =this.rigidbody.velocity;            
+            float angle ;
+            if (moveDirection == Vector3.zero || rigidbody.velocity == Vector3.zero)
+                angle = 1;
+            else
+            {
+                Quaternion a = Quaternion.LookRotation(rigidbody.velocity);
+                Quaternion b = Quaternion.LookRotation(moveDirection);
+                angle = 1 + (Quaternion.Angle(a, b) / 180 * 4);
+            }
+            
+            this.rigidbody.maxAngularVelocity = v.magnitude / tormoza;
+            this.rigidbody.AddForce(moveDirection * Time.deltaTime * force * angle * (frozenRender.emit || Input.GetKey(KeyCode.Space) ? .5f : 1));
         }
     }
 
@@ -198,7 +213,7 @@ public class Player : IPlayer
             collisionInfo.impactForceSum.sqrMagnitude > 150 &&
             rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
         {
-            RPCSetLife(-Math.Min(110, (int)collisionInfo.impactForceSum.sqrMagnitude / 2), b.OwnerID);
+            RPCSetLife(-Math.Min(80, (int)collisionInfo.impactForceSum.sqrMagnitude / 2), b.OwnerID);
         }
     }
     

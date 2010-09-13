@@ -5,7 +5,7 @@ using UnityEngine;
 using doru;
 public abstract class IPlayer : box
 {
-    public Transform title;
+    public TextMesh title;
     public Transform mesh;
 
     public int Life;
@@ -16,7 +16,7 @@ public abstract class IPlayer : box
     {
         get
         {
-
+            
             if (OwnerID == -1) return null;
             else return _Spawn.players[OwnerID.GetHashCode()].team;
         }
@@ -36,8 +36,7 @@ public abstract class IPlayer : box
         guns = this.GetComponentsInChildren<GunBase>(); 
     }
     protected override void Start()
-    {
-        
+    {        
         _Spawn.iplayers.Add(this);
         base.Start();
     }
@@ -57,9 +56,9 @@ public abstract class IPlayer : box
         if (mesh != null)
         {
             if (OwnerID != -1 && (team == Team.ata || team == Team.def))
-                mesh.renderer.material.color = team == Team.ata ? Color.red : Color.blue;
+                title.renderer.material.color = team == Team.ata ? Color.red : Color.blue;
             else
-                mesh.renderer.material.color = Color.white;
+                title.renderer.material.color = Color.white;
         }
 
         if (title != null && _TimerA.TimeElapsed(50))
@@ -68,9 +67,9 @@ public abstract class IPlayer : box
             if (!isOwner && _LocalPlayer != null && ((_LocalPlayer.team == team && !dm) || IsPointed()))
                 shownicktime = 2;
             if (OwnerID != -1 && shownicktime > 0)
-                title.GetComponent<TextMesh>().text = _Spawn.players[OwnerID].Nick + ":" + Life;
+                title.text = _Spawn.players[OwnerID].Nick + ":" + Life;
             else
-                title.GetComponent<TextMesh>().text = "";
+                title.text = "";
         }
         
         shownicktime -= Time.deltaTime;

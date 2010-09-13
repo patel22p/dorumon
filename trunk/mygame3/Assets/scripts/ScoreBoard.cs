@@ -2,18 +2,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ScoreBoard : Base {
 
-    public Rect rect;
-    int id;
-    void Start()
-    {
-        id = Random.Range(0, int.MaxValue);
-        rect = new Rect(0, Screen.height - 200, 0, 0);
-    }
-    void OnGUI()
+public class ScoreBoard : WindowBase {
+
+    protected override void OnGUI()
     {
         rect = GUILayout.Window(id, rect, Window, "Stats Board" , GUILayout.Height(300), GUILayout.Width(500));
+        base.OnGUI();
     }
     enum Tab { TopZombieKill , TopKill}
     Tab sel;
@@ -25,7 +20,7 @@ public class ScoreBoard : Base {
         sel = (Tab)GUILayout.Toolbar((int)sel, new string[] { "Top Zombie Kill", "TopKill" });
 
         const string table = "{0,30}{1,20}{2,10}";
-        GUILayout.Label(string.Format(table, "", "Kills", "Deaths"), _Loader._GUIStyle);
+        GUILayout.Label(string.Format(table, "", "Kills", "Deaths"));
         SortedList sl = new SortedList();
         SortedList<float, Vk.user> score = sel == Tab.TopZombieKill ? _vk.highscoresZombie : _vk.highscores;
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);

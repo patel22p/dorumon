@@ -17,7 +17,7 @@ public class Menu : Base
     public static string Nick { get { return Base.localuser.nick; } set { Base.localuser.nick = value; } }
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
     public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }
-    Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
+    
     public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     HostData[] data;
     SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
@@ -26,7 +26,7 @@ public class Menu : Base
     {
         Online = true;
         _menu = this;
-    }
+    }    
     void Start()
     {
         print("menu start");
@@ -41,17 +41,17 @@ public class Menu : Base
         else
         {
             _vk.enabled = _Vkontakte.enabled = false;
-            Nick = "Guest " + UnityEngine.Random.Range(0, 99);
+            Nick = lc.guest + UnityEngine.Random.Range(0, 99);
         }
         r2 = CenterRect(.6f, .5f);
-        Network.incomingPassword = "";// version.ToString();
+        Network.incomingPassword = build ? version.ToString() : "";
         //printC(Network.incomingPassword);
     }
     void OnGUI()
     {
         try
         {
-            if (DebugKey(KeyCode.G)) Application.LoadLevel(0);
+            
             r = GUILayout.Window(2, r, Window, "connection");
             r2 = GUILayout.Window(1, r2, ServerListWindow, "Servers");
             if (!guiloaded)
@@ -63,31 +63,52 @@ public class Menu : Base
         }
         catch (Exception e) { print(e); }
     }
+    int begintime = 20;
+    bool isnottime { get { return (_vk.time.Hour < begintime || _vk.time.Hour > begintime + 2); } }
+    bool isguest { get { return _vk._Status == Vk.Status.disconnected; } }
     public void Window(int id)
     {
-        GUILayout.Label("Ipaddress:   port:5300");
+
+
+        GUILayout.Label(lc.ipaddress);
         GUILayout.BeginHorizontal();
         ip = GUILayout.TextField(ip);
 
         int.TryParse(GUILayout.TextField(port.ToString(), 10), out port);
         GUILayout.EndHorizontal();
-        if (GUILayout.Button("Connect"))
+
+        if (isnottime &&  timeLimit &&!isguest)
         {
-            if (Nick.Length > 0)
+            int timeleft = begintime - _vk.time.Hour;
+            if (timeleft < 0) timeleft += 24;
+            GUILayout.Label("бета тест проводится с " + begintime + ":00 до " + (begintime + 2) + ":00, осталось " + timeleft + " часов");
+        }
+
+        if (GUILayout.Button(lc.connect))
+        {
+            if (isguest && build)
+                printC(lc.mustlogin);
+            else if (isnottime && timeLimit && build)
+                printC(lc.timelimit);
+            else if (Nick.Length == 0)
+                printC(lc.firstname);
+            else
             {
+                printC(lc.connectingto + ip);
                 Network.Connect(ip.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries), port, Network.incomingPassword);
             }
-            else
-                printC("Enter username first");
         }
-        GUILayout.Label("MasterServer:");
-        masterip = GUILayout.TextField(masterip, 20);
+        if (!build)
+        {
+            GUILayout.Label("MasterServer:");
+            masterip = GUILayout.TextField(masterip, 20);
+        }
         if (!logged)
         {
             GUILayout.Label("NickName:");
             Nick = GUILayout.TextField(Nick, 20);
         }
-        if (GUILayout.Button("host"))
+        if (GUILayout.Button("host") || skip)
             if (Nick.Length > 0)
                 InitServer();
             else printC("Enter Nick Name");

@@ -14,29 +14,40 @@ public class VkontakteWindow : Base
     ScoreBoard scoreboard;
     void Awake()
     {
+        if (!enabled) return;
+        print("Vkontakte start");
+        _Vkontakte = this;
+        vk = this.GetComponent<Vk>();
     }
 
     void Start()
     {
-
-        print("Vkontakte start");
+        
+        
         scoreboard = this.GetComponent<ScoreBoard>();
         chat = this.GetComponent<MessageWindow>();
         id = UnityEngine.Random.Range(0, int.MaxValue);
-        _Vkontakte = this;
-        vk = this.GetComponent<Vk>();
+        
+        
         rect = new Rect(Screen.width - 200, 0, 0, 0);
-
-
+        //Application.ExternalCall("GetUrl");
     }
+
+    //public void GetUrl(String s)
+    //{
+    //    login = s;
+    //    _vk.Start(login);
+    //} 
+
     internal Rect rect;
 
-
+    public Texture2D test;
     void OnGUI()
     {
+        GUILayout.Label(test);
         try
         {
-            rect = GUILayout.Window(id, rect, Window, "Login", GUILayout.Width(200), GUILayout.Height(300));
+            rect = GUILayout.Window(id, rect, Window, "Vkontakte" , GUILayout.Width(200), GUILayout.Height(300));
         }
         catch (Exception e) { print(e); }
     }
@@ -44,10 +55,10 @@ public class VkontakteWindow : Base
 
     public void onVkConnected()
     {
-
+        printC("success code:240");
         Application.LoadLevel(Level.z2menu.ToString());
     }
-    public bool enabletimer;
+    
     private void OnServerInitialized()
     {
         //if (_vk._Status == Vk.Status.connected)
@@ -63,6 +74,8 @@ public class VkontakteWindow : Base
         //}
     }
     public Dictionary<int, Vk.user> friends { get { return _vk.friends; } }
+    public Dictionary<string, int> chatusers = new Dictionary<string, int>();
+    public string chatuserstext;
     void Update()
     {
         if (vk._Status == Vk.Status.connected)
@@ -71,19 +84,35 @@ public class VkontakteWindow : Base
                 _vk.GetChatMessages(0,true);
             if (_TimerA.TimeElapsed(6000))
                 _vk.GetMessages();
-            if (_TimerA.TimeElapsed(10000))
-            {
+            if (_TimerA.TimeElapsed(9000))
+                _vk.SendChatMsg("");
+            //if (_TimerA.TimeElapsed(10000))
+            //    _vk.GetNews();
 
-                _vk.GetNews();
-            }
+            chatuserstext = "users online " + _Vkontakte.chatusers.Count+"\r\n";
+            foreach (string user in _Vkontakte.chatusers.Keys)
+                chatuserstext += user + "\r\n";
+
+            List<string> remove = new List<string>();
+            foreach (KeyValuePair<string, int> a in chatusers)
+                if (_vk.unixtime - a.Value > 15000)
+                    remove.Add(a.Key);
+            foreach (string s in remove)
+                chatusers.Remove(s);
 
             foreach (Vk.response resp in _vk.GetResponses())
             {
-
                 foreach (Vk.message_info msg in resp.messages)
                 {
+                    if (!chatusers.ContainsKey(msg.user_name))
+                        chatusers.Add(msg.user_name, msg.time);
+                    else
+                        chatusers[msg.user_name] = msg.time;                     
+                        
                     msg.message = WWW.UnEscapeURL(msg.message);
-                    chat.Write(msg.message);
+                    print(msg.user_name + ":" + msg.message);
+                    if (msg.message != "")
+                        chat.Write(msg.message);
                 }
                 foreach (Vk.status st in resp.statuses)
                 {
@@ -107,8 +136,7 @@ public class VkontakteWindow : Base
                     {
                         Vk.user user = friends[msg.uid];
                         MessageWindow w = GetWindow(user);
-                        w.Write(user.nick + ":" + msg.body);
-                        printC("(" + user + ")" + msg.body);
+                        w.Write(user.nick + ":" + msg.body);                        
                     }
                     else Debug.Log("user not exists" + msg.uid);
                 }
@@ -119,36 +147,30 @@ public class VkontakteWindow : Base
     Vector2 scrollPosition;
     string login { get { return PlayerPrefs.GetString("login"); } set { PlayerPrefs.SetString("login", value); } }
     public GUIStyle linkstyle;
-    int begintime = 18;
+    
     void Window(int id)
     {
-        GUILayout.Label(_vk.time.ToShortDateString() + " " + _vk.time.ToShortTimeString());
+        if(_vk._Status == Vk.Status.connected)
+            GUILayout.Label(_vk.time.ToShortDateString() + " " + _vk.time.ToShortTimeString());
 
-        if (_vk.time.Hour < begintime && _vk.time.Hour > begintime + 2 && enabletimer)
+
+        if (vk._Status == Vk.Status.disconnected)
         {
 
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Url:", GUILayout.ExpandWidth(false));
+            login = GUILayout.TextArea(login);
+            GUILayout.EndHorizontal();
+            if (GUILayout.Button("Login"))
+                vk.Start(login);
+            if (GUILayout.Button("В Контакте Авторизация"))
+                OpenUrl("http://vkontakte.ru/login.php?app=1935303&layout=popup&type=browser&settings=15615");
+            GUILayout.Label("1.нажмите авторизация \r\n2. скопируйте адресс полученной страницы в поле url \r\n3. нажмите логин");
 
-            int timeleft = begintime - _vk.time.Hour;
-            if (timeleft < 0) timeleft += 24;
-            GUILayout.Label("бета тест проводится с 18:00 до 20:00, осталось " + timeleft + " часов");
-            
-        }
-        else
-            if (vk._Status == Vk.Status.disconnected)
-            {                
-                
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("Url:", GUILayout.ExpandWidth(false));
-                login = GUILayout.TextArea(login);
-                GUILayout.EndHorizontal();
-                if (GUILayout.Button("Login"))
-                    vk.Start(login);
-                if (GUILayout.Button("В Контакте Авторизация"))
-                    OpenUrl("http://vkontakte.ru/login.php?app=1935303&layout=popup&type=browser&settings=15615");
-                GUILayout.Label("1.нажмите авторизация \r\n2. скопируйте адресс полученной login success страницы в поле url \r\n3. нажмите логин");
-
-                if (GUILayout.Button("login as guest"))
-                    Application.LoadLevel(Level.z2menu.ToString());
+            if (GUILayout.Button("login as guest") || skip)
+                Application.LoadLevel(Level.z2menu.ToString());
+            if (!build)
+            {
                 if (GUILayout.Button("gmail.ru"))
                     vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2295853480%22%2C%22secret%22%3A%225b6c1208fe%22%2C%22sid%22%3A%22d8c3fed16ab9665e41062ac50e381ba646ab88eecaeec3c1629b2f48e1%22%7D");
                 if (GUILayout.Button("dorumonstr@gmail.com"))
@@ -156,10 +178,12 @@ public class VkontakteWindow : Base
                 if (GUILayout.Button("dorumon@mail.ru"))
                     vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2257109080%22%2C%22secret%22%3A%224454a797a5%22%2C%22sid%22%3A%2292d99c49f8d3b1bb45270e2775f475bd4d68960015cb38eb62c4e9bde7%22%7D");
             }
+        }
         
         
         if (_vk._Status == Vk.Status.connected && localuser != null)
-        {                        
+        {
+            GUILayout.Label("Users Online: " + chatusers.Count);
             if (_Level == Level.z2menu && GUILayout.Button("Log Out"))
             {
                 Application.LoadLevel(Level.z1login.ToString());
@@ -174,11 +198,9 @@ public class VkontakteWindow : Base
                 _vk.KillsTop(true);
                 _vk.KillsTop(false);
             }
-            
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
             if (GUILayout.Button("refresh friend list"))
                 _vk.GetFriends(true);
-
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition);            
             GUILayout.Label("Name:" + localuser.nick);
             GUILayout.Label("Status:" + localuser.st.text);
             GUILayout.Box(localuser.texture);
@@ -187,10 +209,11 @@ public class VkontakteWindow : Base
                 {
                     GUILayout.Label("Name: " + user.nick);
                     GUILayout.Label("Status:" + user.st.text);
+                    if (user.installed) GUILayout.Label("игра установлена");
                     if (!user.installed && GUILayout.Button("Пригласить друга в игру"))
                     {
                         user.installed = true;
-                        _vk.SendWallMsg(user.uid, user.nick + " приглашает вас сыграть с ним в шутер physxwars");
+                        _vk.SendWallMsg(user.uid, localuser.nick + " приглашает вас сыграть с ним в шутер Physx Wars");
                     }
                     if (GUILayout.Button(user.texture, GUILayout.Height(40)) && !windows.ContainsKey(user.uid))
                         GetWindow(user);
@@ -202,8 +225,8 @@ public class VkontakteWindow : Base
     
     private static void OpenUrl(string url)
     {
-        if (iswebplayer)
-            Application.ExternalCall("OpenURL", url);
+        if (isWebPlayer)
+            Application.ExternalCall("window.open", url);
         else
             Application.OpenURL(url);
     }

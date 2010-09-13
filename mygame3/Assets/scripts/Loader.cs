@@ -8,6 +8,7 @@ using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Xml.Serialization;
 
 public enum Level { z1login , z2menu, z3labby, z4game }
 public class Loader : Base
@@ -19,20 +20,34 @@ public class Loader : Base
     public Font font;    
     public string ips = "";
     Menu _GuiConnection { get { return Menu._menu; } }
-    public GUIStyle _GUIStyle;
+
+    XmlSerializer xml = new XmlSerializer(typeof(Localize));
 
     void Awake()
-    {
+    {        
         if (Duplicate()) return;
-        print("loader awake");        
-        if (Application.platform != RuntimePlatform.WindowsWebPlayer)
+        print("loader awake 1");
+        if (!isWebPlayer)
         {
-            //print(Directory.GetCurrentDirectory());
-            File.Delete("log.txt");
+            print(1);
+            try
+            {
+                using (Stream s = File.Open("dict.xml", FileMode.Open))
+                    lc = (Localize)xml.Deserialize(s);
+                print("dict loaded");
+            }
+            catch
+            {
+                using (Stream s = File.Open("dict.xml", FileMode.Create))
+                    xml.Serialize(s, lc);
+                print("dict created");
+            }
+            print("dict created");
+            
             Application.RegisterLogCallback(onLog);
         }        
         _Loader = this;
- 
+        _options = this.GetComponent<OptionsWindow>();
 
         DontDestroyOnLoad(this);
         networkView.group = 1;
@@ -59,8 +74,10 @@ public class Loader : Base
         _TimerA.Update();
 
     }
+    public GUISkin skin;
     void OnGUI()
     {
+        
         GUI.skin.font = font;
         GUILayout.Label("fps: " + fps);        
         if (lockCursor) return;                
@@ -68,6 +85,7 @@ public class Loader : Base
     }
     public void RPCLoadLevel(string level)
     {
+        print("load Level" + level);
         for (int i = 0; i < 20; i++)
             Network.RemoveRPCsInGroup(i);
         networkView.RPC("LoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);

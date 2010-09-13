@@ -75,8 +75,7 @@ public partial class Vk
 { 
     
     public class response
-    {        
-        public List<int> appusers = new List<int>();
+    {                
         public List<status> statuses = new List<status>();
         public List<user> users = new List<user>();
         public List<message_info> messages = new List<message_info>();

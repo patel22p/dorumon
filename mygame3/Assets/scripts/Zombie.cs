@@ -44,8 +44,10 @@ public class Zombie : IPlayer
 
     
     float zombiewait = 2;
+    float zombiebite;
     protected override void Update()
-    {                
+    {
+        zombiebite += Time.deltaTime;
         base.Update();
         if (!Alive) return;
         if ((zombiewait -= Time.deltaTime) < 0 && selected != -1)
@@ -56,14 +58,15 @@ public class Zombie : IPlayer
             {
                 Vector3 v3 = ipl.transform.position - transform.position;
                 v3.y = 0;
-                if (v3.sqrMagnitude > 6)
+                if (v3.sqrMagnitude > 10)
                 {
                     r = Quaternion.LookRotation(v3.normalized);
                     p += r * new Vector3(0, 0, speed * Time.deltaTime);
                     oldpos = p;
                 }
-                else if (ipl.isOwner && _TimerA.TimeElapsed(1000))
+                else if (ipl.isOwner && zombiebite>1)
                 {
+                    zombiebite = 0;
                     ipl.RPCSetLife(-10, -1);
                 }
             }

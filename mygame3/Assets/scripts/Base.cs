@@ -8,7 +8,11 @@ using System.Xml.Serialization;
 using System;
 public class Base : Base2 , System.IDisposable
 {
-    public static bool iswebplayer = Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer;
+    public static Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
+    public static bool build = false;
+    public static bool skip = false;
+    public static bool timeLimit = false;
+    public static bool isWebPlayer = Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer;
     public static Level _Level;
     public static bool Online;
     bool hidden;
@@ -16,9 +20,10 @@ public class Base : Base2 , System.IDisposable
     public static bool logged { get { return _vk._Status == Vk.Status.connected; } }
     public static Vk.user localuser;
     public static Dictionary<int, Vk.user> userviews = new Dictionary<int, Vk.user>();
-    public XmlSerializer xml = new XmlSerializer(typeof(Vk.response), new Type[] { typeof(Vk.user), typeof(Vk.message_info) });
+    public XmlSerializer respxml = new XmlSerializer(typeof(Vk.response), new Type[] { typeof(Vk.user), typeof(Vk.message_info) });
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }
+    
 
     protected bool Duplicate()
     {
@@ -90,6 +95,7 @@ public class Base : Base2 , System.IDisposable
         return Root(g.transform).gameObject;
     }
     static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
+    public static Localize lc = new Localize();
     public static Transform Root(Transform g)
     {
         Transform p = g;
@@ -214,6 +220,8 @@ public class Base : Base2 , System.IDisposable
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
         }
     }
+    
+    
     public static float clamp(float a)
     {
         if (a > 180) return a - 360f;

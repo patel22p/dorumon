@@ -26,25 +26,20 @@ public partial class Vk : Base
     int ap_id = 1935303;
     void Awake()
     {
-        
+        if (!enabled) return;
+        print("Vk start" + enabled);
+        _vk = this;
     }
+    
     void Start()
     {
-        _vk = this;
+        
         print("vk start");
         thread = new Thread(StartThreads);
         thread.IsBackground = true;
         thread.Name = "VK";
         thread.Start();
         
-        new WWW2("http://www.timeanddate.com/worldclock/").done += delegate(WWW2 w)
-        {
-            try
-            {
-                time = DateTime.Parse(Regex.Match(H.ToStr(w.bytes), @"\d\d:\d\d:\d\d").Value).AddHours(4);
-            }
-            catch (Exception e) { printC(e); }
-        };
 
     }
     
@@ -67,6 +62,7 @@ public partial class Vk : Base
             Thread.Sleep(500);
         }
     }
+
     
     public void Start(string url)
     {        
@@ -85,27 +81,30 @@ public partial class Vk : Base
                     userid = int.Parse(GetGlobalVariable(1280));
                     Thread.Sleep(500);
                     localuser = GetUserInfo(userid);
-                    time = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddSeconds(int.Parse(GetGlobalVariable(0))).AddHours(4);
-                    SetLastStatusCheckTime();                                                            
-                    new WWW2(localuser.photo).done += delegate(WWW2 www)
+                    time = ToDate(int.Parse(GetGlobalVariable(0)));
+                    LastStatusTime = unixtime;
+                    _TimerA.AddMethod(delegate()
                     {
-                        print("loaded texture");
-                        localuser.texture = www.texture;
-                        DontDestroyOnLoad(localuser.texture);
-                    };
+                        new WWW2(localuser.photo).done += delegate(WWW2 www)
+                        {
+                            printC("loaded texture");
+                            localuser.texture = www.texture;
+                            DontDestroyOnLoad(localuser.texture);
+                        };
+                    });
                     int i = 500;
                     
+                    GetAppUsers(false);
+                    Thread.Sleep(i);
                     GetFriends(false);
                     Thread.Sleep(i);
-                    GetChatMessages(10, false);
-                    Thread.Sleep(i);
-                    GetAppUsers(false);
+                    GetChatMessages(10, false);                    
                     Thread.Sleep(i);
                     GetOwnStats(false);
                     _Status = Status.connected;
                     _TimerA.AddMethod(_Vkontakte.onVkConnected);
                 }
-                catch (System.Exception e) { _Status = Status.disconnected; printC("вход вконтакте не удался, убедитесь что вы дали приложению все права\r\n" + e); }
+                catch (System.Exception e) { _Status = Status.disconnected; printC("Login vkontakte failed, make sure you give the application all the rights\r\n" + e); }
             });
         
         
@@ -122,7 +121,10 @@ public partial class Vk : Base
             time = time.AddSeconds(Time.deltaTime);
 
     }
-    
+    public static DateTime ToDate(int time)
+    {
+        return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(time).AddHours(4);
+    }
     private void GetUserData()
     {
                                 
@@ -214,7 +216,7 @@ public partial class Vk : Base
                         new string[]{"value",value},                        
                         new string[]{"test_mode","2"} 
                     });
-        string res = Write(sendfunc);
+        Write(sendfunc);
     }
 
     public void SetLocalVariable(int key, string value)
@@ -231,7 +233,7 @@ public partial class Vk : Base
                         new string[]{"user_id", userid.ToString()},                        
                         new string[]{"test_mode","2"} 
                     });
-                string res = Write(sendfunc);
+                Write(sendfunc);
                 
             });
     }
@@ -337,12 +339,11 @@ public partial class Vk : Base
         Reconnect();
         H.Write(nw, sendfunc);
         string res = H.ToStr(Http.ReadHttp(nw));
+        if (res.Contains("Too many requests per second")) throw new Exception("Vkontakte Warining: Too Many requests");
         if (res.Contains("<error>")) throw new Exception("Vkontakte Error " + res);
         return res;
     }
     public Dictionary<int, user> friends = new Dictionary<int, user>();
-
-    //
 
     private void GetAppUsers(bool async)
     {
@@ -354,18 +355,13 @@ public partial class Vk : Base
                         new string[]{"method","friends.getAppUsers"},                                                
                     });
             string res = Write(sendfunc);
-            res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
-            res = "<response><appusers>" + res + "</appusers></response>";
-            response r = (response)xml.Deserialize(new StringReader(res));
-            print("appusers" + r.appusers.Count);
-            foreach (int id in r.appusers)
-            {
-                if (friends.ContainsKey(id))
-                    friends[id].installed = true;
-            }
+             MatchCollection mm = Regex.Matches(res, "<uid>(.*?)</uid>");
+            foreach (Match m in mm)
+                appusers.Add(int.Parse(m.Groups[1].Value));                
+            print("App users " + mm.Count);
         });
     }
-
+    public List<int> appusers = new List<int>();
     
     public void GetFriends(bool async)
     {
@@ -382,7 +378,7 @@ public partial class Vk : Base
 
             res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
             res = "<response><users>" + res + "</users></response>";
-            response r = (response)xml.Deserialize(new StringReader(res));
+            response r = (response)respxml.Deserialize(new StringReader(res));
             print("get friends " + r.users.Count);
             friends.Clear();
             friends.Add(localuser.uid, localuser);
@@ -390,6 +386,7 @@ public partial class Vk : Base
             {
                 LoadAvatar(user);
                 friends.Add(user.uid, user);
+                if (appusers.Contains(user.uid)) user.installed = true;
                 user.st.text = user.online ? "online" : "offline";
             }
         });
@@ -398,12 +395,15 @@ public partial class Vk : Base
     
     private void LoadAvatar(user user)
     {
-        WWW2 w = new WWW2(user.photo);
-        w.done += delegate(WWW2 w2)
+        _TimerA.AddMethod(delegate()
         {
-            user.texture = w2.texture;
-            DontDestroyOnLoad(user.texture);
-        };
+            WWW2 w = new WWW2(user.photo);
+            w.done += delegate(WWW2 w2)
+            {
+                user.texture = w2.texture;
+                DontDestroyOnLoad(user.texture);
+            };
+        });
     }
 
     public void GetNews()
@@ -414,7 +414,7 @@ public partial class Vk : Base
             string sendfunc = SendFunction(int.Parse(mid), ap_id, sid, secret,
                         new string[][]
                     { 
-                        new string[]{"timestamp",unixTime.ToString()},                                                
+                        new string[]{"timestamp",LastStatusTime.ToString()},                                                
                         new string[]{"method","activity.getNews"},                                                
                     });
 
@@ -432,16 +432,18 @@ public partial class Vk : Base
             }
             Add(resp);
         });
-        SetLastStatusCheckTime();
+        LastStatusTime = unixtime;
     }
-
-    private void SetLastStatusCheckTime()
+    public int unixtime
     {
-
-        TimeSpan ts = (_vk.time - new DateTime(1970, 1, 1, 0, 0, 0));
-        unixTime = (int)ts.TotalSeconds;
+        get
+        {
+            TimeSpan ts = (time - new DateTime(1970, 1, 1, 0, 0, 0));
+            return (int)ts.TotalSeconds;
+        }
     }
-    int unixTime;
+    
+    int LastStatusTime;
     void Add(response resp)
     {
 
@@ -476,7 +478,7 @@ public partial class Vk : Base
                         new string[]{"message", WWW.EscapeURL(message)},                        
                     });
 
-                string res = Write(sendfunc);
+                Write(sendfunc);
 
             }
             catch { printC("error message not sended to " + uid); }
@@ -500,7 +502,7 @@ public partial class Vk : Base
                         new string[]{"test_mode","2"} ,                    
                     });
 
-                string res = Write(sendfunc);
+                Write(sendfunc);
             }
             catch (Exception e) { printC("message not sended" + e); }
         });
@@ -522,7 +524,7 @@ public partial class Vk : Base
 
             res = Regex.Match(res, "<count>.*?</count>(.*)</response>", RegexOptions.Singleline).Groups[1].Value;
             res = "<response><personal>" + res + "</personal></response>";
-            response r = (response)xml.Deserialize(new StringReader(res));
+            response r = (response)respxml.Deserialize(new StringReader(res));
 
             Add(r);
             if (r.personal.Count > 0)
@@ -559,7 +561,7 @@ public partial class Vk : Base
                     
                     res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value;
                     res = "<response><messages>" + res + "</messages></response>";
-                    response r = (response)xml.Deserialize(new StringReader(res));
+                    response r = (response)respxml.Deserialize(new StringReader(res));
                     Add(r);
             });
     }

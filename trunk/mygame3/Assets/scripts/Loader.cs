@@ -26,10 +26,10 @@ public class Loader : Base
     void Awake()
     {        
         if (Duplicate()) return;
-        print("loader awake 1");
+        print("loader awake");
         if (!isWebPlayer)
         {
-            print(1);
+            print(Directory.GetCurrentDirectory());
             try
             {
                 using (Stream s = File.Open("dict.xml", FileMode.Open))
@@ -43,7 +43,7 @@ public class Loader : Base
                 print("dict created");
             }
             print("dict created");
-            
+            File.Delete("log.txt");
             Application.RegisterLogCallback(onLog);
         }        
         _Loader = this;

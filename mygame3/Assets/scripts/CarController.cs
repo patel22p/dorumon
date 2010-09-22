@@ -12,7 +12,7 @@ public class CarController : Car
     {
         nitroprerrenderrs = nitropref.GetComponentsInChildren<Renderer>();
         base.Start();
-        rigidbody.angularDrag = 5;
+        rigidbody.angularDrag = 1;
         StartCar();
         Life = life;
         Reset();
@@ -46,7 +46,7 @@ public class CarController : Car
             if (Input.GetKeyDown(KeyCode.F))
             {
                 _LocalPlayer.RPCShow(true);
-                _LocalPlayer.RPCSelectGun(1);
+                _LocalPlayer.RPCSelectGun(_LocalPlayer.selectedgun);
                 _LocalPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
                 _localiplayer = _LocalPlayer;
                 RPCCarOut(Network.player.GetHashCode());

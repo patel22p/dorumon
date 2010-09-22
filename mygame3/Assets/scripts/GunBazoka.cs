@@ -3,8 +3,11 @@ using System.Collections;
 
 public class GunBazoka : GunBase
 {
-    
-    
+
+    void Start()
+    {
+        _Name = lc.baz.ToString();
+    }
     
     protected override void Update()
     {

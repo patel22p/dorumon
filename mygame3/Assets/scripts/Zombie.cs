@@ -29,7 +29,7 @@ public class Zombie : IPlayer
     public AudioClip[] gibsound;
     protected override void Start()
     {
-        
+        rigidbody.angularDrag = 5;
         base.Start();
     }
     

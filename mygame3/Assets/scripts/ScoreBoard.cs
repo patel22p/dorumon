@@ -5,22 +5,23 @@ using System.Collections.Generic;
 
 public class ScoreBoard : WindowBase {
 
-    protected override void OnGUI()
+    void Start()
     {
-        rect = GUILayout.Window(id, rect, Window, "Stats Board" , GUILayout.Height(300), GUILayout.Width(500));
-        base.OnGUI();
+        title = lc.sb.ToString();
+        size = new Vector2(300, 500);
     }
+    
     enum Tab { TopZombieKill , TopKill}
     Tab sel;
     Vector2 scrollPosition;
-    void Window(int wid)
+    protected override void Window(int wid)
     {
         if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
             enabled = false;
-        sel = (Tab)GUILayout.Toolbar((int)sel, new string[] { "Top Zombie Kill", "TopKill" });
+        sel = (Tab)GUILayout.Toolbar((int)sel, new string[] { lc.tpz .ToString(), lc.tk .ToString() });
 
         const string table = "{0,30}{1,20}{2,10}";
-        GUILayout.Label(string.Format(table, "", "Kills", "Deaths"));
+        GUILayout.Label(string.Format(table, "", lc.kills, lc.deaths));
         SortedList sl = new SortedList();
         SortedList<float, Vk.user> score = sel == Tab.TopZombieKill ? _vk.highscoresZombie : _vk.highscores;
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);

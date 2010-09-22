@@ -10,24 +10,39 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Xml.Serialization;
 
-public enum Level { z1login , z2menu, z3labby, z4game }
+public enum Level { z1login, z2menu, z3labby, z4game }
 public class Loader : Base
 {
     public static int lastLevelPrefix = 0;
     public int fps;
-    public Transform root;    
+    public Transform root;
     float cmx { get { return Screen.height / 2; } }
-    public Font font;    
+    public Font font; 
     public string ips = "";
     Menu _GuiConnection { get { return Menu._menu; } }
 
     XmlSerializer xml = new XmlSerializer(typeof(Localize));
 
     void Awake()
-    {        
+    { 
         if (Duplicate()) return;
         print("loader awake");
-        if (!isWebPlayer)
+        if (isWebPlayer)
+        {
+            new WWW2("dict.xml").done += delegate(WWW2 w)
+            {
+                try
+                {
+                    using (Stream s = new MemoryStream(w.bytes))
+                        lc = (Localize)xml.Deserialize(s);
+                }
+                catch
+                {
+                    printC("Dictionary could not be loaded");
+                }
+                dictLoaded();
+            };
+        }else
         {
             print(Directory.GetCurrentDirectory());
             try
@@ -41,32 +56,37 @@ public class Loader : Base
                 using (Stream s = File.Open("dict.xml", FileMode.Create))
                     xml.Serialize(s, lc);
                 print("dict created");
-            }
-            print("dict created");
+            }            
             File.Delete("log.txt");
             Application.RegisterLogCallback(onLog);
+            dictLoaded();
         }        
         _Loader = this;
         _options = this.GetComponent<OptionsWindow>();
 
         DontDestroyOnLoad(this);
         networkView.group = 1;
-        
+
 
         localuser = new Vk.user();
 
         foreach (IPAddress ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-            ips += ip + ",";        
+            ips += ip + ",";
     }
 
-    
+    private void dictLoaded()
+    {
+        ConsoleWindow.output += lc.onload;
+    }
+
+
     void Start()
     {
-        
-        
+
+
     }
     void Update()
-    {        
+    {
 
         WWW2.Update();
         if (_TimerA.TimeElapsed(500))
@@ -77,10 +97,10 @@ public class Loader : Base
     public GUISkin skin;
     void OnGUI()
     {
-        
+
         GUI.skin.font = font;
-        GUILayout.Label("fps: " + fps);        
-        if (lockCursor) return;                
+        GUILayout.Label(lc.fps .ToString()+ fps);
+        if (lockCursor) return;
 
     }
     public void RPCLoadLevel(string level)
@@ -93,7 +113,7 @@ public class Loader : Base
 
     [RPC]
     void LoadLevel(string level, int levelPrefix)
-    {        
+    {
         lastLevelPrefix = levelPrefix;
         Network.SetSendingEnabled(0, false);
         Network.isMessageQueueRunning = false;
@@ -101,8 +121,8 @@ public class Loader : Base
         Application.LoadLevel(level);
 
     }
-    
-    
+
+
     public Rect dockup()
     {
         Vector2 c = new Vector2(Screen.width, Screen.height);
@@ -122,7 +142,11 @@ public class Loader : Base
     }
     void OnLevelWasLoaded(int level)
     {
-        _Level = (Level)Enum.Parse(typeof(Level), Application.loadedLevelName);
+        try
+        {            
+            _Level = (Level)Enum.Parse(typeof(Level), Application.loadedLevelName);
+        }
+        catch { _Level = Level.z4game; }
         Network.isMessageQueueRunning = true;
         Network.SetSendingEnabled(0, true);
     }

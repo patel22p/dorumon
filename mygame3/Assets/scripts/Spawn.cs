@@ -19,17 +19,30 @@ public class Spawn : Base
     {
         _Spawn = this;
     }
+    public AudioSource au;
     void Start()
     {
+
+        
+        if (build)
+        {
+            
+            //AudioClip a = (AudioClip)Resources.Load("centaspike1");
+            //if (a != null)
+            //    au.PlayOneShot(a);
+            //else print("mp3 null");
+        }
         localuser.frags = localuser.deaths = 0;
         _Vkontakte.enabled = _vk.enabled = false;
-        zombiesleft = _cw.fraglimit;
+        zombiesleft = _hw.fraglimit;
         AudioListener.volume = .1f;
         if (Network.isServer)
         {
             Network.incomingPassword = "started";
             MasterServer.UnregisterHost();
         }
+        if (skip)
+            OnTeamSelect(Team.ata);
     }
     public Transform effects;
     internal int zombiesleft;
@@ -59,8 +72,7 @@ public class Spawn : Base
             if (!p.dead) live++;
         if (live == 0 && players.Values.Count != 0)
         {
-
-            rpcwrite("You died on " + stage + " level");
+            rpcwrite(String.Format(lc.udl.ToString(), stage));
             win = true;
             _TimerA.AddMethod(5000, WinGame);
         }
@@ -71,7 +83,7 @@ public class Spawn : Base
         foreach (Player pl in players.Values)
             if (pl.OwnerID != -1)
             {
-                if (Network.isServer && !win && pl.frags >= _cw.fraglimit)
+                if (Network.isServer && !win && pl.frags >= _hw.fraglimit)
                 {
                     rpcwrite(pl.Nick + " Win");
                     win = true;
@@ -89,7 +101,7 @@ public class Spawn : Base
         foreach (Vk.user pl in TP(Team.def))
             BlueFrags += pl.frags;
 
-        if ((BlueFrags >= _cw.fraglimit || RedFrags >= _cw.fraglimit))
+        if ((BlueFrags >= _hw.fraglimit || RedFrags >= _hw.fraglimit))
         {
             rpcwrite((BlueFrags > RedFrags ? "Blue" : "Red") + " Team Win");
             win = true;

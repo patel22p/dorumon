@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using doru;
 using System.Xml.Serialization;
 using System;
-public class Base : Base2 , System.IDisposable
+public class Base : Base2, System.IDisposable
 {
     public static Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
     public static bool build = false;
     public static bool skip = false;
     public static bool timeLimit = false;
+    
     public static bool isWebPlayer = Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer;
     public static Level _Level;
     public static bool Online;
@@ -20,17 +21,17 @@ public class Base : Base2 , System.IDisposable
     public static bool logged { get { return _vk._Status == Vk.Status.connected; } }
     public static Vk.user localuser;
     public static Dictionary<int, Vk.user> userviews = new Dictionary<int, Vk.user>();
-    public XmlSerializer respxml = new XmlSerializer(typeof(Vk.response), new Type[] { typeof(Vk.user), typeof(Vk.message_info) });
+    public static XmlSerializer respxml = new XmlSerializer(typeof(Vk.response), new Type[] { typeof(Vk.user), typeof(Vk.message_info) });
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }
-    
+
 
     protected bool Duplicate()
     {
         if (GameObject.FindObjectsOfType(this.GetType()).Length == 2)
         {
             foreach (Behaviour b in this.GetComponentsInChildren<Behaviour>())
-                b.enabled = false;            
+                b.enabled = false;
             Destroy(this.gameObject);
             return true;
         }
@@ -90,6 +91,9 @@ public class Base : Base2 , System.IDisposable
         return h;
     }
 
+
+
+
     public static GameObject Root(GameObject g)
     {
         return Root(g.transform).gameObject;
@@ -105,7 +109,7 @@ public class Base : Base2 , System.IDisposable
             p = p.parent;
         }
     }
-    
+
     [RPC]
     void RPCSetOwner(int owner)
     {
@@ -116,16 +120,16 @@ public class Base : Base2 , System.IDisposable
             bas.OwnerID = owner;
             bas.OnSetOwner();
         }
-        
+
     }
     [RPC]
     public void SetController(int owner)
-    {        
+    {
         lock ("ser")
             ((box)this).selected = owner;
 
     }
-    
+
     //public void Enable(GameObject t , bool b)
     //{
     //    foreach (Behaviour a in t.GetComponentsInChildren<Behaviour>())
@@ -136,7 +140,7 @@ public class Base : Base2 , System.IDisposable
     public void RPCResetOwner()
     {
         CallRPC(true);
-        ((box)this).selected=-1;
+        ((box)this).selected = -1;
         //foreach (NetworkView otherView in this.GetComponents<NetworkView>())
         //    otherView.observed = null;
 
@@ -148,7 +152,7 @@ public class Base : Base2 , System.IDisposable
     [RPC]
     public void RPCAddNetworkView(NetworkViewID id)
     {
-        
+
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)Group.RPCAssignID;
         nw.observed = this;
@@ -157,7 +161,7 @@ public class Base : Base2 , System.IDisposable
     }
     public void RPCSetOwner()
     {
-        RPCSetOwner(Network.player.GetHashCode());        
+        RPCSetOwner(Network.player.GetHashCode());
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
@@ -187,20 +191,20 @@ public class Base : Base2 , System.IDisposable
         foreach (Base r in this.GetComponentsInChildren<Base>())
             r.enabled = value;
     }
-     
-    
+
+
     public static IEnumerable<Transform> getChild(Transform t)
-    {        
+    {
         for (int i = 0; i < t.childCount; i++)
         {
             yield return t.GetChild(i);
         }
     }
-    public bool zombi { get { return _cw.gameMode == GameMode.TeamZombieSurvive; } }
-    public bool tdm { get { return _cw.gameMode == GameMode.TeamDeathMatch; } }
-    public bool dm { get { return _cw.gameMode == GameMode.DeathMatch; } }
-    public bool zombisurive { get { return _cw.gameMode == GameMode.ZombieSurive; } }
-    
+    public bool zombi { get { return _hw.gameMode == GameMode.TeamZombieSurvive; } }
+    public bool tdm { get { return _hw.gameMode == GameMode.TeamDeathMatch; } }
+    public bool dm { get { return _hw.gameMode == GameMode.DeathMatch; } }
+    public bool zombisurive { get { return _hw.gameMode == GameMode.ZombieSurive; } }
+
     private void Active(bool value, Transform t)
     {
         for (int i = 0; i < t.transform.childCount; i++)
@@ -220,31 +224,31 @@ public class Base : Base2 , System.IDisposable
             networkView.RPC(new System.Diagnostics.StackFrame(1, true).GetMethod().Name, buffered ? RPCMode.OthersBuffered : RPCMode.Others, obs);
         }
     }
-    
-    
+
+
     public static float clamp(float a)
     {
         if (a > 180) return a - 360f;
         return a;
     }
 
-    public Dictionary<int,Player> players { get { return _Spawn.players; } }
+    public Dictionary<int, Player> players { get { return _Spawn.players; } }
     public void Destroy()
-    {        
+    {
         foreach (Base b in this.GetComponentsInChildren<Base>())
             b.Dispose();
-        Destroy(this.gameObject);        
-        
+        Destroy(this.gameObject);
+
     }
     public void Destroy(int time)
-    {        
+    {
         _TimerA.AddMethod(time, Destroy);
     }
 
 
     public virtual void Dispose()
     {
-        
+
     }
 }
 

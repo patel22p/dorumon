@@ -3,7 +3,10 @@ using System.Collections;
 public class GunMini : GunBase
 {
 
-    
+    public void Start()
+    {
+        _Name = lc.gunmini.ToString();
+    }
     public Renderer render;
     public Light light1;
     public Transform gilza;

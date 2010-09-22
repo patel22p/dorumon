@@ -4,6 +4,12 @@ using UnityEngine;
 
 class MassMaterialEditor : EditorWindow
 {
+    [MenuItem("zSet/z1build")]
+    static void build()
+    {
+        BuildPipeline.BuildPlayer(new string[] { "Assets/z4game.unity" }, "z4game.unity3d", BuildTarget.WebPlayer, BuildOptions.BuildAdditionalStreamedScenes);
+    }
+
     [MenuItem("zSet/zrig")]
     static void zrig()
     {
@@ -11,6 +17,7 @@ class MassMaterialEditor : EditorWindow
             foreach (Rigidbody r in g.GetComponentsInChildren<Rigidbody>())
                 r.mass = 10;
     }
+    
     [MenuItem("zSet/zset")]
     static void zset()
     {

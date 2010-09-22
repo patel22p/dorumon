@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using doru;
 using System.IO;
 
-public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive, ZombieSurive }
-public partial class  ConsoleWindow : WindowBase
-{    
-    
+
+public partial class ConsoleWindow : WindowBase
+{
     void Start()
-    {         
-        _cw = this;                
+    {
+        size = new Vector2(700, 400);
     }
-    
+
     void OnLevelWasLoaded(int level)
     {
         old = selectedTeam = 0;
@@ -23,7 +22,7 @@ public partial class  ConsoleWindow : WindowBase
     }
     
     void Update()
-    {
+    {        
         if (Input.GetKeyDown(KeyCode.Return)) 
         {
             if (input != "")
@@ -50,33 +49,23 @@ public partial class  ConsoleWindow : WindowBase
     }
 
     internal int old;
-    internal int fraglimit = 20;
-    internal GameMode gameMode = GameMode.ZombieSurive;
+    
+    
     protected override void OnGUI()
     {
-        
         if (lockCursor) return;
-        try
-        {
-            GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
-            rect = GUILayout.Window(id, rect, Window, lc.physxwarsver + version, GUILayout.Width(700), GUILayout.Height(400));
-            
-        }
-        catch (Exception e) { print(e); }
+        GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
+        title = lc.physxwarsver +" "+ version;        
+        
         base.OnGUI();
     }
 
-    [RPC]
-    public void SetGameMode(int p, int frag)
-    {
-        CallRPC(true, p, frag);
-        gameMode = (GameMode)p;
-        fraglimit = frag;
-    }
 
-    private void Window(int id)
-    {
 
+    protected override void Window(int id)
+    {
+        if (!build && GUILayout.Button("skip"))
+            skip = true;
         InLabby();        
         InGame();
 
@@ -84,8 +73,8 @@ public partial class  ConsoleWindow : WindowBase
         {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Options", GUILayout.ExpandWidth(false))) _options.enabled = true;
-            if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button("Disconnect", GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button(lc.options.ToString(), GUILayout.ExpandWidth(false))) _options.enabled = true;
+            if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button(lc.disc.ToString(), GUILayout.ExpandWidth(false)))
             {
                 if (Network.isServer && _Spawn != null)
                     _Loader.RPCLoadLevel(Level.z2menu.ToString());
@@ -108,8 +97,8 @@ public partial class  ConsoleWindow : WindowBase
     {
         userviews.Clear();        
         RPCUserDisconnected(Network.player.GetHashCode());
-        if(!skip) rpcwrite("Player disconnected " + Menu.Nick);
-        if (!skip) write("Disconnected from game:" + info);
+        if (!skip) rpcwrite(lc.playerdisc + Menu.Nick);
+        if (!skip) write(lc.dfg.ToString() + info);
         Application.LoadLevel(Level.z2menu.ToString());
     }
     [RPC]
@@ -135,17 +124,17 @@ public partial class  ConsoleWindow : WindowBase
         
         if (_Level == Level.z4game)
         {
-            if (skip)
+            //if (skip)
+            //{
+            //    GUILayout.Label(lc.copyright .ToString());
+            //    if (GUILayout.Button(lc.beginthegame.ToString()))
+            //    {
+            //        _Spawn.OnTeamSelect(Team.ata);
+            //    }
+            //}
+            //else
             {
-                GUILayout.Label("Copyright © 2010 Levochkin Igor");
-                if (GUILayout.Button("Начать игру"))
-                {
-                    _Spawn.OnTeamSelect(Team.ata);
-                }
-            }
-            else
-            {
-                GUILayout.Label("Frags Limit:" + fraglimit);
+                GUILayout.Label(lc.fraglimit .ToString() + _hw.fraglimit);
                 if (dm || zombisurive)
                 {
                     foreach (Vk.user pl in userviews.Values)
@@ -153,15 +142,15 @@ public partial class  ConsoleWindow : WindowBase
                 }
                 else
                 {
-                    GUILayout.Label("Red Team Score:" + _Spawn.RedFrags);
+                    GUILayout.Label(lc.redteamscore .ToString() + _Spawn.RedFrags);
                     foreach (Vk.user pl in TP(Team.ata))
                         PrintPlayer(pl);
-                    GUILayout.Label("Blue Team Score:" + _Spawn.BlueFrags);
+                    GUILayout.Label(lc.blueteamscore .ToString() + _Spawn.BlueFrags);
                     foreach (Vk.user pl in TP(Team.def))
                         PrintPlayer(pl);
                 }
 
-                string[] arr = dm || zombisurive ? new string[] { "Spectator", "Join Game" } : new string[] { "Spectator", "Red Team", "Blue Team" };
+                string[] arr = dm || zombisurive ? new string[] { lc.spectator .ToString(), lc.joingame .ToString() } : new string[] { lc.spectator .ToString(), lc.redteam .ToString(), lc.blueteam .ToString() };
                 if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
                 {
                     old = selectedTeam;
@@ -185,7 +174,7 @@ public partial class  ConsoleWindow : WindowBase
     }
     private void OnConnected()
     {        
-        if(!skip) rpcwrite("Player joined " + Menu.Nick);
+        if(!skip) rpcwrite(lc.plj + Menu.Nick);
         localuser.nwid = Network.player;
         RPCSetUserView(localuser.nwid,localuser.nick, localuser.uid, localuser.photo,localuser.totalkills,localuser.totaldeaths,localuser.totalzombiekills,localuser.totalzombiedeaths);
         userviews.Add(localuser.nwid.GetHashCode(), localuser);
@@ -225,27 +214,21 @@ public partial class  ConsoleWindow : WindowBase
         
         if (_Level == Level.z3labby && Network.isServer)
         {
-            if (GUILayout.Button("Start Game") || skip)
+            if (GUILayout.Button(lc.startgame.ToString()) || skip)
             {
                 bool loaded = true;
                 foreach (Vk.user u in userviews.Values)
                     if (u.loaded != 1)
                     {
-                        if(!skip) printC("not all users loaded map");
+                        if(!skip) printC(lc.notall .ToString());
                         loaded = false;
                     }
                 if (loaded)
-                {
-                    SetGameMode((int)gameMode, fraglimit);
-                    _Loader.RPCLoadLevel(Level.z4game.ToString());
-                }
+                    _Loader.RPCLoadLevel(_hw.selectedlevel.ToString());
             }
-            gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { "Death Match", "Team DeathMatch", "Team Zombie Survive", "Zombie Survive" });
+            
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Zombie/Frag limit:", GUILayout.ExpandWidth(false));
-            int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out fraglimit);
-            GUILayout.EndHorizontal();
+            
             GUILayout.Space(20);
         }
         if (_Level == Level.z3labby)
@@ -255,10 +238,10 @@ public partial class  ConsoleWindow : WindowBase
                 RPCPingFps(Network.player.GetHashCode(),
                     (Network.connections.Length > 0 ? Network.GetLastPing(Network.connections[0]) : 0),
                     _Loader.fps,
-                    (isWebPlayer ? Application.GetStreamProgressForLevel(Level.z4game.ToString() ) : 1));
+                    (isWebPlayer ? Application.GetStreamProgressForLevel(_hw.selectedlevel.ToString()) : 1));
                         
             const string table = "{0,15}{1,10}{2,10}{3,10}{4,10}{5,10}{6,10}{7,10}";
-            GUILayout.Label(String.Format(table, "", "ZKills", "ZDeaths", "kills", "deaths", "Ping", "Fps", "Loaded"));
+            GUILayout.Label(String.Format(table, "", lc.zkills, lc.zdeaths, lc.kills, lc.deaths, lc.ping, lc.fps, lc.maploaded));
 
             foreach (Vk.user user in userviews.Values)
             {
@@ -276,8 +259,8 @@ public partial class  ConsoleWindow : WindowBase
     public static string input = "";
     private void PrintPlayer(Vk.user user)
     {
-        const string table = "{0,10}{1,20}{2,10}{3,10}{4,10}";
-        GUILayout.Label(String.Format(table, "", "Kills", "Ping", "Fps", "deaths"));
+        const string table = "{0,15}{1,10}{2,10}{3,10}{4,10}";
+        GUILayout.Label(String.Format(table, "", lc.kills, lc.ping, lc.fps, lc.deaths));
         GUILayout.BeginHorizontal();        
         GUILayout.Label(String.Format(table, user.nick, user.frags, user.ping, user.fps, user.deaths));
         AddKickButton(user);
@@ -286,36 +269,16 @@ public partial class  ConsoleWindow : WindowBase
 
     private void AddKickButton(Vk.user user)
     {
-        if (Network.isServer && user.nwid != Network.player && GUILayout.Button("Kick"))
+        GUILayout.Label(user.texture, GUILayout.Width(50), GUILayout.Height(40));
+        if (Network.isServer && user.nwid != Network.player && GUILayout.Button(lc.kick.ToString()))
         {
-            rpcwrite(user.nick + " kicked");
+            rpcwrite(user.nick + lc.kicked);
             Network.CloseConnection(user.nwid, true);
             RPCUserDisconnected(user.nwid.GetHashCode());
-        }
-        GUILayout.Label(user.texture, GUILayout.Width(50), GUILayout.Height(40));
+        }        
     }
 
-    public static string output = @"
-Задача игры - уничтожать зомби
+    public static string output = @"";
 
-WASD - движение,
-ПРОБЕЛ - тормоз, 
-SHIFT - ускорение, 
-F - использование техники, 
-цифры 1-3 - выбор оружия, 
-мышь - обзор, 
-ЛКМ - огонь, 
-ПКМ - меню.
-";
-//alt enter - fullscreen
-//tab - close/open console
-//f - go in/out car
-//shift - nitro
-//a,s,d,w move keys
-//1 - machinegun 
-//2 - rocketlauncher
-//3 - physxgun
-//4 - healthgun
-//";
 
 }

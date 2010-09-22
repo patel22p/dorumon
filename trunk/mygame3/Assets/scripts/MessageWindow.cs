@@ -10,13 +10,12 @@ public class MessageWindow : WindowBase
         _Vkontakte.windows.Remove(user.uid);
         base.Dispose();
     }
-
-    protected override void OnGUI()
+    void Start()
     {
-        
-        rect = GUILayout.Window(id, rect, Window, chat ? "Chat Window" : user.nick, GUILayout.Height(300), GUILayout.Width(400));
-        base.OnGUI();
+        title = chat ? lc.cw.ToString() : user.nick;
+        size = new Vector2(300, 400);
     }
+    
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
@@ -32,7 +31,7 @@ public class MessageWindow : WindowBase
                 input = "";
             }
     }
-    void Window(int i)
+    protected override void Window(int i)
     {
         if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
         {

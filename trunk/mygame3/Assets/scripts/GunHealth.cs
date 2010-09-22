@@ -6,7 +6,10 @@ public class GunHealth : GunBase
     public bool power;
     public Renderer render;
     public Light render1;
-   
+    void Start()
+    {
+        _Name = lc.heathgun.ToString();
+    }
     protected override void Update()
     {
         if (power)

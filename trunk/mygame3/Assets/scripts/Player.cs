@@ -20,14 +20,13 @@ public class Player : IPlayer
     public ParticleEmitter frozenRender;
     public string Nick { get { return userview.nick; } }
     public int frags { get { return userview.frags; } set { userview.frags = value; } }
-
+    
     public Vk.user userview;
     GuiBlood blood { get { return GuiBlood._This; } }
     protected override void Start()
     {
         
         base.Start();
-        
         if (networkView.isMine)
         {
             _localiplayer = _LocalPlayer = this;
@@ -92,7 +91,7 @@ public class Player : IPlayer
                 RPCSelectGun(3);
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {
-                if (nitro > 10)
+                if (nitro > 10 || !build)
                 {
                     nitro -= 10;
                     RCPJump();
@@ -121,11 +120,11 @@ public class Player : IPlayer
         if (a != 0)
         {
             transform.Find("Guns").GetComponent<AudioSource>().Play();
-            if (a > 0)
+            if (a > 0) 
                 guni++;
             if (a < 0)
                 guni--;
-            if (guni > guns.Length - 1) guni = 0;
+            if (guni > guns.Length - 1) guni = 0; 
             if (guni < 0) guni = guns.Length - 1;
             RPCSelectGun(guni);
         }
@@ -149,8 +148,6 @@ public class Player : IPlayer
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
             moveDirection.y = 0;
             moveDirection.Normalize();
-            //this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.deltaTime * angularvel);
-             ;
             
             Vector3 v =this.rigidbody.velocity;            
             float angle ;
@@ -186,10 +183,12 @@ public class Player : IPlayer
         _Spawn.players.Add(OwnerID, this);
         userview = userviews[OwnerID];
     }
+    internal int selectedgun;
     [RPC]
     public void RPCSelectGun(int i)
-    {
-        CallRPC(true, i);        
+    {        
+        CallRPC(true, i);
+        selectedgun = i;
         foreach (GunBase gb in guns)
             gb.DisableGun();
         guns[i].EnableGun();
@@ -269,17 +268,17 @@ public class Player : IPlayer
                 {
                     if (p.isOwner)
                     {
-                        _cw.rpcwrite(_LocalPlayer.Nick + " died byself");
+                        _cw.rpcwrite(_LocalPlayer.Nick + lc.dbsf);
                         _LocalPlayer.RPCSetFrags(-1);
                     }
                     else if (p.team != _LocalPlayer.team || dm)
                     {
-                        rpcwrite(p.Nick + " killed " + _LocalPlayer.Nick);
+                        rpcwrite(p.Nick + lc.kld + _LocalPlayer.Nick);
                         p.RPCSetFrags(+1);
                     }
                     else
                     {
-                        rpcwrite(p.Nick + " friendly fired " + _LocalPlayer.Nick);
+                        rpcwrite(p.Nick + lc.ff + _LocalPlayer.Nick);
                         p.RPCSetFrags(-1);
 
                     }
@@ -287,7 +286,7 @@ public class Player : IPlayer
             }
             if (killedby == -1)
             {
-                rpcwrite(_LocalPlayer.Nick + " screwed");
+                rpcwrite(_LocalPlayer.Nick + lc.scw.ToString());
                 _LocalPlayer.RPCSetFrags(-1);
             }
 

@@ -21,8 +21,9 @@ public class BulletBazoka : BulletBase
 
     protected override void Hit(RaycastHit hit)
     {
+        
         base.Hit(hit);
-        Vector3 vector3 = hit.point;
+        Vector3 vector3 = hit.point - this.transform.rotation * new Vector3(0, 0, 1);
         Transform o;
         Destroy(o = (Transform)Instantiate(exp, vector3, Quaternion.identity), 10);
         o.GetComponent<Explosion>().OwnerID = OwnerID;

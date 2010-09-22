@@ -12,12 +12,16 @@ public class box : Base
 {
     public Transform bounds;
     protected virtual void Start()
-    {        
+    {
+        if (this.GetType() == typeof(box))
+        {
+            rigidbody.mass = 10;
+            //rigidbody.angularDrag = 20;
+        }
         _Spawn.dynamic.Add(this);
         spawnpos = transform.position;
         if (!(this is Player))
         {
-            rigidbody.angularDrag = 30;
             if (Network.peerType == NetworkPeerType.Disconnected) return;
             if (!Network.isServer)
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());

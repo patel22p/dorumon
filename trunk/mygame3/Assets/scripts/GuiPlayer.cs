@@ -22,22 +22,19 @@ public class GuiPlayer : Base
 
     public void PlayerWindow(int q)
     {
-        
-        
-        
-        GUILayout.Label("Life: " + _localiplayer.Life);
-        GUILayout.Label("Frags: " + _LocalPlayer.frags);
-        GUILayout.Label("Nitro: " + (int)_localiplayer.nitro);
+        GUILayout.Label(lc.lf .ToString() + _localiplayer.Life);
+        GUILayout.Label(lc.fg .ToString() + _LocalPlayer.frags);
+        GUILayout.Label(lc.ntr .ToString() + (int)_localiplayer.nitro);
         if (zombi)
-            GUILayout.Label("FrozenTime: " + (int)_LocalPlayer.freezedt);
+            GUILayout.Label(lc.fz .ToString() + (int)_LocalPlayer.freezedt);
         if (zombi || zombisurive)
         {
-            GUILayout.Label("Stage: " + _Spawn.stage);
-            GUILayout.Label("Zombies Left: " + _Spawn.zombies.Count);
+            GUILayout.Label(lc.stg .ToString() + _Spawn.stage);
+            GUILayout.Label(lc.zl .ToString() + _Spawn.zombies.Count);
         }
 
         foreach (GunBase gb in _LocalPlayer.guns)
-            GUILayout.TextField(gb.name + ": " + (int)gb.bullets);
+            GUILayout.TextField(gb._Name + ": " + (int)gb.bullets);
         GUI.DragWindow();
     }
 }

@@ -5,11 +5,13 @@ using System.Collections;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.IO;
 [assembly: AssemblyVersion("1.0.*")]
 
 public class Menu : Base
 {
-    public static string gamename = "Swiborg";
+    public string gamename = "Swiborg";
     bool guiloaded;
     public Rect r = new Rect(0, 0, 200, 300);
     public Rect r2;
@@ -30,6 +32,7 @@ public class Menu : Base
     void Start()
     {
         print("menu start");
+        
         if (logged)
         {
             //_vk.SetStatus("");                    
@@ -41,7 +44,7 @@ public class Menu : Base
         else
         {
             _vk.enabled = _Vkontakte.enabled = false;
-            Nick = lc.guest + UnityEngine.Random.Range(0, 99);
+            Nick = lc.guest.ToString() + UnityEngine.Random.Range(0, 99);
         }
         r2 = CenterRect(.6f, .5f);
         Network.incomingPassword = build ? version.ToString() : "";
@@ -51,9 +54,9 @@ public class Menu : Base
     {
         try
         {
-            
-            r = GUILayout.Window(2, r, Window, "connection");
-            r2 = GUILayout.Window(1, r2, ServerListWindow, "Servers");
+
+            r = GUILayout.Window(2, r, Window, lc.connwin .ToString());
+            r2 = GUILayout.Window(1, r2, ServerListWindow, lc.serv .ToString());
             if (!guiloaded)
             {
                 GUI.BringWindowToFront(2);
@@ -70,7 +73,7 @@ public class Menu : Base
     {
 
 
-        GUILayout.Label(lc.ipaddress);
+        GUILayout.Label(lc.ipaddress.ToString());
         GUILayout.BeginHorizontal();
         ip = GUILayout.TextField(ip);
 
@@ -81,12 +84,12 @@ public class Menu : Base
         {
             int timeleft = begintime - _vk.time.Hour;
             if (timeleft < 0) timeleft += 24;
-            GUILayout.Label("бета тест проводится с " + begintime + ":00 до " + (begintime + 2) + ":00, осталось " + timeleft + " часов");
+            GUILayout.Label(String.Format(lc.time .ToString(), begintime, (begintime + 2), timeleft));
         }
 
-        if (GUILayout.Button(lc.connect))
+        if (GUILayout.Button(lc.connect.ToString()))
         {
-            if (isguest && build)
+            if (isguest && build && timeLimit)
                 printC(lc.mustlogin);
             else if (isnottime && timeLimit && build)
                 printC(lc.timelimit);
@@ -100,27 +103,23 @@ public class Menu : Base
         }
         if (!build)
         {
-            GUILayout.Label("MasterServer:");
+            GUILayout.Label(lc.MasterServer.ToString());
             masterip = GUILayout.TextField(masterip, 20);
         }
         if (!logged)
         {
-            GUILayout.Label("NickName:");
+            GUILayout.Label(lc.name.ToString());
             Nick = GUILayout.TextField(Nick, 20);
         }
-        if (GUILayout.Button("host") || skip)
+        if (GUILayout.Button(lc.host.ToString()) || skip)
             if (Nick.Length > 0)
-                InitServer();
-            else printC("Enter Nick Name");
+                _hw.enabled= true;
+            else printC(lc.enternickname.ToString());
         GUI.DragWindow();
     }
-    private void InitServer()
-    {
-        Network.useNat = false;
-        Network.InitializeServer(32, port);
-        if (masterip != "") MasterServer.ipAddress = masterip;
-        MasterServer.RegisterHost(gamename, Application.loadedLevelName + " Version " + version, _Loader.ips);
-    }
+    
+    
+    
     int GetPing(string ip)
     {
         Ping p;
@@ -134,8 +133,8 @@ public class Menu : Base
     void ServerListWindow(int q)
     {
 
-        GUILayout.Label("your version is: " + version);
-        if (GUILayout.Button("refresh server list"))
+        GUILayout.Label(lc.yourversionis .ToString() + version);
+        if (GUILayout.Button(lc.refreshserver .ToString()))
         {
             if (masterip != "") MasterServer.ipAddress = masterip;
             MasterServer.RequestHostList(gamename);
@@ -162,24 +161,27 @@ public class Menu : Base
             hostInfo = hostInfo + "]";
             GUILayout.Label(hostInfo);
             GUILayout.Space(5);
-            GUILayout.Label(element.comment);
-            GUILayout.Label("ping:" + GetPing(element.ip[0]));
+            
+            GUILayout.Label(lc.ping .ToString() + GetPing(element.ip[0]));
 
             GUILayout.FlexibleSpace();
             GUILayout.Space(5);
 
 
-            if (GUILayout.Button("Copy IP"))
+            if (GUILayout.Button(lc.copyip.ToString()))
             {
                 Network.useNat = element.useNat;
                 //if (Network.useNat)
                 //    print("Using Nat punchthrough to connect to host");
                 //else
                 //     print("Connecting directly to host");
-                ip = element.comment;
-                if (!ip.Contains(element.ip[0]))
-                    ip = element.ip[0] + "," + ip;
-                port = element.port;
+                try
+                {
+                    _hw.srvdata = (SrvData)_hw.xml.Deserialize(new StringReader(element.comment));
+                    ip = element.ip[0] + "," + _hw.srvdata.ips;
+                    port = element.port;
+                }
+                catch { printC("cannot parse xml"); }
 
             }
             GUILayout.EndHorizontal();
@@ -195,11 +197,11 @@ public class Menu : Base
     }
     void OnFailedToConnect(NetworkConnectionError error)
     {
-        printC("Could not connect to server: " + error.ToString().Replace("InvalidPassword", "Game Already Started"));
+        printC(lc.clnt .ToString() + error.ToString().Replace("InvalidPassword", lc.gald .ToString()));
     }
     void OnFailedToConnectToMasterServer(NetworkConnectionError error)
     {
-        printC("Could not connect to master server: " + error);
+        printC(lc.clnt .ToString() + error);
     }
 }
 public class Trace : UnityEngine.Debug { }

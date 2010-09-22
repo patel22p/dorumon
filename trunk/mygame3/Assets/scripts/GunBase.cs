@@ -16,11 +16,7 @@ public abstract class GunBase : Base
         Show(false);
     }
 
-    void Start()
-    {
-
-
-    }
+    
     public Quaternion q;
     protected virtual void FixedUpdate()
     {
@@ -61,6 +57,7 @@ public abstract class GunBase : Base
 
     public Transform _Patron;
     public AudioClip _nobullets;
+    public string _Name;
     public int fr { get { return _LocalPlayer == null || _LocalPlayer.freezedt < 0 ? 1 : 3; } }
     protected virtual void LocalUpdate()
     {

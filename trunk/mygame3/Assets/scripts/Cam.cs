@@ -58,7 +58,7 @@ public class Cam : Base
             y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
         }
 
-        y = ClampAngle(y, yMinLimit, yMaxLimit, 45);
+        y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
         if (_localiplayer == null || _localiplayer.dead)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));

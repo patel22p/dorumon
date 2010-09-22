@@ -22,6 +22,7 @@ public class Base2 : MonoBehaviour
     public static Loader _Loader;
     public static Menu _menu;
     public static Spawn _Spawn;
+    public static HostWindow _hw;
     public static IPlayer _localiplayer;
     public static Player _LocalPlayer;
     static bool _lockCursor;

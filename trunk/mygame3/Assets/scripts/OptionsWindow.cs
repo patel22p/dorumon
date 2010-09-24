@@ -61,14 +61,16 @@ public class OptionsWindow : WindowBase {
         GUILayout.Label(lc.yof .ToString()+ yofset);
         yofset = GUILayout.HorizontalSlider(yofset, 0, 20);
         GUILayout.Label(lc.camf .ToString()+ fieldof);
-        fieldof = GUILayout.HorizontalSlider(fieldof, 40, 90);        
-        if (GUILayout.Button(lc.close.ToString())) enabled = false; 
+        fieldof = GUILayout.HorizontalSlider(fieldof, 40, 90);
+        if (GUILayout.Button("Select Language"))
+            LangWindow._This.enabled = true;
+        if (GUILayout.Button(lc.close.ToString())) enabled = false;        
         GUI.DragWindow();
     }
     public static bool enableMusic { get { return PlayerPrefs.GetInt("enableMusic",1) == 1; } set { PlayerPrefs.SetInt("enableMusic", value ? 1 : 0); } }
 
     public static bool secondrun { get { return PlayerPrefs.GetInt("firstrun") == 1; } set { PlayerPrefs.SetInt("firstrun", value ? 1 : 0); } }
-    public static bool ruslang { get { return PlayerPrefs.GetInt("ruslang") == 1; } set { PlayerPrefs.SetInt("ruslang", value ? 1 : 0); } }
+    public static bool ruslang { get { return PlayerPrefs.GetInt("ruslang", 1) == 1; } set { PlayerPrefs.SetInt("ruslang", value ? 1 : 0); } }
     public int quality { get { return PlayerPrefs.GetInt("quality", -1); } set { PlayerPrefs.SetInt("quality", value); } }
     public int selres { get { return PlayerPrefs.GetInt("resolution", -1); } set { PlayerPrefs.SetInt("resolution", value); } }
     public float xofset { get { return PlayerPrefs.GetFloat("xofset", 3); } set { PlayerPrefs.SetFloat("xofset", value); } }

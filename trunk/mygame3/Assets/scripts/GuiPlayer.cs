@@ -9,7 +9,7 @@ public class GuiPlayer : Base
     {
         
         float w = Screen.width;
-        float h = Screen.height;
+
         r = Rect.MinMaxRect(w - w / 4, 0, Screen.width, 0);
     }
     void OnGUI()

@@ -10,7 +10,7 @@ public class BulletMini : BulletBase
     public Transform bloodmat1;
     public Transform impact;
     
-    public float exp=10;
+    public float exp=50;
     public float exprad = 2; 
     protected override void Hit(RaycastHit hit )
     {

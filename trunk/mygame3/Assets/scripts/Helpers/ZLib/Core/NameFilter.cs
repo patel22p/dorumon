@@ -82,7 +82,7 @@ namespace ICSharpCode.SharpZipLib.Core
 		{
 			bool result = true;
 			try {
-				Regex exp = new Regex(expression, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
 			}
 			catch (ArgumentException) {
 				result = false;
@@ -119,7 +119,7 @@ namespace ICSharpCode.SharpZipLib.Core
 							toCompile = items[i];
 						}
 
-						Regex testRegex = new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
 					}
 				}
 			}

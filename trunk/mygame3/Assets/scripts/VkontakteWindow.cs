@@ -6,30 +6,30 @@ using System;
 
 
 
-public class VkontakteWindow : Base
+public class VkontakteWindow : WindowBase
 {
-    int id;
+    
     Vk vk;
     MessageWindow chat;
     ScoreBoard scoreboard;
-    void Awake()
+
+    protected override void Awake()
     {
         if (!enabled) return;
         print("Vkontakte start");
         _Vkontakte = this;
         vk = this.GetComponent<Vk>();
+        base.Awake();
     }
 
     void Start()
     {
-
-
         scoreboard = this.GetComponent<ScoreBoard>();
         chat = this.GetComponent<MessageWindow>();
         id = UnityEngine.Random.Range(0, int.MaxValue);
 
 
-        rect = new Rect(Screen.width - 200, 0, 0, 0);
+        size = new Vector2(100, 300);
         //Application.ExternalCall("GetUrl");
     }
 
@@ -37,20 +37,8 @@ public class VkontakteWindow : Base
     //{
     //    login = s;
     //    _vk.Start(login);
-    //} 
-
-    internal Rect rect;
-
-    public Texture2D test;
-    void OnGUI()
-    {
-        GUILayout.Label(test);
-        try
-        {
-            rect = GUILayout.Window(id, rect, Window, lc.vkontakte .ToString(), GUILayout.Width(200), GUILayout.Height(300));
-        }
-        catch (Exception e) { print(e); }
-    }
+    //}         
+    
 
 
     public void onVkConnected()
@@ -148,7 +136,7 @@ public class VkontakteWindow : Base
     string login { get { return PlayerPrefs.GetString("login"); } set { PlayerPrefs.SetString("login", value); } }
     public GUIStyle linkstyle;
 
-    void Window(int id)
+    protected override void Window(int id)
     {
         if (_vk._Status == Vk.Status.connected)
             GUILayout.Label(_vk.time.ToShortDateString() + " " + _vk.time.ToShortTimeString());
@@ -159,14 +147,16 @@ public class VkontakteWindow : Base
 
             
             GUILayout.Label(lc.url.ToString(), GUILayout.ExpandWidth(false));
-            login = GUILayout.TextArea(login);            
+            login = GUILayout.TextArea(login);
             if (GUILayout.Button(lc.login.ToString()))
-                vk.Start(login);            
+                if (login == "")
+                    printC(lc.authhelp);
+                else
+                    vk.Start(login);            
             if (GUILayout.Button(lc.auth .ToString()))
-                OpenUrl("http://vkontakte.ru/login.php?app=1935303&layout=popup&type=browser&settings=15615");
-            GUILayout.Label(lc.authhelp .ToString());
+                OpenUrl("http://vkontakte.ru/login.php?app=1935303&layout=popup&type=browser&settings=15615");            
 
-            if (GUILayout.Button(lc.loginasguest .ToString()) || skip || !build)
+            if (GUILayout.Button(lc.loginasguest .ToString()) || skip)
                 Application.LoadLevel(Level.z2menu.ToString());
             if (!build)
             {
@@ -205,7 +195,7 @@ public class VkontakteWindow : Base
             GUILayout.Box(localuser.texture);
             foreach (Vk.user user in friends.Values)
                 if (user.uid != localuser.uid && user.online)
-                {
+                {                    
                     GUILayout.Label(lc.name + user.nick);
                     GUILayout.Label(lc.status + user.st.text);
                     if (user.installed) GUILayout.Label(lc.gameInstalled.ToString());

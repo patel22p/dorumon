@@ -33,16 +33,13 @@ public partial class Vk : Base
 
     void Start()
     {
-
-        print("vk start");
-        
-
-
+        print("vk start");        
     }
 
     List<Action> actions = new List<Action>();
     void StartThreads()
     {
+
         while (true)
         {
             if (actions.Count > 0)
@@ -63,10 +60,14 @@ public partial class Vk : Base
 
     public void Start(string url)
     {
-        thread = new Thread(StartThreads);
-        thread.IsBackground = true;
-        thread.Name = "VK";
-        thread.Start();
+        printC("vk Start");
+        if (thread == null)
+        {
+            thread = new Thread(StartThreads);
+            thread.IsBackground = true;
+            thread.Name = "VK";
+            thread.Start();
+        }
 
         _Status = Status.connecting;
         newThread(delegate()
@@ -378,14 +379,17 @@ public partial class Vk : Base
             print("get friends " + r.users.Count);
             friends.Clear();
             friends.Add(localuser.uid, localuser);
+            
+            
             foreach (user user in r.users)
-            {
-                LoadAvatar(user);
+            {                
+                if(user.online==true)
+                    LoadAvatar(user);
                 friends.Add(user.uid, user);
                 if (appusers.Contains(user.uid)) user.installed = true;
                 user.st.text = user.online ? lc.onlin .ToString() : lc.offline .ToString();
             }
-        });
+        }); 
     }
 
 

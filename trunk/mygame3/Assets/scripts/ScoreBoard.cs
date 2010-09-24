@@ -8,7 +8,7 @@ public class ScoreBoard : WindowBase {
     void Start()
     {
         title = lc.sb.ToString();
-        size = new Vector2(300, 500);
+        size = new Vector2(500,300);
     }
     
     enum Tab { TopZombieKill , TopKill}
@@ -22,7 +22,7 @@ public class ScoreBoard : WindowBase {
 
         const string table = "{0,30}{1,20}{2,10}";
         GUILayout.Label(string.Format(table, "", lc.kills, lc.deaths));
-        SortedList sl = new SortedList();
+
         SortedList<float, Vk.user> score = sel == Tab.TopZombieKill ? _vk.highscoresZombie : _vk.highscores;
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         if (score.Count == 32)

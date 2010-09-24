@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 public class SrvData
 {
     public string[] ips;
-    public GameMode gamemode = GameMode.DeathMatch;
+    public GameMode gamemode = GameMode.ZombieSurive;
     public GameLevels level = GameLevels.z4game;
     public int frags = 20;
 }
@@ -52,8 +52,13 @@ public class HostWindow : WindowBase
     public GameLevels selectedlevel { get { return srvdata.level; } set { srvdata.level = value; } }
     protected override void Window(int id)
     {
+        
+        GUILayout.Label(lc.map.ToString());
         selectedlevel = (GameLevels)GUILayout.Toolbar((int)selectedlevel, Enum.GetNames(typeof(GameLevels)));
+        GUILayout.Space(10);
+        GUILayout.Label(lc.mod.ToString());
         gameMode = (GameMode)GUILayout.Toolbar((int)gameMode, new string[] { lc.deathmatch.ToString(), lc.teamdeathmatch.ToString(), lc.teamzombiesurive.ToString(), lc.zombisr.ToString() });
+        GUILayout.Space(10);
         GUILayout.BeginHorizontal();
         GUILayout.Label(lc.zombiefrag.ToString(), GUILayout.ExpandWidth(false));
         int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out srvdata.frags);

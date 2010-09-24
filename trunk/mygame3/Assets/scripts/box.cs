@@ -35,6 +35,9 @@ public class box : Base
     }
     protected virtual void Update()
     {
+        //if (this.GetType() == typeof(box))
+        //    rigidbody.angularDrag = 2;
+
         if (selected != -1)
             id = selected.GetHashCode();
         else

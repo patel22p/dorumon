@@ -1,91 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using UnityEngine;
-using Random = UnityEngine.Random;
+﻿using UnityEngine;
+using System.Collections;
 
+
+using System;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.IO;
 [assembly: AssemblyVersion("1.0.*")]
 
 public class Menu : Base
 {
-    public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
-    private readonly SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
-    private int begintime = 20;
-    private HostData[] data;
     public string gamename = "Swiborg";
-    private bool guiloaded;
-    internal int port = 5300;
+    bool guiloaded;
     public Rect r = new Rect(0, 0, 200, 300);
     public Rect r2;
+    internal int port = 5300;
+    public static string Nick { get { return Base.localuser.nick; } set { Base.localuser.nick = value; } }
+    public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
+    public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }
+    
+    public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
+    HostData[] data;
+    SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
 
-    public static string Nick
-    {
-        get { return localuser.nick; }
-        set { localuser.nick = value; }
-    }
-
-    public string ip
-    {
-        get { return PlayerPrefs.GetString("ip"); }
-        set { PlayerPrefs.SetString("ip", value); }
-    }
-
-    public string masterip
-    {
-        get { return PlayerPrefs.GetString("ip2"); }
-        set { PlayerPrefs.SetString("ip2", value); }
-    }
-
-    private bool isnottime
-    {
-        get { return (_vk.time.Hour < begintime || _vk.time.Hour > begintime + 2); }
-    }
-
-    private bool isguest
-    {
-        get { return _vk._Status == Vk.Status.disconnected; }
-    }
-
-    private void Awake()
+    void Awake()
     {
         Online = true;
         _menu = this;
-    }
-
-    private void Start()
+    }    
+    void Start()
     {
+        
         print("menu start");
+        MasterServer.RequestHostList(gamename);
 
+        if (!_Loader.audio.isPlaying) _Loader.audio.Play();
         if (logged)
         {
             //_vk.SetStatus("");                    
             _vk.enabled = _Vkontakte.enabled = true;
-            _vk.SetLocalVariable((int) Vk.Keys.playerstats,
-                                 tostring(new object[]
-                                              {
-                                                  localuser.totalkills, localuser.totaldeaths, localuser.totalzombiekills,
-                                                  localuser.totalzombiedeaths
-                                              }));
+            _vk.SetLocalVariable((int)Vk.Keys.playerstats, tostring(new object[] { localuser.totalkills, localuser.totaldeaths, localuser.totalzombiekills, localuser.totalzombiedeaths }));
             _vk.KillsTop(true);
             _vk.KillsTop(false);
         }
         else
         {
             _vk.enabled = _Vkontakte.enabled = false;
-            Nick = lc.guest.ToString() + Random.Range(0, 99);
+            Nick = lc.guest.ToString() + UnityEngine.Random.Range(0, 99);
         }
         r2 = CenterRect(.6f, .5f);
-        Network.incomingPassword = build ? version.ToString() : "";
+        Network.incomingPassword = "";
         //printC(Network.incomingPassword);
     }
-
-    private void OnGUI()
+    void OnGUI()
     {
         try
         {
-            r = GUILayout.Window(2, r, Window, lc.connwin.ToString());
-            r2 = GUILayout.Window(1, r2, ServerListWindow, lc.serv.ToString());
+
+            r = GUILayout.Window(2, r, Window, lc.connwin .ToString());
+            r2 = GUILayout.Window(1, r2, ServerListWindow, lc.serv .ToString());
             if (!guiloaded)
             {
                 GUI.BringWindowToFront(2);
@@ -93,14 +67,15 @@ public class Menu : Base
                 guiloaded = true;
             }
         }
-        catch (Exception e)
-        {
-            print(e);
-        }
+        catch (Exception e) { print(e); }
     }
-
+    int begintime = 20;
+    bool isnottime { get { return (_vk.time.Hour < begintime || _vk.time.Hour > begintime + 2); } }
+    bool isguest { get { return _vk._Status == Vk.Status.disconnected; } }
     public void Window(int id)
     {
+
+
         GUILayout.Label(lc.ipaddress.ToString());
         GUILayout.BeginHorizontal();
         ip = GUILayout.TextField(ip);
@@ -108,11 +83,11 @@ public class Menu : Base
         int.TryParse(GUILayout.TextField(port.ToString(), 10), out port);
         GUILayout.EndHorizontal();
 
-        if (isnottime && timeLimit && !isguest)
+        if (isnottime &&  timeLimit &&!isguest)
         {
             int timeleft = begintime - _vk.time.Hour;
             if (timeleft < 0) timeleft += 24;
-            GUILayout.Label(String.Format(lc.time.ToString(), begintime, (begintime + 2), timeleft));
+            GUILayout.Label(String.Format(lc.time .ToString(), begintime, (begintime + 2), timeleft));
         }
 
         if (GUILayout.Button(lc.connect.ToString()))
@@ -126,8 +101,7 @@ public class Menu : Base
             else
             {
                 printC(lc.connectingto + ip);
-                Network.Connect(ip.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries), port,
-                                Network.incomingPassword);
+                Network.Connect(ip.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries), port, Network.incomingPassword);
             }
         }
         if (!build)
@@ -142,13 +116,14 @@ public class Menu : Base
         }
         if (GUILayout.Button(lc.host.ToString()) || skip)
             if (Nick.Length > 0)
-                _hw.enabled = true;
+                _hw.enabled= true;
             else printC(lc.enternickname.ToString());
         GUI.DragWindow();
     }
-
-
-    private int GetPing(string ip)
+    
+    
+    
+    int GetPing(string ip)
     {
         Ping p;
         if (!hdps.ContainsKey(ip))
@@ -158,13 +133,13 @@ public class Menu : Base
 
         return p.time;
     }
-
-    private void ServerListWindow(int q)
+    void ServerListWindow(int q)
     {
-        GUILayout.Label(lc.yourversionis.ToString() + version);
+
+        GUILayout.Label(lc.yourversionis .ToString() + version);
         if (GUILayout.Button(lc.refreshserver.ToString()))
         {
-            if (masterip != "") MasterServer.ipAddress = masterip;
+            if (masterip != "") MasterServer.ipAddress = masterip;            
             MasterServer.RequestHostList(gamename);
         }
 
@@ -177,6 +152,7 @@ public class Menu : Base
         }
         foreach (HostData element in sorteddata.Values)
         {
+
             GUILayout.BeginHorizontal();
             string name = element.gameName + " " + element.connectedPlayers + " / " + element.playerLimit;
             GUILayout.Label(name);
@@ -188,8 +164,8 @@ public class Menu : Base
             hostInfo = hostInfo + "]";
             GUILayout.Label(hostInfo);
             GUILayout.Space(5);
-
-            GUILayout.Label(lc.ping.ToString() + GetPing(element.ip[0]));
+            
+            GUILayout.Label(lc.ping .ToString() + GetPing(element.ip[0]));
 
             GUILayout.FlexibleSpace();
             GUILayout.Space(5);
@@ -204,38 +180,31 @@ public class Menu : Base
                 //     print("Connecting directly to host");
                 try
                 {
-                    _hw.srvdata = (SrvData) _hw.xml.Deserialize(new StringReader(element.comment));
+                    _hw.srvdata = (SrvData)_hw.xml.Deserialize(new StringReader(element.comment));
                     ip = element.ip[0] + "," + _hw.srvdata.ips;
                     port = element.port;
                 }
-                catch
-                {
-                    printC("cannot parse xml");
-                }
+                catch { printC("cannot parse xml"); }
+
             }
             GUILayout.EndHorizontal();
+
         }
         GUI.DragWindow();
     }
-
-    private void OnLevelWasLoaded(int level)
+    void OnLevelWasLoaded(int level)
     {
         foreach (Ping p in hdps.Values)
             p.DestroyPing();
         hdps.Clear();
     }
-
-    private void OnFailedToConnect(NetworkConnectionError error)
+    void OnFailedToConnect(NetworkConnectionError error)
     {
-        printC(lc.clnt + error.ToString().Replace("InvalidPassword", lc.gald.ToString()));
+        printC(lc.clnt .ToString() + error.ToString().Replace("InvalidPassword", lc.gald .ToString()));
     }
-
-    private void OnFailedToConnectToMasterServer(NetworkConnectionError error)
+    void OnFailedToConnectToMasterServer(NetworkConnectionError error)
     {
-        printC(lc.clnt.ToString() + error);
+        printC(lc.clnt .ToString() + error);
     }
 }
-
-public class Trace : Debug
-{
-}
+public class Trace : UnityEngine.Debug { }

@@ -20,7 +20,7 @@ public class CubeGrav : Base
     
     void FixedUpdate()
     {        
-        AnimationClip ac = new AnimationClip();
+
 
         s.rigidbody.AddExplosionForce(-force, transform.position, 1000);
     }

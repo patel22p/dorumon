@@ -67,7 +67,8 @@ public class Zombie : IPlayer
                 else if (ipl.isOwner && zombiebite>1)
                 {
                     zombiebite = 0;
-                    ipl.RPCSetLife(-10, -1);
+
+                    if(build) ipl.RPCSetLife(-10, -1);
                 }
             }
         }

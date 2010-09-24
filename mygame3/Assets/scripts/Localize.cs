@@ -34,7 +34,7 @@
     public LcString version = " Version ";
     public LcString ping = "ping:";
     public LcString copyip = "Copy IP";
-    public LcString copyright = "Copyright © 2010 Левочкин игорь";
+    public LcString copyright = "Copyright © 2010 PhysxWars Team";
     public LcString beginthegame = "Начать игру";
     public LcString fraglimit = "Frags Limit:";
     public LcString redteamscore = "Red Team Score:";
@@ -79,12 +79,16 @@
 //4 - healthgun
     public LcString connwin = "Connection";
     public LcString serv = "Servers";
-    public LcString baz = "Базука";
-    public LcString heathgun = "Регенератор";
-    public LcString gunmini = "Миниган";
-    public LcString physxgun = "Телекинез", onlin = "online", offline = "offline", tpz = "Top Zombie Kill", tk = "TopKill", sb = "Stats Board", kls = "kills", dths = "Deaths", cw = "Chat Window", scw = " Погиб", ff = " friendly fired ", kld = " killed ", dbsf = " died byself", udl = "Вы умерли дожив до {0} раунда";
-    public LcString hostwind = "host settings";
-    public LcString enablemusci = "Enable Music";
+    public LcString baz = "Rocket Launcher;Базука";
+    public LcString heathgun = "healthgun;Регенератор";
+    public LcString gunmini = "Minigun;Миниган";
+    public LcString physxgun = "Телекинез", onlin = "online", offline = "offline", tpz = "Top Zombie Kill", tk = "TopKill", sb = "Stats Board", kls = "kills", dths = "Deaths", cw = "Chat Window", scw = " srwed; Погиб", ff = " friendly fired ", kld = " killed ", dbsf = " died byself", udl = "You surived until {0} level;Вы умерли дожив до {0} раунда";
+    public LcString hostwind = "host settings;Настроики Игры";
+    public LcString enablemusci = "Enable Music;Музыка";
+    public LcString map = "map;Карта";
+    public LcString mod = "Game Type;Тип игры";
+    public LcString loaded = "Mb Loaded;mb Загружено";
+    public LcString refreshing = "Refreshing server list";
 }
 public class LcString
 {
@@ -97,7 +101,10 @@ public class LcString
     public static implicit operator LcString(string str)
     {
         LcString lc = new LcString();
-        lc.eng = str;
+        string[] strs = str.Split(';');
+        lc.eng = strs[0];
+        if (strs.Length > 1)
+            lc.rus = strs[1];
         return lc;
     }
 }

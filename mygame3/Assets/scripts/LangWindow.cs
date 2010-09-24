@@ -3,8 +3,10 @@ using System.Collections;
 
     public class LangWindow: WindowBase
     {
+        public static LangWindow _This;
         public void Start()
         {
+            _This = this;
             size = new Vector2(100,100);
             title = "Select language";
             if (!build || OptionsWindow.secondrun) enabled = false;

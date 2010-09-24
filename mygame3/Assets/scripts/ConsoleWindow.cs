@@ -10,7 +10,9 @@ using System.IO;
 public partial class ConsoleWindow : WindowBase
 {
     void Start()
-    {
+    {      
+        _cw = this;
+        AudioListener.volume = .1f;       
         size = new Vector2(700, 400);
     }
 
@@ -22,7 +24,17 @@ public partial class ConsoleWindow : WindowBase
     }
     
     void Update()
-    {        
+    {
+        if (OptionsWindow.enableMusic)
+        {
+            if (audio.volume < 1)
+                audio.volume += Time.deltaTime / 10;
+        }
+        else
+            audio.volume = 0;
+
+
+        
         if (Input.GetKeyDown(KeyCode.Return)) 
         {
             if (input != "")
@@ -33,6 +45,7 @@ public partial class ConsoleWindow : WindowBase
         }
 
     }
+    
     static string lastStr = "";
     [RPC]
     public new void rpcwrite(string s)
@@ -55,7 +68,7 @@ public partial class ConsoleWindow : WindowBase
     {
         if (lockCursor) return;
         GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
-        title = lc.physxwarsver +" "+ version;        
+        title = lc.physxwarsver + " " + version + " /  " + Application.streamedBytes / 1024 / 1024 + " " + lc.loaded;        
         
         base.OnGUI();
     }
@@ -98,7 +111,7 @@ public partial class ConsoleWindow : WindowBase
         userviews.Clear();        
         RPCUserDisconnected(Network.player.GetHashCode());
         if (!skip) rpcwrite(lc.playerdisc + Menu.Nick);
-        if (!skip) write(lc.dfg.ToString() + info);
+        if (!skip) write(lc.dfg.ToString());
         Application.LoadLevel(Level.z2menu.ToString());
     }
     [RPC]

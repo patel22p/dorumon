@@ -1,0 +1,468 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Localize xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ipaddress>
+    <rus>IP-адрес:   Порт: 5300</rus>
+    <eng>Ipaddress:   port:5300</eng>
+  </ipaddress>
+  <mustlogin>
+    <rus> Прежде чем играть по сети, необходимо выполнить вход</rus>
+    <eng>You must login in first to play multiplayer</eng>
+  </mustlogin>
+  <timelimit>
+    <rus>Игра возможна только в установленное время</rus>
+    <eng>You can play in multiplayer only above specified time</eng>
+  </timelimit>
+  <firstname>
+    <rus>Вначале введите имя пользователя</rus>
+    <eng>Enter username first</eng>
+  </firstname>
+  <connectingto>
+    <rus>Подключение к </rus>
+    <eng>connecting to </eng>
+  </connectingto>
+  <gameInstalled>
+    <rus>Игра Установлена</rus>
+    <eng>Game Installed</eng>
+  </gameInstalled>
+  <addfr>
+    <rus>Пригласить</rus>
+    <eng>Add Friend</eng>
+  </addfr>
+  <playgame>
+    <rus> хочет поиграть с тобой в приложение Physx Wars</rus>
+    <eng> wants to play with u in Physx Wars Game</eng>
+  </playgame>
+  <name>
+    <rus>Имя: </rus>
+    <eng>Name: </eng>
+  </name>
+  <status>
+    <rus>Статус: </rus>
+    <eng>Status:</eng>
+  </status>
+  <refresh>
+    <rus>Обновить список друзей</rus>
+    <eng>refresh friend list</eng>
+  </refresh>
+  <scoreboard>
+    <rus>Таблица очков</rus>
+    <eng>Score Board</eng>
+  </scoreboard>
+  <chat>
+    <rus>Чат</rus>
+    <eng>Chat</eng>
+  </chat>
+  <logout>
+    <rus>Выйти</rus>
+    <eng>Log Out</eng>
+  </logout>
+  <usersonline>
+    <rus>Пользователей Онлайн: </rus>
+    <eng>Users Online: </eng>
+  </usersonline>
+  <vkontakte>
+    <rus>Вконтакте</rus>
+    <eng>Vkontakte</eng>
+  </vkontakte>
+  <vkconnected>
+    <rus>Подключение к Вконтакте установлено :240</rus>
+    <eng>vkontakte connected :240</eng>
+  </vkconnected>
+  <auth>
+    <rus>Авторизация Вконтакте</rus>
+    <eng>Authorization at Vkontakte</eng>
+  </auth>
+  <authhelp>
+    <rus>1. Нажмите кнопку Авторизация Вконтакте 
+2. Скопируйте текст из адресной строки открывшегося окна 
+3. Вставьте текст в поле Адрес, а затем нажмите Войти в игру</rus>
+    <eng>1. press Authorization 
+2. copy url from browser 
+3. paste url here</eng>
+  </authhelp>
+  <connect>
+    <rus>Подключиться</rus>
+    <eng>Connect</eng>
+  </connect>
+  <time>
+    <rus>Бета-тестирование начинается в {0}:00 и заканчивается в {1}:00. Осталось, часов: {2}</rus>
+    <eng>beta test start at {0}:00 end at {1}:00, time left {2} hours</eng>
+  </time>
+  <loginasguest>
+    <rus>Войти как гость</rus>
+    <eng>login as guest</eng>
+  </loginasguest>
+  <guest>
+    <rus>Гость</rus>
+    <eng>Guest </eng>
+  </guest>
+  <physxwarsver>
+    <rus>Physx Wars Версия </rus>
+    <eng>Physx Wars Version </eng>
+  </physxwarsver>
+  <url>
+    <rus>Адрес:</rus>
+    <eng>Url:</eng>
+  </url>
+  <login>
+    <rus>Войти в игру</rus>
+    <eng>Login</eng>
+  </login>
+  <MasterServer>
+    <rus>МастерСервер:</rus>
+    <eng>MasterServer:</eng>
+  </MasterServer>
+  <enternickname>
+    <rus>Введите Никнейм</rus>
+    <eng>Enter Nick Name</eng>
+  </enternickname>
+  <yourversionis>
+    <rus>Ваша версия игры: </rus>
+    <eng>your version is: </eng>
+  </yourversionis>
+  <refreshserver>
+    <rus>Обновить список</rus>
+    <eng>refresh server list</eng>
+  </refreshserver>
+  <version>
+    <rus> Версия </rus>
+    <eng> Version </eng>
+  </version>
+  <ping>
+    <rus>Пинг:</rus>
+    <eng>ping:</eng>
+  </ping>
+  <copyip>
+    <rus>Копировать IP</rus>
+    <eng>Copy IP</eng>
+  </copyip>
+  <copyright>
+    <rus>Copyright © 2010 Левочкин Игорь</rus>
+    <eng>Copyright © 2010 Levochkin Igor</eng>
+  </copyright>
+  <beginthegame>
+    <rus>Начать игру</rus>
+    <eng>Begin the game</eng>
+  </beginthegame>
+  <fraglimit>
+    <rus>Лимит Фрагов:</rus>
+    <eng>Frags Limit:</eng>
+  </fraglimit>
+  <redteamscore>
+    <rus>Красная Команда:</rus>
+    <eng>Red Team Score:</eng>
+  </redteamscore>
+  <blueteamscore>
+    <rus>Синяя Команда:</rus>
+    <eng>Blue Team Score:</eng>
+  </blueteamscore>
+  <spectator>
+    <rus>Зритель</rus>
+    <eng>Spectator</eng>
+  </spectator>
+  <joingame>
+    <rus>Войти в Игру</rus>
+    <eng>Join Game</eng>
+  </joingame>
+  <redteam>
+    <rus>Красная Команда</rus>
+    <eng>Red Team</eng>
+  </redteam>
+  <blueteam>
+    <rus>Синяя Команда</rus>
+    <eng>Blue Team</eng>
+  </blueteam>
+  <zombiefrag>
+    <rus>Лимит Зомби/Лимит Фрагов:</rus>
+    <eng>Zombie/Frag limit:</eng>
+  </zombiefrag>
+  <deathmatch>
+    <rus>Десматч</rus>
+    <eng>Death Match</eng>
+  </deathmatch>
+  <teamdeathmatch>
+    <rus>Командный Десматч</rus>
+    <eng>Team Death Match</eng>
+  </teamdeathmatch>
+  <teamzombiesurive>
+    <rus>Командный ЗомбиМод</rus>
+    <eng>Team Zombie Survive</eng>
+  </teamzombiesurive>
+  <zombisr>
+    <rus>ЗомбиМод</rus>
+    <eng>Zombie Survive</eng>
+  </zombisr>
+  <startgame>
+    <rus>Начать игру</rus>
+    <eng>Start Game</eng>
+  </startgame>
+  <notall>
+    <rus>карта загружена не у всех пользователей</rus>
+    <eng>not all users loaded map</eng>
+  </notall>
+  <fps>
+    <rus>Фпс:</rus>
+    <eng>fps: </eng>
+  </fps>
+  <quality>
+    <rus>Качество графики:</rus>
+    <eng>quality:</eng>
+  </quality>
+  <fastest>
+    <rus>Ужас</rus>
+    <eng>fastest</eng>
+  </fastest>
+  <fast>
+    <rus>Низко</rus>
+    <eng>fast</eng>
+  </fast>
+  <simple>
+    <rus>Средне</rus>
+    <eng>simple</eng>
+  </simple>
+  <good>
+    <rus>Хорошо</rus>
+    <eng>good</eng>
+  </good>
+  <beateful>
+    <rus>Класс</rus>
+    <eng>beateful</eng>
+  </beateful>
+  <fantastic>
+    <rus>Супер</rus>
+    <eng>fantastic</eng>
+  </fantastic>
+  <setquality>
+    <rus>Качество Графики</rus>
+    <eng>Set Quality</eng>
+  </setquality>
+  <setres>
+    <rus>Разрешение экрана:</rus>
+    <eng>screen resolution:</eng>
+  </setres>
+  <options>
+    <rus>Опции</rus>
+    <eng>Options</eng>
+  </options>
+  <xof>
+    <rus>Положение камеры Ось X: </rus>
+    <eng>Camera X Offset:</eng>
+  </xof>
+  <yof>
+    <rus>Положение камеры Ось Y: </rus>
+    <eng>Camera Y Offset:</eng>
+  </yof>
+  <camf>
+    <rus>Обзор камеры: </rus>
+    <eng>Camera fieldOfView:</eng>
+  </camf>
+  <close>
+    <rus>Закрыть</rus>
+    <eng>close</eng>
+  </close>
+  <lf>
+    <rus>Жизни:</rus>
+    <eng>Life: </eng>
+  </lf>
+  <fg>
+    <rus>Фраги:</rus>
+    <eng>Frags: </eng>
+  </fg>
+  <ntr>
+    <rus>Нитро:</rus>
+    <eng>Nitro: </eng>
+  </ntr>
+  <fz>
+    <rus>Заморозка:</rus>
+    <eng>FrozenTime: </eng>
+  </fz>
+  <stg>
+    <rus>Раунд:</rus>
+    <eng>Stage: </eng>
+  </stg>
+  <zl>
+    <rus>Осталось Зомби:</rus>
+    <eng>Zombies Left: </eng>
+  </zl>
+  <clnt>
+    <rus>Невозможно подключиться к серверу: </rus>
+    <eng>Could not connect to server: </eng>
+  </clnt>
+  <gald>
+    <rus>Игра уже началась</rus>
+    <eng>Game Already Started</eng>
+  </gald>
+  <clnm>
+    <rus>Невозможно подключиться к мастер серверу</rus>
+    <eng>Could not connect to master server: </eng>
+  </clnm>
+  <vklr>
+    <rus>Вход Вконтакте невозможен, необходимо дать приложению все права</rus>
+    <eng>
+      Login vkontakte failed, make sure you give the application all the rights
+    </eng>
+  </vklr>
+  <errn>
+    <rus>Ошибка отправки сообщения к </rus>
+    <eng>error message not sended to </eng>
+  </errn>
+  <cerr>
+    <rus>сообщение не отправлено</rus>
+    <eng>chat message not sended</eng>
+  </cerr>
+  <host>
+    <rus>Создать</rus>
+    <eng>host</eng>
+  </host>
+  <disc>
+    <rus>Отключиться</rus>
+    <eng>Disconnect</eng>
+  </disc>
+  <kick>
+    <rus>Выкинуть</rus>
+    <eng>Kick</eng>
+  </kick>
+  <kills>
+    <rus>Фраги:</rus>
+    <eng>Kills</eng>
+  </kills>
+  <deaths>
+    <rus>Смерти:</rus>
+    <eng>deaths</eng>
+  </deaths>
+  <kicked>
+    <rus> выкинут</rus>
+    <eng> kicked</eng>
+  </kicked>
+  <zkills>
+    <rus>Убил зомби:</rus>
+    <eng>ZKills</eng>
+  </zkills>
+  <zdeaths>
+    <rus>Укушен:</rus>
+    <eng>ZDeaths</eng>
+  </zdeaths>
+  <maploaded>
+    <rus>Загружено:</rus>
+    <eng>Map Loaded</eng>
+  </maploaded>
+  <playerdisc>
+    <rus>Из игры вышел </rus>
+    <eng>Player disconnected </eng>
+  </playerdisc>
+  <dfg>
+    <rus>Вы вышли из игры</rus>
+    <eng>Disconnected from game:</eng>
+  </dfg>
+  <plj>
+    <rus>К игре подключился </rus>
+    <eng>Player joined </eng>
+  </plj>
+  <onload>
+    <rus>
+      Copyright © 2010 PhysxWars Team
+      
+      Задача игры - уничтожать зомби
+      WASD - движение,
+      ПРОБЕЛ - тормоз,
+      SHIFT - ускорение,
+      F - использование техники,
+      цифры 1-3 - выбор оружия,
+      мышь - обзор,
+      ЛКМ - огонь,
+      ПКМ - меню.
+    </rus>
+    <eng>
+      Copyright © 2010 PhysxWars Team
+
+      alt enter - fullscreen
+      tab - close/open console
+      f - go in/out car
+      shift - nitro
+      a,s,d,w move keys
+      1 - machinegun
+      2 - rocketlauncher
+      3 - physxgun
+      4 - healthgun
+    </eng>
+  </onload>
+  <connwin>
+    <rus>Соединение</rus>
+    <eng>Connection</eng>
+  </connwin>
+  <serv>
+    <rus>Сервера</rus>
+    <eng>Servers</eng>
+  </serv>
+  <baz>
+    <rus>Базука</rus>
+    <eng>Bazoka</eng>
+  </baz>
+  <heathgun>
+    <rus>Регенератор</rus>
+    <eng>Regenerator</eng>
+  </heathgun>
+  <gunmini>
+    <rus>Миниган</rus>
+    <eng>Minigun</eng>
+  </gunmini>
+  <physxgun>
+    <rus>Телекинез</rus>
+    <eng>Telekinesis</eng>
+  </physxgun>
+  <onlin>
+    <rus>Онлайн</rus>
+    <eng>online</eng>
+  </onlin>
+  <offline>
+    <rus>Офлайн</rus>
+    <eng>offline</eng>
+  </offline>
+  <tpz>
+    <rus>Топ зомби убиств</rus>
+    <eng>Top Zombie Kill</eng>
+  </tpz>
+  <tk>
+    <rus>Топ убиств</rus>
+    <eng>TopKill</eng>
+  </tk>
+  <sb>
+    <rus>Статистика</rus>
+    <eng>Stats Board</eng>
+  </sb>
+  <kls>
+    <rus>Убиств</rus>
+    <eng>kills</eng>
+  </kls>
+  <dths>
+    <rus>Смертей</rus>
+    <eng>Deaths</eng>
+  </dths>
+  <cw>
+    <rus>Чат окно</rus>
+    <eng>Chat Window</eng>
+  </cw>
+  <scw>
+    <rus> погиб</rus>
+    <eng> screwed</eng>
+  </scw>
+  <ff>
+    <rus> убил союзника </rus>
+    <eng> friendly fired </eng>
+  </ff>
+  <kld>
+    <rus> убил </rus>
+    <eng> killed </eng>
+  </kld>
+  <dbsf>
+    <rus> застрелился</rus>
+    <eng> died byself</eng>
+  </dbsf>
+  <udl>
+    <rus>Вы умерли дожив до {0} раунда</rus>
+    <eng>You died on {0} level</eng>
+  </udl>
+  <Rus>true</Rus>
+</Localize>
+
+ 

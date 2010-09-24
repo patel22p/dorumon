@@ -22,8 +22,8 @@ public class Spawn : Base
     public AudioSource au;
     void Start()
     {
+        _Loader.audio.Stop();
 
-        
         if (build)
         {
             
@@ -35,7 +35,7 @@ public class Spawn : Base
         localuser.frags = localuser.deaths = 0;
         _Vkontakte.enabled = _vk.enabled = false;
         zombiesleft = _hw.fraglimit;
-        AudioListener.volume = .1f;
+        
         if (Network.isServer)
         {
             Network.incomingPassword = "started";
@@ -210,13 +210,12 @@ public class Spawn : Base
     public void OnTeamSelect(Team team)
     {
         lockCursor = true;
-        if (Network.peerType == NetworkPeerType.Disconnected)
+        if (Network.peerType == NetworkPeerType.Disconnected) 
             Network.InitializeServer(32, 5300);
-        Transform t;
+        
         if (_LocalPlayer == null)
-            t = (Transform)Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
-        else
-            t = _LocalPlayer.transform;
+            Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
+
         if (tdm || zombi)
             this.team = team;
 

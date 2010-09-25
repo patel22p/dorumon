@@ -10,7 +10,7 @@ public class VkontakteWindow : WindowBase
 {
     
     Vk vk;
-    MessageWindow chat;
+    
     ScoreBoard scoreboard;
 
     protected override void Awake()
@@ -25,7 +25,7 @@ public class VkontakteWindow : WindowBase
     void Start()
     {
         scoreboard = this.GetComponent<ScoreBoard>();
-        chat = this.GetComponent<MessageWindow>();
+        
         id = UnityEngine.Random.Range(0, int.MaxValue);
 
 
@@ -62,8 +62,8 @@ public class VkontakteWindow : WindowBase
         //}
     }
     public Dictionary<int, Vk.user> friends { get { return _vk.friends; } }
-    public Dictionary<string, int> chatusers = new Dictionary<string, int>();
-    public string chatuserstext;
+    
+    
     void Update()
     {
         if (vk._Status == Vk.Status.connected)
@@ -71,36 +71,15 @@ public class VkontakteWindow : WindowBase
             if (_TimerA.TimeElapsed(5000))
                 _vk.GetChatMessages(0, true);
             if (_TimerA.TimeElapsed(6000))
-                _vk.GetMessages();
-            if (_TimerA.TimeElapsed(9000))
-                _vk.SendChatMsg("");
+                _vk.GetMessages();            
             //if (_TimerA.TimeElapsed(10000))
             //    _vk.GetNews();
-
-            chatuserstext = lc.usersonline .ToString() + _Vkontakte.chatusers.Count + "\r\n";
-            foreach (string user in _Vkontakte.chatusers.Keys)
-                chatuserstext += user + "\r\n";
-
-            List<string> remove = new List<string>();
-            foreach (KeyValuePair<string, int> a in chatusers)
-                if (_vk.unixtime - a.Value > 15000)
-                    remove.Add(a.Key);
-            foreach (string s in remove)
-                chatusers.Remove(s);
-
             foreach (Vk.response resp in _vk.GetResponses())
             {
                 foreach (Vk.message_info msg in resp.messages)
                 {
-                    if (!chatusers.ContainsKey(msg.user_name))
-                        chatusers.Add(msg.user_name, msg.time);
-                    else
-                        chatusers[msg.user_name] = msg.time;
-
-                    msg.message = WWW.UnEscapeURL(msg.message);
-                    print(msg.user_name + ":" + msg.message);
-                    if (msg.message != "")
-                        chat.Write(msg.message);
+                    msg.message = WWW.UnEscapeURL(msg.message);                    
+                    printC(msg.user_name + ":" + msg.message);
                 }
                 foreach (Vk.status st in resp.statuses)
                 {
@@ -172,15 +151,12 @@ public class VkontakteWindow : WindowBase
 
         if (_vk._Status == Vk.Status.connected && localuser != null)
         {
-            GUILayout.Label(lc.usersonline.ToString() + chatusers.Count);
+            
             if (_Level == Level.z2menu && GUILayout.Button(lc.logout .ToString()))
             {
                 Application.LoadLevel(Level.z1login.ToString());
                 _vk._Status = Vk.Status.disconnected;
-            }
-
-            if (GUILayout.Button(lc.chat.ToString()))
-                chat.enabled = true;
+            }            
             if (GUILayout.Button(lc.scoreboard.ToString()))
             {
                 scoreboard.enabled = true;

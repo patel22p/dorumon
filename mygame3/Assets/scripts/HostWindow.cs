@@ -6,50 +6,40 @@ using doru;
 using System.IO;
 using System.Xml.Serialization;
 
-public class SrvData
-{
-    public string[] ips;
-    public GameMode gamemode = GameMode.ZombieSurive;
-    public GameLevels level = GameLevels.z4game;
-    public int frags = 20;
-}
+
 
 public enum GameLevels : int { z4game, z5castle }
 public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive, ZombieSurive }
 public class HostWindow : WindowBase
-{    
-    
-    
-    public SrvData srvdata = new SrvData();
-    internal GameMode gameMode { get { return srvdata.gamemode; } set { srvdata.gamemode=value; } }
+{
 
-    internal int fraglimit { get { return srvdata.frags; } set { srvdata.frags = value; } }
+    internal GameMode gameMode;
+
+    internal int fraglimit=20;
     protected override void Awake()
     {
         base.Awake();
     }
+    
     void Start()
     {
+        
         _hw = this;
         enabled = false;
+        
         size = new Vector2(700, 100);
         title = lc.hostwind.ToString();
     }
-    
-   
-    
-    public XmlSerializer xml = new XmlSerializer(typeof(SrvData), new Type[] { typeof(GameMode), typeof(GameLevels) });
+               
     public void InitServer()
-    {
-        StringWriter sw = new StringWriter();        
-        xml.Serialize(sw, srvdata);
+    {                
         Network.useNat = false;
         Network.InitializeServer(32, _menu.port);
         if (_menu.masterip != "") MasterServer.ipAddress = _menu.masterip;
-        MasterServer.RegisterHost(_menu.gamename, Application.loadedLevelName + lc.version.ToString() + version, sw.ToString());
+        MasterServer.RegisterHost(_menu.gamename, selectedlevel + lc.version.ToString() + version);
     }
 
-    public GameLevels selectedlevel { get { return srvdata.level; } set { srvdata.level = value; } }
+    public GameLevels selectedlevel;
     protected override void Window(int id)
     {
         
@@ -61,7 +51,7 @@ public class HostWindow : WindowBase
         GUILayout.Space(10);
         GUILayout.BeginHorizontal();
         GUILayout.Label(lc.zombiefrag.ToString(), GUILayout.ExpandWidth(false));
-        int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out srvdata.frags);
+        int.TryParse(GUILayout.TextField(fraglimit.ToString(), 2, GUILayout.Width(60)), out fraglimit);
         GUILayout.EndHorizontal();
         if (GUILayout.Button(lc.startgame.ToString())|| skip)
         {

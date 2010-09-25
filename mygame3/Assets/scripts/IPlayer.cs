@@ -81,7 +81,7 @@ public abstract class IPlayer : box
     {
         
         if (!enabled) return;        
-        CallRPC(true, NwLife,killedby);
+        CallRPC(false, NwLife,killedby);
 
         if (isEnemy(killedby))
             Life += NwLife;

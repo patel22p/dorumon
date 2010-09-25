@@ -24,7 +24,7 @@ public class Loader : Base
     XmlSerializer xml = new XmlSerializer(typeof(Localize));
 
     void Awake()
-    { 
+    {
         if (Duplicate()) return;
         print("loader awake");
         if (isWebPlayer)
@@ -42,7 +42,8 @@ public class Loader : Base
                 }
                 dictLoaded();
             };
-        }else
+        }
+        else
         {
             print(Directory.GetCurrentDirectory());
             try

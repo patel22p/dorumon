@@ -9,7 +9,8 @@ using System;
 public class Base : Base2, System.IDisposable
 {
     public static Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
-    public static bool build = false;
+    public static string hosting = "http://physxwars.rh10.ru/";
+    public static bool build = true;
     public static bool skip = false;
     public static bool timeLimit = false;
     

@@ -22,6 +22,9 @@ public class Spawn : Base
     public AudioSource au;
     void Start()
     {
+        //_cw.music.Start("music.txt");
+        //_cw.audio.loop = false;
+        _cw.audio.clip = null;
         _Loader.audio.Stop();
 
         if (build)
@@ -35,15 +38,22 @@ public class Spawn : Base
         localuser.frags = localuser.deaths = 0;
         _Vkontakte.enabled = _vk.enabled = false;
         zombiesleft = _hw.fraglimit;
-        
-        if (Network.isServer)
+
+        if (Network.isServer && Network.connections.Length > 0)
         {
+            print("unregistering host");
             Network.incomingPassword = "started";
             MasterServer.UnregisterHost();
         }
         if (skip)
             OnTeamSelect(Team.ata);
     }
+
+    void OnPlayerConnected()
+    {
+        _Loader.RPCLoadLevel(Level.z3labby.ToString());
+    }
+
     public Transform effects;
     internal int zombiesleft;
     float ZombieSpeed = 1;
@@ -81,7 +91,7 @@ public class Spawn : Base
     private void DMCheck()
     {
         foreach (Player pl in players.Values)
-            if (pl.OwnerID != -1)
+            if (pl.OwnerID != -1) 
             {
                 if (Network.isServer && !win && pl.frags >= _hw.fraglimit)
                 {
@@ -190,7 +200,7 @@ public class Spawn : Base
     private void RPCNextStage()
     {
 
-        CallRPC(true);
+        CallRPC(false);
 
         stage++;
         foreach (Zombie z in GameObject.FindObjectsOfType(typeof(Zombie)))
@@ -209,9 +219,7 @@ public class Spawn : Base
 
     public void OnTeamSelect(Team team)
     {
-        lockCursor = true;
-        if (Network.peerType == NetworkPeerType.Disconnected) 
-            Network.InitializeServer(32, 5300);
+        lockCursor = true;        
         
         if (_LocalPlayer == null)
             Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);

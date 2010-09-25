@@ -91,6 +91,7 @@
     public LcString chatdisabled = "U must login first to use chat;Вы должны залогинится чтобы исползовать чат";
     public LcString WrongVersion = "U have Version {0} not {1};у вас версия {0} нужна {1}";
     public LcString music = "Track: ;Трек :";
+    public LcString zlabby = "You joined to labby, awaiting players;Вы вошли в лабби, ожидание игроков";
 }
 public class LcString
 {

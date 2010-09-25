@@ -6,10 +6,10 @@ using System;
 
 
 
-public class VkontakteWindow : WindowBase
+public class z0VkontakteWindow : WindowBase
 {
     
-    Vk vk;
+    z0Vk vk;
     
     ScoreBoard scoreboard;
 
@@ -18,7 +18,7 @@ public class VkontakteWindow : WindowBase
         if (!enabled) return;
         print("Vkontakte start");
         _Vkontakte = this;
-        vk = this.GetComponent<Vk>();
+        vk = this.GetComponent<z0Vk>();
         base.Awake();
     }
 
@@ -61,12 +61,12 @@ public class VkontakteWindow : WindowBase
         //    _vk.SetStatus("");            
         //}
     }
-    public Dictionary<int, Vk.user> friends { get { return _vk.friends; } }
+    public Dictionary<int, z0Vk.user> friends { get { return _vk.friends; } }
     
     
     void Update()
     {
-        if (vk._Status == Vk.Status.connected)
+        if (vk._Status == z0Vk.Status.connected)
         {
             if (_TimerA.TimeElapsed(5000))
                 _vk.GetChatMessages(0, true);
@@ -74,14 +74,14 @@ public class VkontakteWindow : WindowBase
                 _vk.GetMessages();            
             //if (_TimerA.TimeElapsed(10000))
             //    _vk.GetNews();
-            foreach (Vk.response resp in _vk.GetResponses())
+            foreach (z0Vk.response resp in _vk.GetResponses())
             {
-                foreach (Vk.message_info msg in resp.messages)
+                foreach (z0Vk.message_info msg in resp.messages)
                 {
                     msg.message = WWW.UnEscapeURL(msg.message);                    
                     printC(msg.user_name + ":" + msg.message);
                 }
-                foreach (Vk.status st in resp.statuses)
+                foreach (z0Vk.status st in resp.statuses)
                 {
                     if (friends.ContainsKey(st.uid))
                     {
@@ -96,12 +96,12 @@ public class VkontakteWindow : WindowBase
                 }
 
 
-                foreach (Vk.message msg in resp.personal)
+                foreach (z0Vk.message msg in resp.personal)
                 {
                     msg.body = WWW.UnEscapeURL(msg.body);
                     if (friends.ContainsKey(msg.uid))
                     {
-                        Vk.user user = friends[msg.uid];
+                        z0Vk.user user = friends[msg.uid];
                         MessageWindow w = GetWindow(user);
                         w.Write(user.nick + ":" + msg.body);
                     }
@@ -117,11 +117,11 @@ public class VkontakteWindow : WindowBase
 
     protected override void Window(int id)
     {
-        if (_vk._Status == Vk.Status.connected)
+        if (_vk._Status == z0Vk.Status.connected)
             GUILayout.Label(_vk.time.ToShortDateString() + " " + _vk.time.ToShortTimeString());
 
 
-        if (vk._Status == Vk.Status.disconnected)
+        if (vk._Status == z0Vk.Status.disconnected)
         {
 
             
@@ -149,13 +149,13 @@ public class VkontakteWindow : WindowBase
         }
 
 
-        if (_vk._Status == Vk.Status.connected && localuser != null)
+        if (_vk._Status == z0Vk.Status.connected && localuser != null)
         {
             
             if (_Level == Level.z2menu && GUILayout.Button(lc.logout .ToString()))
             {
                 Application.LoadLevel(Level.z1login.ToString());
-                _vk._Status = Vk.Status.disconnected;
+                _vk._Status = z0Vk.Status.disconnected;
             }            
             if (GUILayout.Button(lc.scoreboard.ToString()))
             {
@@ -169,7 +169,7 @@ public class VkontakteWindow : WindowBase
             GUILayout.Label(lc.name + localuser.nick);
             GUILayout.Label(lc.status+ localuser.st.text);
             GUILayout.Box(localuser.texture);
-            foreach (Vk.user user in friends.Values)
+            foreach (z0Vk.user user in friends.Values)
                 if (user.uid != localuser.uid && user.online)
                 {                    
                     GUILayout.Label(lc.name + user.nick);
@@ -195,7 +195,7 @@ public class VkontakteWindow : WindowBase
         else
             Application.OpenURL(url);
     }
-    private MessageWindow GetWindow(Vk.user user)
+    private MessageWindow GetWindow(z0Vk.user user)
     {
         MessageWindow msgw;
         if (windows.ContainsKey(user.uid))
@@ -209,7 +209,7 @@ public class VkontakteWindow : WindowBase
         return msgw;
     }
     public Dictionary<int, MessageWindow> windows = new Dictionary<int, MessageWindow>();
-    public Vk.response resp;
+    public z0Vk.response resp;
 
 }
 

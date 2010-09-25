@@ -23,12 +23,12 @@ public class ScoreBoard : WindowBase {
         const string table = "{0,30}{1,20}{2,10}";
         GUILayout.Label(string.Format(table, "", lc.kills, lc.deaths));
 
-        SortedList<float, Vk.user> score = sel == Tab.TopZombieKill ? _vk.highscoresZombie : _vk.highscores;
+        SortedList<float, z0Vk.user> score = sel == Tab.TopZombieKill ? _vk.highscoresZombie : _vk.highscores;
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         if (score.Count == 32)
             for (int i = score.Values.Count - 1; i >= 0; i--)
             {
-                Vk.user user = score.Values[i];
+                z0Vk.user user = score.Values[i];
                 GUILayout.Label(string.Format(table, user.nick, user.totalkills, user.totaldeaths));
             }
         GUILayout.EndScrollView(); 

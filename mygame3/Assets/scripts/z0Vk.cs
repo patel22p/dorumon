@@ -10,7 +10,7 @@ using System;
 using System.Threading;
 
 
-public partial class Vk : Base
+public partial class z0Vk : Base
 {
     public delegate void Action();
     internal enum Status { disconnected, connecting, connected }

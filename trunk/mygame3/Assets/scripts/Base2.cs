@@ -11,7 +11,7 @@ public class Base2 : MonoBehaviour
     public void printC(object ob)
     {        
         lock("write")
-            ConsoleWindow.write("" + ob);
+            z0ConsoleWindow.write("" + ob);
     }
     public void log(object ob)
     {
@@ -19,20 +19,20 @@ public class Base2 : MonoBehaviour
     }
 
     public static Cam _Cam;
-    public static Loader _Loader;
-    public static Menu _menu;
-    public static Spawn _Spawn;
-    public static HostWindow _hw;
+    public static z0Loader _Loader;
+    public static z2Menu _menu;
+    public static z4Game _Spawn;
+    public static z2HostWindow _hw;
     public static IPlayer _localiplayer;
     public static Player _LocalPlayer;
     static bool _lockCursor;
-    public static ConsoleWindow _cw;
+    public static z0ConsoleWindow _cw;
     public static OptionsWindow _options;
-    public static Vk _vk;
-    public static VkontakteWindow _Vkontakte;
+    public static z0Vk _vk;
+    public static z0VkontakteWindow _Vkontakte;
     
     public static void rpcwrite(string s) { _cw.rpcwrite(s); }
-    public static void write(string s) { ConsoleWindow.write(s); }
+    public static void write(string s) { z0ConsoleWindow.write(s); }
     public static bool lockCursor { get { return _lockCursor; } set { _lockCursor = value; Screen.lockCursor = value; } }
 
     //public static T Find<T>(string s) where T : Component

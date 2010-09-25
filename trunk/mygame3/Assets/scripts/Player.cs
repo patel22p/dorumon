@@ -21,7 +21,7 @@ public class Player : IPlayer
     public string Nick { get { return userview.nick; } }
     public int frags { get { return userview.frags; } set { userview.frags = value; } }
     
-    public Vk.user userview;
+    public z0Vk.user userview;
     GuiBlood blood { get { return GuiBlood._This; } }
     protected override void Start()
     {

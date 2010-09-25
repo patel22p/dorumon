@@ -71,7 +71,7 @@ Cookie: remixchk=5; remixsid=nonenone
 ";
 }
 
-public partial class Vk
+public partial class z0Vk
 { 
     
     public class response
@@ -122,7 +122,7 @@ public partial class Vk
         public string first_name = "";
         public string last_name = "";
         public string nickname = "";
-        public Vk.status st = new status();
+        public z0Vk.status st = new status();
         public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
         public string photo ="";
         public int uid;

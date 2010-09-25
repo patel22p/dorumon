@@ -4,7 +4,7 @@ public class MessageWindow : WindowBase
 {
     
     
-    public Vk.user user;
+    public z0Vk.user user;
     public override void Dispose()
     {
         _Vkontakte.windows.Remove(user.uid);

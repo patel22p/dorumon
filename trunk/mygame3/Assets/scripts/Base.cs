@@ -19,10 +19,10 @@ public class Base : Base2, System.IDisposable
     public static bool Online;
     bool hidden;
     public int OwnerID = -1;
-    public static bool logged { get { return _vk._Status == Vk.Status.connected; } }
-    public static Vk.user localuser;
-    public static Dictionary<int, Vk.user> userviews = new Dictionary<int, Vk.user>();
-    public static XmlSerializer respxml = new XmlSerializer(typeof(Vk.response), new Type[] { typeof(Vk.user), typeof(Vk.message_info) });
+    public static bool logged { get { return _vk._Status == z0Vk.Status.connected; } }
+    public static z0Vk.user localuser;
+    public static Dictionary<int, z0Vk.user> userviews = new Dictionary<int, z0Vk.user>();
+    public static XmlSerializer respxml = new XmlSerializer(typeof(z0Vk.response), new Type[] { typeof(z0Vk.user), typeof(z0Vk.message_info) });
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }
 
@@ -51,7 +51,7 @@ public class Base : Base2, System.IDisposable
         return s.Trim(',');
     }
     public TimerA _TimerA { get { return TimerA._This; } }
-    bool Offline { get { return !Loader.Online; } }
+    bool Offline { get { return !z0Loader.Online; } }
     public NetworkView myNetworkView
     {
         get
@@ -72,9 +72,9 @@ public class Base : Base2, System.IDisposable
         foreach (Player p in players.Values)
             if (p.team == t) yield return p;
     }
-    public IEnumerable<Vk.user> TP(Team t)
+    public IEnumerable<z0Vk.user> TP(Team t)
     {
-        foreach (Vk.user p in userviews.Values)
+        foreach (z0Vk.user p in userviews.Values)
             if (p.team == t) yield return p;
     }
 

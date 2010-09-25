@@ -42,7 +42,7 @@ public class GunPhysix : GunBase
     [RPC]
     public void RPCSetPower(bool enable)
     {
-        CallRPC(true, enable);
+        CallRPC(false, enable);
         power = enable;
         if (!enable)
         {

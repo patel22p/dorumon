@@ -6,7 +6,7 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        CallRPC(true, killedby);
+        CallRPC(false, killedby);
         PlayRandSound(gibsound);
         if (!Alive) { return; }
         _Spawn.zombies.Remove(this);
@@ -96,7 +96,7 @@ public class Zombie : IPlayer
     public void RPCSetup(float zombiespeed, int zombieLife)
     {
         _TimerA.AddMethod(Random.Range(0, 1000), PlayRandom);        
-        CallRPC(true, zombiespeed, zombieLife);
+        CallRPC(false, zombiespeed, zombieLife);
         _Spawn.zombies.Add(this);
         speed = zombiespeed;
         Life = zombieLife;

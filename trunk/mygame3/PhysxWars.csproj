@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Irrelevant</RootNamespace>
+    <AssemblyName>Irrelvant</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/lib/UnityEngine-Debug.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/lib/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\Builtin skin\ShowSkin.cs" />
+    <Compile Include="Assets\Editor\CreateFolders.cs" />
+    <Compile Include="Assets\Editor\MassMaterialEditor.cs" />
+    <Compile Include="Assets\materials\GlowEffect.cs" />
+    <Compile Include="Assets\materials\ImageEffectBase.cs" />
+    <Compile Include="Assets\materials\ImageEffects.cs" />
+    <Compile Include="Assets\materials\MotionBlur.cs" />
+    <Compile Include="Assets\materials\TwirlEffect.cs" />
+    <Compile Include="Assets\materials\ Assets\Image Based\NoiseEffect.cs" />
+    <Compile Include="Assets\materials\ Assets\Menu\LightEffect.cs" />
+    <Compile Include="Assets\scripts\Base.cs" />
+    <Compile Include="Assets\scripts\Base2.cs" />
+    <Compile Include="Assets\scripts\bloodexp.cs" />
+    <Compile Include="Assets\scripts\box.cs" />
+    <Compile Include="Assets\scripts\BulletBase.cs" />
+    <Compile Include="Assets\scripts\BulletBazoka.cs" />
+    <Compile Include="Assets\scripts\BulletMini.cs" />
+    <Compile Include="Assets\scripts\Cam.cs" />
+    <Compile Include="Assets\scripts\Car.cs" />
+    <Compile Include="Assets\scripts\CarController.cs" />
+    <Compile Include="Assets\scripts\ConsoleWindow.cs" />
+    <Compile Include="Assets\scripts\CubeGrav.cs" />
+    <Compile Include="Assets\scripts\Energy.cs" />
+    <Compile Include="Assets\scripts\Explosion.cs" />
+    <Compile Include="Assets\scripts\Generate2DReflection.cs" />
+    <Compile Include="Assets\scripts\GuiBlood.cs" />
+    <Compile Include="Assets\scripts\GuiPlayer.cs" />
+    <Compile Include="Assets\scripts\GunBase.cs" />
+    <Compile Include="Assets\scripts\GunBazoka.cs" />
+    <Compile Include="Assets\scripts\GunHealth.cs" />
+    <Compile Include="Assets\scripts\GunMini.cs" />
+    <Compile Include="Assets\scripts\GunPhysix.cs" />
+    <Compile Include="Assets\scripts\Helper.cs" />
+    <Compile Include="Assets\scripts\HostWindow.cs" />
+    <Compile Include="Assets\scripts\IPlayer.cs" />
+    <Compile Include="Assets\scripts\IslandWater.cs" />
+    <Compile Include="Assets\scripts\LangWindow.cs" />
+    <Compile Include="Assets\scripts\Loader.cs" />
+    <Compile Include="Assets\scripts\Localize.cs" />
+    <Compile Include="Assets\scripts\Menu.cs" />
+    <Compile Include="Assets\scripts\MessageWindow.cs" />
+    <Compile Include="Assets\scripts\Music.cs" />
+    <Compile Include="Assets\scripts\NewBehaviourScript.cs" />
+    <Compile Include="Assets\scripts\OptionsWindow.cs" />
+    <Compile Include="Assets\scripts\Player.cs" />
+    <Compile Include="Assets\scripts\ScoreBoard.cs" />
+    <Compile Include="Assets\scripts\Skidmarks.cs" />
+    <Compile Include="Assets\scripts\Spawn.cs" />
+    <Compile Include="Assets\scripts\Text3D.cs" />
+    <Compile Include="Assets\scripts\Tramplin.cs" />
+    <Compile Include="Assets\scripts\Vk.cs" />
+    <Compile Include="Assets\scripts\VkontakteWindow.cs" />
+    <Compile Include="Assets\scripts\WindowBase.cs" />
+    <Compile Include="Assets\scripts\Zombie.cs" />
+    <Compile Include="Assets\scripts\Helpers\H.cs" />
+    <Compile Include="Assets\scripts\Helpers\S.cs" />
+    <Compile Include="Assets\scripts\Helpers\SharpZipBaseException.cs" />
+    <Compile Include="Assets\scripts\Helpers\VkontakteBase.cs" />
+    <Compile Include="Assets\scripts\Helpers\WebServer.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Constants.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Exception.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2InputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2OutputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\Adler32.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\CRC32.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\IChecksum.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\StrangeCRC.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\FileSystemScanner.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\INameTransform.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\IScanFilter.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\NameFilter.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\PathFilter.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\StreamUtils.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Core\WindowsPathUtils.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\PkzipClassic.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESTransform.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZIPConstants.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZipException.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipInputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipOutputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\InvalidHeaderException.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarArchive.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarBuffer.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarEntry.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarException.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarHeader.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarInputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarOutputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\FastZip.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\IEntryFactory.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\WindowsNameTransform.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipConstants.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipEntry.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipEntryFactory.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipException.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipExtraData.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipFile.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipHelperStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipInputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipNameTransform.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipOutputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Deflater.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterConstants.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterEngine.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterHuffman.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterPending.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Inflater.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterDynHeader.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterHuffmanTree.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\PendingBuffer.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\InflaterInputStream.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\OutputWindow.cs" />
+    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\StreamManipulator.cs" />
+    <None Include="Assets\materials\ExternalLightmappingTool-Diffuse.shader" />
+    <None Include="Assets\materials\FX-IslandWaterFull.shader" />
+    <None Include="Assets\materials\FX-IslandWaterSimple.shader" />
+    <None Include="Assets\materials\FX-UnderwaterSurface.shader" />
+    <None Include="Assets\materials\Glass-Stained-BumpDistort.shader" />
+    <None Include="Assets\materials\Glass-Stained-BumpSpecDistort.shader" />
+    <None Include="Assets\materials\GlowEffectDownsample.shader" />
+    <None Include="Assets\materials\MotionBlur.shader" />
+    <None Include="Assets\materials\Normal-BumpSpec_EnvLightmapped.shader" />
+    <None Include="Assets\materials\Particle Alpha Blend goodfog.shader" />
+    <None Include="Assets\materials\ShadowProjection.shader" />
+    <None Include="Assets\materials\Skidmarks.shader" />
+    <None Include="Assets\materials\TwirlEffect.shader" />
+    <None Include="Assets\materials\ Assets\Image Based\NoiseEffectShaderRGB.shader" />
+    <None Include="Assets\materials\ Assets\Image Based\NoiseEffectShaderYUV.shader" />
+    <None Include="Assets\Editor\HeightmapExportPNG.js" />
+    <None Include="Assets\scripts\LightmapperObjectUV.js" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

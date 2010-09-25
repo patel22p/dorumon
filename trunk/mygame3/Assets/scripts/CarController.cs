@@ -69,13 +69,13 @@ public class CarController : Car
     [RPC]
     private void RPCNitro(bool p)
     {
-        CallRPC(true, p);
+        CallRPC(false, p);
         nitroenabled = p;
     }
     [RPC]
     private void RPCCarIn(int np)
     {
-        CallRPC(true, np);
+        CallRPC(false, np);
         _Spawn.players[np].car = this;
         transform.Find("door").GetComponent<AudioSource>().Play();
     }
@@ -104,7 +104,7 @@ public class CarController : Car
     [RPC]
     private void RPCCarOut(int np)
     {
-        CallRPC(true, np);
+        CallRPC(false, np);
         rigidbody.velocity = Vector3.zero;
         _Spawn.players[np].car = null;
     }
@@ -112,7 +112,7 @@ public class CarController : Car
     [RPC]
     public override void RPCHealth()
     {
-        CallRPC(true);
+        CallRPC(false);
         if (Life < life)
             Life += 30;
         guns[0].bullets = guns[1].bullets += 50;
@@ -121,7 +121,7 @@ public class CarController : Car
     [RPC]
     public override void RPCDie(int killedby)
     {
-        CallRPC(true, killedby);
+        CallRPC(false, killedby);
         Destroy(Instantiate(exp, transform.position, Quaternion.identity), 10);
         if (isOwnerOrServer)
             _TimerA.AddMethod(10000, RPCSpawn);
@@ -143,7 +143,7 @@ public class CarController : Car
     [RPC]
     public void RPCSpawn()
     {
-        CallRPC(true);
+        CallRPC(false);
         Show(true);
         foreach (Transform item in Base.getChild(effects))
             Destroy(item);

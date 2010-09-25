@@ -14,8 +14,11 @@ public partial class ConsoleWindow : WindowBase
         _cw = this;
         AudioListener.volume = .1f;       
         size = new Vector2(700, 400);
+        music = GetComponent<Music>();
+        music.Start("loops.txt");
+        audio.loop = true;
     }
-
+    public Music music;
     void OnLevelWasLoaded(int level)
     {
         old = selectedTeam = 0;
@@ -25,13 +28,7 @@ public partial class ConsoleWindow : WindowBase
     
     void Update()
     {
-        if (OptionsWindow.enableMusic)
-        {
-            if (audio.volume < 1)
-                audio.volume += Time.deltaTime / 10;
-        }
-        else
-            audio.volume = 0;
+        
 
 
         
@@ -39,7 +36,12 @@ public partial class ConsoleWindow : WindowBase
         {
             if (input != "")
             {
-                rpcwrite(Menu.Nick + ": " + input);
+                if (_Level == Level.z2menu && _vk._Status == Vk.Status.connected)
+                    _vk.SendChatMsg(input);
+                else if (_Level == Level.z3labby || _Level == Level.z4game)
+                    rpcwrite(Menu.Nick + ": " + input);
+                else
+                    printC(lc.chatdisabled);
                 input = "";
             }
         }
@@ -178,7 +180,7 @@ public partial class ConsoleWindow : WindowBase
 
     void OnServerInitialized()
     {
-
+        RPCServerData(version.ToString(),(int)_hw.gameMode,(int)_hw.selectedlevel,_hw.fraglimit);
         OnConnected();
     }
     void OnConnectedToServer()
@@ -186,14 +188,28 @@ public partial class ConsoleWindow : WindowBase
         OnConnected();
     }
     private void OnConnected()
-    {        
+    {
+        print("on connected");
         if(!skip) rpcwrite(lc.plj + Menu.Nick);
         localuser.nwid = Network.player;
         RPCSetUserView(localuser.nwid,localuser.nick, localuser.uid, localuser.photo,localuser.totalkills,localuser.totaldeaths,localuser.totalzombiekills,localuser.totalzombiedeaths);
         userviews.Add(localuser.nwid.GetHashCode(), localuser);
         Application.LoadLevel(Level.z3labby.ToString());
     }
-
+    [RPC]
+    private void RPCServerData(string v, int gamemode, int level, int frags)
+    {
+        CallRPC(true, v, gamemode, level, frags);
+        if (v != version.ToString())
+        {
+            printC(string.Format(lc.WrongVersion.ToString(), v, version.ToString()));
+            Network.Disconnect();
+        }
+        _hw.gameMode = (GameMode)gamemode;
+        _hw.selectedlevel = (GameLevels)level;
+        _hw.fraglimit = frags;
+        
+    }
     [RPC]
     private void RPCSetUserView(NetworkPlayer nwid, string nick, int uid, string photo, int tk, int td, int tzk, int tzd)
     {

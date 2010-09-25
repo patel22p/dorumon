@@ -25,21 +25,19 @@ public class Player : IPlayer
     GuiBlood blood { get { return GuiBlood._This; } }
     protected override void Start()
     {
-        
         base.Start();
         if (networkView.isMine)
         {
             _localiplayer = _LocalPlayer = this;
             RPCSetOwner();
             RPCSpawn();
-            
         }
     }
     
     [RPC]
     public void RPCSpawn()
     {
-        CallRPC(true);
+        CallRPC(false);
         
         Show(true);
         if (isOwner)
@@ -111,7 +109,7 @@ public class Player : IPlayer
     [RPC]
     private void RCPJump()
     {
-        CallRPC(true);
+        CallRPC(false);
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));
     }
 
@@ -169,7 +167,7 @@ public class Player : IPlayer
     public void RPCSetTeam(int t)
     {
         print("set team");
-        CallRPC(true, t);
+        CallRPC(false, t);
         team = (Team)t;
     }
     public override bool dead { get { return !enabled && car == null; } }
@@ -187,7 +185,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCSelectGun(int i)
     {        
-        CallRPC(true, i);
+        CallRPC(false, i);
         selectedgun = i;
         foreach (GunBase gb in guns)
             gb.DisableGun();
@@ -220,7 +218,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCHealth()
     {
-        CallRPC(true);
+        CallRPC(false);
         if (Life < life)
             Life += 10;
         if (freezedt > 0)
@@ -231,7 +229,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCSetLife(int NwLife, int killedby)
     {
-        CallRPC(true, NwLife, killedby);
+        CallRPC(false, NwLife, killedby);
         if (isOwner)
             blood.Hit(Mathf.Abs(NwLife) * 2);
 
@@ -254,7 +252,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        CallRPC(true, killedby);
+        CallRPC(false, killedby);
         Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
         a.Destroy(10000);
         a.transform.parent = _Spawn.effects;
@@ -299,7 +297,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCSetFrags(int i)
     {
-        CallRPC(true, i);
+        CallRPC(false, i);
         frags += i;
     }
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
@@ -318,7 +316,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCCarIn()
     {
-        CallRPC(true);
+        CallRPC(false);
 
         Show(false);
     }

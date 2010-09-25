@@ -179,9 +179,8 @@ public class Menu : Base
                 //else
                 //     print("Connecting directly to host");
                 try
-                {
-                    _hw.srvdata = (SrvData)_hw.xml.Deserialize(new StringReader(element.comment));
-                    ip = element.ip[0] + "," + _hw.srvdata.ips;
+                {                                                                
+                    ip = string.Join(",", element.ip);
                     port = element.port;
                 }
                 catch { printC("cannot parse xml"); }

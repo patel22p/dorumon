@@ -10,42 +10,58 @@ using System.IO;
 public class Music : Base
 {
     string[] s;
-    void Start()
-    {        
-        if (!isWebPlayer || !OptionsWindow.enableMusic)
-            enabled = false;
-        else
-        {
-            new WWW2("m.txt").done += delegate(WWW2 w)
-            {
-                s = H.ToStr(w.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                if (s.Length > 0)
-                    Next();
-            };
-        }
-    }
 
+    void Start()
+    {
+
+    }
+    public void Start(string file)
+    {
+        new WWW2(hosting+ file).done += delegate(WWW2 w)
+        {
+            s = H.ToStr(w.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);            
+            if (s.Length > 0)
+                Next();
+        };
+    }
     private void Next()
     {
-                
-        WWW www = new WWW(s[UnityEngine.Random.Range(0, s.Length - 1)]);
+        int i = UnityEngine.Random.Range(0, s.Length);
+        print(i);
+        string ss = s[i];
+        printC(lc.music + ss.Substring(0, ss.Length - 4));
+        www = new WWW(hosting + ss);        
         audio.clip = www.audioClip;
+        
+        UnityEngine.Object.DontDestroyOnLoad(audio.clip);
         sw = true;
     }
+    WWW www;
     bool sw;
     void Update()
-    {
-        audio.volume = OptionsWindow.enableMusic ? 0 : 1;
-        if (!audio.isPlaying && audio.clip.isReadyToPlay)
+    {        
+        if (OptionsWindow.enableMusic && audio.clip != null)
         {
-            if (sw)
+            if (audio.volume < 1)
+                audio.volume += Time.deltaTime / 10;
+
+            if (!audio.isPlaying && audio.clip.isReadyToPlay)
             {
-                sw = false;
-                audio.Play();
+                if (sw)
+                {
+                    sw = false;
+                    audio.Play();
+                    print("play");
+                }
+                else
+                    Next();
             }
-            else
-                Next();
+
         }
+        else
+            audio.volume = 0;
+
+        
         
     }
 

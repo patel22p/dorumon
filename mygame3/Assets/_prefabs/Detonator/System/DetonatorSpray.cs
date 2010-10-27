@@ -36,7 +36,7 @@ public class DetonatorSpray : DetonatorComponent {
 		}
 	}
 	
-	private Vector3 _explosionPosition;
+	//private Vector3 _explosionPosition;
 	private float _tmpScale;
 	override public void Explode()
 	{

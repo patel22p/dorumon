@@ -136,7 +136,7 @@ public class DetonatorBurstEmitter : DetonatorComponent
 	private float _scaledDuration; //calculated duration... duration * timescale
 	private float _scaledDurationVariation; 
 	private float _scaledStartRadius; 
-	private float _scaledColor; //color with alpha adjusted according to detail and duration
+	//private float _scaledColor; //color with alpha adjusted according to detail and duration
 	
     override public void Explode()
     {

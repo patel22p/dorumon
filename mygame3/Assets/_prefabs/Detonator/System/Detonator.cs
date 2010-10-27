@@ -45,36 +45,36 @@ using System.Collections;
 */
 public abstract class DetonatorComponent : MonoBehaviour
 {
-	public virtual bool on = true;
-	public virtual bool detonatorControlled = true;
+	public bool on = true;
+	public bool detonatorControlled = true;
 	
 	 [HideInInspector] 
-	public virtual float startSize = 1f;
-    public virtual float size = 1f;
+	public float startSize = 1f;
+    public float size = 1f;
 	
-    public virtual float explodeDelayMin = 0f;
-    public virtual float explodeDelayMax = 0f;
+    public float explodeDelayMin = 0f;
+    public float explodeDelayMax = 0f;
 
 	[HideInInspector]  
-	public virtual float startDuration = 2f;
-	public virtual float duration = 2f;
+	public float startDuration = 2f;
+	public float duration = 2f;
 	
 	[HideInInspector]
-	public virtual float timeScale = 1f;
+	public float timeScale = 1f;
 	
 	 [HideInInspector] 
-	public virtual float startDetail = 1f;
-	public virtual float detail = 1f;
+	public float startDetail = 1f;
+	public float detail = 1f;
 	
 	 [HideInInspector] 
-	public virtual Color startColor = Color.white;
-	public virtual Color color = Color.white;
+	public Color startColor = Color.white;
+	public Color color = Color.white;
 	
 	[HideInInspector]
-	public virtual Vector3 startLocalPosition = Vector3.zero;
-	public virtual Vector3 localPosition = Vector3.zero;
+	public Vector3 startLocalPosition = Vector3.zero;
+	public Vector3 localPosition = Vector3.zero;
 	
-	public virtual Vector3 force = Vector3.zero;
+	public Vector3 force = Vector3.zero;
 
     public abstract void Explode();
 	
@@ -82,7 +82,7 @@ public abstract class DetonatorComponent : MonoBehaviour
 	//which ensures it happens when we want.
 	public abstract void Init();
 	
-	public virtual float detailThreshold;
+	public float detailThreshold;
 
 	/*
 		This exists because Detonator makes relative changes
@@ -310,7 +310,7 @@ public class Detonator : MonoBehaviour {
 		}
 	}
 	
-	private Component[] _subDetonators;
+	//private Component[] _subDetonators;
 	
 	 public void Explode() 
 	{

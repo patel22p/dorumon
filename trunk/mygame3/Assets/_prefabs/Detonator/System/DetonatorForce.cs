@@ -7,8 +7,8 @@ public class DetonatorForce : DetonatorComponent {
 
 	private float _baseRadius = 50.0f;
 	private float _basePower = 4000.0f;
-	private float _scaledRange;
-	private float _scaledIntensity;
+	//private float _scaledRange;
+	//private float _scaledIntensity;
 	private bool _delayedExplosionStarted = false;
 	private float _explodeDelay;
 	

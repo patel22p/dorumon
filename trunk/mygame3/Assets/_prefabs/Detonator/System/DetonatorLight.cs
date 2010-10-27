@@ -21,7 +21,7 @@ public class DetonatorLight : DetonatorComponent {
 		_light.transform.localPosition = localPosition;
 		_lightComponent = (Light)_light.AddComponent ("Light");
 		_lightComponent.type = LightType.Point;
-		_lightComponent.attenuate = true;
+		
 		_lightComponent.enabled = false;
 	}
 	

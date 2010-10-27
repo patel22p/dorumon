@@ -9,7 +9,7 @@ public class DetonatorGlow : DetonatorComponent
 	private float _baseDuration = 3f;
 	private Vector3 _baseVelocity = new Vector3(0f, 0f, 0f);
 	private Color _baseColor = Color.black;
-	private float _scaledDuration;
+	//private float _scaledDuration;
 	
 	private GameObject _glow;
 	private DetonatorBurstEmitter _glowEmitter;

@@ -15,8 +15,8 @@ public class Energy : Base
         Player player = other.GetComponent<Player>();        
         
         if (player != null)
-        {            
-            player.transform.FindChild("Reload").GetComponent<AudioSource>().Play();
+        {
+            player.audio.PlayOneShot((AudioClip)Resources.Load(" sounds/shotgun_use_01"));
             player.guns[gunIndex].bullets += bullets;
             Hide();
             

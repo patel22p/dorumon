@@ -22,16 +22,20 @@ public class z4Game : Base
         _Spawn = this;
     }
     public AudioSource au;
-    
+    void OnPlayerConnected(NetworkPlayer p)
+    {
+        //if (_Level == Level.z4game)
+        //{
+        //    autostart = 3;
+        //    _Loader.RPCLoadLevel(Level.z3labby.ToString(), RPCMode.All);            
+        //}
+    }
     void Start()
     {
-        
-
-   
-        //_cw.music.Start("music.txt");
-        //_cw.audio.loop = false;
-        _cw.audio.clip = null;
-        _Loader.audio.Stop();
+        _cw.music.Start("music.txt");        
+        //_cw.audio.clip = null;
+        //_cw.music.enabled = false;
+        //_Loader.audio.Stop();
 
         if (build)
         {
@@ -45,11 +49,16 @@ public class z4Game : Base
         _Vkontakte.enabled = _vk.enabled = false;
         zombiesleft = _hw.fraglimit;
 
-        if (Network.isServer)
-        {
-            print("unregistering host");
-            Network.incomingPassword = "started";            
-        }
+        //if (Network.isServer)
+        //{
+
+        //    if (Network.connections.Length > 0)
+        //    {
+        //        print("unregistering host");
+        //        MasterServer.UnregisterHost();
+        //    }
+        //    //Network.incomingPassword = "started";            
+        //}
         if (skip)
             OnTeamSelect(Team.ata);
     }
@@ -97,7 +106,7 @@ public class z4Game : Base
             {
                 if (Network.isServer && !win && pl.frags >= _hw.fraglimit)
                 {
-                    rpcwrite(pl.Nick + " Win");
+                    rpcwrite(pl.nick + " Win");
                     win = true;
                     _TimerA.AddMethod(5000, WinGame);
                 }
@@ -174,22 +183,8 @@ public class z4Game : Base
 
     private void WinGame()
     {
-        foreach (z0Vk.user user in userviews.Values)
-        {
-            if (dm || tdm)
-            {
-
-                user.totaldeaths += user.deaths;
-                user.totalkills += user.frags;
-            }
-            else
-            {
-                user.totalzombiedeaths += user.deaths;
-                user.totalzombiekills += user.frags;
-            }
-        }
-        
-        _Loader.RPCLoadLevel(Level.z3labby.ToString());
+    
+        _Loader.RPCLoadLevel(Level.z3labby.ToString(),RPCMode.AllBuffered);
     }
     private void CreateZombie(Vector3 a)
     {
@@ -221,14 +216,14 @@ public class z4Game : Base
 
     public void OnTeamSelect(Team team)
     {
-        lockCursor = true;        
-        
+        lockCursor = true;
+
         if (_LocalPlayer == null)
             Network.Instantiate(_Player, Vector3.zero, Quaternion.identity, (int)Group.Player);
+        else if (!zombi && !zombisurive)
+            _LocalPlayer.RPCSpawn();
 
-        if (tdm || zombi)
-            this.team = team;
-
+        this.team = team;
     }
     internal Team team;
     internal void Spectator()
@@ -237,6 +232,7 @@ public class z4Game : Base
         {
             lockCursor = true;
             _LocalPlayer.RPCShow(false);
+            _LocalPlayer.team = Team.Spectator;
         }
     }
 

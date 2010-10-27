@@ -8,12 +8,14 @@ using System.Xml.Serialization;
 
 
 
-public enum GameLevels : int { z4game, z5castle }
+public enum GameLevels : int { zDemo }//z4game, z5castle }
 public enum GameMode { DeathMatch, TeamDeathMatch, TeamZombieSurvive, ZombieSurive }
 public class z2HostWindow : WindowBase
 {
 
-    internal GameMode gameMode;
+    internal GameMode gameMode = GameMode.ZombieSurive;
+    internal GameLevels selectedlevel;
+
 
     internal int fraglimit=20;
     protected override void Awake()
@@ -32,14 +34,19 @@ public class z2HostWindow : WindowBase
     }
                
     public void InitServer()
-    {                
-        Network.useNat = false;
-        Network.InitializeServer(32, _menu.port);
+    {
+        print("init Server");
+        Network.InitializeServer(32, _menu.port,false);
         if (_menu.masterip != "") MasterServer.ipAddress = _menu.masterip;
-        MasterServer.RegisterHost(_menu.gamename, selectedlevel + lc.version.ToString() + version);
+        RegisterHost();
     }
 
-    public GameLevels selectedlevel;
+    public static void RegisterHost()
+    {
+        MasterServer.RegisterHost(_menu.gamename, z2Menu.Nick + "'s Game" + lc.version.ToString() + version);
+    }
+
+    
     protected override void Window(int id)
     {
         

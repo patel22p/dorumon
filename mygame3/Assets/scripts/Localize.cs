@@ -90,16 +90,21 @@
     public LcString loaded = "Mb Loaded;mb Загружено";
     public LcString chatdisabled = "U must login first to use chat;Вы должны залогинится чтобы исползовать чат";
     public LcString WrongVersion = "U have Version {0} not {1};у вас версия {0} нужна {1}";
+    public LcString WrongVersion1 = "U have wrong version;у вас неправилная версия";
     public LcString music = "Track: ;Трек :";
     public LcString zlabby = "You joined to labby, awaiting players;Вы вошли в лабби, ожидание игроков";
+    public LcString MakeGamePublic = "Make Game Public;Зделать игру видимой для всеx";
+    public LcString saveLog = "Save Log;Соxранить лог";
+    public LcString addfriends = "add friends;Пригласить друзей";
+    public LcString gamealreadystarted = "Game already started, make sure host is in labby and you have same versions;Игра уже запущена, убедитесь что xост в лабби и у вас одинаковые версии";
 }
 public class LcString
 {
-    public string rus = " ";
-    public string eng = " ";
+    public string rus = "";
+    public string eng = "";
     public override string ToString()
     {
-        return OptionsWindow.ruslang && rus != " " ? rus : eng;
+        return OptionsWindow.ruslang && rus != "" ? rus : eng;
     }
     public static implicit operator LcString(string str)
     {

@@ -77,7 +77,7 @@ public class CarController : Car
     {
         CallRPC(false, np);
         _Spawn.players[np].car = this;
-        transform.Find("door").GetComponent<AudioSource>().Play();
+        audio.PlayOneShot((AudioClip)Resources.Load("Car_Start_02"));        
     }
     bool nitroenabled;
     protected virtual void FixedUpdate()

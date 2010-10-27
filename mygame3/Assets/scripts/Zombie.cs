@@ -7,7 +7,8 @@ public class Zombie : IPlayer
     public override void RPCDie(int killedby)
     {
         CallRPC(false, killedby);
-        PlayRandSound(gibsound);
+
+        PlayRandSound(Resources.LoadAll(" sounds/gib"));
         if (!Alive) { return; }
         _Spawn.zombies.Remove(this);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", deadTexture);
@@ -25,8 +26,8 @@ public class Zombie : IPlayer
     public override bool dead { get { return !Alive; } }
     internal bool Alive = true;
     public Texture deadTexture;
-    public AudioClip[] zombiesound;
-    public AudioClip[] gibsound;
+    //public AudioClip[] zombiesound;
+    
     protected override void Start()
     {
         rigidbody.angularDrag = 5;
@@ -38,7 +39,7 @@ public class Zombie : IPlayer
         if (Alive)
         {
             _TimerA.AddMethod(Random.Range(5000, 50000), PlayRandom);            
-            PlayRandSound(zombiesound);
+            PlayRandSound(Resources.LoadAll(" sounds/Zombie"));
         }
     }
 

@@ -67,9 +67,10 @@ public abstract class IPlayer : box
             if (!isOwner && _LocalPlayer != null && ((_LocalPlayer.team == team && !dm) || IsPointed()))
                 shownicktime = 2;
             if (OwnerID != -1 && shownicktime > 0)
-                title.text = _Spawn.players[OwnerID].Nick + ":" + Life;
+                title.text = _Spawn.players[OwnerID].nick + ":" + Life;
             else
                 title.text = "";
+            
         }
         
         shownicktime -= Time.deltaTime;
@@ -86,7 +87,7 @@ public abstract class IPlayer : box
         if (isEnemy(killedby))
             Life += NwLife;
 
-        if (Life < 0 && isController)
+        if (Life <= 0 && isController)
             RPCDie(killedby);
     }
     public bool isEnemy(int killedby) { return this is Zombie || killedby != OwnerID && (killedby == -1 || players[killedby].team != team || dm); }

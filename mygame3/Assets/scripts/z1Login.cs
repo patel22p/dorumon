@@ -13,5 +13,8 @@ using System.Xml.Serialization;
 public class z1Login:Base
 {
 
-
+    void Start()
+    {
+        if(!build) GameObject.Find("text").active = false;
+    }
 }

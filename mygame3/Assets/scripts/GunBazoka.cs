@@ -25,8 +25,9 @@ public class GunBazoka : GunBase
     [RPC]
     protected override void RPCShoot(Vector3 pos,Quaternion rot)
     {
+        
         CallRPC(false, pos, rot);
-        GetComponentInChildren<AudioSource>().Play();       
+        root.audio.PlayOneShot((AudioClip)Resources.Load(" sounds/rocklf1a"));        
         ((Transform)Instantiate(_Patron, pos, rot)).GetComponent<Base>().OwnerID = OwnerID;
     }
 

@@ -6,8 +6,10 @@ public class GunMini : GunBase
     public void Start()
     {
         _Name = lc.gunmini.ToString();
+        fire =transform.GetComponentsInChildren<ParticleEmitter>();
+        
     }
-    public Renderer render;
+    ParticleEmitter[] fire;    
     public Light light1;
     public Transform gilza;
     public Transform gilzaPlaceHolder;
@@ -21,11 +23,13 @@ public class GunMini : GunBase
         //    a.transform.parent = _Spawn.effects;
         //    Destroy(a, 1);
         //}
-        render.enabled = light1.enabled = true;
+        foreach (ParticleEmitter p in fire)
+            p.Emit();
+        light1.enabled = true;
         _TimerA.AddMethod(100, delegate {
-            render.enabled = light1.enabled = false;
+            light1.enabled = false;
         });
-        GetComponentInChildren<AudioSource>().Play();                
+        root.audio.PlayOneShot((AudioClip)Resources.Load(" sounds/ARshoot1a_2D"));
         ((Transform)Instantiate(_Patron, vector3, quaternion)).GetComponent<Base>().OwnerID = OwnerID;
     }
 }

@@ -10,7 +10,7 @@ using doru;
 [AddComponentMenu("_Box")]
 public class box : Base
 {
-    public Transform bounds;
+    internal Transform bounds;
     protected virtual void Start()
     {
         if (this.GetType() == typeof(box))

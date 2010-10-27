@@ -10,7 +10,10 @@ using System.IO;
 public class Music : Base
 {
     string[] s;
-
+    void Awake()
+    {
+        music = this;
+    }
     void Start()
     {
 
@@ -19,7 +22,8 @@ public class Music : Base
     {
         new WWW2(hosting+ file).done += delegate(WWW2 w)
         {
-            s = H.ToStr(w.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);            
+            
+            s = H.ToStr(w.www.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);            
             if (s.Length > 0)
                 Next();
         };
@@ -27,7 +31,6 @@ public class Music : Base
     private void Next()
     {
         int i = UnityEngine.Random.Range(0, s.Length);
-        print(i);
         string ss = s[i];
         printC(lc.music + ss.Substring(0, ss.Length - 4));
         www = new WWW(hosting + ss);        
@@ -42,7 +45,7 @@ public class Music : Base
     {        
         if (OptionsWindow.enableMusic && audio.clip != null)
         {
-            if (audio.volume < 1)
+            if (audio.volume < .2)
                 audio.volume += Time.deltaTime / 10;
 
             if (!audio.isPlaying && audio.clip.isReadyToPlay)

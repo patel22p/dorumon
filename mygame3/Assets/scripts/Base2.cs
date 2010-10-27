@@ -17,10 +17,12 @@ public class Base2 : MonoBehaviour
     {
         MonoBehaviour.print(ob);
     }
-
+    public static string Nick { get { return PlayerPrefs.GetString("Nick"); } set { PlayerPrefs.SetString("Nick", value); } }
     public static Cam _Cam;
+    public static float autostart;
     public static z0Loader _Loader;
     public static z2Menu _menu;
+    public static Music music;
     public static z4Game _Spawn;
     public static z2HostWindow _hw;
     public static IPlayer _localiplayer;

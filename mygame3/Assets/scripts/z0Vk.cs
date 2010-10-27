@@ -91,7 +91,7 @@ public partial class z0Vk : Base
                     new WWW2(localuser.photo).done += delegate(WWW2 www)
                     {
                         print("loaded texture");
-                        localuser.texture = www.texture;
+                        localuser.texture = www.www.texture;
                         DontDestroyOnLoad(localuser.texture);
                     };
                 });
@@ -169,6 +169,7 @@ public partial class z0Vk : Base
         user.last_name = Regex.Match(res, "<last_name>(.*?)</last_name>").Groups[1].Value;
         user.nick = Regex.Match(res, "<nickname>(.*?)</nickname>").Groups[1].Value;
         user.photo = Regex.Match(res, "<photo>(.*?)</photo>").Groups[1].Value;
+
         return user;
     }
     public string GetLocalVariable(int key)
@@ -372,9 +373,9 @@ public partial class z0Vk : Base
                     });
 
             string res = Write(sendfunc);
-
             res = Regex.Match(res, "<response list=\"true\">(.*)</response>", RegexOptions.Singleline).Groups[1].Value.Trim();
             res = "<response><users>" + res + "</users></response>";
+            
             response r = (response)respxml.Deserialize(new StringReader(res));
             print("get friends " + r.users.Count);
             friends.Clear();
@@ -400,7 +401,7 @@ public partial class z0Vk : Base
             WWW2 w = new WWW2(user.photo);
             w.done += delegate(WWW2 w2)
             {
-                user.texture = w2.texture;
+                user.texture = w2.www.texture;
                 DontDestroyOnLoad(user.texture);
             };
         });
@@ -434,6 +435,7 @@ public partial class z0Vk : Base
         });
         LastStatusTime = unixtime;
     }
+    
     public int unixtime
     {
         get

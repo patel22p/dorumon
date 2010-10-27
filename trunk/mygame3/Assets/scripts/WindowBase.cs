@@ -28,6 +28,7 @@ public class WindowBase:Base
     public Vector2 size = new Vector2(200,200);
     protected virtual void OnGUI()
     {
+        
         rect = GUILayout.Window(id, rect, Window, title, GUILayout.Width(size.x), GUILayout.Height(size.y));
         GUI.skin = _Loader.skin;
         if (show) { GUI.BringWindowToFront(id); GUI.FocusWindow(id); show = false; }

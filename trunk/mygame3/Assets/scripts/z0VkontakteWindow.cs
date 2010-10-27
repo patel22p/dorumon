@@ -9,16 +9,14 @@ using System;
 public class z0VkontakteWindow : WindowBase
 {
     
-    z0Vk vk;
-    
-    ScoreBoard scoreboard;
-
+    z0Vk vk;    
+    ScoreBoard scoreboard;    
     protected override void Awake()
     {
         if (!enabled) return;
         print("Vkontakte start");
         _Vkontakte = this;
-        vk = this.GetComponent<z0Vk>();
+        vk = this.GetComponentInChildren<z0Vk>();
         base.Awake();
     }
 
@@ -44,6 +42,7 @@ public class z0VkontakteWindow : WindowBase
     public void onVkConnected()
     {
         printC(lc.vkconnected);
+        Nick = localuser.nick;
         Application.LoadLevel(Level.z2menu.ToString());
     }
 
@@ -78,8 +77,9 @@ public class z0VkontakteWindow : WindowBase
             {
                 foreach (z0Vk.message_info msg in resp.messages)
                 {
-                    msg.message = WWW.UnEscapeURL(msg.message);                    
-                    printC(msg.user_name + ":" + msg.message);
+                    
+                    msg.message = WWW.UnEscapeURL(msg.message);
+                    printC(z0Vk.ToDate(msg.time) + " " + msg.user_name + ":" + msg.message);
                 }
                 foreach (z0Vk.status st in resp.statuses)
                 {
@@ -137,15 +137,15 @@ public class z0VkontakteWindow : WindowBase
 
             if (GUILayout.Button(lc.loginasguest .ToString()) || skip)
                 Application.LoadLevel(Level.z2menu.ToString());
-            if (!build)
-            {
-                if (GUILayout.Button("gmail.ru"))
-                    vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2295853480%22%2C%22secret%22%3A%225b6c1208fe%22%2C%22sid%22%3A%22d8c3fed16ab9665e41062ac50e381ba646ab88eecaeec3c1629b2f48e1%22%7D");
-                if (GUILayout.Button("dorumonstr@gmail.com"))
-                    vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%229684567%22%2C%22secret%22%3A%22bbf034c0a0%22%2C%22sid%22%3A%224b116f646fd75b3c357532c6302ded441469b682d0df94af62665ef4e5%22%7D");
-                if (GUILayout.Button("dorumon@mail.ru"))
-                    vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2257109080%22%2C%22secret%22%3A%224454a797a5%22%2C%22sid%22%3A%2292d99c49f8d3b1bb45270e2775f475bd4d68960015cb38eb62c4e9bde7%22%7D");
-            }
+            //if (!build)
+            //{
+            //    if (GUILayout.Button("gmail.ru"))
+            //        vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2295853480%22%2C%22secret%22%3A%225b6c1208fe%22%2C%22sid%22%3A%22d8c3fed16ab9665e41062ac50e381ba646ab88eecaeec3c1629b2f48e1%22%7D");
+            //    if (GUILayout.Button("dorumonstr@gmail.com"))
+            //        vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%229684567%22%2C%22secret%22%3A%22bbf034c0a0%22%2C%22sid%22%3A%224b116f646fd75b3c357532c6302ded441469b682d0df94af62665ef4e5%22%7D");
+            //    if (GUILayout.Button("dorumon@mail.ru"))
+            //        vk.Start("http://vkontakte.ru/api/login_success.html#session=%7B%22expire%22%3A%220%22%2C%22mid%22%3A%2257109080%22%2C%22secret%22%3A%224454a797a5%22%2C%22sid%22%3A%2292d99c49f8d3b1bb45270e2775f475bd4d68960015cb38eb62c4e9bde7%22%7D");
+            //}
         }
 
 
@@ -169,6 +169,8 @@ public class z0VkontakteWindow : WindowBase
             GUILayout.Label(lc.name + localuser.nick);
             GUILayout.Label(lc.status+ localuser.st.text);
             GUILayout.Box(localuser.texture);
+
+            
             foreach (z0Vk.user user in friends.Values)
                 if (user.uid != localuser.uid && user.online)
                 {                    

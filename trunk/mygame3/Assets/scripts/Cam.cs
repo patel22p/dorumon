@@ -69,10 +69,10 @@ public class Cam : Base
         }
         else
         {
-            if (_localiplayer is CarController)
-                x = ClampAngle(x, yMinLimit, yMaxLimit, 30);
-            bool car = _localiplayer is CarController;
-            Quaternion rotation = Quaternion.Euler(y, x + (car ? _localiplayer.transform.rotation.eulerAngles.y : 0), 0);
+            //if (_localiplayer is CarController)
+            //    x = ClampAngle(x, yMinLimit, yMaxLimit, 30);
+            //bool car = _localiplayer is CarController;
+            Quaternion rotation = Quaternion.Euler(y, x, 0);
             Vector3 pos = _localiplayer.CamPos.transform.position;
             Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset) + pos;
             pos2.y += yoffset;

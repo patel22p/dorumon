@@ -16,7 +16,6 @@ public class z0Loader : Base
 {
     public static int lastLevelPrefix = 0;
     public int fps;
-    public Transform root;
     float cmx { get { return Screen.height / 2; } }
     public Font font; 
     public string ips = "";
@@ -27,6 +26,7 @@ public class z0Loader : Base
     void Awake()
     {
         if (Duplicate()) return;
+        Application.RegisterLogCallback(onLog);
         print("loader awake");
         if (isWebPlayer)
         {
@@ -34,7 +34,7 @@ public class z0Loader : Base
             {
                 try
                 {
-                    using (Stream s = new MemoryStream(w.bytes))
+                    using (Stream s = new MemoryStream(w.www.bytes))
                         lc = (Localize)xml.Deserialize(s);
                 }
                 catch
@@ -54,28 +54,29 @@ public class z0Loader : Base
                 print("dict loaded");
             }
             catch
+            {                
+                printC("dict.xml could not be opened");
+            }
+            try
             {
                 using (Stream s = File.Open("dict.xml", FileMode.Create))
                     xml.Serialize(s, lc);
-                print("dict created");
-            }            
-            File.Delete("log.txt");
-            Application.RegisterLogCallback(onLog);
+
+                File.Delete(logpath);
+            }
+            catch { }
             dictLoaded();
         }        
         _Loader = this;
-        _options = this.GetComponent<OptionsWindow>();
+        _options = Root(this.gameObject).GetComponentInChildren<OptionsWindow>();
 
-        DontDestroyOnLoad(this);
-        networkView.group = 1;
-
-
-        localuser = new z0Vk.user();
+        DontDestroyOnLoad(Root(this).gameObject);
+        networkView.group = 1;        
 
         foreach (IPAddress ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
             ips += ip + ",";
     }
-
+    string logpath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/log.txt";
     private void dictLoaded()
     {
         z0ConsoleWindow.output += lc.onload;
@@ -84,16 +85,8 @@ public class z0Loader : Base
 
     void Start()
     {
-        TcpListener tcp = new TcpListener(IPAddress.Any, 5301);
-        tcp.Start();
-        tcp.BeginAcceptSocket(delegate
-        {
-            print("socket connected");
-            if (_Level == Level.z4game && Network.connections.Length == 0)
-                _Loader.RPCLoadLevel(Level.z3labby.ToString());
-
-        }, null);
-
+        
+        
 
     }
     void Update()
@@ -114,12 +107,13 @@ public class z0Loader : Base
         if (lockCursor) return;
 
     }
-    public void RPCLoadLevel(string level)
+    
+    public void RPCLoadLevel(string level, RPCMode rpcmode)
     {
         print("load Level" + level);
         for (int i = 0; i < 20; i++)
             Network.RemoveRPCsInGroup(i);
-        networkView.RPC("LoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
+        networkView.RPC("LoadLevel", rpcmode, level, lastLevelPrefix + 1);
     }
 
     [RPC]
@@ -144,12 +138,18 @@ public class z0Loader : Base
         Vector2 c = new Vector2(Screen.width, Screen.height);
         return new Rect(0, c.y - cmx, c.x, c.y);
     }
+    public StringWriter log1 = new StringWriter();
     void onLog(string condition, string stackTrace, LogType type)
-    {
-        StreamWriter a;
-        using (a = new StreamWriter(File.Open("log.txt", FileMode.Append, FileAccess.Write)))
-            a.WriteLine("fps:" + fps + "Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n");
-
+    {    
+        string s = "fps:" + fps + "Type:" + type + "\r\n" + condition + "\r\n" + stackTrace + "\r\n";        
+        if (isWebPlayer)
+            log1.WriteLine(s);
+        else
+        {
+            StreamWriter a;
+            using (a = new StreamWriter(File.Open(logpath, FileMode.Append, FileAccess.Write)))
+                a.WriteLine(s);
+        }
     }
     void OnLevelWasLoaded(int level)
     {

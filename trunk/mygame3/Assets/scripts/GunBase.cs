@@ -6,6 +6,11 @@ public abstract class GunBase : Base
     float lt;
     public int def;
     internal float bullets;
+    public GameObject root;
+    public void Awake()
+    {
+        root = Root(this.gameObject);
+    }
     public void Reset()
     {
         bullets = def;
@@ -56,7 +61,6 @@ public abstract class GunBase : Base
     
 
     public Transform _Patron;
-    public AudioClip _nobullets;
     public string _Name;
     public int fr { get { return _LocalPlayer == null || _LocalPlayer.freezedt < 0 ? 1 : 3; } }
     protected virtual void LocalUpdate()
@@ -72,8 +76,7 @@ public abstract class GunBase : Base
             }
             else
             {
-                if (_nobullets != null && audio != null)
-                    audio.PlayOneShot(_nobullets);
+                root.audio.PlayOneShot((AudioClip)Resources.Load(" sounds/noammo"));                    
                 //_LocalPlayer.NextGun(1);
             }
         }

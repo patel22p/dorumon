@@ -272,10 +272,10 @@ namespace ICSharpCode.SharpZipLib.Core
 					// these are left unhandled here as the caller is responsible for ensuring all is valid.
 					// several functions IsValidFilterExpression and IsValidExpression are provided for such checking
 					if ( include ) {
-						inclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline));
+						inclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Singleline));
 					}
 					else {
-						exclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline));
+						exclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Singleline));
 					}
 				}
 			}

@@ -10,12 +10,13 @@ using System.IO;
 public partial class z0ConsoleWindow : WindowBase
 {
     void Start()
-    {      
+    {
+        
         _cw = this;
         AudioListener.volume = .1f;       
         size = new Vector2(700, 400);
         music = GetComponent<Music>();
-        music.Start("loops.txt");
+        //music.Start("loops.txt");
         audio.loop = true;
     }
     public Music music;
@@ -28,9 +29,6 @@ public partial class z0ConsoleWindow : WindowBase
     
     void Update()
     {
-        
-
-
         
         if (Input.GetKeyDown(KeyCode.Return)) 
         {
@@ -68,9 +66,11 @@ public partial class z0ConsoleWindow : WindowBase
     
     protected override void OnGUI()
     {
-        if (lockCursor) return;
-        GUI.Label(new Rect(Screen.width - 200, 0, Screen.width, 20), lastStr);
-        title = lc.physxwarsver + " " + version + " /  " + Application.streamedBytes / 1024 / 1024 + " " + lc.loaded;        
+        GUI.Label(new Rect(0, Screen.height - 100, Screen.width, Screen.height), lastStr);
+        if (lockCursor) return;        
+        Network.incomingPassword = _Level == Level.z4game ? "InGame" : version.ToString();
+        
+        title = lc.physxwarsver + " '" + Network.incomingPassword + "' /  " + Application.streamedBytes / 1024 / 1024 + " " + lc.loaded;        
         
         base.OnGUI();
     }
@@ -79,32 +79,41 @@ public partial class z0ConsoleWindow : WindowBase
 
     protected override void Window(int id)
     {
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         if (!build && GUILayout.Button("skip"))
             skip = true;
-        InLabby();        
+        InLabby();
         InGame();
 
-        if (!skip)
-        {
-            GUILayout.BeginHorizontal();
+        if(_Level == Level.z3labby || _Level == Level.z4game)
+        if (_TimerA.TimeElapsed(1000))
+            RPCPingFps(Network.player.GetHashCode(),
+                (Network.connections.Length > 0 ? Network.GetLastPing(Network.connections[0]) : 0),
+                _Loader.fps,
+                (isWebPlayer ? Application.GetStreamProgressForLevel(_hw.selectedlevel.ToString()) : 1));
 
-            if (GUILayout.Button(lc.options.ToString(), GUILayout.ExpandWidth(false))) _options.enabled = true;
-            if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button(lc.disc.ToString(), GUILayout.ExpandWidth(false)))
-            {
-                if (Network.isServer && _Spawn != null)
-                    _Loader.RPCLoadLevel(Level.z2menu.ToString());
-                else
-                    Network.Disconnect();
-            }
-            GUILayout.EndHorizontal();
 
-            input = GUILayout.TextField(input);
-            
-        }
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-        GUILayout.TextField(output);
-        GUILayout.EndScrollView(); 
+        GUILayout.BeginHorizontal();
+        //if (isWebPlayer && GUILayout.Button(lc.saveLog.ToString(), GUILayout.ExpandWidth(false)))
+        //    Application.ExternalCall("alert", WWW.EscapeURL(_Loader.log1.ToString()));                    
+
+        if (GUILayout.Button(lc.options.ToString(), GUILayout.ExpandWidth(false))) _options.enabled = true;
         
+        if (Network.peerType != NetworkPeerType.Disconnected && GUILayout.Button(lc.disc.ToString(), GUILayout.ExpandWidth(false)))
+        {
+            if (Network.isServer && _Spawn != null)
+                _Loader.RPCLoadLevel(Level.z3labby.ToString(), RPCMode.AllBuffered);
+            else
+                Network.Disconnect();
+        }
+        GUILayout.EndHorizontal();
+
+        input = GUILayout.TextField(input);
+
+
+        output= GUILayout.TextField(output);
+        GUILayout.EndScrollView();
+
         GUI.DragWindow();
     }
 
@@ -113,8 +122,7 @@ public partial class z0ConsoleWindow : WindowBase
         userviews.Clear();        
         RPCUserDisconnected(Network.player.GetHashCode());
         rpcwrite(lc.playerdisc + z2Menu.Nick);
-        write(lc.dfg.ToString());
-        MasterServer.UnregisterHost();
+        write(lc.dfg.ToString());        
         Application.LoadLevel(Level.z2menu.ToString());
     }
     [RPC]
@@ -128,52 +136,57 @@ public partial class z0ConsoleWindow : WindowBase
     [RPC]
     void RPCPingFps(int id,int ping, int fps,float loaded)
     {
-        CallRPC(true, id, ping, fps,loaded);
+        CallRPC(false, id, ping, fps,loaded);
         userviews[id].fps = fps;
         userviews[id].ping = ping;
         userviews[id].loaded = loaded;
     }
 
-
+    //bool pub = true;
     private void InGame()
     {
-        
+
         if (_Level == Level.z4game)
         {
-            //if (skip)
+            //if (Network.isServer)
             //{
-            //    GUILayout.Label(lc.copyright .ToString());
-            //    if (GUILayout.Button(lc.beginthegame.ToString()))
-            //    {
-            //        _Spawn.OnTeamSelect(Team.ata);
-            //    }
+                //bool old1 = pub;
+                //pub = GUILayout.Toggle(pub, lc.MakeGamePublic.ToString());
+                //if (pub != old1)
+                //    if (pub)
+                //        z2HostWindow.RegisterHost();
+                //    else
+                //        MasterServer.UnregisterHost();
             //}
-            //else
+            GUILayout.Label(lc.fraglimit.ToString() + _hw.fraglimit);
+            GUILayout.Label(String.Format(table, "", lc.kills, lc.ping, lc.fps, lc.deaths));
+            if (dm || zombisurive)
             {
-                GUILayout.Label(lc.fraglimit .ToString() + _hw.fraglimit);
-                if (dm || zombisurive)
-                {
-                    foreach (z0Vk.user pl in userviews.Values)
-                        PrintPlayer(pl);
-                }
-                else
-                {
-                    GUILayout.Label(lc.redteamscore .ToString() + _Spawn.RedFrags);
-                    foreach (z0Vk.user pl in TP(Team.ata))
-                        PrintPlayer(pl);
-                    GUILayout.Label(lc.blueteamscore .ToString() + _Spawn.BlueFrags);
-                    foreach (z0Vk.user pl in TP(Team.def))
-                        PrintPlayer(pl);
-                }
+                foreach (z0Vk.user pl in TP(Team.None))
+                    PrintPlayer(pl);
+            }
+            else
+            {
+                GUILayout.Label(lc.redteamscore.ToString() + _Spawn.RedFrags);
+                foreach (z0Vk.user pl in TP(Team.ata))
+                    PrintPlayer(pl);
 
-                string[] arr = dm || zombisurive ? new string[] { lc.spectator .ToString(), lc.joingame .ToString() } : new string[] { lc.spectator .ToString(), lc.redteam .ToString(), lc.blueteam .ToString() };
-                if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
-                {
-                    old = selectedTeam;
-                    if (selectedTeam == 0) _Spawn.Spectator();
-                    if (selectedTeam == 1) _Spawn.OnTeamSelect(Team.ata);
-                    if (selectedTeam == 2) _Spawn.OnTeamSelect(Team.def);
-                }
+                GUILayout.Label(lc.blueteamscore.ToString() + _Spawn.BlueFrags);
+                foreach (z0Vk.user pl in TP(Team.def))
+                    PrintPlayer(pl);
+            }
+            GUILayout.Label(lc.spectator.ToString() + _Spawn.BlueFrags);
+            foreach (z0Vk.user pl in TP(Team.Spectator))
+                PrintPlayer(pl);
+
+            string[] arr = dm || zombisurive ? new string[] { lc.spectator.ToString(), lc.joingame.ToString() } : new string[] { lc.spectator.ToString(), lc.redteam.ToString(), lc.blueteam.ToString() };
+            if ((selectedTeam = GUILayout.Toolbar(selectedTeam, arr)) != old)
+            {
+                old = selectedTeam;
+                if (selectedTeam == 0) _Spawn.Spectator();
+                if (selectedTeam == 1)
+                    _Spawn.OnTeamSelect(dm || zombisurive ? Team.None : Team.ata);
+                if (selectedTeam == 2) _Spawn.OnTeamSelect(Team.def);
             }
         }
     }
@@ -181,72 +194,21 @@ public partial class z0ConsoleWindow : WindowBase
 
     void OnServerInitialized()
     {
-        RPCServerData(version.ToString(),(int)_hw.gameMode,(int)_hw.selectedlevel,_hw.fraglimit);
-        OnConnected();
-    }
-    void OnConnectedToServer()
-    {
-        OnConnected();
-    }
-    private void OnConnected()
-    {
+        _Loader.RPCLoadLevel(Level.z3labby.ToString(),RPCMode.AllBuffered);
         
-        print("on connected");
-        if(!skip) rpcwrite(lc.plj + z2Menu.Nick);
-        localuser.nwid = Network.player;
-        RPCSetUserView(localuser.nwid,localuser.nick, localuser.uid, localuser.photo,localuser.totalkills,localuser.totaldeaths,localuser.totalzombiekills,localuser.totalzombiedeaths);
-        userviews.Add(localuser.nwid.GetHashCode(), localuser);
-        Application.LoadLevel(Level.z3labby.ToString());
-    }
-    [RPC]
-    private void RPCServerData(string v, int gamemode, int level, int frags)
-    {
-        CallRPC(true, v, gamemode, level, frags);
-        if (v != version.ToString())
-        {
-            printC(string.Format(lc.WrongVersion.ToString(), v, version.ToString()));
-            Network.Disconnect();
-        }
-        _hw.gameMode = (GameMode)gamemode;
-        _hw.selectedlevel = (GameLevels)level;
-        _hw.fraglimit = frags;
         
-    }
-    [RPC]
-    private void RPCSetUserView(NetworkPlayer nwid, string nick, int uid, string photo, int tk, int td, int tzk, int tzd)
-    {
-
-        CallRPC(true, localuser.nwid, localuser.nick, localuser.uid, localuser.photo, tk, td, tzk, tzd);
-        if (nwid == Network.player) return;
-
-        z0Vk.user user = new z0Vk.user();
-        user.nick = nick;
-        user.uid = uid;
-        user.photo = photo;
-        user.nwid = nwid;
-        user.totalkills = tk;
-        user.totaldeaths = td;
-        user.totalzombiekills = tzk;
-        user.totalzombiedeaths = tzd;
-
-        if (photo != "")
-            new WWW2(photo).done += delegate(WWW2 www)
-            {
-                print("loaded texture");
-                user.texture = www.texture;
-                DontDestroyOnLoad(user.texture);
-            };
-        userviews.Add(nwid.GetHashCode(), user);
-
-    }
+    }    
+    
 
     private void InLabby()
     {
-        
+        if (autostart > 0)
+            autostart-= Time.deltaTime;
         if (_Level == Level.z3labby && Network.isServer)
         {
-            if (GUILayout.Button(lc.startgame.ToString()) || skip)
+            if (GUILayout.Button(lc.startgame.ToString()) || skip || autostart < 0)
             {
+                autostart = 0;
                 bool loaded = true;
                 foreach (z0Vk.user u in userviews.Values)
                     if (u.loaded != 1)
@@ -255,7 +217,7 @@ public partial class z0ConsoleWindow : WindowBase
                         loaded = false;
                     }
                 if (loaded)
-                    _Loader.RPCLoadLevel(_hw.selectedlevel.ToString());
+                    _Loader.RPCLoadLevel(_hw.selectedlevel.ToString(),RPCMode.All);
             }
             
 
@@ -265,13 +227,9 @@ public partial class z0ConsoleWindow : WindowBase
         if (_Level == Level.z3labby)
         {
 
-            if (_TimerA.TimeElapsed(1000))
-                RPCPingFps(Network.player.GetHashCode(),
-                    (Network.connections.Length > 0 ? Network.GetLastPing(Network.connections[0]) : 0),
-                    _Loader.fps,
-                    (isWebPlayer ? Application.GetStreamProgressForLevel(_hw.selectedlevel.ToString()) : 1));
+            
                         
-            const string table = "{0,15}{1,10}{2,10}{3,10}{4,10}{5,10}{6,10}{7,10}";
+            const string table = "{0,20}{1,10}{2,10}{3,10}{4,10}{5,10}{6,10}{7,10}";
             GUILayout.Label(String.Format(table, "", lc.zkills, lc.zdeaths, lc.kills, lc.deaths, lc.ping, lc.fps, lc.maploaded));
 
             foreach (z0Vk.user user in userviews.Values)
@@ -288,10 +246,11 @@ public partial class z0ConsoleWindow : WindowBase
     Vector2 scrollPosition;
     int selectedTeam;
     public static string input = "";
+    const string table = "{0,20}{1,10}{2,10}{3,10}{4,10}";
     private void PrintPlayer(z0Vk.user user)
     {
-        const string table = "{0,15}{1,10}{2,10}{3,10}{4,10}";
-        GUILayout.Label(String.Format(table, "", lc.kills, lc.ping, lc.fps, lc.deaths));
+        
+        
         GUILayout.BeginHorizontal();        
         GUILayout.Label(String.Format(table, user.nick, user.frags, user.ping, user.fps, user.deaths));
         AddKickButton(user);

@@ -4,21 +4,21 @@ using doru;
 using System.Collections.Generic;
 using System;
 
-public enum Team : int { None, ata, def }
+public enum Team : int { Spectator,None, ata, def }
 public class Player : IPlayer
 {
     internal CarController car;
     
     internal new Team team { get { return userview.team; }  set { userview.team=value; } }    
     
-    public Transform bloodexp;
+    //public Transform bloodexp;
     public float force = 400;
     
     
     internal float freezedt;
     public float tormoza = 1.5f;
     public ParticleEmitter frozenRender;
-    public string Nick { get { return userview.nick; } }
+    public string nick { get { return userview.nick; } }
     public int frags { get { return userview.frags; } set { userview.frags = value; } }
     
     public z0Vk.user userview;
@@ -37,20 +37,21 @@ public class Player : IPlayer
     [RPC]
     public void RPCSpawn()
     {
-        CallRPC(false);
+        CallRPC(true);
         
         Show(true);
         if (isOwner)
         {
             RPCSelectGun(1);
             RPCSetTeam((int)_Spawn.team);
+            transform.position = SpawnPoint();
+            transform.rotation = Quaternion.identity;
         }
         foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = 100;
         freezedt = 0;
-        transform.position = SpawnPoint();
-        transform.rotation = Quaternion.identity;
+        
     }
     int guni;
 
@@ -109,7 +110,7 @@ public class Player : IPlayer
     [RPC]
     private void RCPJump()
     {
-        CallRPC(false);
+        CallRPC(true);
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));
     }
 
@@ -117,7 +118,7 @@ public class Player : IPlayer
     {
         if (a != 0)
         {
-            transform.Find("Guns").GetComponent<AudioSource>().Play();
+            audio.PlayOneShot((AudioClip)Resources.Load(" sounds/change"));
             if (a > 0) 
                 guni++;
             if (a < 0)
@@ -167,7 +168,7 @@ public class Player : IPlayer
     public void RPCSetTeam(int t)
     {
         print("set team");
-        CallRPC(false, t);
+        CallRPC(true, t);
         team = (Team)t;
     }
     public override bool dead { get { return !enabled && car == null; } }
@@ -185,7 +186,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCSelectGun(int i)
     {        
-        CallRPC(false, i);
+        CallRPC(true, i);
         selectedgun = i;
         foreach (GunBase gb in guns)
             gb.DisableGun();
@@ -207,10 +208,11 @@ public class Player : IPlayer
         box b = collisionInfo.gameObject.GetComponent<box>();
         if (b != null && isOwner && b.OwnerID != -1 && (b.isOwner || players[b.OwnerID].team != team || dm) &&
             !(b is Player) && !(b is Zombie) &&
-            collisionInfo.impactForceSum.sqrMagnitude > 150 &&
-            rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude)
+            collisionInfo.rigidbody.velocity.magnitude > 20 
+            //&& rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude
+            )
         {
-            RPCSetLife(-Math.Min(80, (int)collisionInfo.impactForceSum.sqrMagnitude / 2), b.OwnerID);
+            RPCSetLife(-(int)collisionInfo.rigidbody.velocity.magnitude*2, b.OwnerID);
         }
     }
     
@@ -218,7 +220,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCHealth()
     {
-        CallRPC(false);
+        CallRPC(true);
         if (Life < life)
             Life += 10;
         if (freezedt > 0)
@@ -229,7 +231,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCSetLife(int NwLife, int killedby)
     {
-        CallRPC(false, NwLife, killedby);
+        CallRPC(true, NwLife, killedby);
         if (isOwner)
             blood.Hit(Mathf.Abs(NwLife) * 2);
 
@@ -245,17 +247,17 @@ public class Player : IPlayer
                     Life += NwLife;
             }
         }
-        if (Life < 0 && isOwner)
+        if (Life <= 0 && isOwner)
             RPCDie(killedby);
 
     }
     [RPC]
     public override void RPCDie(int killedby)
     {
-        CallRPC(false, killedby);
-        Base a = ((Transform)Instantiate(bloodexp, transform.position, Quaternion.identity)).GetComponent<Base>();
-        a.Destroy(10000);
-        a.transform.parent = _Spawn.effects;
+        CallRPC(true, killedby);
+        Instantiate(Resources.Load(" Detonator/Prefab Examples/Detonator-Chunks"), transform.position, Quaternion.identity);
+        //a.Destroy(10000);
+        //a.transform.parent = _Spawn.effects;
         userview.deaths++;
         if (isOwner)
         {
@@ -266,17 +268,17 @@ public class Player : IPlayer
                 {
                     if (p.isOwner)
                     {
-                        _cw.rpcwrite(_LocalPlayer.Nick + lc.dbsf);
+                        _cw.rpcwrite(_LocalPlayer.nick + lc.dbsf);
                         _LocalPlayer.RPCSetFrags(-1);
                     }
                     else if (p.team != _LocalPlayer.team || dm)
                     {
-                        rpcwrite(p.Nick + lc.kld + _LocalPlayer.Nick);
+                        rpcwrite(p.nick + lc.kld + _LocalPlayer.nick);
                         p.RPCSetFrags(+1);
                     }
                     else
                     {
-                        rpcwrite(p.Nick + lc.ff + _LocalPlayer.Nick);
+                        rpcwrite(p.nick + lc.ff + _LocalPlayer.nick);
                         p.RPCSetFrags(-1);
 
                     }
@@ -284,7 +286,7 @@ public class Player : IPlayer
             }
             if (killedby == -1)
             {
-                rpcwrite(_LocalPlayer.Nick + lc.scw.ToString());
+                rpcwrite(_LocalPlayer.nick + lc.scw.ToString());
                 _LocalPlayer.RPCSetFrags(-1);
             }
 
@@ -297,11 +299,13 @@ public class Player : IPlayer
     [RPC]
     public void RPCSetFrags(int i)
     {
-        CallRPC(false, i);
+        
+        CallRPC(true, i);
         frags += i;
     }
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {
+        
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
         velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
@@ -316,7 +320,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCCarIn()
     {
-        CallRPC(false);
+        CallRPC(true);
 
         Show(false);
     }

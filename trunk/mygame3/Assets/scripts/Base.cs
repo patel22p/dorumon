@@ -11,16 +11,16 @@ public class Base : Base2, System.IDisposable
     public static Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
     public static string hosting = "http://physxwars.rh10.ru/";
     public static bool build = true;
-    public static bool skip = false;
+    public static bool skip;
     public static bool timeLimit = false;
     
-    public static bool isWebPlayer = Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer;
+    public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level;
     public static bool Online;
     bool hidden;
-    public int OwnerID = -1;
+    public int OwnerID = -1;  
     public static bool logged { get { return _vk._Status == z0Vk.Status.connected; } }
-    public static z0Vk.user localuser;
+    public static z0Vk.user localuser = new z0Vk.user();
     public static Dictionary<int, z0Vk.user> userviews = new Dictionary<int, z0Vk.user>();
     public static XmlSerializer respxml = new XmlSerializer(typeof(z0Vk.response), new Type[] { typeof(z0Vk.user), typeof(z0Vk.message_info) });
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
@@ -41,7 +41,7 @@ public class Base : Base2, System.IDisposable
 
     public bool DebugKey(KeyCode key)
     {
-        return Input.GetKeyDown(key);
+        return Input.GetKeyDown(key) && !build;
     }
     public static string tostring(params object[] o)
     {
@@ -78,9 +78,9 @@ public class Base : Base2, System.IDisposable
             if (p.team == t) yield return p;
     }
 
-    public void PlayRandSound(AudioClip[] au)
+    public void PlayRandSound(UnityEngine.Object[] au)
     {
-        audio.PlayOneShot(au[UnityEngine.Random.Range(0, au.Length - 1)]);
+        audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length - 1)]);
     }
 
     public static RaycastHit ScreenRay()
@@ -92,15 +92,19 @@ public class Base : Base2, System.IDisposable
         return h;
     }
 
+    static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
+    public static Localize lc = new Localize();
 
 
+    public static GameObject Root(MonoBehaviour g)
+    {
+        return Root(g.transform).gameObject;
+    }
 
     public static GameObject Root(GameObject g)
     {
         return Root(g.transform).gameObject;
     }
-    static internal int collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
-    public static Localize lc = new Localize();
     public static Transform Root(Transform g)
     {
         Transform p = g;

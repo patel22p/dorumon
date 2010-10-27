@@ -8,22 +8,24 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 [assembly: AssemblyVersion("1.0.*")]
 
 public class z2Menu : Base
 {
     public string gamename = "Swiborg";
     bool guiloaded;
-    public Rect r = new Rect(0, 0, 200, 300);
+    public Rect r = new Rect(0, 0, 200, 200);
     public Rect r2;
     internal int port = 5300;
-    public static string Nick { get { return Base.localuser.nick; } set { Base.localuser.nick = value; } }
+    
+    
     public string ip { get { return PlayerPrefs.GetString("ip"); } set { PlayerPrefs.SetString("ip", value); } }
     public string masterip { get { return PlayerPrefs.GetString("ip2"); } set { PlayerPrefs.SetString("ip2", value); } }
     
     public static Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
-    HostData[] data;
-    SortedList<int, HostData> sorteddata = new SortedList<int, HostData>();
+    
+    
 
     void Awake()
     {
@@ -32,11 +34,11 @@ public class z2Menu : Base
     }    
     void Start()
     {
-        
+        if (!build) GameObject.Find("menu").active = false;
         print("menu start");
         MasterServer.RequestHostList(gamename);
 
-        if (!_Loader.audio.isPlaying) _Loader.audio.Play();
+        if (!music.audio.isPlaying) music.audio.Play();
         if (logged)
         {
             //_vk.SetStatus("");                    
@@ -48,10 +50,11 @@ public class z2Menu : Base
         else
         {
             _vk.enabled = _Vkontakte.enabled = false;
-            Nick = lc.guest.ToString() + UnityEngine.Random.Range(0, 99);
+            if (Nick.Length < 2 || !build) Nick = lc.guest.ToString() + UnityEngine.Random.Range(0, 99);
+            
         }
         r2 = CenterRect(.6f, .5f);
-        Network.incomingPassword = "";
+        
         //printC(Network.incomingPassword);
     }
     void OnGUI()
@@ -103,8 +106,7 @@ public class z2Menu : Base
             {
                 printC(lc.connectingto + ip);
                 string[] ips = ip.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                new TcpClient().BeginConnect(ips[0],5301,null,null);
-                Network.Connect(ips, port, Network.incomingPassword);
+                Network.Connect(ips, port, Network.incomingPassword);                
             }
         }
         if (!build)
@@ -138,24 +140,17 @@ public class z2Menu : Base
     }
     void ServerListWindow(int q)
     {
-
+        GUILayout.BeginScrollView(new Vector2());
         GUILayout.Label(lc.yourversionis .ToString() + version);
         if (GUILayout.Button(lc.refreshserver.ToString()))
         {
             if (masterip != "") MasterServer.ipAddress = masterip;            
             MasterServer.RequestHostList(gamename);
         }
-
-        if (MasterServer.PollHostList() != data)
+        HostData[] data = MasterServer.PollHostList();        
+        
+        foreach (HostData element in data)
         {
-            data = MasterServer.PollHostList();
-            sorteddata.Clear();
-            foreach (HostData d in data)
-                sorteddata.Add(GetPing(d.ip[0]), d);
-        }
-        foreach (HostData element in sorteddata.Values)
-        {
-
             GUILayout.BeginHorizontal();
             string name = element.gameName + " " + element.connectedPlayers + " / " + element.playerLimit;
             GUILayout.Label(name);
@@ -170,17 +165,12 @@ public class z2Menu : Base
             
             GUILayout.Label(lc.ping .ToString() + GetPing(element.ip[0]));
 
-            GUILayout.FlexibleSpace();
+            
             GUILayout.Space(5);
 
 
             if (GUILayout.Button(lc.copyip.ToString()))
             {
-                Network.useNat = element.useNat;
-                //if (Network.useNat)
-                //    print("Using Nat punchthrough to connect to host");
-                //else
-                //     print("Connecting directly to host");
                 try
                 {                                                                
                     ip = string.Join(",", element.ip);
@@ -192,6 +182,7 @@ public class z2Menu : Base
             GUILayout.EndHorizontal();
 
         }
+        GUILayout.EndScrollView();
         GUI.DragWindow();
     }
     void OnLevelWasLoaded(int level)
@@ -202,11 +193,11 @@ public class z2Menu : Base
     }
     void OnFailedToConnect(NetworkConnectionError error)
     {
-        printC(lc.clnt .ToString() + error.ToString().Replace("InvalidPassword", lc.gald .ToString()));
+        printC(lc.clnt.ToString() + error.ToString().Replace("InvalidPassword", lc.gamealreadystarted.ToString()));
     }
     void OnFailedToConnectToMasterServer(NetworkConnectionError error)
     {
-        printC(lc.clnt .ToString() + error);
+        printC(lc.clnt.ToString() + error);
     }
 }
-public class Trace : UnityEngine.Debug { }
+

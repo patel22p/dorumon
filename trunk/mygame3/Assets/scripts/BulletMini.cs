@@ -6,9 +6,9 @@ public class BulletMini : BulletBase
 {
     public float velocity = 100;
     public int damage=34;
-    public Transform blood;
-    public Transform bloodmat1;
-    public Transform impact;
+    //public Transform blood;
+    //public Transform bloodmat1;
+    //public Transform impact;
     
     public float exp=50;
     public float exprad = 2; 
@@ -16,7 +16,7 @@ public class BulletMini : BulletBase
     {
 
         base.Hit(hit);
-        Destroy(Instantiate(impact, hit.point, transform.rotation), 3);
+        
         Transform b = Root(hit.collider.gameObject.transform);
         if (b.rigidbody != null)
             b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
@@ -29,13 +29,15 @@ public class BulletMini : BulletBase
         //    Transform a;
         //    a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal));
         //    a.parent = ((CarController)iplayer).effects;                
-        //}
-        if (iplayer as Player != null)
-        {
-            Transform a;
-            Destroy(a = (Transform)Instantiate(blood, hit.point, transform.rotation),10);
-            a.parent = _Spawn.effects;
-        }
+        ////}
+        if (iplayer as Player != null || iplayer as Zombie != null)
+            Instantiate(Resources.Load("Impact"), hit.point, transform.rotation);
+        else if (iplayer as IPlayer != null)
+            Destroy(Instantiate(Resources.Load("particle_metal"), hit.point, transform.rotation),1);
+        else
+            Destroy(Instantiate(Resources.Load("particle_concrete"), hit.point, transform.rotation),1);
+        
+
         //if (iplayer as Zombie != null)
         //{
         //    Transform a;

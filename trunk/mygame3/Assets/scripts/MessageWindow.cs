@@ -13,7 +13,7 @@ public class MessageWindow : WindowBase
     void Start()
     {
         title = user.nick;
-        size = new Vector2(300, 400);
+        size = new Vector2(400, 300);
     }
     
     void Update()

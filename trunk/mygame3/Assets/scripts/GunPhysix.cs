@@ -46,9 +46,9 @@ public class GunPhysix : GunBase
         power = enable;
         if (!enable)
         {
-            this.GetComponents<AudioSource>()[0].Stop();
+            //this.GetComponents<AudioSource>()[0].Stop();
             if (bullets > 300)
-                this.GetComponents<AudioSource>()[1].Play();
+                root.audio.PlayOneShot((AudioClip)Resources.Load(" sounds/superphys_launch3"));
             foreach (Base b in _Spawn.dynamic)
                 if ((b is bloodexp || typeof(box) == b.GetType())
                     && Vector3.Distance(b.transform.position, cursor.position) < expradius)
@@ -59,8 +59,8 @@ public class GunPhysix : GunBase
             bullets = 0;
 
         }
-        else
-            this.GetComponents<AudioSource>()[0].Play();
+        //else
+        //    this.GetComponents<AudioSource>()[0].Play();
     }
 
     

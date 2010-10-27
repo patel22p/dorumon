@@ -22,9 +22,9 @@ class MassMaterialEditor : EditorWindow
     static void zset()
     {
         Undo.RegisterSceneUndo("zset");
-        foreach (Texture t in FindObjectsOfTypeIncludingAssets(typeof(Texture)))
+   //     foreach (Texture t in FindObjectsOfTypeIncludingAssets(typeof(Texture)))
         {
-            if (t.name == "flatiron_rendered")
+          //  if (t.name == "flatiron_rendered")
             {
 
                 foreach (GameObject g in Selection.GetFiltered(typeof(GameObject), SelectionMode.DeepAssets))
@@ -35,11 +35,11 @@ class MassMaterialEditor : EditorWindow
                         {
                             //m.shader = Shader.Find("Diffuse");
                             //m.shader = Shader.Find("VertexLit");
-                            m.shader = Shader.Find("ExternalLightmappingTool/LightmappedDiffuse");
+                            m.shader = Shader.Find("Diffuse");
                             
                             //float f = 0.1f;
                             //m.SetColor("_Emission", new Color(f, f, f));
-                            m.SetTexture("_LightMap", t);
+                            //m.SetTexture("_LightMap", t);
                             
                         }
                     }

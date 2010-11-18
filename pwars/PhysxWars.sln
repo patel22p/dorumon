@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{40E33803-D7C7-C08E-F833-7B29FC2985A8}") = "PhysxWars", "PhysxWars.csproj", "{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	
+EndGlobal

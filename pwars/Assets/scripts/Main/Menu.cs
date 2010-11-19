@@ -97,7 +97,7 @@ public class Menu : Base
     bool logged;
     void onLogin()
     {
-        print();
+        print(pr);
         if (!logged)
         {
             _Irc.ircNick = nick;
@@ -108,7 +108,7 @@ public class Menu : Base
     }
     void onClose()
     {
-        print();
+        print(pr);
         onLogin();        
     }
     void onCreate()

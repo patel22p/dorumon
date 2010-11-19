@@ -20,7 +20,7 @@ public class BulletGranate : BulletBase
     {        
         foreach (var b in _Game.dynamic.Union(_Game.zombies.Cast<Base>()))
         {
-            if (b is bloodexp || b.GetType() == typeof(Box) || b is Zombie)
+            if (b.GetType() == typeof(Box) || b is Zombie)
             {
                 b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, transform.position, radius);
                 b.rigidbody.angularDrag = 30;

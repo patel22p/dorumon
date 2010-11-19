@@ -29,9 +29,9 @@ public class LightningBolt : MonoBehaviour
 	}
 	
 	void Update ()
-	{
-        
-        
+	{ 
+
+        if (particles == null) return;
 		if (noise == null)
 			noise = new Perlin();
 			

@@ -1,15 +1,18 @@
 using UnityEditor;
 using UnityEngine;
-
+using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using System;
 class MassMaterialEditor : EditorWindow
 {
-    [MenuItem("Tools/z1build")]
+    [MenuItem("RTools/z1build")]
     static void build()
     {
         BuildPipeline.BuildPlayer(new string[] { "Assets/z4game.unity" }, "z4game.unity3d", BuildTarget.WebPlayer, BuildOptions.BuildAdditionalStreamedScenes);
     }
 
-    [MenuItem("Tools/zrig")]
+    [MenuItem("RTools/zrig")]
     static void zrig()
     {
         foreach (GameObject g in Selection.GetFiltered(typeof(GameObject), SelectionMode.DeepAssets))
@@ -17,7 +20,7 @@ class MassMaterialEditor : EditorWindow
                 r.mass = 10;
     }
 
-    [MenuItem("Tools/zset")]
+    [MenuItem("RTools/zset")]
     static void zset()
     {
         Undo.RegisterSceneUndo("zset");
@@ -49,11 +52,11 @@ class MassMaterialEditor : EditorWindow
 
     }
     
-    [MenuItem("Tools/Skin Copy")]
+    [MenuItem("RTools/Skin Copy")]
     static void Skin()
     {
-        Object[] ts = UnityEditor.Selection.GetFiltered(typeof(Object), UnityEditor.SelectionMode.Unfiltered);
-        foreach (Object t in ts)
+        UnityEngine.Object[] ts = UnityEditor.Selection.GetFiltered(typeof(UnityEngine.Object), UnityEditor.SelectionMode.Unfiltered);
+        foreach (UnityEngine.Object t in ts)
         {
             if (t is GUISkin)
             {
@@ -66,19 +69,75 @@ class MassMaterialEditor : EditorWindow
             }
         }
     }
-    [MenuItem("Tools/ScaleParticle")]
+    static void print(params object[] p)
+    {
+        string s = "Editor:";
+        foreach (var d in p) s += d;
+        MonoBehaviour.print(s);
+    }
+    [MenuItem("RTools/Duplicate Changes")]
+    static void DuplicateChanges()
+    {
+        Undo.RegisterSceneUndo("zset");
+        var ts = UnityEditor.Selection.GetFiltered(typeof(UnityEngine.Object), UnityEditor.SelectionMode.Unfiltered).Cast<GameObject>();
+        GameObject first=null;
+        var vls = new Dictionary<Type,List<object>>();
+        Undo.RegisterSnapshot();
+        GameObject g = ts.First();
+        if (first == null)
+            first = g;
+        var components = first.GetComponents<Component>();
+
+        foreach (var c in components)
+            foreach (var f in props(c))
+            {
+                if (!vls.ContainsKey(c.GetType())) vls.Add(c.GetType(), new List<object>());
+                vls[c.GetType()].Add(f.GetValue(c, null));                
+            }
+        print(vls.Count);
+        foreach (GameObject t in ts.Skip(1))
+        {
+            foreach (var c in t.GetComponents<Component>())
+            {
+                int i = 0;
+                if (vls.ContainsKey(c.GetType()))
+                    foreach (var f in props(c))
+                    {
+                        f.SetValue(c, vls[c.GetType()][i], null);
+                        i++;
+                    }
+            }
+        }
+    }
+    static IEnumerable<PropertyInfo> props(Component c)
+    {
+        
+            foreach (var member in c.GetType().GetMembers())
+                if (member is PropertyInfo)
+                {
+                    var f = ((PropertyInfo)member);
+                    if (our(f))
+                        yield return f;
+                }
+    }
+    static bool our(PropertyInfo f)
+    {
+        Type o = f.PropertyType;
+
+        return f.CanWrite && f.CanRead &&
+            (o == typeof(bool) || o == typeof(string) || o == typeof(int) || o == typeof(float) || o == typeof(Vector2) || o == typeof(Vector3) || o == typeof(double) || o == typeof(Quaternion));
+    }
+    [MenuItem("RTools/ScaleParticle")]
     static void ScaleParticle()
     {
-        Object[] ts = UnityEditor.Selection.GetFiltered(typeof(GameObject), UnityEditor.SelectionMode.Unfiltered);
-        
+        UnityEngine.Object[] ts = UnityEditor.Selection.GetFiltered(typeof(GameObject), UnityEditor.SelectionMode.Unfiltered);
+        Undo.RegisterSceneUndo("zset");
         float scale = 2f;        
         foreach (GameObject t in ts)
         {
-            Undo.RegisterUndo(t, "scaleparticle");
             t.transform.localScale *= scale;
             foreach(var p in t.GetComponentsInChildren<ParticleEmitter>())
             {
-                Undo.RegisterUndo(p, "scaleparticle");
                 p.minSize *= scale;
                 p.maxSize *= scale;
                 p.localVelocity *= scale;
@@ -87,7 +146,6 @@ class MassMaterialEditor : EditorWindow
             }
             foreach (var p in t.GetComponentsInChildren<ParticleAnimator>())
             {
-                Undo.RegisterUndo(p, "scaleparticle");
                 p.force *= scale;
                 p.rndForce *= scale;
                 p.sizeGrow *= scale;
@@ -95,7 +153,6 @@ class MassMaterialEditor : EditorWindow
             }
             foreach (var p in t.GetComponentsInChildren<ParticleRenderer>())
             {
-                Undo.RegisterUndo(p, "scaleparticle");
                 p.velocityScale *= scale;
                 p.maxParticleSize *= scale;
                 p.lengthScale *= scale;

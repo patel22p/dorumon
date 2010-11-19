@@ -42,7 +42,7 @@ public class GunHealth : GunBase
     public void RPCSetPower(bool enable)
     {
         CallRPC(enable);
-        if (enable) PlayRandSound("sounds/heal");
+        if (enable) PlayRandSound("heal");
         power = enable;
     }
 

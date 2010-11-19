@@ -36,7 +36,7 @@ public abstract class IPlayer : Box
     public override void OnPlayerConnected1(NetworkPlayer np)
     {        
         base.OnPlayerConnected1(np);
-        print();
+        print(pr);
         if (selectedgun != -1)
             networkView.RPC("RPCSelectGun", np, selected);
         
@@ -77,7 +77,7 @@ public abstract class IPlayer : Box
     public void RPCSelectGun(int i)
     {        
         CallRPC(i);
-        PlaySound("sounds/change");
+        PlaySound("change");
         selectedgun = i;
         if(isOwner)
             _GameWindow.tabGunImages = selectedgun;
@@ -89,20 +89,20 @@ public abstract class IPlayer : Box
     public virtual void Health()
     {        
     }
+
     
-    //protected override void OnDisable()
-    //{
-    //    _Game.iplayers.Remove(this);
-    //    base.OnDisable();
-    //}
-    
+    public override void Dispose()
+    {
+        _Game.iplayers.Remove(this);
+        base.Dispose();
+    }
     
     
     bool IsPointed()
     {
         RaycastHit rah = ScreenRay();
         if (rah.collider == null) return false;
-        return Root(rah.collider.gameObject) == this.gameObject;
+        return rah.collider.gameObject.transform.root == this.gameObject;
     }
     
     [RPC]

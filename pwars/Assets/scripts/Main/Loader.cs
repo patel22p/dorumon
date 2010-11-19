@@ -30,13 +30,13 @@ public class Loader : Base
     new public MapSetting mapSettings = new MapSetting();
     
     
-
+    new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     protected override void Awake()
     {
         LocalUserV = gameObject.AddComponent<UserView>();
         base.Awake();
         print("loader awake");        
-        DontDestroyOnLoad(Root(this).gameObject);
+        DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
         cmd = joinString(' ', Environment.GetCommandLineArgs());
         mapsets.AddRange(new[]{
@@ -64,7 +64,7 @@ public class Loader : Base
     }
     void onScreenSize()
     {
-        print();
+        print(pr);
         if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
         {
             Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
@@ -78,7 +78,7 @@ public class Loader : Base
     }
     void onReset()
     {
-        print();
+        print(pr);
         PlayerPrefs.DeleteAll();
     }
     void onAtmoSphere()
@@ -101,15 +101,14 @@ public class Loader : Base
         _Cam.onEffect();
     }
     void Update()
-    {        
+    {
         WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
         if (_SettingsWindow.SaveScreenShots != 0 && _TimerA.TimeElapsed((int)(_SettingsWindow.SaveScreenShots * 1000f)))
-            Application.CaptureScreenshot("ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".png");
+            Application.CaptureScreenshot("ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
 
         _TimerA.Update();
-
     }
     
 
@@ -132,6 +131,7 @@ public class Loader : Base
     }
     void OnLevelWasLoaded(int level)
     {
+        _TimerA.Clear();
         foreach (Ping p in hdps.Values)
             p.DestroyPing();
         hdps.Clear();

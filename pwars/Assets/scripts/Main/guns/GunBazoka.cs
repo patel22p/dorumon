@@ -28,7 +28,7 @@ public class GunBazoka : GunBase
         
         CallRPC(pos, rot);
         
-        PlaySound("sounds/rocklf1a",.5f);
+        PlaySound("rocklf1a",.5f);
         ((GameObject)Instantiate(Resources.Load("Prefabs/BulletBazoka"), pos, rot)).GetComponent<Base>().OwnerID = OwnerID;
     }
 

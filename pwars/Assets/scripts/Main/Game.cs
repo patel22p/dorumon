@@ -11,7 +11,7 @@ public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMat
 
 
 public class Game : Base  
-{
+{    
     new public Player[] players = new Player[10];
     public List<IPlayer> iplayers = new List<IPlayer>();
     public List<Zombie> zombies = new List<Zombie>();
@@ -35,7 +35,7 @@ public class Game : Base
 
     protected override void Awake()
     {
-        decal = Load("Prefabs/decal").transform;
+        decal = Load("decal").transform;
         base.Awake(); 
         enabled = false;
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
@@ -187,7 +187,7 @@ public class Game : Base
     public void OnPlayerConnected(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
-        print();
+        print(pr);
         networkView.RPC("SetTimeLeft", np,timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);        
         networkView.RPC("RPCGameSettings", np, version.ToString(), (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
@@ -211,6 +211,7 @@ public class Game : Base
     public int maxzombies=0;
     private void ZUpdate()
     {
+        
         if (HasAny(players) && Network.isServer)
         {
             if (_TimerA.TimeElapsed(500) && zombiespawnindex < maxzombies)
@@ -273,8 +274,8 @@ public class Game : Base
                 user.texture = www.www.texture;
                 DontDestroyOnLoad(user.texture);
             };        
-        userViews[nwid.GetHashCode()] =  user;        
-        print("Received RPCSetUserView" + nwid.GetHashCode(), userViews[nwid.GetHashCode()]);        
+        userViews[nwid.GetHashCode()] =  user;
+        print(pr + "Received RPCSetUserView" + nwid.GetHashCode() + "," + userViews[nwid.GetHashCode()]);        
     }
     
     [RPC]    
@@ -287,8 +288,8 @@ public class Game : Base
     public int zombiespawnindex;
     private void CreateZombie(Zombie zombie)
     {
-        zombie.RPCSetup(5 + UnityEngine.Random.Range(1 * stage, 1 * (stage + 3)),
-            UnityEngine.Random.Range(10 * stage, 10 * (stage + 5)));
+        zombie.RPCSetup(5 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
+            UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
         wait = false;
     }
     [RPC]
@@ -296,7 +297,7 @@ public class Game : Base
     {
         
         CallRPC(stage);
-        PlaySound("sounds/stage");
+        PlaySound("stage");
         this.stage = stage;        
         maxzombies = mapSettings.fragLimit + stage;
         zombiespawnindex = 0;
@@ -452,7 +453,7 @@ public class Game : Base
     }
     private void WinGame()
     {
-        print();
+        print(pr);
         Debug.Break();
         Network.Disconnect();
     }

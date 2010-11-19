@@ -32,7 +32,7 @@ public class GunPhysix : GunBase
                     b.rigidbody.AddExplosionForce(-gravitaty * scalefactor* b.rigidbody.mass, cursor.position, radius);
                     b.rigidbody.angularDrag = 30;
                     b.rigidbody.velocity *= .97f;
-                    b.OwnerID = Root(this.gameObject).GetComponent<Player>().OwnerID;
+                    b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                     AudioSource a = audio;
                     a.pitch = 0.1f + (bullets / exp / 20);
                     if (!a.isPlaying) a.Play();
@@ -61,11 +61,11 @@ public class GunPhysix : GunBase
                 {
                     b.rigidbody.angularDrag = 2;
                     b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, bullets * scalefactor * b.rigidbody.mass));
-                    Destroy(Instantiate(Load("Prefabs/wave"), cursor.position, transform.rotation), 1.36f);
+                    Destroy(Instantiate(Load("wave"), cursor.position, transform.rotation), 1.36f);
                     any = true;
                 }
             if (bullets > 300 && any)
-                PlaySound("sounds/superphys_launch3");
+                PlaySound("superphys_launch3");
             bullets = 0;
 
         }

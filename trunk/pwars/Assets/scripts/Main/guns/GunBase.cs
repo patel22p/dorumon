@@ -7,7 +7,8 @@ public abstract class GunBase : Base
     public int def;
     public float bullets;
     public string _Name;
-
+    public Quaternion q;
+    public Transform cursor;
     protected override void Awake()
     {        
         base.Awake();
@@ -16,27 +17,19 @@ public abstract class GunBase : Base
     {
         bullets = def;
     }
-
     public virtual void DisableGun()
     {
         Show(false);
     }
-
-    
-    public Quaternion q;
     protected virtual void FixedUpdate()
     {
-        //if(Root(this.gameObject).name == "LocalPlayer")
-        //    Debug.Log(enabled);
         UpdateAim();
         this.transform.rotation = q;
     }
-
     private void UpdateAim()
     {
         if (isOwner) q = _Cam.transform.rotation;
     }
-
     protected virtual void Update()
     {
 
@@ -46,44 +39,25 @@ public abstract class GunBase : Base
             LocalUpdate();
 
     }
-    public Transform cursor;
-    public Transform GetRotation()
-    {
-        RaycastHit h = ScreenRay();
-
-        Transform t = cursor;
-        if (h.point != default(Vector3))
-            t.LookAt(h.point);
-        else
-            t.rotation = _Cam.transform.rotation;
-        return t;
-    }
-
-    
-
-    
-    
     protected virtual void LocalUpdate()
     {
 
         if (Time.time - lt > interval && Input.GetMouseButton(0) && lockCursor)
         {
             lt = Time.time;
-            if (bullets > 0)
+            if (bullets > 0 || !build)
             {
                 bullets--;                
                 LocalShoot();
             }
             else
             {
-                PlaySound("sounds/noammo");                    
+                PlaySound("noammo");                    
                 //_LocalPlayer.NextGun(1);
             }
         }
     }
-
     protected virtual void RPCShoot(Vector3 pos, Quaternion rot) { }
-
     protected virtual void LocalShoot()
     {
         Transform t = GetRotation();
@@ -96,12 +70,19 @@ public abstract class GunBase : Base
         stream.Serialize(ref q);
         transform.rotation = q;
     }
-
-
     public virtual void EnableGun()
     {
         Show(true);
     }
+    public Transform GetRotation()
+    {
+        RaycastHit h = ScreenRay();
 
-
+        Transform t = cursor;
+        if (h.point != default(Vector3))
+            t.LookAt(h.point);
+        else
+            t.rotation = _Cam.transform.rotation;
+        return t;
+    }
 }

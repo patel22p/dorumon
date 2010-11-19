@@ -30,7 +30,7 @@ public class GunMini : GunBase
             light1.enabled = false;
         });
 
-        PlaySound("sounds/ARshoot1a_2D",.2f);
-        ((GameObject)Instantiate(Load("Prefabs/BulletMini"), vector3, quaternion)).GetComponent<Base>().OwnerID = OwnerID;
+        PlaySound("ARshoot1a_2D",.2f);
+        ((GameObject)Instantiate(Load("BulletMini"), vector3, quaternion)).GetComponent<Base>().OwnerID = OwnerID;
     }
 }

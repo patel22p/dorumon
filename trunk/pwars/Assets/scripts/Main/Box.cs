@@ -48,7 +48,7 @@ public class Box : Base
     void OnCollisionEnter(Collision infO)
     {
         if (infO.impactForceSum.magnitude > 10)
-            PlaySound("sounds/Collision1");
+            PlaySound("Collision1");
     }
     void OnCollisionStay(Collision collisionInfo)
     {
@@ -191,14 +191,5 @@ public class Box : Base
                 }
             }
         }
-    }
-    //protected virtual void OnDisable()
-    //{        
-    //    if(_Game!=null)
-    //        _Game.dynamic.Remove(this);
-    //}
-    protected virtual void OnEnable()
-    {
-
-    }    
+    }            
 }

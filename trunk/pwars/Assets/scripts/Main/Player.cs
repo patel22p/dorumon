@@ -30,7 +30,7 @@ public class Player : IPlayer
         if (networkView.isMine)
         {
             _Game._localiplayer = _Game._localPlayer = this;
-            print(); 
+            print(pr); 
             RPCSetOwner();
             RPCSpawn();
 
@@ -62,7 +62,7 @@ public class Player : IPlayer
     [RPC]
     public void RPCSpawn()
     {
-        print();
+        print(pr);
         CallRPC();
         Show(true);
         if (isOwner)
@@ -123,27 +123,6 @@ public class Player : IPlayer
         }
         base.Update();
     }
-    [RPC]
-    private void RCPJump()
-    {
-        CallRPC();
-        transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 5, 0));
-        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));        
-        PlaySound("sounds/nitrojump");
-    }
-    public void NextGun(float a)
-    {
-        if (a != 0)
-        {                        
-            if (a > 0)
-                guni++;
-            if (a < 0)
-                guni--;
-            if (guni > guns.Length - 1) guni = 0;
-            if (guni < 0) guni = guns.Length - 1;
-            RPCSelectGun(guni);
-        }
-    }
     protected virtual void FixedUpdate()
     {
         if (isOwner) LocalMove();
@@ -173,14 +152,37 @@ public class Player : IPlayer
                 angle = 1 + (Quaternion.Angle(a, b) / 180 * 4);
             }
 
-            this.rigidbody.maxAngularVelocity = v.magnitude / 1.5f;
+            this.rigidbody.maxAngularVelocity = v.magnitude / 1.2f;
             this.rigidbody.AddForce(moveDirection * Time.deltaTime * force * angle * (freezedt > 0 ? .5f : 1));
         }
     }
     [RPC]
+    private void RCPJump()
+    {
+        CallRPC();
+        transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 5, 0));
+        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));        
+        PlaySound("nitrojump");
+    }
+    public void NextGun(float a)
+    {
+        if (a != 0)
+        {                        
+            if (a > 0)
+                guni++;
+            if (a < 0)
+                guni--;
+            if (guni > guns.Length - 1) guni = 0;
+            if (guni < 0) guni = guns.Length - 1;
+            RPCSelectGun(guni);
+        }
+    }
+    
+    
+    [RPC]
     public void RPCSetTeam(int t)
     {
-        print();
+        print(pr);
         CallRPC(t); 
         team = (Team)t;
     }
@@ -193,14 +195,12 @@ public class Player : IPlayer
     {
         Show(false);
     }
-    //protected override void OnDisable()
-    //{
-    //    if (!this.gameObject.active)
-    //    {
-    //        players[networkView.owner.GetHashCode()] = null;
-    //        base.OnDisable();
-    //    }
-    //}
+    public override void Dispose()
+    {
+        base.Dispose();
+        players[networkView.owner.GetHashCode()] = null;
+    }
+    
     void OnCollisionEnter(Collision collisionInfo)
     {
         if (collisionInfo.relativeVelocity.y > 30)
@@ -220,8 +220,8 @@ public class Player : IPlayer
     private void RPCPowerExp(Vector3 v)
     {
         CallRPC(v);
-        PlaySound("sounds/powerexp", 4);
-        GameObject g = (GameObject)Instantiate(Load("Prefabs/wave"), v, Quaternion.Euler(90, 0, 0));
+        PlaySound("powerexp", 4);
+        GameObject g = (GameObject)Instantiate(Load("wave"), v, Quaternion.Euler(90, 0, 0));
         Explosion e = g.AddComponent<Explosion>();
         e.OwnerID = OwnerID;
         e.self = this;
@@ -257,7 +257,7 @@ public class Player : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        print();
+        print(pr);
         CallRPC(killedby);
         Instantiate(Resources.Load("Detonator/Prefab Examples/Detonator-Chunks"), transform.position, Quaternion.identity);
         userView.deaths++;
@@ -311,7 +311,7 @@ public class Player : IPlayer
         
         if (multikill > 1)
         {
-            PlayRandSound("sounds/toasty");
+            PlayRandSound("toasty");
             if (isOwner)
             {
                 _Cam.ScoreText.text = "x" + multikill;

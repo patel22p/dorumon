@@ -17,13 +17,13 @@ public class BulletMini : BulletBase
 
         base.Hit(hit);
         
-        Transform b = Root(hit.collider.gameObject.transform);
+        Transform b = hit.collider.gameObject.transform.root;
         if (b.rigidbody != null)
             b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
  
         
         Destroy(gameObject);
-        IPlayer iplayer = Root(hit.collider.gameObject).GetComponent<IPlayer>();
+        IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
         //if (iplayer as CarController != null)
         //{
         //    Transform a;

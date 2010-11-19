@@ -6,13 +6,13 @@ public class GunGranate : GunBase
     public void Start()
     {
         _Name = "Граната";
-        print();
+        print(pr);
     }
     [RPC]
     protected override void RPCShoot(Vector3 vector3, Quaternion quaternion)
     {
-        PlaySound("sounds/granate",3);
-        Base b = ((GameObject)Instantiate(Load("Prefabs/bulletgranate"), vector3, quaternion)).GetComponent<Base>();
+        PlaySound("granate",3);
+        Base b = ((GameObject)Instantiate(Load("bulletgranate"), vector3, quaternion)).GetComponent<Base>();
         b.OwnerID = OwnerID;
         b.rigidbody.AddForce(this.transform.rotation * force);
     }

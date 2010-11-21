@@ -1,6 +1,5 @@
 
-#pragma warning disable 649
-#pragma warning disable 168
+#pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
 using System.Collections;
@@ -61,7 +60,7 @@ public class HostWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = (GUISkin)Resources.Load("Skin/Skin");
+		GUI.skin = _Loader._skin;
         
 		GUI.Window(wndid1,new Rect(-305f + Screen.width/2,-216f + Screen.height/2,615f,422.5f), Wnd1,"");
 

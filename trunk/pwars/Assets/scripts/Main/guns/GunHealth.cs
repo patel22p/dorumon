@@ -26,6 +26,11 @@ public class GunHealth : GunBase
             render.enabled = render1.enabled = false;
         base.Update();
     }
+    public override void onShow(bool enabled)
+    {
+        render.enabled = false;
+        base.onShow(enabled);
+    }
     protected override void LocalUpdate()
     {
 

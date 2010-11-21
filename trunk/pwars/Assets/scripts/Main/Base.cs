@@ -9,7 +9,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 public class Base : Base2, IDisposable
 {
-    bool hidden;
     public int OwnerID = -1;
     //public bool logged; //{ get { return _vk._Status == VK.Status.connected; } }    
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
@@ -20,7 +19,7 @@ public class Base : Base2, IDisposable
         _PopUpWindow.Text = s;
     }
     protected virtual void Awake()
-    {
+    {        
         if (_Loader == null)
             Instantiate(Resources.Load("Prefabs/loader"));
         OwnerID = -1;
@@ -119,26 +118,57 @@ public class Base : Base2, IDisposable
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
+    Dictionary<Behaviour, bool> _oldenabled = new Dictionary<Behaviour, bool>();
+    Dictionary<Renderer, bool> _oldrenderenabled = new Dictionary<Renderer, bool>();
+    Dictionary<Rigidbody, bool> _oldRightidenabled = new Dictionary<Rigidbody, bool>();
     public void Show(bool value) 
     {
-        if (this != null && rigidbody != null)
+        
+        //foreach (var r in this.GetComponentInChildren<MonoBehaviour>
+        if (!value)
         {
-            rigidbody.isKinematic = !value;
-            rigidbody.detectCollisions = value;
-            rigidbody.useGravity = value;
-        }
-        if (value)
-        {
-            if (hidden) { transform.localPosition += new Vector3(99999, 0, 0); hidden = false; }
+            foreach (var rigidbody in this.GetComponentsInChildren<Rigidbody>())
+            {
+                _oldRightidenabled.Add(rigidbody, !rigidbody.isKinematic);
+                rigidbody.isKinematic = value;
+                rigidbody.detectCollisions = value;
+                rigidbody.useGravity = value;
+            }
+
+            foreach (var r in this.GetComponentsInChildren<Renderer>())
+            {
+                _oldrenderenabled.Add(r, r.enabled);
+                r.enabled = value;
+            }
+            foreach (var r in this.GetComponentsInChildren<AudioSource>())
+            {
+                _oldenabled.Add(r, r.enabled);
+                r.enabled = value;
+                r.Stop();
+            }
+            foreach (Base r in this.GetComponentsInChildren<Base>())
+            {
+                _oldenabled.Add(r, r.enabled);
+                r.enabled = value;
+                r.onShow(value);
+            }
         }
         else
         {
-            if (!hidden) { transform.localPosition -= new Vector3(99999, 0, 0); hidden = true; }
-
+            foreach(KeyValuePair _oldenabled
         }
-        foreach (Base r in this.GetComponentsInChildren<Base>())
-            r.enabled = value;
     }
+    public virtual void onShow(bool enabled)
+    {
+    }
+    //if (value)
+    //{
+    //    if (hidden) { transform.localPosition += new Vector3(99999, 0, 0); hidden = false; }
+    //}
+    //else
+    //{
+    //    if (!hidden) { transform.localPosition -= new Vector3(99999, 0, 0); hidden = true; }
+    //}
     public void CallRPC(params object[] obs)
     {                
         MethodBase rpcmethod = new System.Diagnostics.StackFrame(1, true).GetMethod();

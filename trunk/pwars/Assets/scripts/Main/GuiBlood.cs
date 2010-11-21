@@ -7,12 +7,13 @@ public class GuiBlood : Base
     public float repair = .4f;
     void Start()
     {
-        
+        textrs = this.GetComponentsInChildren<GUITexture>();
     }
+    GUITexture[] textrs;
     void Update()
     {
-
-        foreach (GUITexture a in this.GetComponentsInChildren<GUITexture>())
+        
+        foreach (GUITexture a in textrs)
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);
     }

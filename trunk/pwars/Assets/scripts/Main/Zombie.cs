@@ -4,7 +4,7 @@ using System;
 
 public class Zombie : IPlayer
 {
-    float zombieWait = 2;
+    float zombieWait = 0;
     float zombieBite;
     public float speed = .3f;
     public override bool dead { get { return !Alive; } }
@@ -16,13 +16,13 @@ public class Zombie : IPlayer
     Seeker seeker;
     protected override void Start()
     {
-        seeker = GetComponent<Seeker>();
+        if(_Game.enablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
         _Game.zombies.Add(this);
         rigidbody.angularDrag = 5;
         rigidbody.mass = .5f;
         base.Start();
     }
-    public float zombieUsePathDist = 5;
+    
     public float zombieBiteDist = 3;
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
@@ -49,43 +49,44 @@ public class Zombie : IPlayer
             IPlayer ipl = pl.car != null ? (IPlayer)pl.car : pl;
             if (ipl.enabled)
             {
-                if ((seekPath-=Time.deltaTime) < 0)
-                {
-                    seeker.StartPath(this.transform.position, ipl.transform.position);
-                    seekPath = UnityEngine.Random.Range(1, 3);
-                }
-                if (pathPoints != null)
-                {
-                    Vector3 pathPointDir;
-                    Vector3 zToPlDir = ipl.transform.position - transform.position;
-                    
-                    if (zToPlDir.magnitude > zombieBiteDist)
-                    {
-                        
-                        if (zToPlDir.magnitude < zombieUsePathDist || (pathPointDir = GetNextPathPoint()) == default(Vector3))                        
-                            pathPointDir = zToPlDir;
-                        Debug.DrawLine(transform.position, transform.position + pathPointDir);
-
-                        r = Quaternion.LookRotation(pathPointDir.normalized);
-                        rigidbody.MovePosition(p + r * new Vector3(0, 0, speed * Time.deltaTime));
-                        oldpos = p;
-                    }
-                    else if (ipl.isOwner && zombieBite > 1)
-                    {
-                        zombieBite = 0;
-                        if (ipl is Player)
-                            PlayRandSound("scream");
-                        if (build) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
-                    }
-                }
                 
+                Vector3 pathPointDir;
+                Vector3 zToPlDir = ipl.transform.position - p;
+
+                if (zToPlDir.magnitude > zombieBiteDist)
+                {
+                    //Debug.DrawLine(transform.position, ipl.transform.position);
+                    RaycastHit hitInfo;
+                    bool shit = Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), _Loader.LevelMask);
+                    if (!shit || !_Game.enablePathFinding || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
+                        pathPointDir = zToPlDir;
+                    Debug.DrawLine(p, p + pathPointDir);
+                    pathPointDir.y = 0;
+                    r = Quaternion.LookRotation(pathPointDir.normalized);
+                    transform.position += r * new Vector3(0, 0, speed * Time.deltaTime);
+                    oldpos = p;
+                }
+                else if (ipl.isOwner && zombieBite > 1)
+                {
+                    zombieBite = 0;
+                    if (ipl is Player)
+                        PlayRandSound("scream");
+                    if (build) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
+                }
+
             }
         }
     }
 
-    private Vector3 GetNextPathPoint()
+    private Vector3 GetNextPathPoint(IPlayer ipl)
     {
-        int offset = 3;
+        if ((seekPath -= Time.deltaTime) < 0)
+        {
+            seeker.StartPath(this.transform.position, ipl.transform.position);
+            seekPath = UnityEngine.Random.Range(1, 3);
+        }
+        if (pathPoints == null) return default(Vector3);
+        int offset = 2;
         Vector3 nearest = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
         int ni=-2;
         for (int i = 0; i < pathPoints.Length; i++)

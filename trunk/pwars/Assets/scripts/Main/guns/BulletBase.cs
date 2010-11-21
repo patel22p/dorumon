@@ -13,6 +13,7 @@ public abstract class BulletBase : Base
     {        
         previousPosition = transform.position;
     }
+    
     protected virtual void FixedUpdate()
     {
 

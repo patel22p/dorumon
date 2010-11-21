@@ -28,13 +28,15 @@ public class Loader : Base
     public List<MapSetting> mapsets = new List<MapSetting>();
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     new public MapSetting mapSettings = new MapSetting();
-    
-    
+    public GUISkin _skin;
+    public LayerMask LevelMask;
     new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
+
     protected override void Awake()
     {
         LocalUserV = gameObject.AddComponent<UserView>();
         base.Awake();
+        _skin = (GUISkin)Resources.Load("Skin/Skin");
         print("loader awake");        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
@@ -51,6 +53,9 @@ public class Loader : Base
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
         onGraphicQuality();
         onScreenSize();
+
+        foreach (var a in Directory.GetFiles("ScreenShots").Reverse().Skip(100))
+            File.Delete(a);
     }
     
     void onFullScreen()
@@ -105,8 +110,9 @@ public class Loader : Base
         WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (_SettingsWindow.SaveScreenShots != 0 && _TimerA.TimeElapsed((int)(_SettingsWindow.SaveScreenShots * 1000f)))
-            Application.CaptureScreenshot("ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
+        if (_SettingsWindow.SaveScreenShots != 0 && _TimerA.TimeElapsed((int)(_SettingsWindow.SaveScreenShots * 1000f)))                               
+           Application.CaptureScreenshot("ScreenShots/Screenshot"+ DateTime.Now.ToFileTime() + ".jpg");
+       
 
         _TimerA.Update();
     }

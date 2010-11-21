@@ -1,13 +1,10 @@
 ﻿using System;
 using UnityEngine;
 using System.Text;
-public class Console  : Base 
+public class Console  : Base ,IGUI
 {
     public static StringBuilder log = new StringBuilder();
-    
-
     Rect r;
-    
     protected override void Awake()
     {
         base.Awake();
@@ -26,10 +23,10 @@ public class Console  : Base
     }
 
     public void OnGUI() 
-    { 
-        GUI.skin = (GUISkin)Resources.Load("Skin/Skin");
+    {         
         if (e)
-        {            
+        {
+            GUI.skin = _Loader._skin;
             r = new Rect(0, 0, Screen.width, Screen.height);
             GUI.Window(-1, r, Window, "Console");            
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
-
-public class WindowBase : Base2
+interface IGUI { }
+public class WindowBase : Base2,IGUI
 {
     public void Action(string name, object param)
     {

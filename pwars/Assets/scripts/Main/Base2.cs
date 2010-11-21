@@ -37,7 +37,6 @@ public partial class Base2 : MonoBehaviour
     {
         return t[UnityEngine.Random.Range(0, t.Count-1)];
     }
-
     static Irc __Irc;
     public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
     static GuiBlood __GuiBlood;
@@ -54,7 +53,19 @@ public partial class Base2 : MonoBehaviour
     public static Music _Music { get { if (__Music == null) __Music = (Music)MonoBehaviour.FindObjectOfType(typeof(Music)); return __Music; } }
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
-
+    public long memorystart = 0;
+    public void Check()
+    {
+        //if (memorystart == 0)
+        //    memorystart = GC.GetTotalMemory(false);
+        //else
+        //{
+        //    int used = (int)(GC.GetTotalMemory(false) - memorystart);
+        //    //if (used > 0) print("Meomory Used" + used);
+        //    memorystart = 0;
+        //}
+    }
+    
     public static string GenerateTable(string source)
     {
         string table = "";
@@ -67,8 +78,8 @@ public partial class Base2 : MonoBehaviour
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { return _Loader._TimerA; } }
-    public static VK _vk;    
-    public static bool lockCursor { get { return Screen.lockCursor; } set { Screen.lockCursor = value; } }
+    public static VK _vk;
+    public static bool lockCursor { get { return Screen.lockCursor || _Game.MapCamera.active; } set { Screen.lockCursor = value; } }
     public static Rect CenterRect(float w, float h)
     {
         

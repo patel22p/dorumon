@@ -10,7 +10,8 @@ public abstract class GunBase : Base
     public Quaternion q;
     public Transform cursor;
     protected override void Awake()
-    {        
+    {
+        cursor = transform.Find("cursor");
         base.Awake();
     }
     public void Reset()
@@ -74,6 +75,7 @@ public abstract class GunBase : Base
     {
         Show(true);
     }
+    
     public Transform GetRotation()
     {
         RaycastHit h = ScreenRay();

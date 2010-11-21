@@ -1,6 +1,5 @@
 
-#pragma warning disable 649
-#pragma warning disable 168
+#pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
 using System.Collections;
@@ -40,6 +39,8 @@ public class GameWindow : WindowBase {
 	internal bool Menu=false;
 	internal bool focusScoreBoard;
 	internal bool ScoreBoard=false;
+	internal bool focusShowMap;
+	internal bool ShowMap=false;
 	internal bool focusMessages;
 	internal bool isReadOnlyMessages = true;
 	internal string Messages = @"";
@@ -62,6 +63,7 @@ public class GameWindow : WindowBase {
 	private Rect Image10;
 	private bool oldMouseOverMenu;
 	private bool oldMouseOverScoreBoard;
+	private bool oldMouseOverShowMap;
 	private int wndid11;
 	private int wndid12;
 	
@@ -87,7 +89,7 @@ public class GameWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = (GUISkin)Resources.Load("Skin/Skin");
+		GUI.skin = _Loader._skin;
         
 		GUI.Window(wndid1,new Rect(-319f + Screen.width,0f,303f,152f), Wnd1,"", GUI.skin.customStyles[3]);
 		GUI.Window(wndid7,new Rect(0f,0f,171f,152f), Wnd7,"", GUI.skin.customStyles[3]);
@@ -101,11 +103,11 @@ public class GameWindow : WindowBase {
 		bool onMouseOver;
 		if(focusLife) { focusLife = false; GUI.FocusControl("Life");}
 		GUI.SetNextControlName("Life");
-		GUI.HorizontalScrollbar(new Rect(83f, 8f, 212f, 18f), 0, Mathf.Min(Mathf.Max(0, Life),100), 0, 100, GUI.skin.FindStyle("GreenBar"));
+		GUI.HorizontalScrollbar(new Rect(83f, 8f, 212f, 18f), 0, Mathf.Min(Mathf.Max(0, Life),100), 0, 100, GUI.skin.customStyles[10]);
 		GUI.Label(new Rect(136f,8f,100,15),Life+"/"+100 );
 		if(focusEnergy) { focusEnergy = false; GUI.FocusControl("Energy");}
 		GUI.SetNextControlName("Energy");
-		GUI.HorizontalScrollbar(new Rect(83f, 30f, 212f, 18f), 0, Mathf.Min(Mathf.Max(0, Energy),100), 0, 100, GUI.skin.FindStyle("BlueBar"));
+		GUI.HorizontalScrollbar(new Rect(83f, 30f, 212f, 18f), 0, Mathf.Min(Mathf.Max(0, Energy),100), 0, 100, GUI.skin.customStyles[12]);
 		GUI.Label(new Rect(136f,30f,100,15),Energy+"/"+100 );
 		GUI.Label(new Rect(24f, 8f, 45.69667f, 21.96f), @"Жизнь");
 		GUI.Label(new Rect(24f, 30f, 53.93f, 21.96f), @"Енергия");
@@ -134,9 +136,9 @@ public class GameWindow : WindowBase {
 		if(focusFrags) { focusFrags = false; GUI.FocusControl("Frags");}
 		GUI.SetNextControlName("Frags");
 		if(isReadOnlyFrags){
-		GUI.Label(new Rect(125f, 53.334f, 105.332f, 30.666f), Frags.ToString(), GUI.skin.FindStyle("BigFont"));
+		GUI.Label(new Rect(125f, 53.334f, 105.332f, 30.666f), Frags.ToString(), GUI.skin.customStyles[3]);
 		} else
-		Frags = int.Parse(GUI.TextField(new Rect(125f, 53.334f, 105.332f, 30.666f), Frags.ToString(), GUI.skin.FindStyle("BigFont")));
+		Frags = int.Parse(GUI.TextField(new Rect(125f, 53.334f, 105.332f, 30.666f), Frags.ToString(), GUI.skin.customStyles[3]));
 	}
 	void Wnd7(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
@@ -178,6 +180,14 @@ public class GameWindow : WindowBase {
 		onMouseOver = new Rect(712f, 672f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverScoreBoard != onMouseOver && onMouseOver) onOver();
 		oldMouseOverScoreBoard = onMouseOver;
+		if(focusShowMap) { focusShowMap = false; GUI.FocusControl("ShowMap");}
+		GUI.SetNextControlName("ShowMap");
+		bool oldShowMap = ShowMap;
+		ShowMap = GUI.Button(new Rect(501.333f, 672f, 127.667f, 21.96f), new GUIContent("Показать карту(m)",""));
+		if (ShowMap != oldShowMap && ShowMap ) {Action("onShowMap");onButtonClick(); }
+		onMouseOver = new Rect(501.333f, 672f, 127.667f, 21.96f).Contains(Event.current.mousePosition);
+		if (oldMouseOverShowMap != onMouseOver && onMouseOver) onOver();
+		oldMouseOverShowMap = onMouseOver;
 	}
 	void Wnd11(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
@@ -209,15 +219,15 @@ public class GameWindow : WindowBase {
 		if(focusTimeLeft) { focusTimeLeft = false; GUI.FocusControl("TimeLeft");}
 		GUI.SetNextControlName("TimeLeft");
 		if(isReadOnlyTimeLeft){
-		GUI.Label(new Rect(30.667f, 50.667f, 105.332f, 30.666f), TimeLeft.ToString(), GUI.skin.FindStyle("BigFont"));
+		GUI.Label(new Rect(30.667f, 50.667f, 105.332f, 30.666f), TimeLeft.ToString(), GUI.skin.customStyles[3]);
 		} else
-		TimeLeft = GUI.TextField(new Rect(30.667f, 50.667f, 105.332f, 30.666f), TimeLeft, GUI.skin.FindStyle("BigFont"));
+		TimeLeft = GUI.TextField(new Rect(30.667f, 50.667f, 105.332f, 30.666f), TimeLeft, GUI.skin.customStyles[3]);
 		if(focusTeamScore) { focusTeamScore = false; GUI.FocusControl("TeamScore");}
 		GUI.SetNextControlName("TeamScore");
 		if(isReadOnlyTeamScore){
-		GUI.Label(new Rect(30.667f, 8f, 105.332f, 30.666f), TeamScore.ToString(), GUI.skin.FindStyle("BigFont"));
+		GUI.Label(new Rect(30.667f, 8f, 105.332f, 30.666f), TeamScore.ToString(), GUI.skin.customStyles[3]);
 		} else
-		TeamScore = GUI.TextField(new Rect(30.667f, 8f, 105.332f, 30.666f), TeamScore, GUI.skin.FindStyle("BigFont"));
+		TeamScore = GUI.TextField(new Rect(30.667f, 8f, 105.332f, 30.666f), TeamScore, GUI.skin.customStyles[3]);
 	}
 
 

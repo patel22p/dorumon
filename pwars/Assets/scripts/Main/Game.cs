@@ -22,9 +22,12 @@ public class Game : Base
     public Team team = Team.None;
     public Transform effects;    
     public int stage ;
+    public float timeleft = 20;
     public bool wait;
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
+    public int maxzombies = 0;
+    public int zombiespawnindex;
     public ParticleEmitter[] metalSparkEmiters;
     public Transform metalSpark;
     public ParticleEmitter[] impactSparkEmiters;
@@ -32,7 +35,9 @@ public class Game : Base
     public Transform Blood;
     public ParticleEmitter[] BloodEmitors;
     public Transform decal;
-
+    public bool enablePathFinding;
+    public GameObject MapCamera;
+    public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
         decal = Load("decal").transform;
@@ -46,7 +51,8 @@ public class Game : Base
         BloodEmitors = Blood.GetComponentsInChildren<ParticleEmitter>();
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         effects = GameObject.Find("GameEffects").transform;                
-        _Level = Level.z4game;        
+        _Level = Level.z4game;
+        print(mapSettings.host);
         if (Network.peerType == NetworkPeerType.Disconnected)
             if (mapSettings.host)
                 Network.InitializeServer(mapSettings.maxPlayers , mapSettings.port, false);
@@ -73,7 +79,7 @@ public class Game : Base
         userViews[LocalUserV.nwid.GetHashCode()] = LocalUserV;        
     }
 
-    public float timeleft = 20;
+    
     void Update()
     {
         
@@ -93,7 +99,9 @@ public class Game : Base
             if (mapSettings.zombi) _GameWindow.Zombies = AliveZombies.Count;
             _GameWindow.Frags = LocalUserV.frags;
         }
-
+        if (Input.GetKeyDown(KeyCode.M))
+            onShowMap();
+            
         if (Input.GetKeyDown(KeyCode.Tab))
             _GameStatsWindow.Show(this);
         if (Input.GetKeyUp(KeyCode.Tab))
@@ -168,6 +176,7 @@ public class Game : Base
     void onDisconnect() { Network.Disconnect(); }
     void onTeamSelectButton() { _TeamSelectWindow.Show(this); }
     void onScoreBoard() { _GameStatsWindow.Show(this); }
+    void onShowMap() { MapCamera.active = !MapCamera.active; _Cam.camera.gameObject.active = !MapCamera.active; lockCursor = true; }
     [RPC]
     private void RPCGameSettings(string version, int gameMode, int frags,float timelimit)
     {        
@@ -208,7 +217,7 @@ public class Game : Base
     }
 
     public List<Zombie> AliveZombies = new List<Zombie>();
-    public int maxzombies=0;
+    
     private void ZUpdate()
     {
         
@@ -285,7 +294,7 @@ public class Game : Base
         userViews[id].fps = fps;
         userViews[id].ping = ping;        
     }
-    public int zombiespawnindex;
+    
     private void CreateZombie(Zombie zombie)
     {
         zombie.RPCSetup(5 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
@@ -338,6 +347,7 @@ public class Game : Base
         RPCWriteMessage(userViews[player.GetHashCode()].nick + " Вышел из игры");
         int playerid = player.GetHashCode();        
         userViews[playerid] = null;
+        //DestroyPlayer(player);
         foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
             if (!(box is Player))
             {
@@ -351,11 +361,16 @@ public class Game : Base
         Network.RemoveRPCs(player);
     }
     [RPC]
+    private void DestroyPlayer(NetworkPlayer p)
+    {
+        CallRPC(p);
+        players[p.GetHashCode()].Destroy();
+    }
+    [RPC]
     private void Destroy(NetworkViewID v)
     {
         CallRPC(v);
         NetworkView nw = NetworkView.Find(v);
-        //nw.viewID = NetworkViewID.unassigned;
         nw.enabled = false;
         Component.Destroy(nw);
     }

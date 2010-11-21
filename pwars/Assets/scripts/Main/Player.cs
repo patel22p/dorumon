@@ -26,7 +26,7 @@ public class Player : IPlayer
 
     protected override void Start()
     {        
-        base.Start();
+        base.Start();        
         if (networkView.isMine)
         {
             _Game._localiplayer = _Game._localPlayer = this;
@@ -42,11 +42,13 @@ public class Player : IPlayer
         base.OnPlayerConnected1(np);
         networkView.RPC("RPCSetTeam", np, (int)team);
         networkView.RPC("RPCSpawn", np);
+        networkView.RPC("RPCSelectGun", np, selectedgun);
         networkView.RPC("RPCSetFrags", np, frags);
         networkView.RPC("RPCSetDeaths", np, userView.deaths);
         if (dead) networkView.RPC("RPCDie", np, -1);
         if (car != null) networkView.RPC("RPCCarIn", np);
     }
+    
     public override void OnSetOwner()
     {
         print("set owner" + OwnerID);
@@ -77,6 +79,20 @@ public class Player : IPlayer
         Life = life;
         freezedt = 0;
 
+    }
+
+    [RPC]
+    public void RPCSelectGun(int i)
+    {
+        CallRPC(i);
+        print(pr + i);
+        PlaySound("change");
+        selectedgun = i;
+        if (isOwner)
+            _GameWindow.tabGunImages = selectedgun;
+        foreach (GunBase gb in guns)
+            gb.DisableGun();
+        guns[i].EnableGun();
     }
 
     protected override void Update()

@@ -25,7 +25,7 @@ public class Cam : Base
         base.Awake();
         
     }
-    new Camera camera;
+    public new Camera camera;
     Transform ambientsmoke;
     MotionBlur blur;
     SSAOEffect ssao;

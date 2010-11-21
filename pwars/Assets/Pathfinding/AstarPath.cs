@@ -999,7 +999,7 @@ public class AstarPath : MonoBehaviour {
 			}
 			
 			if (endPos == new Int3 (-1,-1,-1)) {
-				Debug.LogWarning ("Target is not inside any grids");
+				//Debug.LogWarning ("Target is not inside any grids");
 				error = true;
 				return;
 			}

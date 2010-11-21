@@ -10,11 +10,17 @@ public class BulletGranate : BulletBase
     public float gravitaty = 1;
     public float scalefactor = 10;
     public float radius = 50;
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
-        _TimerA.AddMethod(3000, Bum);
+        onShow(true);
+        base.Awake();
+    }
+    public void StartGranate()
+    {
+        if(isOwner)
+            _TimerA.AddMethod(3000, Bum);
         _Game.dynamic.Add(this);
+        enabled = true;
     }
     protected override void FixedUpdate()
     {        
@@ -29,10 +35,10 @@ public class BulletGranate : BulletBase
             }
         }
     }
-
+    [RPC]
     public void Bum()
     {
-        
+        CallRPC();
         GameObject o;
         Destroy(o = (GameObject)Instantiate(Resources.Load("Detonator/Prefab Examples/Detonator-Sounds"), this.transform.position, Quaternion.identity), 10);
         o.AddComponent<Explosion>().exp = 300;
@@ -43,22 +49,24 @@ public class BulletGranate : BulletBase
         Destroy((a = (Transform)Instantiate(_Game.decal, this.transform.position, Quaternion.identity)), 10);
         a.parent = _Game.effects;
         _Game.dynamic.Remove(this);
-        Destroy(gameObject);        
+        this.transform.parent = players[OwnerID].GetComponentInChildren<GunGranate>().cursor;
+        if (players[OwnerID].selectedgun != 4)
+        {
+            this.Show(false);
+            print(pr);
+        }
+        this.transform.localPosition = Vector3.zero;
+        this.rigidbody.isKinematic = true;
+
+        enabled = false;
     }
-    //protected override void Hit(RaycastHit hit)
-    //{
-    //    base.Hit(hit);
-    //    Vector3 vector3 = hit.point - this.transform.rotation * new Vector3(0, 0, 1);
     
-
-    //    o.GetComponent<Explosion>().OwnerID = OwnerID;
-
-    //    if (hit.collider.gameObject.isStatic)
-    //    {
-    
-    //    }
-
-    //    Destroy(gameObject);        
-    //}
+    public override void onShow(bool value)
+    {
+        enabled = false;
+        rigidbody.isKinematic = true;
+        //base.onShow(value);
+        //enabled = false;
+    }
 
 }

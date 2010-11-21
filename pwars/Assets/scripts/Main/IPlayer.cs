@@ -30,6 +30,7 @@ public abstract class IPlayer : Box
         nitro = 10;
         selectedgun = -1;
         guns = this.GetComponentsInChildren<GunBase>();
+        
         base.Awake();
         
     }
@@ -59,7 +60,7 @@ public abstract class IPlayer : Box
                 title.renderer.material.color = Color.white;
         }
 
-        if (title != null && _TimerA.TimeElapsed(50))
+        if (title != null && _TimerA.TimeElapsed(50) && _Game.cameraActive)
         {
             if (!isOwner && _localPlayer != null && ((_localPlayer.team == team && !mapSettings.DM) || IsPointed()))
                 shownicktime = 2;
@@ -73,18 +74,19 @@ public abstract class IPlayer : Box
         shownicktime -= Time.deltaTime;
         base.Update();
     }
-    [RPC]
-    public void RPCSelectGun(int i)
-    {        
-        CallRPC(i);
-        PlaySound("change");
-        selectedgun = i;
-        if(isOwner)
-            _GameWindow.tabGunImages = selectedgun;
-        foreach (GunBase gb in guns)
-            gb.DisableGun();
-        guns[i].EnableGun();
-    }
+    //[RPC]
+    //public void RPCSelectGun(int i)
+    //{        
+    //    CallRPC(i);
+    //    print(pr + i);
+    //    PlaySound("change");
+    //    selectedgun = i;
+    //    if(isOwner)
+    //        _GameWindow.tabGunImages = selectedgun;
+    //    foreach (GunBase gb in guns)
+    //        gb.DisableGun();
+    //    guns[i].EnableGun();
+    //}
     [RPC]
     public virtual void Health()
     {        

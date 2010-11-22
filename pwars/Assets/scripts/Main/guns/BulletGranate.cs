@@ -17,8 +17,7 @@ public class BulletGranate : BulletBase
     }
     public void StartGranate()
     {
-        if(isOwner)
-            _TimerA.AddMethod(3000, Bum);
+        _TimerA.AddMethod(3000, Bum);
         _Game.dynamic.Add(this);
         enabled = true;
     }
@@ -35,10 +34,8 @@ public class BulletGranate : BulletBase
             }
         }
     }
-    [RPC]
     public void Bum()
     {
-        CallRPC();
         GameObject o;
         Destroy(o = (GameObject)Instantiate(Resources.Load("Detonator/Prefab Examples/Detonator-Sounds"), this.transform.position, Quaternion.identity), 10);
         o.AddComponent<Explosion>().exp = 300;

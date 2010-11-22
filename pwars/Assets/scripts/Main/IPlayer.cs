@@ -47,6 +47,19 @@ public abstract class IPlayer : Box
         _Game.iplayers.Add(this);
         base.Start();
     }
+    [RPC]
+    public void RPCSelectGun(int i)
+    {
+        CallRPC(i);
+        PlaySound("change");
+        selectedgun = i;
+        if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
+            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
+        foreach (GunBase gb in guns)
+            gb.DisableGun();
+        guns[i].EnableGun();
+    }
+
     protected override void Update()
     {
         if (isOwner)

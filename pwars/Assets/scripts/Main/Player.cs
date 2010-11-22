@@ -81,19 +81,7 @@ public class Player : IPlayer
 
     }
     
-    [RPC]
-    public void RPCSelectGun(int i)
-    {
-        CallRPC(i);
-        print(pr + i);
-        PlaySound("change");
-        selectedgun = i;
-        if (isOwner && _GameWindow.gunTextures[selectedgun]!=null)
-            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
-        foreach (GunBase gb in guns)
-            gb.DisableGun();
-        guns[i].EnableGun();
-    }
+    
 
     protected override void Update()
     {

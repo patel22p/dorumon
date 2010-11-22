@@ -15,14 +15,12 @@ public class Console : Base
     public int errorcount;
     void onLog(string condition, string stackTrace, LogType type)
     {
-
-        
         try
         {
-            if (type == LogType.Exception || type == LogType.Error) errorcount++;
             
-            //MethodBase m = new System.Diagnostics.StackFrame(5, false).GetMethod(); //m.ReflectedType.Name + "." + m.Name 
-            log.AppendLine(Regex.Match(stackTrace, @"^\w+\:\w+", RegexOptions.Multiline).Value + ": " + condition);                
+            if (type == LogType.Exception || type == LogType.Error) errorcount++;
+            log.AppendLine(Regex.Match(stackTrace, @"^\w+\:\w+", RegexOptions.Multiline).Value + ": " + condition);
+            
         }
         catch { }
     }
@@ -32,12 +30,14 @@ public class Console : Base
         GUI.skin = _Loader._skin;
         r = new Rect(0, 0, Screen.width, Screen.height);
         GUI.Window(-1, r, Window, "Console");
+
     }
     
     void Window(int id)
-    {
-        GUI.Box(r, "");
+    {        
+        GUI.Box(r, "");        
         GUI.TextField(r, log.ToString(), GUI.skin.customStyles[8]);
+        GUILayout.Label("Error Count:" + errorcount);
         GUI.BringWindowToFront(-1);
         GUI.FocusWindow(-1);
     }

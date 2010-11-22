@@ -66,12 +66,11 @@ public class Game : Base
     void Enable() { enabled = true; }
     void Start()
     {
-        print("ZGameStart");
-        _Music.Start("music.txt");        
+        print("ZGameStart");        
         //_vk.enabled = false;        
         print(mapSettings.timeLimit);
         if (Network.isServer)
-            RPCGameSettings(version.ToString(), (int)gameMode, mapSettings.fragLimit,mapSettings.timeLimit);
+            RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit,mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);        
         LocalUserV.nwid = Network.player;
         LocalUserV.team = Team.Spectator;
@@ -85,19 +84,22 @@ public class Game : Base
         
         timeleft  -= Time.deltaTime / 60;
         var ts = TimeSpan.FromMinutes(timeleft);
-        _GameWindow.TimeLeft = +ts.Minutes + ":" + ts.Seconds;
+        _GameWindow.time.text  = ts.Minutes + ":" + ts.Seconds;
         if (mapSettings.Team)
-            _GameWindow.TeamScore = BlueFrags + "/" + RedFrags;
+        {
+            _GameWindow.blueTeam.text = BlueFrags.ToString();
+            _GameWindow.redTeam.text = RedFrags.ToString();
+        }
         if (DebugKey(KeyCode.P)) RPCPause();
         if (_localiplayer != null)
         {
-            _GameWindow.Life = _localiplayer.Life;
+            _GameWindow.life = _localiplayer.Life;
             GunBase g = _localiplayer.guns[_localiplayer.selectedgun];
-            _GameWindow.Patrony = g._Name + ":" + g.bullets;
-            _GameWindow.Energy = (int)_localiplayer.nitro;
-            _GameWindow.Stage = stage;
-            if (mapSettings.zombi) _GameWindow.Zombies = AliveZombies.Count;
-            _GameWindow.Frags = LocalUserV.frags;
+            _GameWindow.gunPatrons.text = g._Name + ":" + g.bullets;
+            _GameWindow.energy = (int)_localiplayer.nitro;
+            _GameWindow.level.text = stage.ToString();
+            if (mapSettings.zombi) _GameWindow.zombiesLeft.text = AliveZombies.Count.ToString();
+            _GameWindow.frags.text = LocalUserV.frags.ToString();
         }
         if (Input.GetKeyDown(KeyCode.M))
             onShowMap();
@@ -118,23 +120,23 @@ public class Game : Base
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) lockCursor = !lockCursor;
 
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            lockCursor = !lockCursor;
-            if (!lockCursor)
-            {
-                _GameWindow.isReadOnlyMsg = false;
-                _GameWindow.focusMsg = true;
-            }
-            else 
-            {
-                if (_GameWindow.Msg != "")
-                    WriteChatMessage(nick + ": " + _GameWindow.Msg);
-                _GameWindow.Msg = "";
-                _GameWindow.focusEnergy = true;
-                _GameWindow.isReadOnlyMsg = true;
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.Return))
+        //{
+        //    lockCursor = !lockCursor;
+        //    if (!lockCursor)
+        //    {
+        //        _GameWindow.isReadOnlyMsg = false;
+        //        _GameWindow.focusMsg = true;
+        //    }
+        //    else 
+        //    {
+        //        if (_GameWindow.Msg != "")
+        //            WriteChatMessage(nick + ": " + _GameWindow.Msg);
+        //        _GameWindow.Msg = "";
+        //        _GameWindow.focusEnergy = true;
+        //        _GameWindow.isReadOnlyMsg = true;
+        //    }
+        //}
 
         CheckWin();
 
@@ -147,7 +149,7 @@ public class Game : Base
         if (_TimerA.TimeElapsed(1000))
             RPCPingFps(Network.player.GetHashCode(),
                 (Network.connections.Length > 0 && Network.isClient ? Network.GetLastPing(Network.connections[0]) : 0),
-                _Console.fps);
+                _GameWindow.fps);
 
     }
 
@@ -181,17 +183,12 @@ public class Game : Base
     private void RPCGameSettings(string version, int gameMode, int frags,float timelimit)
     {        
         CallRPC(version, gameMode, frags,timelimit);
-        if (version != version.ToString())
-            print(string.Format("У вас неправильная версия", version, version.ToString()));
-
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
         _TeamSelectWindow.tabGameType = (int)mapSettings.gameMode;
-        _TeamSelectWindow.Fraglimit = mapSettings.fragLimit = frags;
-        _GameWindow.enabledZombiScore = mapSettings.zombi;
+        _TeamSelectWindow.Fraglimit = mapSettings.fragLimit = frags;        
         if (!mapSettings.Team) _TeamSelectWindow.enabledTeamsView = false;
         _TeamSelectWindow.Show(this);
-        _GameWindow.Show(this);       
     }
     public void OnPlayerConnected(NetworkPlayer np)
     {
@@ -199,7 +196,7 @@ public class Game : Base
         print(pr);
         networkView.RPC("SetTimeLeft", np,timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);        
-        networkView.RPC("RPCGameSettings", np, version.ToString(), (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+        networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         networkView.RPC("RPCSetUserView", np, LocalUserV.nwid, LocalUserV.nick, LocalUserV.uid, LocalUserV.photo, LocalUserV.totalKills, LocalUserV.totalDeaths, LocalUserV.totalZombieKills, LocalUserV.totalZombieDeaths);
         foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
             b.OnPlayerConnected1(np);
@@ -245,21 +242,21 @@ public class Game : Base
         }
     }
     
-    [RPC]
-    void WriteChatMessage(string msg)
-    {
-        CallRPC(msg);
-        _GameWindow.Messages += msg + "\r\n";
-    }
+    //[RPC]
+    //void WriteChatMessage(string msg)
+    //{
+    //    CallRPC(msg);
+    //    _GameWindow.Messages += msg + "\r\n";
+    //}
     public void WriteMessage(string s)
     {
-        _GameWindow.Killmessages += s + "\r\n";
+        _GameWindow.AppendSystemMessage(s);        
     }
     [RPC]
     public void RPCWriteMessage(string s)
     {
         CallRPC(s);
-        _GameWindow.Killmessages += s + "\r\n";
+        WriteMessage(s);
     }
     
     [RPC]

@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,7 +12,7 @@ public partial class Base2:MonoBehaviour
 
 public class AboutWindow : WindowBase {
 		
-	internal string pathImage2 = "Images/physx_wars_title";
+	public string pathImage2 = "Images/physx_wars_title";
 	private int wndid1;
 	private Rect Image2;
 	
@@ -56,7 +56,7 @@ Igor Levochkin
 
 :Music producers:
 CentaSpike
-Никита Сафонов", GUI.skin.customStyles[7]);
+РќРёРєРёС‚Р° РЎР°С„РѕРЅРѕРІ", GUI.skin.customStyles[7]);
 		if (GUI.Button(new Rect(715f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
 	}
 

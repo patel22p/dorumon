@@ -57,7 +57,7 @@ public class BulletGranate : BulletBase
         }
         this.transform.localPosition = Vector3.zero;
         this.rigidbody.isKinematic = true;
-
+        rigidbody.detectCollisions = false;
         enabled = false;
     }
     
@@ -65,6 +65,7 @@ public class BulletGranate : BulletBase
     {
         enabled = false;
         rigidbody.isKinematic = true;
+        rigidbody.detectCollisions = false;
         //base.onShow(value);
         //enabled = false;
     }

@@ -1,4 +1,4 @@
-
+ï»¿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,15 +12,15 @@ public partial class Base2:MonoBehaviour
 
 public class GameMenuWindow : WindowBase {
 		
-	internal string pathImage2 = "Images/physx_wars_title";
-	internal bool focusTeamSelectButton;
-	internal bool TeamSelectButton=false;
-	internal bool focusIrcChatButton;
-	internal bool IrcChatButton=false;
-	internal bool focusOptions;
-	internal bool Options=false;
-	internal bool focusDisconnect;
-	internal bool Disconnect=false;
+	public string pathImage2 = "Images/physx_wars_title";
+	public bool focusTeamSelectButton;
+	public bool TeamSelectButton=false;
+	public bool focusIrcChatButton;
+	public bool IrcChatButton=false;
+	public bool focusOptions;
+	public bool Options=false;
+	public bool focusDisconnect;
+	public bool Disconnect=false;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverTeamSelectButton;
@@ -58,7 +58,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusTeamSelectButton) { focusTeamSelectButton = false; GUI.FocusControl("TeamSelectButton");}
 		GUI.SetNextControlName("TeamSelectButton");
 		bool oldTeamSelectButton = TeamSelectButton;
-		TeamSelectButton = GUI.Button(new Rect(110f, 156f, 313f, 54f), new GUIContent("Âûáðàòü êîìàíäó",""));
+		TeamSelectButton = GUI.Button(new Rect(110f, 156f, 313f, 54f), new GUIContent("Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ ÐºÐ¾Ð¼Ð°Ð½Ð´Ñƒ",""));
 		if (TeamSelectButton != oldTeamSelectButton && TeamSelectButton ) {Action("onTeamSelectButton");onButtonClick(); }
 		onMouseOver = new Rect(110f, 156f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelectButton != onMouseOver && onMouseOver) onOver();
@@ -66,7 +66,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusIrcChatButton) { focusIrcChatButton = false; GUI.FocusControl("IrcChatButton");}
 		GUI.SetNextControlName("IrcChatButton");
 		bool oldIrcChatButton = IrcChatButton;
-		IrcChatButton = GUI.Button(new Rect(110f, 214f, 313f, 54f), new GUIContent("Èðê ×àò",""));
+		IrcChatButton = GUI.Button(new Rect(110f, 214f, 313f, 54f), new GUIContent("Ð˜Ñ€Ðº Ð§Ð°Ñ‚",""));
 		if (IrcChatButton != oldIrcChatButton && IrcChatButton ) {Action("onIrcChatButton");onButtonClick(); }
 		onMouseOver = new Rect(110f, 214f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverIrcChatButton != onMouseOver && onMouseOver) onOver();
@@ -74,7 +74,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusOptions) { focusOptions = false; GUI.FocusControl("Options");}
 		GUI.SetNextControlName("Options");
 		bool oldOptions = Options;
-		Options = GUI.Button(new Rect(110f, 272f, 313f, 54f), new GUIContent("Îïöèè",""));
+		Options = GUI.Button(new Rect(110f, 272f, 313f, 54f), new GUIContent("ÐžÐ¿Ñ†Ð¸Ð¸",""));
 		if (Options != oldOptions && Options ) {Action("onOptions");onButtonClick(); }
 		onMouseOver = new Rect(110f, 272f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverOptions != onMouseOver && onMouseOver) onOver();
@@ -82,7 +82,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusDisconnect) { focusDisconnect = false; GUI.FocusControl("Disconnect");}
 		GUI.SetNextControlName("Disconnect");
 		bool oldDisconnect = Disconnect;
-		Disconnect = GUI.Button(new Rect(110f, 330f, 313f, 54f), new GUIContent("Âûéòè",""));
+		Disconnect = GUI.Button(new Rect(110f, 330f, 313f, 54f), new GUIContent("Ð’Ñ‹Ð¹Ñ‚Ð¸",""));
 		if (Disconnect != oldDisconnect && Disconnect ) {Action("onDisconnect");onButtonClick(); }
 		onMouseOver = new Rect(110f, 330f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDisconnect != onMouseOver && onMouseOver) onOver();

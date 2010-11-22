@@ -15,7 +15,7 @@ using System.Text;
 public enum Level { z1login, z2menu, z4game }
 public class Loader : Base
 {
-    public string cmd;
+    public string cmd="";    
     new public UserView[] userViews = new UserView[10];
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
@@ -31,7 +31,6 @@ public class Loader : Base
     public GUISkin _skin;
     public LayerMask LevelMask;
     new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
-
     protected override void Awake()
     {
         LocalUserV = gameObject.AddComponent<UserView>();
@@ -40,24 +39,27 @@ public class Loader : Base
         print("loader awake");        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
-        cmd = joinString(' ', Environment.GetCommandLineArgs());
+        if(!isWebPlayer)
+            cmd = joinString(' ', Environment.GetCommandLineArgs());
         mapsets.AddRange(new[]{
             new MapSetting { mapName = "Game", title = "Демо" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
             //new MapSetting { mapName = "z5city" , title  = "Город" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
+        print(pr +"mapscount"+ mapsets.Count);
     }
-    
     void Start()
     {        
 
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
         onGraphicQuality();
-        onScreenSize();
-
-        foreach (var a in Directory.GetFiles("ScreenShots").Reverse().Skip(100))
-            File.Delete(a);
+        if (!isWebPlayer)
+        {
+            onScreenSize();
+            foreach (var a in Directory.GetFiles("ScreenShots").Reverse().Skip(100))
+                File.Delete(a);
+        }
     }
-    
+
     void onFullScreen()
     {
         Screen.fullScreen = _SettingsWindow.FullScreen;
@@ -78,8 +80,8 @@ public class Loader : Base
     }
     void onShadows()
     {
-        if(_Cam!=null)
-        _Cam.onEffect();
+        if (_Cam != null)
+            _Cam.onEffect();
     }
     void onReset()
     {
@@ -89,11 +91,11 @@ public class Loader : Base
     void onAtmoSphere()
     {
         if (_Cam != null)
-        _Cam.onEffect();
+            _Cam.onEffect();
     }
     void onSao()
     {
-        if(_Cam!=null)
+        if (_Cam != null)
             _Cam.onEffect();
     }
     void onBloomAndFlares()
@@ -105,14 +107,34 @@ public class Loader : Base
     {
         _Cam.onEffect();
     }
+    void onOk()
+    {
+        _PopUpWindow.Hide();
+    }
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M))
+            _Console.enabled = !_Console.enabled;
+
+        //if (Input.GetKeyDown(KeyCode.G))
+        //{
+        //    guiEnabled = !guiEnabled;
+        //    if (guiEnabled)
+        //        foreach (Base2 m in FindObjectsOfType(typeof(WindowBase)))
+        //            m.enabled = m._oldGuiEnabled;
+        //    else
+        //        foreach (Base2 m in FindObjectsOfType(typeof(WindowBase)))
+        //        {                    
+        //            m._oldGuiEnabled = m.enabled;
+        //            m.enabled = false;
+        //        }
+        //}
         WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (_SettingsWindow.SaveScreenShots != 0 && _TimerA.TimeElapsed((int)(_SettingsWindow.SaveScreenShots * 1000f)))                               
-           Application.CaptureScreenshot("ScreenShots/Screenshot"+ DateTime.Now.ToFileTime() + ".jpg");
-       
+        if(!isWebPlayer && Input.GetKeyDown(KeyCode.F))
+            Application.CaptureScreenshot("ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
+
 
         _TimerA.Update();
     }

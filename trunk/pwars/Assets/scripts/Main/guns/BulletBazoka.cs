@@ -18,7 +18,7 @@ public class BulletBazoka : BulletBase
         base.FixedUpdate();
     }
 
-
+    
     protected override void Hit(RaycastHit hit)
     {
         

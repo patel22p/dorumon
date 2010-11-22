@@ -5,10 +5,11 @@ public class GunHealth : GunBase
 {
     public bool power;
     public Renderer render;
-    public Light render1;
+    public new Light light;
     void Start()
     {
         _Name = "Шприц";
+        light = GetComponentInChildren<Light>();
     }
     protected override void Update()
     {
@@ -20,15 +21,15 @@ public class GunHealth : GunBase
                     p.Health();
                 }
 
-            render.enabled = render1.enabled = true;
+            render.enabled = light.enabled = true;
         }
         else
-            render.enabled = render1.enabled = false;
+            render.enabled = light.enabled = false;
         base.Update();
     }
     public override void onShow(bool enabled)
     {
-        render.enabled = false;
+        light.enabled = false;        
         base.onShow(enabled);
     }
     protected override void LocalUpdate()

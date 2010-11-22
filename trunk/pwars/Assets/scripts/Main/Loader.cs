@@ -45,7 +45,6 @@ public class Loader : Base
             new MapSetting { mapName = "Game", title = "Демо" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
             //new MapSetting { mapName = "z5city" , title  = "Город" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
-        print(pr +"mapscount"+ mapsets.Count);
     }
     void Start()
     {        

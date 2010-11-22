@@ -6,10 +6,16 @@ public class GunHealth : GunBase
     public bool power;
     public Renderer render;
     public new Light light;
+    protected override void Awake()
+    {
+        light = GetComponentInChildren<Light>();
+        base.Awake();
+    }
+    
     void Start()
     {
         _Name = "Шприц";
-        light = GetComponentInChildren<Light>();
+        
     }
     protected override void Update()
     {

@@ -22,7 +22,7 @@ public class Menu : Base
     }
     void Start()
     {
-
+        lockCursor = false;
         if (_Loader.dedicated)
         {
             Dedicated();

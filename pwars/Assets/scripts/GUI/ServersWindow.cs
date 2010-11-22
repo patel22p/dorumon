@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -14,24 +14,20 @@ public class ServersWindow : WindowBase {
 		
 	public string Ipaddress{ get { return PlayerPrefs.GetString("Ipaddress", @""); } set { PlayerPrefs.SetString("Ipaddress", value); } }
 	public int Port{ get { return PlayerPrefs.GetInt("Port", 5300); } set { PlayerPrefs.SetInt("Port", value); } }
-	internal bool focusНастройки_подключения;
-	internal bool enabledНастройки_подключения = true;
-	internal bool focusIpaddress;
-	internal bool isReadOnlyIpaddress = false;
-	internal bool focusPort;
-	internal bool isReadOnlyPort = false;
-	internal bool focusConnect;
-	internal bool Connect=false;
-	internal bool focusСписок_Серверов;
-	internal bool enabledСписок_Серверов = true;
-	internal bool focusServersTable;
-	internal string[] ServersTable = new string[] {};
-	internal int iServersTable = -1;
-	internal bool focusRefresh;
-	internal bool Refresh=false;
-	internal bool focusServersTitle;
-	internal bool isReadOnlyServersTitle = true;
-	internal string ServersTitle = @"  Название_сервера         Карта           Тип_Игры          Игроков        Пинг";
+	public bool focusIpaddress;
+	public bool isReadOnlyIpaddress = false;
+	public bool focusPort;
+	public bool isReadOnlyPort = false;
+	public bool focusConnect;
+	public bool Connect=false;
+	public bool focusServersTable;
+	public string[] ServersTable = new string[] {};
+	public int iServersTable = -1;
+	public bool focusRefresh;
+	public bool Refresh=false;
+	public bool focusServersTitle;
+	public bool isReadOnlyServersTitle = true;
+	public string ServersTitle = @"  РќР°Р·РІР°РЅРёРµ_СЃРµСЂРІРµСЂР°         РљР°СЂС‚Р°           РўРёРї_РРіСЂС‹          РРіСЂРѕРєРѕРІ        РџРёРЅРі";
 	private int wndid1;
 	private bool oldMouseOverConnect;
 	private Vector2 sServersTable;
@@ -62,12 +58,9 @@ public class ServersWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		if(focusНастройки_подключения) { focusНастройки_подключения = false; GUI.FocusControl("Настройки_подключения");}
-		GUI.SetNextControlName("Настройки_подключения");
-		if(enabledНастройки_подключения){
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
-		GUI.Label(new Rect(21f, 30f, 66.89667f, 21.96f), @"ip аддресс");
+		GUI.Label(new Rect(21f, 30f, 66.89667f, 21.96f), @"ip Р°РґРґСЂРµСЃСЃ");
 		if(focusIpaddress) { focusIpaddress = false; GUI.FocusControl("Ipaddress");}
 		GUI.SetNextControlName("Ipaddress");
 		if(isReadOnlyIpaddress){
@@ -84,16 +77,12 @@ public class ServersWindow : WindowBase {
 		if(focusConnect) { focusConnect = false; GUI.FocusControl("Connect");}
 		GUI.SetNextControlName("Connect");
 		bool oldConnect = Connect;
-		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent("Соеденить",""));
+		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent("РЎРѕРµРґРµРЅРёС‚СЊ",""));
 		if (Connect != oldConnect && Connect ) {Action("onConnect");onButtonClick(); }
 		onMouseOver = new Rect(244f, 30f, 75f, 32f).Contains(Event.current.mousePosition);
 		if (oldMouseOverConnect != onMouseOver && onMouseOver) onOver();
 		oldMouseOverConnect = onMouseOver;
 		GUI.EndGroup();
-		}
-		if(focusСписок_Серверов) { focusСписок_Серверов = false; GUI.FocusControl("Список_Серверов");}
-		GUI.SetNextControlName("Список_Серверов");
-		if(enabledСписок_Серверов){
 		GUI.BeginGroup(new Rect(8f, 112f, 602f, 355f), "");
 		GUI.Box(new Rect(0, 0, 602f, 355f), "");
 		if(focusServersTable) { focusServersTable = false; GUI.FocusControl("ServersTable");}
@@ -104,7 +93,7 @@ public class ServersWindow : WindowBase {
 		iServersTable = GUI.SelectionGrid(new Rect(0,0, 566f, ServersTable.Length* 15f), iServersTable, ServersTable,1,GUI.skin.customStyles[0]);
 		if (iServersTable != oldServersTable) Action("onServersTable",ServersTable[iServersTable]);
 		GUI.EndScrollView();
-		GUI.Label(new Rect(0f, 0f, 114.45f, 14f), @"Список Серверов");
+		GUI.Label(new Rect(0f, 0f, 114.45f, 14f), @"РЎРїРёСЃРѕРє РЎРµСЂРІРµСЂРѕРІ");
 		if(focusRefresh) { focusRefresh = false; GUI.FocusControl("Refresh");}
 		GUI.SetNextControlName("Refresh");
 		bool oldRefresh = Refresh;
@@ -124,8 +113,7 @@ public class ServersWindow : WindowBase {
 		GUI.Box(new Rect(404f, 30f, 1f, 318.511f),"",GUI.skin.customStyles[4]);
 		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);
 		GUI.EndGroup();
-		}
-		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Сервера");
+		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"РЎРµСЂРІРµСЂР°");
 		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
 	}
 

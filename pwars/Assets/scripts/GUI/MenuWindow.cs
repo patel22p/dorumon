@@ -1,4 +1,4 @@
-
+Ôªø
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,19 +12,19 @@ public partial class Base2:MonoBehaviour
 
 public class MenuWindow : WindowBase {
 		
-	internal string pathImage2 = "Images/1";
-	internal bool focusServers;
-	internal bool Servers=false;
-	internal bool focusIrcChat;
-	internal bool IrcChat=false;
-	internal bool focusCreate;
-	internal bool Create=false;
-	internal bool focusSettings;
-	internal bool Settings=false;
-	internal bool focusAbout;
-	internal bool About=false;
-	internal bool focusLogOut;
-	internal bool LogOut=false;
+	public string pathImage2 = "Images/1";
+	public bool focusServers;
+	public bool Servers=false;
+	public bool focusIrcChat;
+	public bool IrcChat=false;
+	public bool focusCreate;
+	public bool Create=false;
+	public bool focusSettings;
+	public bool Settings=false;
+	public bool focusAbout;
+	public bool About=false;
+	public bool focusLogOut;
+	public bool LogOut=false;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverServers;
@@ -64,7 +64,7 @@ public class MenuWindow : WindowBase {
 		if(focusServers) { focusServers = false; GUI.FocusControl("Servers");}
 		GUI.SetNextControlName("Servers");
 		bool oldServers = Servers;
-		Servers = GUI.Button(new Rect(316.5f, 334f, 169.5f, 36f), new GUIContent("—Â‚Â‡",""));
+		Servers = GUI.Button(new Rect(316.5f, 334f, 169.5f, 36f), new GUIContent("–°–µ—Ä–≤–µ—Ä–∞",""));
 		if (Servers != oldServers && Servers ) {Action("onServers");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 334f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverServers != onMouseOver && onMouseOver) onOver();
@@ -72,7 +72,7 @@ public class MenuWindow : WindowBase {
 		if(focusIrcChat) { focusIrcChat = false; GUI.FocusControl("IrcChat");}
 		GUI.SetNextControlName("IrcChat");
 		bool oldIrcChat = IrcChat;
-		IrcChat = GUI.Button(new Rect(316.5f, 374f, 169.5f, 36f), new GUIContent("»Í ◊‡Ú",""));
+		IrcChat = GUI.Button(new Rect(316.5f, 374f, 169.5f, 36f), new GUIContent("–ò—Ä–∫ –ß–∞—Ç",""));
 		if (IrcChat != oldIrcChat && IrcChat ) {Action("onIrcChat");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 374f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverIrcChat != onMouseOver && onMouseOver) onOver();
@@ -80,7 +80,7 @@ public class MenuWindow : WindowBase {
 		if(focusCreate) { focusCreate = false; GUI.FocusControl("Create");}
 		GUI.SetNextControlName("Create");
 		bool oldCreate = Create;
-		Create = GUI.Button(new Rect(316.5f, 294f, 169.5f, 36f), new GUIContent("—ÓÁ‰‡Ú¸ »„Û",""));
+		Create = GUI.Button(new Rect(316.5f, 294f, 169.5f, 36f), new GUIContent("–°–æ–∑–¥–∞—Ç—å –ò–≥—Ä—É",""));
 		if (Create != oldCreate && Create ) {Action("onCreate");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 294f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverCreate != onMouseOver && onMouseOver) onOver();
@@ -88,7 +88,7 @@ public class MenuWindow : WindowBase {
 		if(focusSettings) { focusSettings = false; GUI.FocusControl("Settings");}
 		GUI.SetNextControlName("Settings");
 		bool oldSettings = Settings;
-		Settings = GUI.Button(new Rect(316.5f, 412.667f, 169.5f, 36f), new GUIContent("Õ‡ÒÚÓËÍË",""));
+		Settings = GUI.Button(new Rect(316.5f, 412.667f, 169.5f, 36f), new GUIContent("–ù–∞—Å—Ç—Ä–æ–∏–∫–∏",""));
 		if (Settings != oldSettings && Settings ) {Action("onSettings");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 412.667f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverSettings != onMouseOver && onMouseOver) onOver();
@@ -96,7 +96,7 @@ public class MenuWindow : WindowBase {
 		if(focusAbout) { focusAbout = false; GUI.FocusControl("About");}
 		GUI.SetNextControlName("About");
 		bool oldAbout = About;
-		About = GUI.Button(new Rect(316.5f, 452.667f, 169.5f, 36f), new GUIContent("¿‚ÚÓ˚",""));
+		About = GUI.Button(new Rect(316.5f, 452.667f, 169.5f, 36f), new GUIContent("–ê–≤—Ç–æ—Ä—ã",""));
 		if (About != oldAbout && About ) {Action("onAbout");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 452.667f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAbout != onMouseOver && onMouseOver) onOver();
@@ -104,7 +104,7 @@ public class MenuWindow : WindowBase {
 		if(focusLogOut) { focusLogOut = false; GUI.FocusControl("LogOut");}
 		GUI.SetNextControlName("LogOut");
 		bool oldLogOut = LogOut;
-		LogOut = GUI.Button(new Rect(316.5f, 492.667f, 169.5f, 36f), new GUIContent("¬˚ÈÚË",""));
+		LogOut = GUI.Button(new Rect(316.5f, 492.667f, 169.5f, 36f), new GUIContent("–í—ã–π—Ç–∏",""));
 		if (LogOut != oldLogOut && LogOut ) {Action("onLogOut");onButtonClick(); }
 		onMouseOver = new Rect(316.5f, 492.667f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverLogOut != onMouseOver && onMouseOver) onOver();

@@ -35,7 +35,35 @@
 
 using System;
 using System.IO;
+public class FileInfo
+{
+    private string name;
 
+    public FileInfo(string name)
+    {
+        // TODO: Complete member initialization
+        this.name = name;
+    }
+
+
+    public int Attributes { get; set; }
+
+    public DateTime LastWriteTime { get; set; }
+
+    public long Length { get; set; }
+
+    public DateTime CreationTime { get; set; }
+
+    public DateTime CreationTimeUtc { get; set; }
+
+    public bool Exists { get; set; }
+
+    public DateTime LastAccessTime { get; set; }
+
+    public DateTime LastAccessTimeUtc { get; set; }
+
+    public DateTime LastWriteTimeUtc { get; set; }
+}
 namespace ICSharpCode.SharpZipLib.Core
 {
 	/// <summary>
@@ -43,6 +71,7 @@ namespace ICSharpCode.SharpZipLib.Core
 	/// by full path name.
 	/// See <see cref="NameFilter">NameFilter</see> for more detail on filtering.
 	/// </summary>
+    
 	public class PathFilter : IScanFilter
 	{
 		#region Constructors
@@ -149,10 +178,10 @@ namespace ICSharpCode.SharpZipLib.Core
 			if ( result ) {
 				FileInfo fileInfo = new FileInfo(name);
 				result = 
-					(MinSize <= fileInfo.Length) &&
-					(MaxSize >= fileInfo.Length) &&
-					(MinDate <= fileInfo.LastWriteTime) &&
-					(MaxDate >= fileInfo.LastWriteTime)
+                    (MinSize <= fileInfo.Length) &&
+                    (MaxSize >= fileInfo.Length) &&
+                    (MinDate <= fileInfo.LastWriteTime) &&
+                    (MaxDate >= fileInfo.LastWriteTime)
 					;
 			}
 			return result;
@@ -287,10 +316,10 @@ namespace ICSharpCode.SharpZipLib.Core
 
 			if ( result ) {
 				FileInfo fileInfo = new FileInfo(name);
-				long length = fileInfo.Length;
-				result = 
-					(MinSize <= length) &&
-					(MaxSize >= length);
+                //long length = fileInfo.Length;
+                //result = 
+                //    (MinSize <= length) &&
+                //    (MaxSize >= length);
 			}
 			return result;
 		}

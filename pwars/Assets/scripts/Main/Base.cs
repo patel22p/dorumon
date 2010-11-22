@@ -15,7 +15,7 @@ public class Base : Base2, IDisposable
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }    
     public void ShowPopup(string s)
     {
-        _PopUpWindow.Show(this);
+        _PopUpWindow.ShowDontHide(this);
         _PopUpWindow.Text = s;
     }
     protected virtual void Awake()
@@ -24,6 +24,9 @@ public class Base : Base2, IDisposable
             Instantiate(Resources.Load("Prefabs/loader"));
         OwnerID = -1;
     }
+
+    
+
     public NetworkView myNetworkView
     {
         get
@@ -37,7 +40,7 @@ public class Base : Base2, IDisposable
             if (b.owner == pl) return b;
         return null;
     }
-    public static Version version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; } }
+    public static string version { get { return isWebPlayer ? "" : System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
     public const string hosting = "http://physxwars.rh10.ru/";
     public static bool build { get { return _Loader.build; } }
     public static bool skip { get { return _Loader.skip; } }
@@ -118,44 +121,32 @@ public class Base : Base2, IDisposable
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
-    Dictionary<Behaviour, bool> _oldenabled = new Dictionary<Behaviour, bool>();
-    Dictionary<Renderer, bool> _oldrenderenabled = new Dictionary<Renderer, bool>();
-    Dictionary<Rigidbody, bool> _oldRightidenabled = new Dictionary<Rigidbody, bool>();
+    
     public void Show(bool value) 
     {
         
         //foreach (var r in this.GetComponentInChildren<MonoBehaviour>
-        if (!value)
+        foreach (var rigidbody in this.GetComponentsInChildren<Rigidbody>())
         {
-            foreach (var rigidbody in this.GetComponentsInChildren<Rigidbody>())
-            {
-                _oldRightidenabled.Add(rigidbody, !rigidbody.isKinematic);
-                rigidbody.isKinematic = value;
-                rigidbody.detectCollisions = value;
-                rigidbody.useGravity = value;
-            }
-
-            foreach (var r in this.GetComponentsInChildren<Renderer>())
-            {
-                _oldrenderenabled.Add(r, r.enabled);
-                r.enabled = value;
-            }
-            foreach (var r in this.GetComponentsInChildren<AudioSource>())
-            {
-                _oldenabled.Add(r, r.enabled);
-                r.enabled = value;
-                r.Stop();
-            }
-            foreach (Base r in this.GetComponentsInChildren<Base>())
-            {
-                _oldenabled.Add(r, r.enabled);
-                r.enabled = value;
-                r.onShow(value);
-            }
+            rigidbody.isKinematic = !value;
+            rigidbody.detectCollisions = value;
+            rigidbody.useGravity = value;
         }
-        else
+        
+        foreach (var r in this.GetComponentsInChildren<Renderer>())
+            r.enabled = value;
+        foreach (var r in this.GetComponentsInChildren<AudioSource>())
+        {            
+            r.enabled = value;
+            if (!value)
+                r.Stop();
+            else
+                if (r.playOnAwake) r.Play();
+        }
+        foreach (Base r in this.GetComponentsInChildren<Base>())
         {
-            foreach(KeyValuePair _oldenabled
+            r.enabled = value;
+            r.onShow(value);
         }
     }
     public virtual void onShow(bool enabled)

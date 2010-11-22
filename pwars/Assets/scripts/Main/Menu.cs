@@ -25,17 +25,9 @@ public class Menu : Base
 
         if (_Loader.dedicated)
         {
-            nick = "Server";
-            mapSettings = TakeRandom(_Loader.mapsets);
-            mapSettings.gameMode = TakeRandom(mapSettings.supportedModes);
-            bool useNat = !Network.HavePublicAddress();            
-            Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, useNat);
-            MasterServer.dedicatedServer = true;
-            MasterServer.RegisterHost(gameVersionName, "DedicatedServer", mapSettings.mapName + "," + _HostWindow.GameMode[_HostWindow.iGameMode]);
-            _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
+            Dedicated();
             return;
         }
-        if (!_Music.audio.isPlaying) _Music.audio.Play();
         foreach (WindowBase o in Component.FindObjectsOfType(typeof(WindowBase))) o.SendMessage("HideWindow", SendMessageOptions.DontRequireReceiver);
         if (_Loader.logged)
             onLogin();
@@ -55,6 +47,18 @@ public class Menu : Base
             LocalUserV.totalZombieKills += LocalUserV.frags;
         }
         LocalUserV.frags = LocalUserV.deaths = 0;
+    }
+
+    private void Dedicated()
+    {
+        nick = "Server";
+        mapSettings = TakeRandom(_Loader.mapsets);
+        mapSettings.gameMode = TakeRandom(mapSettings.supportedModes);
+        bool useNat = !Network.HavePublicAddress();
+        Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, useNat);
+        MasterServer.dedicatedServer = true;
+        MasterServer.RegisterHost(gameVersionName, "DedicatedServer", mapSettings.mapName + "," + _HostWindow.GameMode[_HostWindow.iGameMode]);
+        _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
     }
     public HostData[] hosts { get { return MasterServer.PollHostList(); } }
     void Update()
@@ -106,6 +110,7 @@ public class Menu : Base
         logged = true;
         _MenuWindow.Show(this);
     }
+    
     void onClose()
     {
         print(pr);

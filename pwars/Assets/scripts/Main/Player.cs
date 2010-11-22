@@ -26,14 +26,14 @@ public class Player : IPlayer
 
     protected override void Start()
     {        
+        
         base.Start();        
         if (networkView.isMine)
         {
             _Game._localiplayer = _Game._localPlayer = this;
             print(pr); 
             RPCSetOwner();
-            RPCSpawn();
-
+            RPCSpawn();            
         }
     }
 
@@ -80,7 +80,7 @@ public class Player : IPlayer
         freezedt = 0;
 
     }
-
+    
     [RPC]
     public void RPCSelectGun(int i)
     {
@@ -88,8 +88,8 @@ public class Player : IPlayer
         print(pr + i);
         PlaySound("change");
         selectedgun = i;
-        if (isOwner)
-            _GameWindow.tabGunImages = selectedgun;
+        if (isOwner && _GameWindow.gunTextures[selectedgun]!=null)
+            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
         foreach (GunBase gb in guns)
             gb.DisableGun();
         guns[i].EnableGun();
@@ -97,6 +97,7 @@ public class Player : IPlayer
 
     protected override void Update()
     {
+
         multikilltime-= Time.deltaTime;
         if (this.rigidbody.velocity.magnitude > 30)
         {
@@ -122,20 +123,16 @@ public class Player : IPlayer
                 RPCSelectGun(3);
             if (Input.GetKeyDown(KeyCode.Alpha5))
                 RPCSelectGun(4);
-
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift))
+                this.transform.rotation = Quaternion.identity;
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 if (nitro > 10 || !build)
                 {
                     nitro -= 10;
                     RCPJump();
                 }
-            }
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                rigidbody.velocity = new Vector3(0, rigidbody.velocity.y, 0);
-                rigidbody.angularVelocity = Vector3.zero;
-            }
+            }            
         }
         base.Update();
     }
@@ -143,13 +140,10 @@ public class Player : IPlayer
     {
         if (isOwner) LocalMove();
     }
+
     private void LocalMove()
     {
-        if (DebugKey(KeyCode.G))
-        {
-            SetFrags(20);
-            RPCSetLife(-200, -1);
-        }
+
         if (lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -157,19 +151,20 @@ public class Player : IPlayer
             moveDirection.y = 0;
             moveDirection.Normalize();
 
-            Vector3 v = this.rigidbody.velocity;
-            float angle;
-            if (moveDirection == Vector3.zero || rigidbody.velocity == Vector3.zero)
-                angle = 1;
+            Vector3 v = this.rigidbody.velocity;            
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                this.rigidbody.angularVelocity = Vector3.zero;
+                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * 15);                
+                v.x *= .65f;
+                v.z *= .65f;
+                this.rigidbody.velocity = v;
+            }
             else
             {
-                Quaternion a = Quaternion.LookRotation(rigidbody.velocity);
-                Quaternion b = Quaternion.LookRotation(moveDirection);
-                angle = 1 + (Quaternion.Angle(a, b) / 180 * 4);
+                this.rigidbody.maxAngularVelocity = v.magnitude / 1.1f;
+                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * 2 * (freezedt > 0 ? .5f : 1));
             }
-
-            this.rigidbody.maxAngularVelocity = v.magnitude / 1.2f;
-            this.rigidbody.AddForce(moveDirection * Time.deltaTime * force * angle * (freezedt > 0 ? .5f : 1));
         }
     }
     [RPC]
@@ -260,7 +255,7 @@ public class Player : IPlayer
     {
         CallRPC(NwLife, killedby);
         if (isOwner)
-            _GuiBlood.Hit(Mathf.Abs(Life - NwLife) * 2);
+            _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
         
 
         if (isEnemy(killedby))
@@ -325,7 +320,7 @@ public class Player : IPlayer
             multikill = 0;
         multikilltime = 3;
         
-        if (multikill > 1)
+        if (multikill >= 1)
         {
             PlayRandSound("toasty");
             if (isOwner)

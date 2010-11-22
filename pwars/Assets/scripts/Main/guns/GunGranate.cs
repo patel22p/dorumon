@@ -29,9 +29,11 @@ public class GunGranate : GunBase
         PlaySound("granate", 3);
         bulletGranate.transform.parent = null;
         bulletGranate.rigidbody.isKinematic = false;
+        bulletGranate.rigidbody.detectCollisions = true;
         bulletGranate.enabled = true;
         bulletGranate.OwnerID = OwnerID;
         bulletGranate.StartGranate();
+        
         bulletGranate.rigidbody.AddForce(this.transform.rotation * force);
     }
     public override void onShow(bool enabled)

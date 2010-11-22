@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,26 +12,26 @@ public partial class Base2:MonoBehaviour
 
 public class TeamSelectWindow : WindowBase {
 		
-	internal bool focusTeamsView;
-	internal bool enabledTeamsView = true;
-	internal bool focusTeams;
-	internal string[] Teams = new string[] {"Красная Команда","Синяя Команда",};
-	internal int iTeams = 0;
-	internal bool focusImages;
-	internal int tabImages;
-	internal bool focusRed;
-	internal string pathRed = "Images/Image2";
-	internal bool focusBlue;
-	internal string pathBlue = "Images/Image1";
-	internal bool focusTeamSelect;
-	internal bool TeamSelect=false;
-	internal bool focusObserver;
-	internal bool Observer=false;
-	internal bool focusFraglimit;
-	internal bool isReadOnlyFraglimit = true;
-	internal int Fraglimit = 0;
-	internal bool focusGameType;
-	internal int tabGameType;
+	public bool focusTeamsView;
+	public bool enabledTeamsView = true;
+	public bool focusTeams;
+	public string[] Teams = new string[] {"РљСЂР°СЃРЅР°СЏ РљРѕРјР°РЅРґР°","РЎРёРЅСЏСЏ РљРѕРјР°РЅРґР°",};
+	public int iTeams = 0;
+	public bool focusImages;
+	public int tabImages;
+	public bool focusRed;
+	public string pathRed = "Images/Image2";
+	public bool focusBlue;
+	public string pathBlue = "Images/Image1";
+	public bool focusTeamSelect;
+	public bool TeamSelect=false;
+	public bool focusObserver;
+	public bool Observer=false;
+	public bool focusFraglimit;
+	public bool isReadOnlyFraglimit = true;
+	public int Fraglimit = 0;
+	public bool focusGameType;
+	public int tabGameType;
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
@@ -66,7 +66,7 @@ public class TeamSelectWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Игровое меню");
+		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"РРіСЂРѕРІРѕРµ РјРµРЅСЋ");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");
 		GUI.Box(new Rect(0, 0, 596f, 297f), "");
 		if(focusTeamsView) { focusTeamsView = false; GUI.FocusControl("TeamsView");}
@@ -105,7 +105,7 @@ public class TeamSelectWindow : WindowBase {
 		if(focusTeamSelect) { focusTeamSelect = false; GUI.FocusControl("TeamSelect");}
 		GUI.SetNextControlName("TeamSelect");
 		bool oldTeamSelect = TeamSelect;
-		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Войти",""));
+		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Р’РѕР№С‚Рё",""));
 		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("onTeamSelect");onButtonClick(); }
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();
@@ -113,12 +113,12 @@ public class TeamSelectWindow : WindowBase {
 		if(focusObserver) { focusObserver = false; GUI.FocusControl("Observer");}
 		GUI.SetNextControlName("Observer");
 		bool oldObserver = Observer;
-		Observer = GUI.Button(new Rect(370f, 8f, 75f, 21.96f), new GUIContent("Зритель",""));
+		Observer = GUI.Button(new Rect(370f, 8f, 75f, 21.96f), new GUIContent("Р—СЂРёС‚РµР»СЊ",""));
 		if (Observer != oldObserver && Observer ) {Action("onObserver");onButtonClick(); }
 		onMouseOver = new Rect(370f, 8f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverObserver != onMouseOver && onMouseOver) onOver();
 		oldMouseOverObserver = onMouseOver;
-		GUI.Label(new Rect(133f, 13.95f, 73.38f, 21.96f), @"Фраг лимит");
+		GUI.Label(new Rect(133f, 13.95f, 73.38f, 21.96f), @"Р¤СЂР°Рі Р»РёРјРёС‚");
 		if(focusFraglimit) { focusFraglimit = false; GUI.FocusControl("Fraglimit");}
 		GUI.SetNextControlName("Fraglimit");
 		if(isReadOnlyFraglimit){
@@ -131,20 +131,20 @@ public class TeamSelectWindow : WindowBase {
 		GUI.BeginGroup(new Rect(40f, 155f, 302f, 95f), "");
 		GUI.Box(new Rect(0, 0, 302f, 95f), "");
 		if(tabGameType==0){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Зомби, выживание.
-Убейте максимальное количество зомби.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Р—РѕРјР±Рё, РІС‹Р¶РёРІР°РЅРёРµ.
+РЈР±РµР№С‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РѕРјР±Рё.");
 		}
 		if(tabGameType==1){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Командный бой С зомби.
-Выжившая команда выигрывает.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"РљРѕРјР°РЅРґРЅС‹Р№ Р±РѕР№ РЎ Р·РѕРјР±Рё.
+Р’С‹Р¶РёРІС€Р°СЏ РєРѕРјР°РЅРґР° РІС‹РёРіСЂС‹РІР°РµС‚.");
 		}
 		if(tabGameType==2){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Бой.
-Убейте максимальное количество игроков.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Р‘РѕР№.
+РЈР±РµР№С‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ.");
 		}
 		if(tabGameType==3){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Командный бой.
-Убейте максимальное количество игроков.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"РљРѕРјР°РЅРґРЅС‹Р№ Р±РѕР№.
+РЈР±РµР№С‚Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ.");
 		}
 		GUI.EndGroup();
 		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }

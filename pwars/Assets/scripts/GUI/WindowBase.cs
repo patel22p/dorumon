@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
-interface IGUI { }
-public class WindowBase : Base2,IGUI
+
+public class WindowBase : Base2
 {
     public void Action(string name, object param)
     {
@@ -25,7 +25,18 @@ public class WindowBase : Base2,IGUI
         enabled = true;
         this.controller = controller;                
     }
-    
+    public void ShowDontHide(MonoBehaviour controller)
+    {        
+        enabled = true;
+        this.controller = controller;
+    }
+
+    public void ShowOnTop(MonoBehaviour controller)
+    {        
+        enabled = true;
+        this.controller = controller;
+    }
+
     
     public void onOver()
     {

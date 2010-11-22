@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,12 +12,12 @@ public partial class Base2:MonoBehaviour
 
 public class GameStatsWindow : WindowBase {
 		
-	internal bool focusPlayerStatsTitle;
-	internal bool isReadOnlyPlayerStatsTitle = true;
-	internal string PlayerStatsTitle = @"       Имя_Игрока               Команда   Очки   Фраги Смерти  Фпс   Пинг";
-	internal bool focusPlayerStats;
-	internal bool isReadOnlyPlayerStats = true;
-	internal string PlayerStats = @"";
+	public bool focusPlayerStatsTitle;
+	public bool isReadOnlyPlayerStatsTitle = true;
+	public string PlayerStatsTitle = @"       РРјСЏ_РРіСЂРѕРєР°               РљРѕРјР°РЅРґР°   РћС‡РєРё   Р¤СЂР°РіРё РЎРјРµСЂС‚Рё  Р¤РїСЃ   РџРёРЅРі";
+	public bool focusPlayerStats;
+	public bool isReadOnlyPlayerStats = true;
+	public string PlayerStats = @"";
 	private int wndid1;
 	
     
@@ -45,7 +45,7 @@ public class GameStatsWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.Label(new Rect(0f, 0f, 99.99f, 14f), @"Таблиьа очков");
+		GUI.Label(new Rect(0f, 0f, 99.99f, 14f), @"РўР°Р±Р»РёСЊР° РѕС‡РєРѕРІ");
 		GUI.BeginGroup(new Rect(22f, 18f, 564f, 345f), "");
 		GUI.Box(new Rect(0, 0, 564f, 345f), "");
 		if(focusPlayerStatsTitle) { focusPlayerStatsTitle = false; GUI.FocusControl("PlayerStatsTitle");}

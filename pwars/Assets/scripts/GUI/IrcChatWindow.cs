@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,17 +12,17 @@ public partial class Base2:MonoBehaviour
 
 public class IrcChatWindow : WindowBase {
 		
-	internal bool focusMsgs;
-	internal bool isReadOnlyMsgs = true;
-	internal string Msgs = @"";
-	internal bool focusInput;
-	internal bool isReadOnlyInput = false;
-	internal string Input = @"";
-	internal bool focusUsers;
-	internal string[] Users = new string[] {};
-	internal int iUsers = -1;
-	internal bool focusIrcSend;
-	internal bool IrcSend=false;
+	public bool focusMsgs;
+	public bool isReadOnlyMsgs = true;
+	public string Msgs = @"";
+	public bool focusInput;
+	public bool isReadOnlyInput = false;
+	public string Input = @"";
+	public bool focusUsers;
+	public string[] Users = new string[] {};
+	public int iUsers = -1;
+	public bool focusIrcSend;
+	public bool IrcSend=false;
 	private int wndid1;
 	private Vector2 sUsers;
 	private bool oldMouseOverIrcSend;
@@ -81,7 +81,7 @@ public class IrcChatWindow : WindowBase {
 		if (oldMouseOverIrcSend != onMouseOver && onMouseOver) onOver();
 		oldMouseOverIrcSend = onMouseOver;
 		GUI.Label(new Rect(8f, 8f, 94f, 21.96f), @"Irc Chat");
-		GUI.Label(new Rect(151f, 36f, 353f, 14f), @"Сервер:irc.quakenet.org:6667 Комната:#PhysxWars");
+		GUI.Label(new Rect(151f, 36f, 353f, 14f), @"РЎРµСЂРІРµСЂ:irc.quakenet.org:6667 РљРѕРјРЅР°С‚Р°:#PhysxWars");
 		if (GUI.Button(new Rect(679f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
 	}
 

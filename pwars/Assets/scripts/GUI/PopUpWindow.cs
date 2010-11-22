@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,11 +12,11 @@ public partial class Base2:MonoBehaviour
 
 public class PopUpWindow : WindowBase {
 		
-	internal bool focusText;
-	internal bool isReadOnlyText = true;
-	internal string Text = @"";
-	internal bool focusOk;
-	internal bool Ok=false;
+	public bool focusText;
+	public bool isReadOnlyText = true;
+	public string Text = @"";
+	public bool focusOk;
+	public bool Ok=false;
 	private int wndid1;
 	private bool oldMouseOverOk;
 	

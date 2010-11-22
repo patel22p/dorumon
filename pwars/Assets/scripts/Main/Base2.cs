@@ -37,10 +37,11 @@ public partial class Base2 : MonoBehaviour
     {
         return t[UnityEngine.Random.Range(0, t.Count-1)];
     }
+    static GameWindow __GameWindow;
+    public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
     static Irc __Irc;
     public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
-    static GuiBlood __GuiBlood;
-    public static GuiBlood _GuiBlood { get { if (__GuiBlood == null) __GuiBlood = (GuiBlood)MonoBehaviour.FindObjectOfType(typeof(GuiBlood)); return __GuiBlood;  }  }
+    
     static Game __Game;
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
@@ -54,8 +55,9 @@ public partial class Base2 : MonoBehaviour
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
     public long memorystart = 0;
-    public void Check()
-    {
+    public bool _oldGuiEnabled;
+    //public void Check()
+    //{
         //if (memorystart == 0)
         //    memorystart = GC.GetTotalMemory(false);
         //else
@@ -64,7 +66,7 @@ public partial class Base2 : MonoBehaviour
         //    //if (used > 0) print("Meomory Used" + used);
         //    memorystart = 0;
         //}
-    }
+    //}
     
     public static string GenerateTable(string source)
     {

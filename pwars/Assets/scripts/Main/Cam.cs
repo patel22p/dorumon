@@ -55,7 +55,7 @@ public class Cam : Base
     void FixedUpdate()
     {
         blurtime += Time.fixedDeltaTime;
-        if (blurtime>.1f && _Console.fps > 40 && _SettingsWindow.MotionBlur)
+        if (blurtime>.1f && _GameWindow.fps > 40 && _SettingsWindow.MotionBlur)
         {
             blurtime -= .1f;
             blur.blurAmount = Vector3.Distance(oldpos, transform.position) / 15;            

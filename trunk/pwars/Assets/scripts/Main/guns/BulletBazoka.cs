@@ -6,11 +6,7 @@ using System.Collections.Generic;
 public class BulletBazoka : BulletBase
 {
 
-
-
-    
     public float velocity;
-
     protected override void FixedUpdate()
     {
 

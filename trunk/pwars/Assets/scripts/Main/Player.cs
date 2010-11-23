@@ -84,8 +84,8 @@ public class Player : IPlayer
     
 
     protected override void Update()
-    {
-
+    {    
+        
         multikilltime-= Time.deltaTime;
         if (this.rigidbody.velocity.magnitude > 30)
         {
@@ -197,12 +197,14 @@ public class Player : IPlayer
     public override void Dispose()
     {
         base.Dispose();
-        players[networkView.owner.GetHashCode()] = null;
+        print("disposing" + OwnerID);
+        if (players[OwnerID] != this) print("wrong player");
+        players[OwnerID] = null;
     }
     
     void OnCollisionEnter(Collision collisionInfo)
     {
-        if (collisionInfo.relativeVelocity.y > 30)
+        if (isOwner && collisionInfo.relativeVelocity.y > 30)
             RPCPowerExp(this.transform.position);
 
         Box b = collisionInfo.gameObject.GetComponent<Box>();
@@ -224,9 +226,8 @@ public class Player : IPlayer
         Explosion e = g.AddComponent<Explosion>();
         e.OwnerID = OwnerID;
         e.self = this;
-        e.exp = 2000;
-        e.maxdistance= 200;        
-        _Cam.ran = 1;                
+        e.exp = 2000;        
+        _Cam.exp = 1;                
         Destroy(g, 1.6f);
     }
 
@@ -313,7 +314,7 @@ public class Player : IPlayer
             PlayRandSound("toasty");
             if (isOwner)
             {
-                _Cam.ScoreText.text = "x" + multikill;
+                _Cam.ScoreText.text = "x" + (multikill + 1);
                 _Cam.ScoreText.animation.Play();
             }
         }

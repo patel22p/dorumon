@@ -533,7 +533,7 @@ public class AstarPath : MonoBehaviour {
 					
 					ptf += 0.99F;
 					
-					float startTime = Time.realtimeSinceStartup;
+
 					
 					
 					active.lastPath = p;

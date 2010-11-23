@@ -65,11 +65,9 @@ public class Cam : Base
     void LateUpdate()
     {        
         camera.fieldOfView = _SettingsWindow.Fieldof;
-        xoffset = _SettingsWindow.Camx;
-        yoffset = _SettingsWindow.Camy;
+        xoffset = _SettingsWindow.Camx+0.01f;
+        yoffset = _SettingsWindow.Camy + 0.01f;
         //transform.Find("pointer").rotation = Quaternion.LookRotation(this.transform.position- Find<Tower>().transform.position);
-
-        
 
         if (lockCursor)
         {
@@ -96,14 +94,14 @@ public class Cam : Base
             transform.rotation = rotation;
         }
 
-        transform.Find("MainCam").localPosition = new Vector3(Random.Range(-ran, ran), Random.Range(-ran, ran), Random.Range(-ran, ran));
-        ran -= .1f;
-        if (ran < 0) ran = 0;
+        transform.Find("MainCam").localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
+        exp -= .1f;
+        if (exp < 0) exp = 0;
     }
     public float xoffset =2;
     public float yoffset=3;
     Vector3 oldpos;
-    public float ran;
+    public float exp;
     public static float ClampAngle(float angle, float min, float max, float clamp)
     {
         if (angle < -clamp)

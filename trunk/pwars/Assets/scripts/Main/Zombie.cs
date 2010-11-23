@@ -139,10 +139,10 @@ public class Zombie : IPlayer
         
         if (dead) return;
         Base b = collisionInfo.gameObject.GetComponent<Base>();
-        if (b != null && b is Box && Alive && isController &&
-            collisionInfo.impactForceSum.magnitude > 30)
+        if (b != null && b is Box && !(b is Zombie) && Alive && isController &&
+            collisionInfo.impactForceSum.magnitude > 20)
         {            
-            RPCSetLife(Life - Math.Max((int)collisionInfo.impactForceSum.sqrMagnitude * 3, 200), b.OwnerID);
+            RPCSetLife(Life - Math.Max((int)collisionInfo.impactForceSum.sqrMagnitude * 5, 200), b.OwnerID);
             if(_SettingsWindow.Blood)
                 _Game.Emit(_Game.BloodEmitors, _Game.Blood, transform.position, Quaternion.identity, rigidbody.velocity);
         }
@@ -153,7 +153,6 @@ public class Zombie : IPlayer
         base.OnPlayerConnected1(np);
         networkView.RPC("RPCSetup", np, (float)speed, (float)Life);
         if(!Alive) networkView.RPC("RPCDie", np, -1);
-        if (dead) networkView.RPC("RPCRemove", np);
     }    
 
 }

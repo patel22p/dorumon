@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
+Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 
 Project("{40E33803-D7C7-C08E-F833-7B29FC2985A8}") = "PhysxWars", "PhysxWars.csproj", "{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}"

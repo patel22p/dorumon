@@ -19,6 +19,15 @@ public class WindowBase : Base2
 
     public MonoBehaviour controller;
     //new public bool enabled { get { return base.enabled; } set { if (enabled) Show(); else Hide(); } }
+
+    public void Toggle(MonoBehaviour obj)
+    {
+        if (!enabled)
+            Show(obj);
+        else
+            Hide();
+
+    }
     public void Show(MonoBehaviour controller)
     {
         SendMessageUpwards("HideWindow", SendMessageOptions.DontRequireReceiver);        

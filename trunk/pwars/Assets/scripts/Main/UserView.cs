@@ -21,7 +21,7 @@ public class UserView : MonoBehaviour
     public VK.status st = new VK.status();
     public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
     public string photo = "";
-    public int uid;
+    public int vkId;
     public NetworkPlayer nwid;
     public int totalZombieKills;
     public int totalZombieDeaths;

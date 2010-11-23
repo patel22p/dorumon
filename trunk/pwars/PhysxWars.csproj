@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_1_0;UNITY_3_1;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_1_0;UNITY_3_1;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -52,7 +52,7 @@
      <Compile Include="Assets\Editor\AstarPathEditor.cs" />
      <Compile Include="Assets\Editor\AstarWelcome.cs" />
      <None Include="Assets\Editor\HeightmapExportPNG.js" />
-     <Compile Include="Assets\Editor\MassMaterialEditor.cs" />
+     <Compile Include="Assets\Editor\RTools.cs" />
      <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderYUV.shader" />
@@ -89,6 +89,10 @@
      <Compile Include="Assets\Pathfinding\AstarProcessing.cs" />
      <Compile Include="Assets\Pathfinding\AstarUser.cs" />
      <Compile Include="Assets\Pathfinding\Seeker.cs" />
+     <Compile Include="Assets\Plugins\CSI\CSharpInterpreter.cs" />
+     <None Include="Assets\Plugins\CSI\CSharpInterpreter_Include.txt" />
+     <Compile Include="Assets\Plugins\CSI\interpreter.cs" />
+     <Compile Include="Assets\Plugins\CSI\prepro.cs" />
      <None Include="Assets\Resources\Detonator\Resources\Detonator\Textures\HeatDistort.shader" />
      <None Include="Assets\Resources\Detonator\Sample Supporting Emitters\Detonator Spray Helper.js" />
      <Compile Include="Assets\Resources\Detonator\System\Detonator.cs" />

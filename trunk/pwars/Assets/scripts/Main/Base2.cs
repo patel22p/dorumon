@@ -54,19 +54,7 @@ public partial class Base2 : MonoBehaviour
     public static Music _Music { get { if (__Music == null) __Music = (Music)MonoBehaviour.FindObjectOfType(typeof(Music)); return __Music; } }
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
-    public long memorystart = 0;
-    public bool _oldGuiEnabled;
-    //public void Check()
-    //{
-        //if (memorystart == 0)
-        //    memorystart = GC.GetTotalMemory(false);
-        //else
-        //{
-        //    int used = (int)(GC.GetTotalMemory(false) - memorystart);
-        //    //if (used > 0) print("Meomory Used" + used);
-        //    memorystart = 0;
-        //}
-    //}
+    public long memorystart = 0;    
     
     public static string GenerateTable(string source)
     {

@@ -3,7 +3,6 @@ using System.Collections;
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
 using doru;
 
 
@@ -58,7 +57,7 @@ public class Box : Base
                 foreach (ContactPoint cp in collisionInfo.contacts)                    
                     _Game.Emit(_Game.metalSparkEmiters, _Game.metalSpark, cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }
-
+    public float tsendpackets;
     [RPC]
     public void RPCShow(bool value)
     {
@@ -67,7 +66,8 @@ public class Box : Base
     }
 
     protected virtual void Update()
-    {        
+    {
+        tsendpackets-=Time.deltaTime;
         if (bounds != null && !bounds.collider.bounds.Contains(this.transform.position) && enabled)
         {
             transform.position = SpawnPoint();
@@ -79,19 +79,20 @@ public class Box : Base
     }
     void ControllerUpdate()
     {
-        
+
         float min = float.MaxValue;
         IPlayer nearp = null;
         foreach (IPlayer p in _Game.iplayers)
-        {
-            if (p.enabled && p.OwnerID != -1)
+            if (p != null)
             {
-                float dist = Vector3.Distance(p.transform.position, this.transform.position);
-                if (min > dist)
-                    nearp = p;
-                min = Math.Min(dist, min);
+                if (p.enabled && p.OwnerID != -1)
+                {
+                    float dist = Vector3.Distance(p.transform.position, this.transform.position);
+                    if (min > dist)
+                        nearp = p;
+                    min = Math.Min(dist, min);
+                }
             }
-        }
 
         if (nearp != null && nearp.OwnerID != -1 && selected != nearp.OwnerID)
             networkView.RPC("SetController", RPCMode.All, nearp.OwnerID);
@@ -101,10 +102,10 @@ public class Box : Base
 
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        base.OnPlayerConnected1(np);        
+        if (OwnerID != -1) networkView.RPC("RPCSetOwner", np, OwnerID);
+        if (selected != -1) networkView.RPC("SetController", np, selected);
         networkView.RPC("RPCShow", np, enabled);
-        if (OwnerID != -1) networkView.RPC("RPCSetOwner", np, OwnerID);        
-        if (selected != -1) networkView.RPC("SetController", np, selected);        
+        base.OnPlayerConnected1(np);        
     }
 
     [RPC]
@@ -129,7 +130,8 @@ public class Box : Base
     public void RPCResetOwner()
     {
         CallRPC();
-        ((Box)this).selected = -1;
+        Debug.Log("_ResetOwner");
+        ((Box)this).selected = 0;
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
             bas.OwnerID = -1;
 
@@ -163,33 +165,35 @@ public class Box : Base
         if (!enabled) return;
         if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
-            lock ("ser")
-            {
-                if (stream.isWriting)
+            if (this.GetType() != typeof(Zombie) || tsendpackets<0)
+                lock ("ser")
                 {
-                    pos = rigidbody.position;
-                    rot = rigidbody.rotation;
-                    velocity = rigidbody.velocity;
-                    angularVelocity = rigidbody.angularVelocity;
-                }
-                stream.Serialize(ref pos);
-                stream.Serialize(ref velocity);
-                if (!zombieAlive)
-                {
-                    stream.Serialize(ref rot);
-                    stream.Serialize(ref angularVelocity);
-                }
-                if (stream.isReading && pos != default(Vector3))
-                {
-                    rigidbody.position = pos;
-                    rigidbody.velocity = velocity;
+                    tsendpackets = 1;
+                    if (stream.isWriting)
+                    {
+                        pos = rigidbody.position;
+                        rot = rigidbody.rotation;
+                        velocity = rigidbody.velocity;
+                        angularVelocity = rigidbody.angularVelocity;
+                    }
+                    stream.Serialize(ref pos);
+                    stream.Serialize(ref velocity);
                     if (!zombieAlive)
                     {
-                        rigidbody.rotation = rot;
-                        rigidbody.angularVelocity = angularVelocity;
+                        stream.Serialize(ref rot);
+                        stream.Serialize(ref angularVelocity);
+                    }
+                    if (stream.isReading && pos != default(Vector3))
+                    {
+                        rigidbody.position = pos;
+                        rigidbody.velocity = velocity;
+                        if (!zombieAlive)
+                        {
+                            rigidbody.rotation = rot;
+                            rigidbody.angularVelocity = angularVelocity;
+                        }
                     }
                 }
-            }
         }
-    }            
+    }
 }

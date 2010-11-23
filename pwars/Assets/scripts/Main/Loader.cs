@@ -46,6 +46,7 @@ public class Loader : Base
             //new MapSetting { mapName = "z5city" , title  = "Город" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
     }
+    string curdir { get { return Directory.GetCurrentDirectory(); } }
     void Start()
     {        
 
@@ -54,7 +55,9 @@ public class Loader : Base
         if (!isWebPlayer)
         {
             onScreenSize();
-            foreach (var a in Directory.GetFiles("ScreenShots").Reverse().Skip(100))
+            print("Creating Screenshots"+curdir);
+            Directory.CreateDirectory(curdir + "/ScreenShots");
+            foreach (var a in Directory.GetFiles(curdir + "/ScreenShots").Reverse().Skip(100))
                 File.Delete(a);
         }
     }
@@ -132,7 +135,7 @@ public class Loader : Base
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
         if(!isWebPlayer && Input.GetKeyDown(KeyCode.F))
-            Application.CaptureScreenshot("ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
+            Application.CaptureScreenshot(curdir +"/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
 
 
         _TimerA.Update();

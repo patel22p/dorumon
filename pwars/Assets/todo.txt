@@ -1,4 +1,4 @@
-destroy вернуть
+game.onplayerconnected foreach userviews!!
 статик где возможно натыкать обратно
 убрать папки в пути sounds,prefabs
 Убрать Root()

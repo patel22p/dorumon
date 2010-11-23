@@ -40,9 +40,9 @@ public class Game : Base
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
-        decal = Load("decal").transform;
-        base.Awake(); 
+        base.Awake();
         enabled = false;
+        decal = Load("decal").transform;
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
         metalSparkEmiters = metalSpark.GetComponentsInChildren<ParticleEmitter>();
         impactSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/Impact"))).transform;
@@ -53,8 +53,9 @@ public class Game : Base
         effects = GameObject.Find("GameEffects").transform;                
         _Level = Level.z4game;
         print(mapSettings.host);
+        Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
         if (Network.peerType == NetworkPeerType.Disconnected)
-            if (mapSettings.host)
+            if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
                 Network.InitializeServer(mapSettings.maxPlayers , mapSettings.port, false);
             else
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
@@ -71,20 +72,21 @@ public class Game : Base
         print(mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit,mapSettings.timeLimit);
-        RPCWriteMessage("Игрок законектился " + nick);        
-        LocalUserV.nwid = Network.player;
+        RPCWriteMessage("Игрок законектился " + nick);
+        print(Network.player);
+        LocalUserV.nwid = Network.player;        
         LocalUserV.team = Team.Spectator;
-        RPCSetUserView(LocalUserV.nwid, LocalUserV.nick, LocalUserV.uid, LocalUserV.photo, LocalUserV.totalKills, LocalUserV.totalDeaths, LocalUserV.totalZombieKills, LocalUserV.totalZombieDeaths);
-        userViews[LocalUserV.nwid.GetHashCode()] = LocalUserV;        
+        networkView.RPC("RPCSetUserView",RPCMode.Others ,LocalUserV.nwid, LocalUserV.nick, LocalUserV.vkId, LocalUserV.photo, LocalUserV.totalKills, LocalUserV.totalDeaths, LocalUserV.totalZombieKills, LocalUserV.totalZombieDeaths);
+        userViews[LocalUserV.nwid.GetHashCode()] = LocalUserV;
     }
 
-    
+
     void Update()
     {
         
-        timeleft  -= Time.deltaTime / 60;
+        timeleft -= Time.deltaTime / 60;
         var ts = TimeSpan.FromMinutes(timeleft);
-        _GameWindow.time.text  = ts.Minutes + ":" + ts.Seconds;
+        _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
         if (mapSettings.Team)
         {
             _GameWindow.blueTeam.text = BlueFrags.ToString();
@@ -97,9 +99,12 @@ public class Game : Base
             GunBase g = _localiplayer.guns[_localiplayer.selectedgun];
             _GameWindow.gunPatrons.text = g._Name + ":" + g.bullets;
             _GameWindow.energy = (int)_localiplayer.nitro;
-            _GameWindow.level.text = stage.ToString();
-            if (mapSettings.zombi) _GameWindow.zombiesLeft.text = AliveZombies.Count.ToString();
-            _GameWindow.frags.text = LocalUserV.frags.ToString();
+            if (mapSettings.zombi)
+            {
+                _GameWindow.zombiesLeft.text = "Зомби" + AliveZombies.Count.ToString();
+                _GameWindow.level.text = "Уровень" + stage.ToString();
+            }
+            _GameWindow.frags.text = "Фраги "+LocalUserV.frags.ToString();
         }
         if (Input.GetKeyDown(KeyCode.M))
             onShowMap();
@@ -120,23 +125,6 @@ public class Game : Base
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) lockCursor = !lockCursor;
 
-        //if (Input.GetKeyDown(KeyCode.Return))
-        //{
-        //    lockCursor = !lockCursor;
-        //    if (!lockCursor)
-        //    {
-        //        _GameWindow.isReadOnlyMsg = false;
-        //        _GameWindow.focusMsg = true;
-        //    }
-        //    else 
-        //    {
-        //        if (_GameWindow.Msg != "")
-        //            WriteChatMessage(nick + ": " + _GameWindow.Msg);
-        //        _GameWindow.Msg = "";
-        //        _GameWindow.focusEnergy = true;
-        //        _GameWindow.isReadOnlyMsg = true;
-        //    }
-        //}
 
         CheckWin();
 
@@ -144,7 +132,7 @@ public class Game : Base
             ZUpdate();
 
         if (Input.GetKeyDown(KeyCode.Escape))
-            _GameMenuWindow.Show(this);
+            _GameMenuWindow.Toggle(this);
 
         if (_TimerA.TimeElapsed(1000))
             RPCPingFps(Network.player.GetHashCode(),
@@ -197,7 +185,9 @@ public class Game : Base
         networkView.RPC("SetTimeLeft", np,timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);        
         networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        networkView.RPC("RPCSetUserView", np, LocalUserV.nwid, LocalUserV.nick, LocalUserV.uid, LocalUserV.photo, LocalUserV.totalKills, LocalUserV.totalDeaths, LocalUserV.totalZombieKills, LocalUserV.totalZombieDeaths);
+        foreach(UserView uv in userViews)
+            if(uv!=null)
+                networkView.RPC("RPCSetUserView", np, uv.nwid, uv.nick, uv.vkId, uv.photo, uv.totalKills, uv.totalDeaths, uv.totalZombieKills, uv.totalZombieDeaths);
         foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
             b.OnPlayerConnected1(np);
     }
@@ -242,12 +232,6 @@ public class Game : Base
         }
     }
     
-    //[RPC]
-    //void WriteChatMessage(string msg)
-    //{
-    //    CallRPC(msg);
-    //    _GameWindow.Messages += msg + "\r\n";
-    //}
     public void WriteMessage(string s)
     {
         _GameWindow.AppendSystemMessage(s);        
@@ -258,15 +242,12 @@ public class Game : Base
         CallRPC(s);
         WriteMessage(s);
     }
-    
     [RPC]
-    private void RPCSetUserView(NetworkPlayer nwid, string nick, int uid, string photo, int tk, int td, int tzk, int tzd)
+    private void RPCSetUserView(NetworkPlayer nwid,string nick, int uid, string photo, int tk, int td, int tzk, int tzd)
     {        
-        CallRPC(LocalUserV.nwid, LocalUserV.nick, LocalUserV.uid, LocalUserV.photo, tk, td, tzk, tzd);
-        if (nwid == Network.player) return;        
-        UserView user = this.gameObject.AddComponent<UserView>();
+        UserView user = this.gameObject.AddComponent<UserView>();       
         user.nick = nick;
-        user.uid = uid;
+        user.vkId = uid;
         user.photo = photo;
         user.nwid = nwid;
         user.totalKills = tk;
@@ -341,10 +322,8 @@ public class Game : Base
     }
     void OnPlayerDisconnected(NetworkPlayer player)
     {
-        RPCWriteMessage(userViews[player.GetHashCode()].nick + " Вышел из игры");
+        RPCWriteMessage(userViews[player.GetHashCode()].nick + " Вышел из игры"+player);
         int playerid = player.GetHashCode();        
-        userViews[playerid] = null;
-        //DestroyPlayer(player);
         foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
             if (!(box is Player))
             {
@@ -354,14 +333,18 @@ public class Game : Base
                 foreach (NetworkView nw in box.GetComponents<NetworkView>())
                     if (nw.owner.GetHashCode() == playerid) Destroy(nw.viewID);
             }
+        
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);
     }
+    
     [RPC]
     private void DestroyPlayer(NetworkPlayer p)
     {
+        print("destroy" + p);
         CallRPC(p);
-        players[p.GetHashCode()].Destroy();
+        if(players[p.GetHashCode()]!=null) players[p.GetHashCode()].Destroy();
+        userViews[p.GetHashCode()] = null;
     }
     [RPC]
     private void Destroy(NetworkViewID v)

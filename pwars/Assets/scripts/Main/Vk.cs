@@ -163,7 +163,7 @@ public partial class VK : Base
 
         
         UserView user = new UserView();
-        user.uid = userid;
+        user.vkId = userid;
         user.first_name = Regex.Match(res, "<first_name>(.*?)</first_name>").Groups[1].Value;
         user.last_name = Regex.Match(res, "<last_name>(.*?)</last_name>").Groups[1].Value;
         user.nick = Regex.Match(res, "<nickname>(.*?)</nickname>").Groups[1].Value;
@@ -264,7 +264,7 @@ public partial class VK : Base
                     Match m = Regex.Matches(res, "<value>(.*?)</value>")[i];
                     string[] ss = m.Groups[1].Value.Split(',');
                     UserView u = new UserView();
-                    u.uid = int.Parse(ss[0]);
+                    u.vkId = int.Parse(ss[0]);
                     u.nick = ss[1];
                     u.photo = ss[2];
 
@@ -280,7 +280,7 @@ public partial class VK : Base
                             min = u.totalKills;
                             id = i;
                         }
-                        if (u.uid == LocalUserV.uid)
+                        if (u.vkId == LocalUserV.vkId)
                         {
                             found = true;
                             id = i;
@@ -289,7 +289,7 @@ public partial class VK : Base
                 }
                 Thread.Sleep(500);
                 if (id != -1)
-                    SetGlobalVariable(key + id, joinString(',',LocalUserV.uid, LocalUserV.nick, LocalUserV.photo,
+                    SetGlobalVariable(key + id, joinString(',',LocalUserV.vkId, LocalUserV.nick, LocalUserV.photo,
                         zombie ? LocalUserV.totalZombieKills : LocalUserV.totalKills,
                         zombie ? LocalUserV.totalZombieDeaths : LocalUserV.totalDeaths));
                 else
@@ -378,15 +378,15 @@ public partial class VK : Base
             response r = (response)respxml.Deserialize(new StringReader(res));
             print("get friends " + r.users.Count);
             friends.Clear();
-            friends.Add(LocalUserV.uid, LocalUserV);
+            friends.Add(LocalUserV.vkId, LocalUserV);
             
             
             foreach (UserView user in r.users)
             {                
                 if(user.online==true)
                     LoadAvatar(user);
-                friends.Add(user.uid, user);
-                if (appusers.Contains(user.uid)) user.installed = true;
+                friends.Add(user.vkId, user);
+                if (appusers.Contains(user.vkId)) user.installed = true;
                 user.st.text = user.online ? "онлайн" : "офлайн";
             }
         }); 

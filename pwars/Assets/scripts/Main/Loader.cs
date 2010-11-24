@@ -20,6 +20,7 @@ public class Loader : Base
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
     new public bool skip;
+    public bool dontcheckwin;
     public bool disablePathFinding= true;
     public bool logged;
     new public UserView LocalUserV;

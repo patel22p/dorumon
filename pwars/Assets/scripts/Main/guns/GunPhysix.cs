@@ -1,11 +1,12 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
 
 public class GunPhysix : GunBase
 {
-    
+
     public float radius = 50;
     public float exp = 2000;
     public float expradius = 40;
@@ -15,21 +16,22 @@ public class GunPhysix : GunBase
     public void Start()
     {
         _Name = "Грави Пушка";
-        
+
         audio.clip = (AudioClip)Resources.Load("sounds/PowerGun");
-        
+
     }
-    
+
     protected override void FixedUpdate()
     {
         if (power)
         {
             if (bullets < exp) bullets += 80;
+
             foreach (Base b in _Game.dynamic)
             {
                 if (!(b is IPlayer))
                 {
-                    b.rigidbody.AddExplosionForce(-gravitaty * scalefactor* b.rigidbody.mass, cursor.position, radius);
+                    b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor.position, radius);
                     b.rigidbody.angularDrag = 30;
                     b.rigidbody.velocity *= .97f;
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
@@ -41,18 +43,29 @@ public class GunPhysix : GunBase
         }
         else
             audio.Stop();
-        base.FixedUpdate(); 
+        base.FixedUpdate();
 
     }
-
-    [RPC]
-    public void RPCSetPower(bool enable)
+    
+    void OnTriggerStay(Collider c)
     {
-        CallRPC(enable);
-        power = enable;
-        if (!enable)
+        Jumper j = c.GetComponent<Jumper>();
+        if (j != null)
         {
-
+            if (power)
+            {
+                Player p = root.GetComponent<Player>();
+                p.rigidbody.AddForce(transform.rotation * new Vector3(0, 0, 50) * scalefactor * p.rigidbody.mass);
+            }
+        }
+    }
+    [RPC]
+    public void RPCSetPower(bool e)
+    {
+        CallRPC(e);
+        power = e;
+        if (!e)
+        {
             //this.GetComponents<AudioSource>()[0].Stop();
             bool any = false;
 
@@ -66,6 +79,13 @@ public class GunPhysix : GunBase
                 }
             if (bullets > 300 && any)
                 PlaySound("superphys_launch3");
+
+            foreach (Transform t in _Game.jumpers)
+                if (IsPointed(jumper, 100))
+                {
+                    Player p = root.GetComponent<Player>();
+                    p.rigidbody.AddForce(transform.rotation * new Vector3(0, 0, -3000) * scalefactor * p.rigidbody.mass);                    
+                }
             bullets = 0;
 
         }
@@ -73,7 +93,7 @@ public class GunPhysix : GunBase
         //    this.GetComponents<AudioSource>()[0].Play();
     }
 
-     
+    public LayerMask jumper;
     protected override void LocalUpdate()
     {
         if (isOwner && enabled)
@@ -83,9 +103,9 @@ public class GunPhysix : GunBase
             else if (Input.GetMouseButtonUp(0))
                 RPCSetPower(false);
         }
-        
+
     }
 
-    
+
 
 }

@@ -44,7 +44,7 @@ public class RTools : EditorWindow
         foreach (string n in Enum.GetNames(typeof(GameMode)))
             if (GUI.Button(n))
             {
-                _loader.mapSettings.gameMode = (GameMode)Enum.Parse(typeof(GameMode), n);
+                _Loader.mapSettings.gameMode = (GameMode)Enum.Parse(typeof(GameMode), n);
             }
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
@@ -57,12 +57,12 @@ public class RTools : EditorWindow
         GUI.BeginHorizontal();
         if (GUILayout.Button("Server Editor"))
         {
-            _loader.mapSettings.host = true;
+            _Loader.mapSettings.host = true;
             EditorApplication.isPlaying = true;
         }
         if (GUILayout.Button("Client Editor"))
         {
-            _loader.mapSettings.host = false;
+            _Loader.mapSettings.host = false;
             EditorApplication.isPlaying = true;
         }
         GUI.EndHorizontal();
@@ -76,9 +76,9 @@ public class RTools : EditorWindow
         {
             System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
         }
-
-        if (Application.isPlaying)
-            InterPrenter();
+        _Loader.build = GUI.Toggle(_Loader.build, "build");
+        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
+        _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
     }
 
     
@@ -111,7 +111,7 @@ public class RTools : EditorWindow
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
-        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows,BuildOptions.Development | BuildOptions.StripDebugSymbols);
+        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows,BuildOptions.Development);
     }
 
     static EditorWindow _ewnd;
@@ -132,11 +132,10 @@ public class RTools : EditorWindow
             return _cs;
         }
     }
-    private static Loader _loader
+    private static Loader _Loader
     {
         get
         {
-
             GameObject g = (GameObject)AssetDatabase.LoadAssetAtPath(@"Assets/Resources/Prefabs/loader.prefab", typeof(GameObject));
             Loader l = g.GetComponent<Loader>();
             return l;

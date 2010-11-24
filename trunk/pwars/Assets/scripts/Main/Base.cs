@@ -21,8 +21,7 @@ public class Base : Base2, IDisposable
     protected virtual void Awake()
     {        
         if (_Loader == null)
-            Instantiate(Resources.Load("Prefabs/loader"));
-        OwnerID = -1;
+            Instantiate(Resources.Load("Prefabs/loader"));        
     }
 
     
@@ -47,7 +46,7 @@ public class Base : Base2, IDisposable
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static UserView LocalUserV { get { return _Loader.LocalUserV; } set { _Loader.LocalUserV = value; } }
-    public static UserView[] userViews { get { return _Loader.userViews; } }
+    
     public static LayerMask collmask { get { return _Loader.collmask; } }
     public static bool DebugKey(KeyCode key)
     {
@@ -60,16 +59,10 @@ public class Base : Base2, IDisposable
             s += a.ToString() + j;
         return s.Trim(j);
     }
-    public static IEnumerable<Player> TP2(Team t)
+    public static IEnumerable<Player> TP(Team t)
     {
         foreach (Player p in players)
-            if (p!=null && p.team == t) yield return p;
-    }
-    public static IEnumerable<UserView> TP(Team t)
-    {
-        foreach (UserView p in userViews)
-            if (p != null)
-                if (p.team == t) yield return p;
+                if (p != null && p.team == t) yield return p;
     }
     public static GameObject Load(string s)
     {

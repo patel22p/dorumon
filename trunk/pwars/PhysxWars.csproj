@@ -145,6 +145,14 @@
      <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZipException.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipInputStream.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipOutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\InvalidHeaderException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarArchive.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarBuffer.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarEntry.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarHeader.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarInputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarOutputStream.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\InflaterInputStream.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\OutputWindow.cs" />
@@ -176,6 +184,7 @@
      <Compile Include="Assets\scripts\Main\guns\BulletBazoka.cs" />
      <Compile Include="Assets\scripts\Main\guns\BulletGranate.cs" />
      <Compile Include="Assets\scripts\Main\guns\BulletMini.cs" />
+     <Compile Include="Assets\scripts\Main\guns\Explosion.cs" />
      <Compile Include="Assets\scripts\Main\guns\GunBase.cs" />
      <Compile Include="Assets\scripts\Main\guns\GunBazoka.cs" />
      <Compile Include="Assets\scripts\Main\guns\GunGranate.cs" />
@@ -190,7 +199,6 @@
      <Compile Include="Assets\scripts\Main\Car.cs" />
      <Compile Include="Assets\scripts\Main\CarController.cs" />
      <Compile Include="Assets\scripts\Main\Console.cs" />
-     <Compile Include="Assets\scripts\Main\Explosion.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
      <Compile Include="Assets\scripts\Main\Helper.cs" />

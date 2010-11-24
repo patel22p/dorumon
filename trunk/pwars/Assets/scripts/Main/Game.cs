@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,8 @@ using System.Text.RegularExpressions;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
 
-public class Game : Base  
-{    
+public class Game : Base
+{
     new public Player[] players = new Player[10];
     public List<IPlayer> iplayers = new List<IPlayer>();
     public List<Zombie> zombies = new List<Zombie>();
@@ -19,9 +20,8 @@ public class Game : Base
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
-    public Team team = Team.None;
-    public Transform effects;    
-    public int stage ;
+    public Transform effects;
+    public int stage;
     public float timeleft = 20;
     public bool wait;
     public bool win;
@@ -31,7 +31,7 @@ public class Game : Base
     public ParticleEmitter[] metalSparkEmiters;
     public Transform metalSpark;
     public ParticleEmitter[] impactSparkEmiters;
-    public Transform impactSpark; 
+    public Transform impactSpark;
     public Transform Blood;
     public ParticleEmitter[] BloodEmitors;
     public Transform decal;
@@ -41,7 +41,6 @@ public class Game : Base
     protected override void Awake()
     {
         base.Awake();
-        enabled = false;
         decal = Load("decal").transform;
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
         metalSparkEmiters = metalSpark.GetComponentsInChildren<ParticleEmitter>();
@@ -49,14 +48,14 @@ public class Game : Base
         impactSparkEmiters = impactSpark.GetComponentsInChildren<ParticleEmitter>();
         Blood = ((GameObject)Instantiate(Resources.Load("Prefabs/BloodSplatters"))).transform;
         BloodEmitors = Blood.GetComponentsInChildren<ParticleEmitter>();
-        if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
-        effects = GameObject.Find("GameEffects").transform;                
+        if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);
+        effects = GameObject.Find("GameEffects").transform;
         _Level = Level.z4game;
         print(mapSettings.host);
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
-                Network.InitializeServer(mapSettings.maxPlayers , mapSettings.port, false);
+                Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);
             else
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
         else
@@ -67,23 +66,22 @@ public class Game : Base
     void Enable() { enabled = true; }
     void Start()
     {
-        print("ZGameStart");        
+        print("ZGameStart");
         //_vk.enabled = false;        
         print(mapSettings.timeLimit);
         if (Network.isServer)
-            RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit,mapSettings.timeLimit);
+            RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
-        print(Network.player);
-        LocalUserV.nwid = Network.player;        
-        LocalUserV.team = Team.Spectator;
-        networkView.RPC("RPCSetUserView",RPCMode.Others ,LocalUserV.nwid, LocalUserV.nick, LocalUserV.vkId, LocalUserV.photo, LocalUserV.totalKills, LocalUserV.totalDeaths, LocalUserV.totalZombieKills, LocalUserV.totalZombieDeaths);
-        userViews[LocalUserV.nwid.GetHashCode()] = LocalUserV;
+        print("asdasdkljadg1");
+        Network.Instantiate(Resources.Load("Prefabs/Player"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
+
+
     }
 
 
     void Update()
     {
-        
+
         timeleft -= Time.deltaTime / 60;
         var ts = TimeSpan.FromMinutes(timeleft);
         _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
@@ -104,11 +102,11 @@ public class Game : Base
                 _GameWindow.zombiesLeft.text = "Зомби" + AliveZombies.Count.ToString();
                 _GameWindow.level.text = "Уровень" + stage.ToString();
             }
-            _GameWindow.frags.text = "Фраги "+LocalUserV.frags.ToString();
+            _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
         }
         if (Input.GetKeyDown(KeyCode.M))
             onShowMap();
-            
+
         if (Input.GetKeyDown(KeyCode.Tab))
             _GameStatsWindow.Show(this);
         if (Input.GetKeyUp(KeyCode.Tab))
@@ -117,10 +115,10 @@ public class Game : Base
         if (_GameStatsWindow.enabled)
         {
             _GameStatsWindow.PlayerStats = "";
-            string table = GenerateTable(_GameStatsWindow.PlayerStatsTitle);            
-            foreach (UserView user in userViews)
-                if (user != null)
-                    _GameStatsWindow.PlayerStats += string.Format(table, "", user.nick, user.team, user.score, user.frags, user.deaths, user.fps, user.ping) + "\r\n";
+            string table = GenerateTable(_GameStatsWindow.PlayerStatsTitle);
+            foreach (Player pl in players)
+                if (pl != null)
+                    _GameStatsWindow.PlayerStats += string.Format(table, "", pl.nick, pl.team, pl.score, pl.frags, pl.deaths, pl.fps, pl.ping) + "\r\n";
         }
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) lockCursor = !lockCursor;
@@ -157,7 +155,7 @@ public class Game : Base
             }
         }
     }
-    
+
     void onMenu() { _GameMenuWindow.Show(this); }
     void onIrcChatButton() { _IrcChatWindow.Show(this); }
     void onTeams() { _TeamSelectWindow.tabImages = _TeamSelectWindow.iTeams; }
@@ -168,13 +166,13 @@ public class Game : Base
     void onScoreBoard() { _GameStatsWindow.Show(this); }
     void onShowMap() { MapCamera.active = !MapCamera.active; _Cam.camera.gameObject.active = !MapCamera.active; lockCursor = true; }
     [RPC]
-    private void RPCGameSettings(string version, int gameMode, int frags,float timelimit)
-    {        
-        CallRPC(version, gameMode, frags,timelimit);
+    private void RPCGameSettings(string version, int gameMode, int frags, float timelimit)
+    {
+        CallRPC(version, gameMode, frags, timelimit);
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
         _TeamSelectWindow.tabGameType = (int)mapSettings.gameMode;
-        _TeamSelectWindow.Fraglimit = mapSettings.fragLimit = frags;        
+        _TeamSelectWindow.Fraglimit = mapSettings.fragLimit = frags;
         if (!mapSettings.Team) _TeamSelectWindow.enabledTeamsView = false;
         _TeamSelectWindow.Show(this);
     }
@@ -182,12 +180,9 @@ public class Game : Base
     {
         base.OnPlayerConnected1(np);
         print(pr);
-        networkView.RPC("SetTimeLeft", np,timeleft);
-        if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);        
+        networkView.RPC("SetTimeLeft", np, timeleft);
+        if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
         networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        foreach(UserView uv in userViews)
-            if(uv!=null)
-                networkView.RPC("RPCSetUserView", np, uv.nwid, uv.nick, uv.vkId, uv.photo, uv.totalKills, uv.totalDeaths, uv.totalZombieKills, uv.totalZombieDeaths);
         foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
             b.OnPlayerConnected1(np);
     }
@@ -204,11 +199,11 @@ public class Game : Base
     }
 
     public List<Zombie> AliveZombies = new List<Zombie>();
-    
+    bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
     private void ZUpdate()
     {
         
-        if (HasAny(players) && Network.isServer)
+        if ( HasAny() && Network.isServer)
         {
             if (_TimerA.TimeElapsed(500) && zombiespawnindex < maxzombies)
             {
@@ -242,35 +237,14 @@ public class Game : Base
         CallRPC(s);
         WriteMessage(s);
     }
-    [RPC]
-    private void RPCSetUserView(NetworkPlayer nwid,string nick, int uid, string photo, int tk, int td, int tzk, int tzd)
-    {        
-        UserView user = this.gameObject.AddComponent<UserView>();       
-        user.nick = nick;
-        user.vkId = uid;
-        user.photo = photo;
-        user.nwid = nwid;
-        user.totalKills = tk;
-        user.totalDeaths = td;
-        user.totalZombieKills = tzk;
-        user.totalZombieDeaths = tzd;
-        if (photo != "")
-            new WWW2(photo).done += delegate(WWW2 www)
-            {
-                print("loaded texture");
-                user.texture = www.www.texture;
-                DontDestroyOnLoad(user.texture);
-            };        
-        userViews[nwid.GetHashCode()] =  user;
-        print(pr + "Received RPCSetUserView" + nwid.GetHashCode() + "," + userViews[nwid.GetHashCode()]);        
-    }
+    
     
     [RPC]    
     void RPCPingFps(int id, int ping, int fps)
     {
         CallRPC(id, ping, fps);
-        userViews[id].fps = fps;
-        userViews[id].ping = ping;        
+        players[id].fps = fps;
+        players[id].ping = ping;        
     }
     
     private void CreateZombie(Zombie zombie)
@@ -282,10 +256,9 @@ public class Game : Base
     [RPC]
     private void RPCNextStage(int stage)
     {
-        
         CallRPC(stage);
         PlaySound("stage");
-        this.stage = stage;        
+        this.stage = stage;
         maxzombies = mapSettings.fragLimit + stage;
         zombiespawnindex = 0;
         _Cam.LevelText.text = "Stage " + stage;
@@ -300,11 +273,10 @@ public class Game : Base
     {
         _TeamSelectWindow.Hide();
 
-        team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;         
-        lockCursor = true;
-
-        if (_localPlayer == null)
-            Network.Instantiate(Resources.Load("Prefabs/Player"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
+        _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
+        
+        if(!_localPlayer.spawned) _localPlayer.RPCSpawn();
+        lockCursor = true;                    
     }
     public void Spectator()
     {
@@ -321,9 +293,9 @@ public class Game : Base
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
     }
     void OnPlayerDisconnected(NetworkPlayer player)
-    {
-        RPCWriteMessage(userViews[player.GetHashCode()].nick + " Вышел из игры"+player);
-        int playerid = player.GetHashCode();        
+    {        
+        int playerid = player.GetHashCode();
+        RPCWriteMessage(players[playerid].nick + " Вышел из игры" + player);
         foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
             if (!(box is Player))
             {
@@ -337,15 +309,7 @@ public class Game : Base
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);
     }
-    
-    [RPC]
-    private void DestroyPlayer(NetworkPlayer p)
-    {
-        print("destroy" + p);
-        CallRPC(p);
-        if(players[p.GetHashCode()]!=null) players[p.GetHashCode()].Destroy();
-        userViews[p.GetHashCode()] = null;
-    }
+        
     [RPC]
     private void Destroy(NetworkViewID v)
     {
@@ -354,21 +318,16 @@ public class Game : Base
         nw.enabled = false;
         Component.Destroy(nw);
     }
-    public bool HasAny<T>(T[] ts)
-    {
-        foreach (T t in ts)
-            if (t != null) return true;
-        return false;
-    }
+    
     void CheckWin()
     {
         if (_TimerA.TimeElapsed(1000))
         {
             BlueFrags = RedFrags = 0;
-            foreach (UserView pl in TP(Team.Red))
+            foreach (Player pl in TP(Team.Red))
                 RedFrags += pl.frags;
 
-            foreach (UserView pl in TP(Team.Blue))
+            foreach (Player pl in TP(Team.Blue))
                 BlueFrags += pl.frags;
 
             if (Network.isServer && !win)
@@ -390,7 +349,7 @@ public class Game : Base
         int live = 0;
         foreach (Player p in players)
             if (p != null && !p.dead) live++;
-        if (live == 0 && HasAny(players) || TimeCaput)
+        if (live == 0 && HasAny() || TimeCaput)
         {
             RPCWriteMessage(String.Format("Вы умерли дожив до {0} раунда", stage));
             ShowEndStats();
@@ -429,12 +388,12 @@ public class Game : Base
     {
         bool BlueteamLive = false, RedteamLive = false;
         int rcount = 0, bcount = 0;
-        foreach (Player p in TP2(Team.Blue))
+        foreach (Player p in TP(Team.Blue))
         {
             rcount++;
             if (!p.dead) BlueteamLive = true;
         }
-        foreach (Player p in TP2(Team.Red))
+        foreach (Player p in TP(Team.Red))
         {
             bcount++;
             if (!p.dead) RedteamLive = true;

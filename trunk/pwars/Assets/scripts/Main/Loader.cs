@@ -16,11 +16,11 @@ public enum Level { z1login, z2menu, z4game }
 public class Loader : Base
 {
     public string cmd="";    
-    new public UserView[] userViews = new UserView[10];
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
     new public bool skip;
+    public bool disablePathFinding= true;
     public bool logged;
     new public UserView LocalUserV;
     new public Level _Level;

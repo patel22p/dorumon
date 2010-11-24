@@ -8,45 +8,57 @@ public enum Team : int { Red, Blue, Spectator, None }
 public class Player : IPlayer
 {
     public CarController car;
-    public new Team team { get { return userView.team; } set { userView.team = value; } }
-    public float force; 
+    public new Team team;
+    public float force;
+    public int score;
     public float freezedt; 
     public int guni;
-    new public string nick { get { return userView.nick; } } 
-    public int frags { get { return userView.frags; } set { userView.frags = value; } }
-    public UserView userView;
+    public int fps;
+    public int ping;
+    public int deaths;
+    new public string nick;
+    public bool spawned;
+    public int frags;
     public ParticleEmitter speedparticles;
     const int life = 100;
     protected override void Awake() 
-    {  
-        force = 400;
-        speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>(); 
+    {
+        
+        if (networkView.isMine)
+        {
+            _Game._localiplayer = _Game._localPlayer = this;
+            RPCSetOwner();
+
+            RPCSetUserInfo(LocalUserV.nick);
+            this.RPCShow(false);
+            
+        }
+
+        speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
+
         base.Awake();
     }
 
     protected override void Start()
-    {        
-        
-        base.Start();        
-        if (networkView.isMine)
-        {
-            _Game._localiplayer = _Game._localPlayer = this;
-            print(pr); 
-            RPCSetOwner();
-            RPCSpawn();            
-        }
+    {
+        base.Start();                
     }
 
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
-        networkView.RPC("RPCSetTeam", np, (int)team);
-        networkView.RPC("RPCSpawn", np);
-        networkView.RPC("RPCSelectGun", np, selectedgun);
+        networkView.RPC("RPCSetUserInfo", np, nick);
+        
         networkView.RPC("RPCSetFrags", np, frags);
-        networkView.RPC("RPCSetDeaths", np, userView.deaths);
-        if (dead) networkView.RPC("RPCDie", np, -1);
-        if (car != null) networkView.RPC("RPCCarIn", np);
+        networkView.RPC("RPCSetDeaths", np, deaths);
+        if (spawned)
+        {
+            networkView.RPC("RPCSetTeam", np, (int)team);        
+            networkView.RPC("RPCSpawn", np);
+            networkView.RPC("RPCSelectGun", np, selectedgun);        
+            if (spawned && dead) networkView.RPC("RPCDie", np, -1);
+            if (car != null) networkView.RPC("RPCCarIn", np);
+        }
     }
     
     public override void OnSetOwner()
@@ -57,20 +69,21 @@ public class Player : IPlayer
         else
             name = "RemotePlayer" + OwnerID;
         _Game.players[OwnerID] = this;
-        userView = userViews[OwnerID];
-        _Game.WriteMessage(userView.nick + " зашел в игру ");
+        _Game.WriteMessage(nick + " зашел в игру ");
     }
 
     [RPC]
     public void RPCSpawn()
     {
+        spawned = true;
         print(pr);
         CallRPC();
+        
         Show(true);
         if (isOwner)
         {
+            RPCSetTeam((int)team);
             RPCSelectGun(1);
-            RPCSetTeam((int)_Game.team);
             transform.position = SpawnPoint();
             transform.rotation = Quaternion.identity;
         }
@@ -80,12 +93,25 @@ public class Player : IPlayer
         freezedt = 0;
 
     }
-    
+    [RPC]
+    public void RPCSelectGun(int i)
+    {
+        CallRPC(i);
+        print("change" + i);
+        PlaySound("change");
+        selectedgun = i;
+        if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
+            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
+        foreach (GunBase gb in guns)
+            gb.DisableGun();
+        guns[selectedgun].EnableGun();
+    }
     
 
     protected override void Update()
-    {    
-        
+    {
+        if (DebugKey(KeyCode.Keypad1))
+            RPCSetLife(-1, -1);
         multikilltime-= Time.deltaTime;
         if (this.rigidbody.velocity.magnitude > 30)
         {
@@ -143,7 +169,7 @@ public class Player : IPlayer
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
-                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * 15);                
+                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * 7);                
                 v.x *= .65f;
                 v.z *= .65f;
                 this.rigidbody.velocity = v;
@@ -151,7 +177,7 @@ public class Player : IPlayer
             else
             {
                 this.rigidbody.maxAngularVelocity = v.magnitude / 1.1f;
-                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * 2 * (freezedt > 0 ? .5f : 1));
+                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * (freezedt > 0 ? .5f : 1));
             }
         }
     }
@@ -186,8 +212,8 @@ public class Player : IPlayer
         team = (Team)t;
     }
     [RPC]
-    public void RPCSetDeaths(int d) { LocalUserV.deaths = d; }
-    public override bool dead { get { return !enabled && car == null; } }
+    public void RPCSetDeaths(int d) { deaths = d; }
+    public override bool dead { get { return !enabled && spawned && car == null; } }
      
     [RPC]
     private void RPCSpec()
@@ -227,7 +253,7 @@ public class Player : IPlayer
         e.OwnerID = OwnerID;
         e.self = this;
         e.exp = 2000;        
-        _Cam.exp = 1;                
+        _Cam.exp = 2;                
         Destroy(g, 1.6f);
     }
 
@@ -254,13 +280,22 @@ public class Player : IPlayer
             RPCDie(killedby);
 
     }
+
+    [RPC]
+    private void RPCSetUserInfo(string nick)
+    {
+
+        CallRPC(nick);
+        this.nick = nick;
+    }
+
     [RPC]
     public override void RPCDie(int killedby)
     {
         print(pr);
         CallRPC(killedby);
         Instantiate(Resources.Load("Detonator/Prefab Examples/Detonator-Chunks"), transform.position, Quaternion.identity);
-        userView.deaths++;
+        deaths++;
         if (isOwner)
         {
             if (!mapSettings.TeamZombiSurvive && !mapSettings.ZombiSurvive) _TimerA.AddMethod(10000, RPCSpawn);

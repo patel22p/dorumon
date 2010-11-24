@@ -16,12 +16,11 @@ public class Box : Base
 
     Vector3 velocity;
     Vector3 angularVelocity;
-    public int selected;
+    public int selected = -1;
     public bool zombieAlive { get { return (this is Zombie && ((Zombie)this).Alive); } }
 
     protected override void Awake()
     {
-        selected = -1 ;
         if (Network.peerType == NetworkPeerType.Disconnected)
             enabled = false;
         bounds = GameObject.Find("bounds").transform;
@@ -32,11 +31,6 @@ public class Box : Base
     void Enable() { enabled = true; }
     protected virtual void Start()
     {
-        if (this.GetType() == typeof(Box))
-        {
-            rigidbody.mass = 10;
-            //rigidbody.angularDrag = 20;
-        }
         _Game.dynamic.Add(this);
         spawnpos = transform.position;
         if (!(this is Player))
@@ -131,7 +125,7 @@ public class Box : Base
     {
         CallRPC();
         Debug.Log("_ResetOwner");
-        ((Box)this).selected = 0;
+        ((Box)this).selected = -1;
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
             bas.OwnerID = -1;
 
@@ -165,35 +159,35 @@ public class Box : Base
         if (!enabled) return;
         if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
-            if (this.GetType() != typeof(Zombie) || tsendpackets<0)
-                lock ("ser")
+            //if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets<0)
+            lock ("ser")
+            {
+                tsendpackets = 1;
+                if (stream.isWriting)
                 {
-                    tsendpackets = 1;
-                    if (stream.isWriting)
-                    {
-                        pos = rigidbody.position;
-                        rot = rigidbody.rotation;
-                        velocity = rigidbody.velocity;
-                        angularVelocity = rigidbody.angularVelocity;
-                    }
-                    stream.Serialize(ref pos);
-                    stream.Serialize(ref velocity);
+                    pos = rigidbody.position;
+                    rot = rigidbody.rotation;
+                    velocity = rigidbody.velocity;
+                    angularVelocity = rigidbody.angularVelocity;
+                }
+                stream.Serialize(ref pos);
+                stream.Serialize(ref velocity);
+                if (!zombieAlive)
+                {
+                    stream.Serialize(ref rot);
+                    stream.Serialize(ref angularVelocity);
+                }
+                if (stream.isReading && pos != default(Vector3))
+                {
+                    rigidbody.position = pos;
+                    rigidbody.velocity = velocity;
                     if (!zombieAlive)
                     {
-                        stream.Serialize(ref rot);
-                        stream.Serialize(ref angularVelocity);
-                    }
-                    if (stream.isReading && pos != default(Vector3))
-                    {
-                        rigidbody.position = pos;
-                        rigidbody.velocity = velocity;
-                        if (!zombieAlive)
-                        {
-                            rigidbody.rotation = rot;
-                            rigidbody.angularVelocity = angularVelocity;
-                        }
+                        rigidbody.rotation = rot;
+                        rigidbody.angularVelocity = angularVelocity;
                     }
                 }
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ using System.IO;
 public class RTools : EditorWindow
 {
 
-    [MenuItem("Window/RTools")]
+    [MenuItem("RTools/RTools")]
     static void rtoolsclick()
     {
         if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
@@ -34,12 +34,8 @@ public class RTools : EditorWindow
         {
             foreach (Player p in Base2._Game.players)
                 if (p != null)
-                    if (GUI.Button(p.name + p.userView.vkId))
-                        Selection.activeObject = p;
-            foreach (UserView uv in Base2._Loader.userViews)
-                if (uv != null)
-                    if (GUI.Button("userview" + uv.nwid))
-                        Selection.activeObject = uv;
+                    if (GUI.Button(p.name+":"+p.OwnerID))
+                        Selection.activeObject = p;            
 
         }
 
@@ -57,21 +53,24 @@ public class RTools : EditorWindow
             Build();
             return;
         }
-        if (GUILayout.Button("Start Client"))
-        {
-            _loader.mapSettings.host = false;
-            EditorApplication.isPlaying = true;
-        }
-        if (GUILayout.Button("Start Server"))
+        GUI.EndHorizontal();
+        GUI.BeginHorizontal();
+        if (GUILayout.Button("Server Editor"))
         {
             _loader.mapSettings.host = true;
             EditorApplication.isPlaying = true;
         }
-        if (GUILayout.Button("Run Server"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
-        if (GUILayout.Button("Run Client"))
+        if (GUILayout.Button("Client Editor"))
+        {
+            _loader.mapSettings.host = false;
+            EditorApplication.isPlaying = true;
+        }
+        GUI.EndHorizontal();
+        GUI.BeginHorizontal();        
+        if (GUILayout.Button("Client App"))
             System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
-
+        if (GUILayout.Button("Server App"))
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
         GUI.EndHorizontal();
         if (GUILayout.Button("Open Project Folder"))
         {
@@ -112,7 +111,7 @@ public class RTools : EditorWindow
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
-        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.None);
+        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows,BuildOptions.Development | BuildOptions.StripDebugSymbols);
     }
 
     static EditorWindow _ewnd;

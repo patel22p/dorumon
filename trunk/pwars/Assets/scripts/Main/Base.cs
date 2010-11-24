@@ -50,6 +50,7 @@ public class Base : Base2, IDisposable
     public static LayerMask collmask { get { return _Loader.collmask; } }
     public static bool DebugKey(KeyCode key)
     {
+        if (Input.GetKeyDown(key) && !build) print("Debug Key" + key);
         return Input.GetKeyDown(key) && !build;
     }
     public static string joinString(char j, params object[] o)
@@ -70,12 +71,17 @@ public class Base : Base2, IDisposable
         if (g == null) print("Could Not Load GameObject");
         return g;
     }
-    public static RaycastHit ScreenRay()
+
+    public static bool IsPointed(LayerMask collmask, float len)
+    {
+        return IsPointedRay(collmask,len).collider != null;
+    }
+    public static RaycastHit IsPointedRay(LayerMask msk,float len)
     {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
-        ray.origin = ray.GetPoint(10);
+        ray.origin = ray.GetPoint(1);
         RaycastHit h;
-        Physics.Raycast(ray, out h, float.MaxValue, collmask);
+        Physics.Raycast(ray, out h, len, msk);
         return h;
     }
     public static IEnumerable<Transform> getChild(Transform t)
@@ -145,14 +151,6 @@ public class Base : Base2, IDisposable
     public virtual void onShow(bool enabled)
     {
     }
-    //if (value)
-    //{
-    //    if (hidden) { transform.localPosition += new Vector3(99999, 0, 0); hidden = false; }
-    //}
-    //else
-    //{
-    //    if (!hidden) { transform.localPosition -= new Vector3(99999, 0, 0); hidden = true; }
-    //}
     public void CallRPC(params object[] obs)
     {                
         MethodBase rpcmethod = new System.Diagnostics.StackFrame(1, true).GetMethod();

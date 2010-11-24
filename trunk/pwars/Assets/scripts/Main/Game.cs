@@ -16,10 +16,14 @@ public class Game : Base
     new public Player[] players = new Player[10];
     public List<IPlayer> iplayers = new List<IPlayer>();
     public List<Zombie> zombies = new List<Zombie>();
+    public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
+    public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
+
     public List<Base> dynamic = new List<Base>();
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
+    public IEnumerable<Transform> jumpers { get { return getChild(transform.Find("jumpers")); } }
     public Transform effects;
     public int stage;
     public float timeleft = 20;
@@ -27,7 +31,6 @@ public class Game : Base
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
     public int maxzombies = 0;
-    public int zombiespawnindex;
     public ParticleEmitter[] metalSparkEmiters;
     public Transform metalSpark;
     public ParticleEmitter[] impactSparkEmiters;
@@ -35,13 +38,13 @@ public class Game : Base
     public Transform Blood;
     public ParticleEmitter[] BloodEmitors;
     public Transform decal;
-    public bool enablePathFinding;
+    public int zombiespawnindex = 0;
     public GameObject MapCamera;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
         base.Awake();
-        decal = Load("decal").transform;
+        decal = Load("decal").transform;         
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
         metalSparkEmiters = metalSpark.GetComponentsInChildren<ParticleEmitter>();
         impactSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/Impact"))).transform;
@@ -99,7 +102,7 @@ public class Game : Base
             _GameWindow.energy = (int)_localiplayer.nitro;
             if (mapSettings.zombi)
             {
-                _GameWindow.zombiesLeft.text = "Зомби" + AliveZombies.Count.ToString();
+                _GameWindow.zombiesLeft.text = "Зомби" + deadZombies.Count().ToString();
                 _GameWindow.level.text = "Уровень" + stage.ToString();
             }
             _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
@@ -123,8 +126,7 @@ public class Game : Base
 
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) lockCursor = !lockCursor;
 
-
-        CheckWin();
+        if (!_Loader.dontcheckwin) CheckWin();
 
         if (mapSettings.TeamZombiSurvive || mapSettings.ZombiSurvive)
             ZUpdate();
@@ -198,7 +200,7 @@ public class Game : Base
         Debug.Break();
     }
 
-    public List<Zombie> AliveZombies = new List<Zombie>();
+    
     bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
     private void ZUpdate()
     {
@@ -208,21 +210,21 @@ public class Game : Base
             if (_TimerA.TimeElapsed(500) && zombiespawnindex < maxzombies)
             {
                 Transform zsp = transform.Find("zsp");
-                Transform a = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
+                Transform zombiepos = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
                 if (zombiespawnindex < zombies.Count)
-                    CreateZombie(zombies[zombiespawnindex]);
+                    CreateZombie(zombies[zombiespawnindex],zombiepos.position);
                 else
                 {
-                    GameObject t = (GameObject)Network.Instantiate(Resources.Load("Prefabs/Zombie"), a.position, Quaternion.identity, (int)GroupNetwork.Zombie);
+                    GameObject t = (GameObject)Network.Instantiate(Resources.Load("Prefabs/Zombie"), zombiepos.position, Quaternion.identity, (int)GroupNetwork.Zombie);
                     Zombie z = (t).GetComponent<Zombie>();
-                    CreateZombie(z);
+                    CreateZombie(z, zombiepos.position);
                 }
                 zombiespawnindex++;
             }
-            if (AliveZombies.Count == 0 && zombiespawnindex == maxzombies && !wait)
+            if (AliveZombies.Count() == 0 && zombiespawnindex == maxzombies && !wait)
             {
                 wait = true;
-                _TimerA.AddMethod(5000, delegate { RPCNextStage(stage + 1); });
+                _TimerA.AddMethod(100, delegate { RPCNextStage(stage + 1); });
             }
         }
     }
@@ -247,8 +249,9 @@ public class Game : Base
         players[id].ping = ping;        
     }
     
-    private void CreateZombie(Zombie zombie)
+    private void CreateZombie(Zombie zombie,Vector3 pos)
     {
+        zombie.transform.position = pos;
         zombie.RPCSetup(5 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
             UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
         wait = false;

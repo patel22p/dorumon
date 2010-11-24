@@ -17,6 +17,7 @@ public class Player : IPlayer
     public int ping;
     public int deaths;
     new public string nick;
+    public LayerMask mskpl;
     public bool spawned;
     public int frags;
     public ParticleEmitter speedparticles;
@@ -237,7 +238,6 @@ public class Player : IPlayer
         if (b != null && isOwner && b.OwnerID != -1 && (b.isOwner || players[b.OwnerID].team != team || mapSettings.DM) &&
             !(b is Player) && !(b is Zombie) &&
             collisionInfo.rigidbody.velocity.magnitude > 20
-            //&& rigidbody.velocity.magnitude < collisionInfo.rigidbody.velocity.magnitude
             )
         {
             RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 2, b.OwnerID);
@@ -271,8 +271,8 @@ public class Player : IPlayer
         CallRPC(NwLife, killedby);
         if (isOwner)
             _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
-        
 
+        print(isEnemy(killedby));
         if (isEnemy(killedby))
             Life = NwLife;
 

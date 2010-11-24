@@ -7,16 +7,17 @@ public class Zombie : IPlayer
     float zombieWait = 0;
     float zombieBite;
     public float speed = .3f;
-    public override bool dead { get { return !Alive; } }
-    public bool Alive = true;
+    public override bool dead { get { return !Alive; } }        
+    public bool Alive;
     public float up = 1f;
+    public bool biting;
     public Vector3 oldpos;
     public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
     protected override void Start()
     {
-        if(_Game.enablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
+        if(!_Loader.disablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
         _Game.zombies.Add(this);
         base.Start();
     }
@@ -25,6 +26,7 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
+        
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);
         Alive = true;
@@ -32,7 +34,6 @@ public class Zombie : IPlayer
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
         Life = (int)zombieLife;
-        _Game.AliveZombies.Add(this);
     }
     float seekPath;
     protected override void Update()
@@ -55,16 +56,17 @@ public class Zombie : IPlayer
                     //Debug.DrawLine(transform.position, ipl.transform.position);
                     RaycastHit hitInfo;
                     bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), _Loader.LevelMask);
-                    if (!shit || !_Game.enablePathFinding || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
+                    if (shit || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
                         pathPointDir = zToPlDir;
                     Debug.DrawLine(p, p + pathPointDir);
                     pathPointDir.y = 0;
-                    r = Quaternion.LookRotation(pathPointDir.normalized);
-                    transform.position += r * new Vector3(0, 0, speed * Time.deltaTime);
+                    r = Quaternion.LookRotation(pathPointDir.normalized);                    
                     oldpos = p;
+                    biting = false;
                 }
                 else if (ipl.isOwner && zombieBite > 1)
                 {
+                    biting = true;
                     zombieBite = 0;
                     if (ipl is Player)
                         PlayRandSound("scream");
@@ -74,9 +76,15 @@ public class Zombie : IPlayer
             }
         }
     }
-
+    
+    void FixedUpdate()
+    {        
+        if(!biting && Alive)
+            transform.position += r * new Vector3(0, 0, speed * Time.fixedDeltaTime);
+    }
     private Vector3 GetNextPathPoint(IPlayer ipl)
     {
+        print(_Loader.disablePathFinding);
         if ((seekPath -= Time.deltaTime) < 0)
         {
             seeker.StartPath(this.transform.position, ipl.transform.position);
@@ -107,7 +115,6 @@ public class Zombie : IPlayer
         PlayRandSound("gib");
         if (!Alive) { return; }
         Alive = false;
-        _Game.AliveZombies.Remove(this);
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", (Texture2D)Resources.Load("Images/zombiedead"));        
         if (isController)
         {            

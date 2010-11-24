@@ -58,7 +58,7 @@ public abstract class IPlayer : Box
 
         if (title != null && _TimerA.TimeElapsed(50) && _Game.cameraActive)
         {
-            if (!isOwner && _localPlayer != null && ((_localPlayer.team == team && !mapSettings.DM) || IsPointed()))
+            if (!isOwner && _localPlayer != null && ((_localPlayer.team == team && !mapSettings.DM) || IsPointed(_localPlayer.mskpl, 10)))
                 shownicktime = 2;
             if (OwnerID != -1 && shownicktime > 0)
                 title.text = _Game.players[OwnerID].nick + ":" + Life;
@@ -96,12 +96,7 @@ public abstract class IPlayer : Box
     }
     
     
-    bool IsPointed()
-    {
-        RaycastHit rah = ScreenRay();
-        if (rah.collider == null) return false;
-        return rah.collider.gameObject.transform.root == this.gameObject;
-    }
+    
     
     [RPC]
     public virtual void RPCSetLife(int NwLife, int killedby)
@@ -118,9 +113,10 @@ public abstract class IPlayer : Box
     public bool isEnemy(int killedby)
     {
         //if ( && mapSettings.ZombiSurvive) return false;
-        if (this is Player) Debug.Log("isEnemy me" + OwnerID + " patron" + killedby + " myteam"+team +" histeam"+ players[killedby].team);
-        if (killedby == OwnerID) return false;        
+        //if (this is Player) Debug.Log("isEnemy me" + OwnerID + " patron" + killedby + " myteam"+team +" histeam"+ players[killedby].team);
         if (this is Zombie) return true;
+        if (killedby == OwnerID) return false;
+        if (killedby == -1) return true;
         if (mapSettings.DM) return true;
         if (killedby != -1 && players[killedby] != null && players[killedby].team != team) return true;        
         return false;    

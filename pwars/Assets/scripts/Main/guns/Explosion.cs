@@ -5,7 +5,6 @@ public class Explosion : Base
 {
     public Box self;
     public int maxdamage;
-    public float r=1;
     public float exp = 1000;
     public float radius = 8;
     void Start()
@@ -18,7 +17,7 @@ public class Explosion : Base
             if (ip != self && dist < radius && ip.isController && !ip.dead)
             {                
                 if (ip.isOwner)
-                    _Cam.exp = r;                
+                    _Cam.exp = 1;                
                 ip.RPCSetLife(ip.Life - maxdamage,OwnerID);
             }
         }

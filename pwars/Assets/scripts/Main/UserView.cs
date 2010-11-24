@@ -22,18 +22,10 @@ public class UserView : MonoBehaviour
     public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
     public string photo = "";
     public int vkId;
-    public NetworkPlayer nwid;
     public int totalZombieKills;
     public int totalZombieDeaths;
     public int totalKills;
     public int totalDeaths;
-
-    public int deaths;
     public bool online;
     public bool installed;
-    public int frags;
-    public int score;
-    public int ping;
-    public int fps;
-    public Team team;
 } 

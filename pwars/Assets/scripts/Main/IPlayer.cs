@@ -5,15 +5,16 @@ using doru;
 using System.Collections;
 
 [Serializable]
-public abstract class IPlayer : Box 
+public abstract class IPlayer : Box
 {
     public TextMesh title;
     public float nitro;
     public int Life;
     public Transform CamPos;
     public virtual bool dead { get { return !enabled; } }
-    public GunBase[] guns;
-    public int selectedgun = -1;
+    GunBase[] _guns;
+    public GunBase[] guns { get { if (_guns == null)  _guns = this.GetComponentsInChildren<GunBase>(); return _guns; } set { _guns = value; } }
+    public int selectedgun = 0;
     float shownicktime;
     public Team? team
     {
@@ -25,40 +26,22 @@ public abstract class IPlayer : Box
     }
 
     protected override void Awake()
-    {        
+    {
         title = transform.GetComponentInChildren<TextMesh>();
         nitro = 10;
-        selectedgun = -1;
-        guns = this.GetComponentsInChildren<GunBase>();
-        
         base.Awake();
-        
+
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
-    {        
-        base.OnPlayerConnected1(np);
-        print(pr);
-        if (selectedgun != -1)
-            networkView.RPC("RPCSelectGun", np, selected);
-        
+    {
+        base.OnPlayerConnected1(np);        
     }
     protected override void Start()
     {
         _Game.iplayers.Add(this);
         base.Start();
     }
-    [RPC]
-    public void RPCSelectGun(int i)
-    {
-        CallRPC(i);
-        PlaySound("change");
-        selectedgun = i;
-        if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
-            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
-        foreach (GunBase gb in guns)
-            gb.DisableGun();
-        guns[i].EnableGun();
-    }
+    
 
     protected override void Update()
     {
@@ -133,10 +116,14 @@ public abstract class IPlayer : Box
             RPCDie(killedby);
     }
     public bool isEnemy(int killedby)
-    {        
-        return this is Zombie 
-            || !mapSettings.TeamZombiSurvive && killedby != OwnerID &&
-            (killedby == -1 || players[killedby] == null || players[killedby].team != team || mapSettings.DM);
+    {
+        //if ( && mapSettings.ZombiSurvive) return false;
+        if (this is Player) Debug.Log("isEnemy me" + OwnerID + " patron" + killedby + " myteam"+team +" histeam"+ players[killedby].team);
+        if (killedby == OwnerID) return false;        
+        if (this is Zombie) return true;
+        if (mapSettings.DM) return true;
+        if (killedby != -1 && players[killedby] != null && players[killedby].team != team) return true;        
+        return false;    
     }
     [RPC]
     public abstract void RPCDie(int killedby);

@@ -36,17 +36,6 @@ public class Menu : Base
 
         onRefresh();
 
-        if (!mapSettings.zombi)
-        {
-            LocalUserV.totalDeaths += LocalUserV.deaths;
-            LocalUserV.totalKills += LocalUserV.frags;
-        }
-        else
-        {
-            LocalUserV.totalZombieDeaths += LocalUserV.deaths;
-            LocalUserV.totalZombieKills += LocalUserV.frags;
-        }
-        LocalUserV.frags = LocalUserV.deaths = 0;
     }
 
     private void Dedicated()

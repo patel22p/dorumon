@@ -76,7 +76,7 @@ public class Cam : Base
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
-        if (_localiplayer == null || _localiplayer.dead)
+        if (_localiplayer == null || _localiplayer.dead || _localiplayer.team == Team.Spectator)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);

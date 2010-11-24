@@ -5,10 +5,11 @@ public class GunHealth : GunBase
 {
     public bool power;
     public Renderer render;
-    public new Light light;
+    public Light healLight;
     protected override void Awake()
     {
-        light = GetComponentInChildren<Light>();
+        print("guhealth awake");
+        healLight = GetComponentInChildren<Light>();
         base.Awake();
     }
     
@@ -27,15 +28,18 @@ public class GunHealth : GunBase
                     p.Health();
                 }
 
-            render.enabled = light.enabled = true;
+            render.enabled = healLight.enabled = true;
         }
         else
-            render.enabled = light.enabled = false;
+            render.enabled = healLight.enabled = false;
         base.Update();
     }
     public override void onShow(bool enabled)
     {
-        light.enabled = false;        
+        if (healLight != null)
+            healLight.enabled = false;
+        else
+            print("gunhealth is nulll");
         base.onShow(enabled);
     }
     protected override void LocalUpdate()

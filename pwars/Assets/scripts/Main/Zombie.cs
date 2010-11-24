@@ -18,8 +18,6 @@ public class Zombie : IPlayer
     {
         if(_Game.enablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
         _Game.zombies.Add(this);
-        rigidbody.angularDrag = 5;
-        rigidbody.mass = .5f;
         base.Start();
     }
     
@@ -49,7 +47,6 @@ public class Zombie : IPlayer
             IPlayer ipl = pl.car != null ? (IPlayer)pl.car : pl;
             if (ipl.enabled)
             {
-                
                 Vector3 pathPointDir;
                 Vector3 zToPlDir = ipl.transform.position - p;
 
@@ -57,7 +54,7 @@ public class Zombie : IPlayer
                 {
                     //Debug.DrawLine(transform.position, ipl.transform.position);
                     RaycastHit hitInfo;
-                    bool shit = Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), _Loader.LevelMask);
+                    bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), _Loader.LevelMask);
                     if (!shit || !_Game.enablePathFinding || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
                         pathPointDir = zToPlDir;
                     Debug.DrawLine(p, p + pathPointDir);

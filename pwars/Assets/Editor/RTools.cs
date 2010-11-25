@@ -29,80 +29,37 @@ public class RTools : EditorWindow
                     yield return f;
             }
     }
-    public List<KeyValuePair<SerializedObject, SerializedProperty>> prlist = new List<KeyValuePair<SerializedObject, SerializedProperty>>();
-    string sr="";
-    
+    public Dictionary<SerializedObject, List<SerializedProperty>> prlist = new Dictionary<SerializedObject, List<SerializedProperty>>();
+    string sr = "";    
+    public List<int> _instances;
+    public List<int> instances
+    {
+        get
+        {
+            if (instances == null)
+                _instances = new List<int>(); //PlayerPrefs.GetString("objlist", "").Split(' ').Select(a => int.Parse(a)).ToList();
+            return _instances;
+        }
+        set { _instances = value; }
+    }
     void OnGUI()
     {
-        EditorGUIUtility.LookLikeInspector();
+        DrawObjects();
+        DrawSearch();        
+        PhysxWars();
+    }
+    
+    private void PhysxWars()
+    {
         if (!EditorApplication.currentScene.Contains("Game.unity")) return;
-        string oldsr = sr;
-        sr = EditorGUILayout.TextField(sr);        
-        if (oldsr != sr)
-        {
-            
-            prlist.Clear();
-            if (sr.Length > 1)
-            {
-                foreach (var m in Selection.activeGameObject.GetComponents<MonoBehaviour>())
-                {
-                    SerializedObject so = new SerializedObject(m);
-                    SerializedProperty pr = so.GetIterator();
-                    pr.Next(true);
-                    do
-                    {
-                        Debug.Log(pr.name);
-                        if (pr.name.ToLower().Contains(sr.ToLower()))
-                        {
-                            EditorGUILayout.PropertyField(sp.Value);
-                            //prlist.Add(new KeyValuePair<SerializedObject, SerializedProperty>(so, pr));
-                        }
-                    }
-                    while (pr.Next(false));
-                }
-                //foreach (var ob in Selection.gameObjects) //GameObject.FindObjectsOfTypeIncludingAssets(typeof(MonoBehaviour)))
-                //    foreach (var m in ob.GetComponents<MonoBehaviour>())
-                //    {
-                //        SerializedObject so = new SerializedObject(m);
-                //        foreach (var a in m.GetType().GetFields().Where(a => a.Name.ToLower().Contains(sr.ToLower())))
-                //        {
-                //            Debug.Log("found" + a.Name);
-                //            SerializedProperty sp = so.FindProperty(a.Name);
-                //            //so.GetIterator().Next(;
-                //            if (sp != null)
-                //                prlist.Add(new KeyValuePair<SerializedObject, SerializedProperty>(so, sp));
-                //            Debug.Log(prlist.Count);
-                //        }
-                //    }
-            }
-        }
-        //SerializedObject m_Object = new SerializedObject(target);
-        //m_Property = m_Object.FindProperty("m_LocalPosition.x");
 
-        //foreach (var sp in prlist)
-        //{
-        //    sp.Key.Update();
-        //    if(sp.Value!=null)
-        //        EditorGUILayout.PropertyField(sp.Value);
-        //    //EditorGUILayout.PropertyField(sp.Key.FindProperty(sp.Value + ".port"));
-        //}
-
-        if (GUI.Button("Loader"))
-            Selection.activeObject = FindObjectsOfTypeIncludingAssets(typeof(Loader))[0];
-        if (GUI.Button("Player"))
-            Selection.activeObject = FindObjectsOfTypeIncludingAssets(typeof(Player))[0];
-        if (GUI.Button("Zombie"))
-            Selection.activeObject = FindObjectsOfTypeIncludingAssets(typeof(Zombie))[0];
-        if (GUI.Button("Game"))
-            Selection.activeObject = FindObjectOfType(typeof(Game));
-
+        GUI.Space(10);
         if (Application.isPlaying && Application.loadedLevelName.Contains("Game"))
         {
             foreach (Player p in Base2._Game.players)
                 if (p != null)
-                    if (GUI.Button(p.name+":"+p.OwnerID))
-                        Selection.activeObject = p;            
-
+                    if (GUI.Button(p.name + ":" + p.OwnerID))
+                        Selection.activeObject = p;
         }
 
 
@@ -130,9 +87,9 @@ public class RTools : EditorWindow
         {
             _Loader.mapSettings.host = false;
             EditorApplication.isPlaying = true;
-        }        
+        }
         GUI.EndHorizontal();
-        GUI.BeginHorizontal();        
+        GUI.BeginHorizontal();
         if (GUILayout.Button("Client App"))
             System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
         if (GUILayout.Button("Server App"))
@@ -147,7 +104,72 @@ public class RTools : EditorWindow
         _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
     }
 
-    
+    private void DrawSearch()
+    {
+        string oldsr = sr;
+        sr = EditorGUILayout.TextField(sr);
+
+        if (oldsr != sr && sr.Length > 1)
+        {
+            prlist.Clear();
+            foreach (var m in Selection.activeGameObject.GetComponents<Component>())
+            {
+                SerializedObject so = new SerializedObject(m);
+                SerializedProperty pr = so.GetIterator();
+                pr.NextVisible(true);
+                prlist.Add(so, new List<SerializedProperty>());
+                do
+                    if (pr.propertyPath.ToLower().Contains(sr.ToLower()))
+                        prlist[so].Add(pr.Copy());
+                while (pr.NextVisible(true));
+            }
+        }
+        if (sr.Length <= 1)
+            prlist.Clear();
+
+        foreach (var sps in prlist)
+            foreach (var sp in sps.Value)
+            {
+                if (sp != null)
+                    EditorGUILayout.PropertyField(sp);
+            }
+
+    }
+
+    private void DrawObjects()
+    {
+        if (GUI.Button("Add"))
+            if (!instances.Contains(Selection.activeInstanceID))
+                instances.Add(Selection.activeInstanceID);
+
+        List<int> toremove = new List<int>();
+        foreach (var inst in instances)
+        {
+            GUI.BeginHorizontal();
+            if (GUI.Button(EditorUtility.InstanceIDToObject(inst).name))
+                Selection.activeInstanceID = inst;
+            if (GUI.Button("X", GUI.ExpandWidth(false)))
+                toremove.Add(inst);                            
+            GUI.EndHorizontal();
+        }
+        foreach(var inst in toremove)
+            instances.Remove(inst);
+
+    }
+    void Exit()
+    {
+        string s = "";
+        foreach (int i in instances)
+            s += i+" ";
+        PlayerPrefs.SetString("objlist", s.Trim());
+    }
+    private static void GetChild(SerializedProperty pr)
+    {
+
+
+    }
+
+
 
     void InterPrenter()
     {
@@ -177,7 +199,7 @@ public class RTools : EditorWindow
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
-        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows,BuildOptions.Development);
+        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
 
     static EditorWindow _ewnd;
@@ -199,7 +221,7 @@ public class RTools : EditorWindow
         }
     }
 
-    
+
     private static Loader _Loader
     {
         get
@@ -269,7 +291,7 @@ public class RTools : EditorWindow
             }
         }
     }
-    
+
     [MenuItem("RTools/Duplicate Changes")]
     static void DuplicateChanges()
     {

@@ -333,13 +333,12 @@ public class Player : IPlayer
     int multikill;
     public void SetFrags(int i,int sc)
     {
-
         RPCSetFrags(frags + i, score + sc);
     }
     [RPC]
     public void RPCSetFrags(int i, int sc)
     {
-        CallRPC(i);
+        CallRPC(i, sc);
 
         if (isOwner)
         {

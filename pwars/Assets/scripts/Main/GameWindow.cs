@@ -10,6 +10,7 @@ public class GameWindow : Base2 {
     public GUIText chatInput;
     public GUIText chatOutput;
     public GUIText gunPatrons;
+    public GUIText CenterText;
     public GUITexture gunTexture;
     public GUITexture BlueBar;
     public List<Texture> gunTextures;

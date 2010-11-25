@@ -217,13 +217,6 @@ public class Player : IPlayer
     {
         Show(false);
     }
-    public override void Dispose()
-    {
-        base.Dispose();
-        print("disposing" + OwnerID);
-        if (players[OwnerID] != this) print("wrong player");
-        players[OwnerID] = null;
-    }
     
     void OnCollisionEnter(Collision collisionInfo)
     {

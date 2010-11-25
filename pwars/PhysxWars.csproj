@@ -52,6 +52,7 @@
      <Compile Include="Assets\Editor\AstarPathEditor.cs" />
      <Compile Include="Assets\Editor\AstarWelcome.cs" />
      <None Include="Assets\Editor\HeightmapExportPNG.js" />
+     <Compile Include="Assets\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\Editor\RTools.cs" />
      <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
@@ -199,6 +200,7 @@
      <Compile Include="Assets\scripts\Main\Car.cs" />
      <Compile Include="Assets\scripts\Main\CarController.cs" />
      <Compile Include="Assets\scripts\Main\Console.cs" />
+     <Compile Include="Assets\scripts\Main\Door.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
      <Compile Include="Assets\scripts\Main\Helper.cs" />

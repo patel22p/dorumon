@@ -43,6 +43,7 @@ public class Game : Base
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
+        
         base.Awake();
         decal = Load("decal").transform;         
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
@@ -69,6 +70,7 @@ public class Game : Base
     void Enable() { enabled = true; }
     void Start()
     {
+        
         print("ZGameStart");
         //_vk.enabled = false;        
         print(mapSettings.timeLimit);

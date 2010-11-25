@@ -89,11 +89,6 @@ public abstract class IPlayer : Box
     }
 
     
-    public override void Dispose()
-    {
-        _Game.iplayers.Remove(this);
-        base.Dispose();
-    }
     
     
     

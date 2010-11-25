@@ -30,7 +30,6 @@ public class BulletGranate : BulletBase
                 b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, transform.position, radius);
                 b.rigidbody.angularDrag = 30;
                 b.rigidbody.velocity *= .97f;
-                b.OwnerID = OwnerID;
             }
         }
     }

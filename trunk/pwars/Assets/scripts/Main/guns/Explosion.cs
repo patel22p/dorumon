@@ -24,7 +24,6 @@ public class Explosion : Base
         foreach (Box b in GameObject.FindObjectsOfType(typeof(IPlayer)))
             if (b != self)
             {
-                print("pos" + b.transform.position);
                 b.rigidbody.AddExplosionForce(exp, transform.position, radius);
             }
     }

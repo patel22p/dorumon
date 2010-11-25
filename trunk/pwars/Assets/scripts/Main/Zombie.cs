@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class Zombie : IPlayer
 {
@@ -16,8 +17,14 @@ public class Zombie : IPlayer
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
     Transform zombiemodel;
+    List<Vector3> playerSpawns = new List<Vector3>();
     protected override void Awake()
     {
+        foreach (var spwn in GameObject.FindGameObjectsWithTag("spawn"))
+        {
+            playerSpawns.Add(spwn.transform.position);
+            Destroy(spwn.gameObject);
+        }
         zombiemodel = transform.Find("zombie");
         base.Awake();
     }
@@ -32,11 +39,10 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
-        
+        gameObject.layer = LayerMask.NameToLayer("Zombie");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);
         Alive = true;
-        rigidbody.drag = 0;
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", (Texture2D)Resources.Load("Images/zombie"));
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
@@ -117,7 +123,7 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        rigidbody.drag = 5;
+        gameObject.layer = LayerMask.NameToLayer("DeadZombie");
         if (isController) CallRPC(killedby);
         PlayRandSound("gib");
         if (!Alive) { return; }

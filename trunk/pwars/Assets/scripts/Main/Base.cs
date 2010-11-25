@@ -7,7 +7,7 @@ using doru;
 using System.Xml.Serialization;
 using System;
 using System.Diagnostics.CodeAnalysis;
-public class Base : Base2, IDisposable
+public class Base : Base2
 {
     public int OwnerID = -1;
     //public bool logged; //{ get { return _vk._Status == VK.Status.connected; } }    
@@ -46,7 +46,10 @@ public class Base : Base2, IDisposable
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static UserView LocalUserV { get { return _Loader.LocalUserV; } set { _Loader.LocalUserV = value; } }
-    
+    public static LayerMask GetLayer(string s)
+    {
+        return 1 << LayerMask.NameToLayer(s);
+    }
     public static LayerMask collmask { get { return _Loader.collmask; } }
     public static bool DebugKey(KeyCode key)
     {
@@ -161,14 +164,5 @@ public class Base : Base2, IDisposable
         }
         if (mb != null)
             networkView.RPC(rpcmethod.Name, RPCMode.Others, obs);
-    }
-    public void Destroy()
-    {
-        Dispose();
-        GameObject.Destroy(this.gameObject);
-    }
-    public virtual void Dispose()
-    {
-        
     }
 }

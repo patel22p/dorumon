@@ -32,6 +32,7 @@ public class Loader : Base
     public GUISkin _skin;
     public LayerMask LevelMask;
     new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
+    
     protected override void Awake()
     {
         LocalUserV = gameObject.AddComponent<UserView>();

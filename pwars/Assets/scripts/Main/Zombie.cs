@@ -15,6 +15,12 @@ public class Zombie : IPlayer
     public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
+    Transform zombiemodel;
+    protected override void Awake()
+    {
+        zombiemodel = transform.Find("zombie");
+        base.Awake();
+    }
     protected override void Start()
     {
         if(!_Loader.disablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
@@ -30,6 +36,7 @@ public class Zombie : IPlayer
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);
         Alive = true;
+        rigidbody.drag = 0;
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", (Texture2D)Resources.Load("Images/zombie"));
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
@@ -110,7 +117,7 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        
+        rigidbody.drag = 5;
         if (isController) CallRPC(killedby);
         PlayRandSound("gib");
         if (!Alive) { return; }
@@ -120,7 +127,7 @@ public class Zombie : IPlayer
         {            
             foreach (Player p in players)
                 if (p != null && p.OwnerID == killedby)
-                    p.SetFrags(+1);
+                    p.SetFrags(+1, 1);
         }        
     }
     private void PlayRandom()

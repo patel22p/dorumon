@@ -36,6 +36,7 @@ public class Cam : Base
         
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
         ssao.enabled = _SettingsWindow.Sao;
+        blur.enabled = _SettingsWindow.MotionBlur;
         bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares;
         if (!_SettingsWindow.Shadows)
             foreach (Light l in GameObject.FindObjectsOfType(typeof(Light)))
@@ -55,7 +56,7 @@ public class Cam : Base
     void FixedUpdate()
     {
         blurtime += Time.fixedDeltaTime;
-        if (blurtime>.1f && _GameWindow.fps > 40 && _SettingsWindow.MotionBlur)
+        if (blurtime>.1f)
         {
             blurtime -= .1f;
             blur.blurAmount = Vector3.Distance(oldpos, transform.position) / 15;            
@@ -63,7 +64,8 @@ public class Cam : Base
         }
     }
     void LateUpdate()
-    {        
+    {
+        camera.near = _SettingsWindow.Cam_near;
         camera.fieldOfView = _SettingsWindow.Fieldof;
         xoffset = _SettingsWindow.Camx+0.01f;
         yoffset = _SettingsWindow.Camy + 0.01f;

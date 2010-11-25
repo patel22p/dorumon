@@ -17,7 +17,6 @@ public class GunBazoka : GunBase
         
     protected override void FixedUpdate()
     {
-
         base.FixedUpdate();
     }
     
@@ -25,9 +24,7 @@ public class GunBazoka : GunBase
     [RPC]
     protected override void RPCShoot(Vector3 pos,Quaternion rot)
     {
-        
         CallRPC(pos, rot);
-        
         PlaySound("rocklf1a",.5f);
         ((GameObject)Instantiate(Resources.Load("Prefabs/BulletBazoka"), pos, rot)).GetComponent<Base>().OwnerID = OwnerID;
     }

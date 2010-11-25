@@ -5,8 +5,8 @@ public class Explosion : Base
 {
     public Box self;
     public int maxdamage;
-    public float exp = 1000;
-    public float radius = 8;
+    public float exp = 500;
+    public float radius = 4;
     void Start()
     {
         maxdamage = 61;
@@ -22,9 +22,13 @@ public class Explosion : Base
             }
         }
         foreach (Box b in GameObject.FindObjectsOfType(typeof(IPlayer)))
-            if(b != self)
-            b.rigidbody.AddExplosionForce(exp, transform.position, radius);
+            if (b != self)
+            {
+                print("pos" + b.transform.position);
+                b.rigidbody.AddExplosionForce(exp, transform.position, radius);
+            }
     }
+    
 
 
 }

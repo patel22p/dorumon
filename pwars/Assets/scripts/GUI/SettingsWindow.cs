@@ -14,11 +14,12 @@ public class SettingsWindow : WindowBase {
 		
 	public int iGraphicQuality{ get { return PlayerPrefs.GetInt("iGraphicQuality", -1); } set { PlayerPrefs.SetInt("iGraphicQuality", value); } }
 	public int iScreenSize{ get { return PlayerPrefs.GetInt("iScreenSize", -1); } set { PlayerPrefs.SetInt("iScreenSize", value); } }
-	public float MusicVolume{ get { return PlayerPrefs.GetFloat("MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat("MusicVolume", value); } }
-	public float SoundVolume{ get { return PlayerPrefs.GetFloat("SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat("SoundVolume", value); } }
 	public float Camx{ get { return PlayerPrefs.GetFloat("Camx", 6f); } set { PlayerPrefs.SetFloat("Camx", value); } }
 	public float Camy{ get { return PlayerPrefs.GetFloat("Camy", 4f); } set { PlayerPrefs.SetFloat("Camy", value); } }
 	public float Fieldof{ get { return PlayerPrefs.GetFloat("Fieldof", 100f); } set { PlayerPrefs.SetFloat("Fieldof", value); } }
+	public float Cam_near{ get { return PlayerPrefs.GetFloat("Cam_near", 1.8f); } set { PlayerPrefs.SetFloat("Cam_near", value); } }
+	public float MusicVolume{ get { return PlayerPrefs.GetFloat("MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat("MusicVolume", value); } }
+	public float SoundVolume{ get { return PlayerPrefs.GetFloat("SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat("SoundVolume", value); } }
 	public float NetworkSendRate{ get { return PlayerPrefs.GetFloat("NetworkSendRate", 15f); } set { PlayerPrefs.SetFloat("NetworkSendRate", value); } }
 	public bool focusGraphicQuality;
 	public string[] GraphicQuality = new string[] {"Fastest","Fast","Simple","Good","Beautifull","Fantastic",};
@@ -43,11 +44,12 @@ public class SettingsWindow : WindowBase {
 	public bool focusRenderSettings;
 	public string[] RenderSettings = new string[] {"Самый Быстрый","Forward","Deffered",};
 	public int iRenderSettings = -1;
-	public bool focusMusicVolume;
-	public bool focusSoundVolume;
 	public bool focusCamx;
 	public bool focusCamy;
 	public bool focusFieldof;
+	public bool focusCam_near;
+	public bool focusMusicVolume;
+	public bool focusSoundVolume;
 	public bool focusReset;
 	public bool Reset=false;
 	public bool focusNetworkSendRate;
@@ -90,8 +92,8 @@ public class SettingsWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 234.333f), "");
-		GUI.Box(new Rect(0, 0, 463.5f, 234.333f), "");
+		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 413.333f), "");
+		GUI.Box(new Rect(0, 0, 463.5f, 413.333f), "");
 		if(focusGraphicQuality) { focusGraphicQuality = false; GUI.FocusControl("GraphicQuality");}
 		GUI.SetNextControlName("GraphicQuality");
 		GUI.Box(new Rect(49.5f, 38.833f, 111.013f, 112.167f), "");
@@ -186,8 +188,32 @@ public class SettingsWindow : WindowBase {
 		GUI.Label(new Rect(330.5f, 72f, 49.81667f, 21.96f), @"Рендер");
 		GUI.Label(new Rect(8f, 162f, 49.98f, 21.96f), @"Ефекты");
 		GUI.Label(new Rect(357.5f, 162f, 55f, 14f), @"10");
+		GUI.BeginGroup(new Rect(8f, 228.92f, 447.5f, 134.667f), "");
+		GUI.Box(new Rect(0, 0, 447.5f, 134.667f), "");
+		GUI.Label(new Rect(14.667f, 8f, 50.93f, 21.96f), @"Камера");
+		GUI.Label(new Rect(43.334f, 35.334f, 170f, 14.666f), @"Положение камеры Ось X");
+		if(focusCamx) { focusCamx = false; GUI.FocusControl("Camx");}
+		GUI.SetNextControlName("Camx");
+		Camx = GUI.HorizontalSlider(new Rect(213.334f, 45f, 179.333f, 14f), Camx, 0f, 10f);
+		GUI.Label(new Rect(392.666992553711f,45f,40,15),System.Math.Round(Camx,1).ToString());
+		if(focusCamy) { focusCamy = false; GUI.FocusControl("Camy");}
+		GUI.SetNextControlName("Camy");
+		Camy = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), Camy, 0f, 10f);
+		GUI.Label(new Rect(392.666992553711f,62.667f,40,15),System.Math.Round(Camy,1).ToString());
+		GUI.Label(new Rect(43.334f, 62.001f, 170f, 14.666f), @"Положение камеры Ось Y");
+		GUI.Label(new Rect(103.334f, 103.667f, 106f, 14.666f), @"Обзор камеры");
+		if(focusFieldof) { focusFieldof = false; GUI.FocusControl("Fieldof");}
+		GUI.SetNextControlName("Fieldof");
+		Fieldof = GUI.HorizontalSlider(new Rect(213.334f, 103.667f, 179.333f, 14f), Fieldof, 40f, 100f);
+		GUI.Label(new Rect(392.666992553711f,103.667f,40,15),System.Math.Round(Fieldof,1).ToString());
+		GUI.Label(new Rect(103.334f, 80.667f, 106f, 14.666f), @"Скрывать стены");
+		if(focusCam_near) { focusCam_near = false; GUI.FocusControl("Cam_near");}
+		GUI.SetNextControlName("Cam_near");
+		Cam_near = GUI.HorizontalSlider(new Rect(213.334f, 80.667f, 179.333f, 14f), Cam_near, 0.001f, 10f);
+		GUI.Label(new Rect(392.666992553711f,80.667f,40,15),System.Math.Round(Cam_near,1).ToString());
 		GUI.EndGroup();
-		GUI.BeginGroup(new Rect(33.333f, 394.333f, 464.667f, 100f), "");
+		GUI.EndGroup();
+		GUI.BeginGroup(new Rect(31.833f, 516.333f, 464.667f, 100f), "");
 		GUI.Box(new Rect(0, 0, 464.667f, 100f), "");
 		GUI.Label(new Rect(14.667f, 8f, 34.60667f, 21.96f), @"Звук");
 		GUI.Label(new Rect(64.667f, 34.001f, 126.667f, 14.666f), @"Громкость музыки");
@@ -201,25 +227,6 @@ public class SettingsWindow : WindowBase {
 		SoundVolume = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), SoundVolume, 0f, 1f);
 		GUI.Label(new Rect(392.666992553711f,62.667f,40,15),System.Math.Round(SoundVolume,1).ToString());
 		GUI.EndGroup();
-		GUI.BeginGroup(new Rect(33f, 498.333f, 464.667f, 134.667f), "");
-		GUI.Box(new Rect(0, 0, 464.667f, 134.667f), "");
-		GUI.Label(new Rect(14.667f, 8f, 51.97f, 21.96f), @"Прочее");
-		GUI.Label(new Rect(43.334f, 35.334f, 170f, 14.666f), @"Положение камеры Ось X");
-		if(focusCamx) { focusCamx = false; GUI.FocusControl("Camx");}
-		GUI.SetNextControlName("Camx");
-		Camx = GUI.HorizontalSlider(new Rect(213.334f, 36f, 179.333f, 14f), Camx, 0f, 10f);
-		GUI.Label(new Rect(392.666992553711f,36f,40,15),System.Math.Round(Camx,1).ToString());
-		if(focusCamy) { focusCamy = false; GUI.FocusControl("Camy");}
-		GUI.SetNextControlName("Camy");
-		Camy = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), Camy, 0f, 10f);
-		GUI.Label(new Rect(392.666992553711f,62.667f,40,15),System.Math.Round(Camy,1).ToString());
-		GUI.Label(new Rect(43.334f, 62.001f, 170f, 14.666f), @"Положение камеры Ось Y");
-		GUI.Label(new Rect(103.334f, 92.667f, 106f, 14.666f), @"Обзор камеры");
-		if(focusFieldof) { focusFieldof = false; GUI.FocusControl("Fieldof");}
-		GUI.SetNextControlName("Fieldof");
-		Fieldof = GUI.HorizontalSlider(new Rect(213.334f, 92.667f, 179.333f, 14f), Fieldof, 40f, 100f);
-		GUI.Label(new Rect(392.666992553711f,92.667f,40,15),System.Math.Round(Fieldof,1).ToString());
-		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 8f, 82f, 16f), @"Настройки");
 		if(focusReset) { focusReset = false; GUI.FocusControl("Reset");}
 		GUI.SetNextControlName("Reset");
@@ -229,7 +236,7 @@ public class SettingsWindow : WindowBase {
 		onMouseOver = new Rect(94f, 8f, 100f, 24f).Contains(Event.current.mousePosition);
 		if (oldMouseOverReset != onMouseOver && onMouseOver) onOver();
 		oldMouseOverReset = onMouseOver;
-		GUI.BeginGroup(new Rect(31.833f, 342.333f, 466.167f, 48f), "");
+		GUI.BeginGroup(new Rect(34.5f, 453.333f, 466.167f, 48f), "");
 		GUI.Box(new Rect(0, 0, 466.167f, 48f), "");
 		GUI.Label(new Rect(8f, 8f, 55.16f, 21.96f), @"Network");
 		GUI.Label(new Rect(75f, 22f, 57.13f, 21.96f), @"Sendrate");

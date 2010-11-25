@@ -102,7 +102,7 @@ public class Game : Base
             _GameWindow.energy = (int)_localiplayer.nitro;
             if (mapSettings.zombi)
             {
-                _GameWindow.zombiesLeft.text = "Зомби" + deadZombies.Count().ToString();
+                _GameWindow.zombiesLeft.text = "Зомби" + AliveZombies.Count().ToString();
                 _GameWindow.level.text = "Уровень" + stage.ToString();
             }
             _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();

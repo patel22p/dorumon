@@ -17,10 +17,76 @@ public class RTools : EditorWindow
     }
 
     static float t1;
-    void OnGUI()
+
+    static IEnumerable<PropertyInfo> props1(Component c)
     {
 
+        foreach (var member in c.GetType().GetMembers())
+            if (member is PropertyInfo)
+            {
+                var f = ((PropertyInfo)member);
+                if (our(f))
+                    yield return f;
+            }
+    }
+    public List<KeyValuePair<SerializedObject, SerializedProperty>> prlist = new List<KeyValuePair<SerializedObject, SerializedProperty>>();
+    string sr="";
+    
+    void OnGUI()
+    {
+        EditorGUIUtility.LookLikeInspector();
         if (!EditorApplication.currentScene.Contains("Game.unity")) return;
+        string oldsr = sr;
+        sr = EditorGUILayout.TextField(sr);        
+        if (oldsr != sr)
+        {
+            
+            prlist.Clear();
+            if (sr.Length > 1)
+            {
+                foreach (var m in Selection.activeGameObject.GetComponents<MonoBehaviour>())
+                {
+                    SerializedObject so = new SerializedObject(m);
+                    SerializedProperty pr = so.GetIterator();
+                    pr.Next(true);
+                    do
+                    {
+                        Debug.Log(pr.name);
+                        if (pr.name.ToLower().Contains(sr.ToLower()))
+                        {
+                            EditorGUILayout.PropertyField(sp.Value);
+                            //prlist.Add(new KeyValuePair<SerializedObject, SerializedProperty>(so, pr));
+                        }
+                    }
+                    while (pr.Next(false));
+                }
+                //foreach (var ob in Selection.gameObjects) //GameObject.FindObjectsOfTypeIncludingAssets(typeof(MonoBehaviour)))
+                //    foreach (var m in ob.GetComponents<MonoBehaviour>())
+                //    {
+                //        SerializedObject so = new SerializedObject(m);
+                //        foreach (var a in m.GetType().GetFields().Where(a => a.Name.ToLower().Contains(sr.ToLower())))
+                //        {
+                //            Debug.Log("found" + a.Name);
+                //            SerializedProperty sp = so.FindProperty(a.Name);
+                //            //so.GetIterator().Next(;
+                //            if (sp != null)
+                //                prlist.Add(new KeyValuePair<SerializedObject, SerializedProperty>(so, sp));
+                //            Debug.Log(prlist.Count);
+                //        }
+                //    }
+            }
+        }
+        //SerializedObject m_Object = new SerializedObject(target);
+        //m_Property = m_Object.FindProperty("m_LocalPosition.x");
+
+        //foreach (var sp in prlist)
+        //{
+        //    sp.Key.Update();
+        //    if(sp.Value!=null)
+        //        EditorGUILayout.PropertyField(sp.Value);
+        //    //EditorGUILayout.PropertyField(sp.Key.FindProperty(sp.Value + ".port"));
+        //}
+
         if (GUI.Button("Loader"))
             Selection.activeObject = FindObjectsOfTypeIncludingAssets(typeof(Loader))[0];
         if (GUI.Button("Player"))
@@ -64,7 +130,7 @@ public class RTools : EditorWindow
         {
             _Loader.mapSettings.host = false;
             EditorApplication.isPlaying = true;
-        }
+        }        
         GUI.EndHorizontal();
         GUI.BeginHorizontal();        
         if (GUILayout.Button("Client App"))
@@ -132,6 +198,8 @@ public class RTools : EditorWindow
             return _cs;
         }
     }
+
+    
     private static Loader _Loader
     {
         get
@@ -201,12 +269,7 @@ public class RTools : EditorWindow
             }
         }
     }
-    static void print(params object[] p)
-    {
-        string s = "Editor:";
-        foreach (var d in p) s += d;
-        MonoBehaviour.print(s);
-    }
+    
     [MenuItem("RTools/Duplicate Changes")]
     static void DuplicateChanges()
     {
@@ -226,7 +289,7 @@ public class RTools : EditorWindow
                 if (!vls.ContainsKey(c.GetType())) vls.Add(c.GetType(), new List<object>());
                 vls[c.GetType()].Add(f.GetValue(c, null));
             }
-        print(vls.Count);
+        Debug.Log(vls.Count);
         foreach (GameObject t in ts.Skip(1))
         {
             foreach (var c in t.GetComponents<Component>())

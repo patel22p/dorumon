@@ -86,10 +86,9 @@ public class Base : Base2, IDisposable
     }
     public static IEnumerable<Transform> getChild(Transform t)
     {
+        if(t!=null)
         for (int i = 0; i < t.childCount; i++)
-        {
             yield return t.GetChild(i);
-        }
     }
     public static float clamp(float a)
     {
@@ -103,7 +102,7 @@ public class Base : Base2, IDisposable
     }
     public void PlaySound(string path,float volume)
     {        
-        AudioClip au = (AudioClip)Resources.Load("sounds/"+path);
+        AudioClip au = (AudioClip)Resources.Load("sounds/"+path);        
         if (au == null) print("could not load" + path);
         else
             transform.root.audio.PlayOneShot(au,volume);

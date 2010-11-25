@@ -24,7 +24,7 @@ public class Player : IPlayer
     const int life = 100;
     protected override void Awake() 
     {
-        
+        this.rigidbody.maxAngularVelocity = 40;
         if (networkView.isMine)
         {
             _Game._localiplayer = _Game._localPlayer = this;
@@ -98,7 +98,6 @@ public class Player : IPlayer
     public void RPCSelectGun(int i)
     {
         CallRPC(i);
-        print("change" + i);
         PlaySound("change");
         selectedgun = i;
         if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
@@ -176,10 +175,7 @@ public class Player : IPlayer
                 this.rigidbody.velocity = v;
             }
             else
-            {
-                this.rigidbody.maxAngularVelocity = v.magnitude / 1.1f;
-                this.rigidbody.AddForce(moveDirection * Time.fixedDeltaTime * force * (freezedt > 0 ? .5f : 1));
-            }
+                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * Time.fixedDeltaTime * 300);
         }
     }
     [RPC]
@@ -305,19 +301,18 @@ public class Player : IPlayer
                 {
                     if (p.isOwner)
                     {
-
                         _Game.RPCWriteMessage(_localPlayer.nick + " Умер сам ");
-                        _localPlayer.SetFrags(-1);
+                        _localPlayer.SetFrags(-1,-5);
                     }
                     else if (p.team != _localPlayer.team || mapSettings.DM)
                     {
                         _Game.RPCWriteMessage(p.nick + " Убил " + _localPlayer.nick);
-                        p.SetFrags(+1);
+                        p.SetFrags(+1,20);
                     }
                     else
                     {
                         _Game.RPCWriteMessage(p.nick + " Убил союзника " + _localPlayer.nick);
-                        p.SetFrags(-1);
+                        p.SetFrags(-1,-10);
 
                     }
                 }
@@ -325,7 +320,7 @@ public class Player : IPlayer
             if (killedby == -1)
             {
                 _Game.RPCWriteMessage(_localPlayer.nick + " Погиб ");
-                _localPlayer.SetFrags(-1);
+                _localPlayer.SetFrags(-1,-5);
             }
 
             lockCursor = false;
@@ -336,30 +331,40 @@ public class Player : IPlayer
     
     float multikilltime;
     int multikill;
-    public void SetFrags(int i)
+    public void SetFrags(int i,int sc)
     {
-        if (multikilltime > 0)
-            multikill++;
-        else
-            multikill = 0;
-        multikilltime = 3;
-        
-        if (multikill >= 1)
-        {
-            PlayRandSound("toasty");
-            if (isOwner)
-            {
-                _Cam.ScoreText.text = "x" + (multikill + 1);
-                _Cam.ScoreText.animation.Play();
-            }
-        }
-        RPCSetFrags(frags + i);
+
+        RPCSetFrags(frags + i, score + sc);
     }
     [RPC]
-    public void RPCSetFrags(int i)
-    {        
+    public void RPCSetFrags(int i, int sc)
+    {
         CallRPC(i);
+
+        if (isOwner)
+        {
+            if (multikilltime > 0)
+                multikill++;
+            else
+                multikill = 0;
+            multikilltime = 3;
+
+            if (multikill >= 1)
+            {
+                PlayRandSound("toasty");
+                if (isOwner)
+                {
+                    _Cam.ScoreText.text = "x" + (multikill + 1);
+                    _Cam.ScoreText.animation.Play();
+                }
+            }
+        }
+
+
         frags = i;
+        score = sc;
+    
+
     }
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {

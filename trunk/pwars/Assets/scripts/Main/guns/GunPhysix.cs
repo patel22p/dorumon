@@ -13,8 +13,10 @@ public class GunPhysix : GunBase
     public float gravitaty = 1;
     public float scalefactor = 10;
     public bool power;
+    Player pl;
     public void Start()
     {
+        pl = root.GetComponent<Player>();
         _Name = "Грави Пушка";
 
         audio.clip = (AudioClip)Resources.Load("sounds/PowerGun");
@@ -26,7 +28,19 @@ public class GunPhysix : GunBase
         if (power)
         {
             if (bullets < exp) bullets += 80;
+            foreach (Transform t in _Game.jumpers)
+            {
+                Jumper j = t.GetComponent<Jumper>();
+                if (HitTest(t, j.distance))
+                {
+                    Vector3 v = transform.rotation * j.Magnet;
+                    v.x *= j.multiplier.x;
+                    v.z *= j.multiplier.x;
+                    v.y *= j.multiplier.y;
+                    pl.rigidbody.AddForce(v * scalefactor * pl.rigidbody.mass);
 
+                }
+            }
             foreach (Base b in _Game.dynamic)
             {
                 if (!(b is IPlayer))
@@ -46,19 +60,18 @@ public class GunPhysix : GunBase
         base.FixedUpdate();
 
     }
-    
-    void OnTriggerStay(Collider c)
-    {
-        Jumper j = c.GetComponent<Jumper>();
-        if (j != null)
-        {
-            if (power)
-            {
-                Player p = root.GetComponent<Player>();
-                p.rigidbody.AddForce(transform.rotation * new Vector3(0, 0, 50) * scalefactor * p.rigidbody.mass);
-            }
-        }
+
+    private bool HitTest(Transform j,float dist)
+    {        
+        Vector3 pos = transform.position;
+        Quaternion rot = transform.rotation;
+        Vector3 dir = rot * new Vector3(0, 0, dist);
+        j.gameObject.layer = LayerMask.NameToLayer("Jumper");
+        bool hit = (Physics.CheckCapsule(pos, dir + pos, 1,jumper));
+        j.gameObject.layer = 0;
+        return hit;
     }
+
     [RPC]
     public void RPCSetPower(bool e)
     {
@@ -81,11 +94,16 @@ public class GunPhysix : GunBase
                 PlaySound("superphys_launch3");
 
             foreach (Transform t in _Game.jumpers)
-                if (IsPointed(jumper, 100))
+            {
+                Jumper j = t.GetComponent<Jumper>();
+                if (HitTest(t,.3f))
                 {
-                    Player p = root.GetComponent<Player>();
-                    p.rigidbody.AddForce(transform.rotation * new Vector3(0, 0, -3000) * scalefactor * p.rigidbody.mass);                    
+                    PlaySound("superphys_launch3");
+                    pl.rigidbody.AddForce(j.Release * scalefactor * pl.rigidbody.mass);
+                    GameObject g = (GameObject)Instantiate(Load("wave"), j.transform.position, j.transform.rotation * Quaternion.Euler(90, 0, 0));
+                    Destroy(g, 1.6f);
                 }
+            }
             bullets = 0;
 
         }

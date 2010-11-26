@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using doru;
@@ -94,6 +95,13 @@ public class Player : IPlayer
         freezedt = 0;
 
     }
+    public override  Vector3 SpawnPoint()
+    {        
+        GameObject[] gs = GameObject.FindGameObjectsWithTag(team.ToString());
+        return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).First().transform.position;        
+    }
+
+    
     [RPC]
     public void RPCSelectGun(int i)
     {
@@ -366,12 +374,7 @@ public class Player : IPlayer
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
         return velocityChange;
     }
-    public override Vector3 SpawnPoint()
-    {
-        print(team);
-        Transform t = _Game.transform.Find(team.ToString());
-        return t.GetChild(UnityEngine.Random.Range(0, t.childCount)).transform.position;
-    }
+    
     [RPC]
     public void RPCCarIn()
     {

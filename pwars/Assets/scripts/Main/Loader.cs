@@ -50,8 +50,8 @@ public class Loader : Base
     }
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     void Start()
-    {        
-
+    {
+        
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
         onGraphicQuality();
         if (!isWebPlayer)
@@ -63,6 +63,8 @@ public class Loader : Base
                 File.Delete(a);
         }
     }
+
+    
 
     void onFullScreen()
     {

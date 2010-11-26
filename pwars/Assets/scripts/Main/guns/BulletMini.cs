@@ -16,11 +16,16 @@ public class BulletMini : BulletBase
     {
 
         base.Hit(hit);
-        
-        Transform b = hit.collider.gameObject.transform.root;
-        if (b.rigidbody != null)
-            b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
- 
+
+        //Transform b = hit.collider.gameObject.transform.root;
+        //if (b.rigidbody != null)
+        //    b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
+        Fragment f = hit.collider.gameObject.GetComponent<Fragment>();
+        if (f!=null)
+        {
+            f.BreakAndDestroy();
+            //f.Explosion(hit.point, exp, exprad);
+        }
         
         Destroy(gameObject);
         IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();

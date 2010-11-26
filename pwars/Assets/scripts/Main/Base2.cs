@@ -1,14 +1,22 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using System.Collections;
-using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using doru;
+using System;
 
-public static class Ext { public static T print<T>(this T ob) { MonoBehaviour.print(":"+ob); return ob; } }
+public static class Ext { 
+    public static T NextRandom<T>(this IEnumerable<T> source)
+    {
+        return source.Skip(UnityEngine.Random.Range(0, source.Count() - 1) - 1).First();
+    }
+
+
+}
 
 public partial class Base2 : MonoBehaviour
 {    

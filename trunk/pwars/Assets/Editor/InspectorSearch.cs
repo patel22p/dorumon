@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
 using System.IO;
+
 [ExecuteInEditMode]
 public class InspectorSearch : EditorWindow
 {
@@ -39,7 +40,6 @@ public class InspectorSearch : EditorWindow
                 }
         }
     }
-
     private void DrawObjects()
     {
         if (GUI.Button("Add"))

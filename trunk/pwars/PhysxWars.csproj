@@ -201,6 +201,7 @@
      <Compile Include="Assets\scripts\Main\CarController.cs" />
      <Compile Include="Assets\scripts\Main\Console.cs" />
      <Compile Include="Assets\scripts\Main\Door.cs" />
+     <Compile Include="Assets\scripts\Main\Fragment.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
      <Compile Include="Assets\scripts\Main\Helper.cs" />

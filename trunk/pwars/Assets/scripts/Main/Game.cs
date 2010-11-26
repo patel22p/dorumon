@@ -40,6 +40,7 @@ public class Game : Base
     public Transform decal;
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
+    public List<Fragment> fragments = new List<Fragment>();
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
@@ -70,7 +71,9 @@ public class Game : Base
     void Enable() { enabled = true; }
     void Start()
     {
-        
+        Fragment();
+        clearObjects("None");
+        clearObjects("zombie");
         print("ZGameStart");
         //_vk.enabled = false;        
         print(mapSettings.timeLimit);
@@ -82,6 +85,43 @@ public class Game : Base
 
 
     }
+
+    private void Fragment()
+    {
+        GameObject[] gs = GameObject.FindGameObjectsWithTag("fragment");
+        foreach (var g in gs)
+        {
+            Transform cur = g.transform.Find("frag");
+            AddFragment(cur, g.transform, true);
+        }
+        
+    }
+
+    private void AddFragment(Transform cur,Transform root,bool first)
+    {                
+        if (!first)
+        {
+            ((MeshCollider)cur.collider).convex = true;
+            cur.gameObject.active = false;
+            cur.gameObject.layer = LayerMask.NameToLayer("levelonly");
+        }
+        int i = 1;
+        for (; ; i++)
+        {
+            string nwpath = cur.name + "_frag_0" + i;
+            Transform nw = root.Find(nwpath);
+            if (nw == null) break;
+            nw.parent = cur;
+            AddFragment(nw, root, false);
+            //if (first)
+            //{
+            //    nw.gameObject.AddComponent<FixedJoint>().breakForce =3000;
+            //}
+        }
+        Fragment f = cur.gameObject.AddComponent<Fragment>();
+        
+    }
+
 
 
     void Update()
@@ -211,15 +251,13 @@ public class Game : Base
         {
             if (_TimerA.TimeElapsed(500) && zombiespawnindex < maxzombies)
             {
-                Transform zsp = transform.Find("zsp");
-                Transform zombiepos = zsp.GetChild(UnityEngine.Random.Range(0, zsp.GetChildCount() - 1));
                 if (zombiespawnindex < zombies.Count)
-                    CreateZombie(zombies[zombiespawnindex],zombiepos.position);
+                    CreateZombie(zombies[zombiespawnindex]);
                 else
                 {
-                    GameObject t = (GameObject)Network.Instantiate(Resources.Load("Prefabs/Zombie"), zombiepos.position, Quaternion.identity, (int)GroupNetwork.Zombie);
+                    GameObject t = (GameObject)Network.Instantiate(Resources.Load("Prefabs/Zombie"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Zombie);
                     Zombie z = (t).GetComponent<Zombie>();
-                    CreateZombie(z, zombiepos.position);
+                    CreateZombie(z);
                 }
                 zombiespawnindex++;
             }
@@ -251,10 +289,10 @@ public class Game : Base
         players[id].ping = ping;        
     }
     
-    private void CreateZombie(Zombie zombie,Vector3 pos)
-    {
-        zombie.transform.position = pos;
-        zombie.RPCSetup(5 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
+    private void CreateZombie(Zombie zombie)
+    {   
+     
+        zombie.RPCSetup(3 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
             UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
         wait = false;
     }
@@ -349,6 +387,15 @@ public class Game : Base
             }
         }
     }
+    private void clearObjects(string name)
+    {
+
+        foreach (var spwn in GameObject.FindGameObjectsWithTag(name))
+            foreach (var a in spwn.GetComponents<Component>())
+                if (!(a is Transform))
+                    Destroy(a);
+    }
+
     private void ZombieSuriveCheck()
     {
         int live = 0;

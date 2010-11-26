@@ -88,8 +88,8 @@ public abstract class IPlayer : Box
     {        
     }
 
-    
-    
+
+
     
     
     

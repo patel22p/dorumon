@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 public class Zombie : IPlayer
 {
     float zombieWait = 0;
@@ -17,14 +17,10 @@ public class Zombie : IPlayer
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
     Transform zombiemodel;
-    List<Vector3> playerSpawns = new List<Vector3>();
+    
     protected override void Awake()
     {
-        foreach (var spwn in GameObject.FindGameObjectsWithTag("spawn"))
-        {
-            playerSpawns.Add(spwn.transform.position);
-            Destroy(spwn.gameObject);
-        }
+        
         zombiemodel = transform.Find("zombie");
         base.Awake();
     }
@@ -39,6 +35,7 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
+        transform.position = SpawnPoint();
         gameObject.layer = LayerMask.NameToLayer("Zombie");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);
@@ -144,7 +141,13 @@ public class Zombie : IPlayer
             PlayRandSound("Zombie");
         }
     }
-    
+
+    public override Vector3 SpawnPoint()
+    {
+        GameObject[] gs = GameObject.FindGameObjectsWithTag("zombie");
+        
+        return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).Take(3).NextRandom().transform.position;        
+    }
     [RPC]
     public override void RPCSetLife(int NwLife, int killedby)
     {

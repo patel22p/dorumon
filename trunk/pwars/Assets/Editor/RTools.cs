@@ -10,13 +10,22 @@ using System.IO;
 public class RTools : EditorWindow
 {
     static float t1;
-    public Dictionary<SerializedObject, List<SerializedProperty>> prlist = new Dictionary<SerializedObject, List<SerializedProperty>>();
     string file;
     void OnGUI()
     {
-        pw(); 
+        if (GUI.Button("Init"))
+            Init();
+        BuildGUI(); 
     }
-    private void pw()
+
+    private void Init()
+    {
+        
+        
+    }
+    
+
+    private void BuildGUI()
     {
         if (!EditorApplication.currentScene.Contains("Game.unity")) return;
 

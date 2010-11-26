@@ -26,6 +26,11 @@ public class Explosion : Base
             {
                 b.rigidbody.AddExplosionForce(exp, transform.position, radius);
             }
+        foreach (Fragment f in FindObjectsOfType(typeof(Fragment)))
+        {
+            if(f!=null)
+                f.Explosion(transform.position, exp, radius);
+        }
     }
     
 

@@ -17,12 +17,6 @@ public class GunMini : GunBase
     protected override void RPCShoot(Vector3 vector3, Quaternion quaternion)
     {        
         CallRPC(vector3, quaternion);
-        //if (gilza != null)
-        //{
-        //    GameObject a = ((Transform)Instantiate(gilza, gilzaPlaceHolder.position, gilzaPlaceHolder.rotation)).gameObject;
-        //    a.transform.parent = _Spawn.effects;
-        //    Destroy(a, 1);
-        //}
         foreach (ParticleEmitter p in fire)
             p.Emit();
         light1.enabled = true;

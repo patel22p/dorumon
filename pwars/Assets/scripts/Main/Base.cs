@@ -77,9 +77,9 @@ public class Base : Base2
 
     public static bool IsPointed(LayerMask collmask, float len)
     {
-        return IsPointedRay(collmask,len).collider != null;
+        return GetPointedRay(collmask,len).collider != null;
     }
-    public static RaycastHit IsPointedRay(LayerMask msk,float len)
+    public static RaycastHit GetPointedRay(LayerMask msk,float len)
     {
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
         ray.origin = ray.GetPoint(1);
@@ -122,7 +122,14 @@ public class Base : Base2
     }
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
-    
+
+    [RPC]
+    public void RPCShow(bool value)
+    {
+        CallRPC(value);
+        Show(value);
+    }
+
     public void Show(bool value) 
     {
         

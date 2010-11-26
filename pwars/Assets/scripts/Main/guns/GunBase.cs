@@ -78,7 +78,7 @@ public abstract class GunBase : Base
     
     public Transform GetRotation()
     {
-        RaycastHit h = IsPointedRay(collmask,float.MaxValue);
+        RaycastHit h = GetPointedRay(collmask,float.MaxValue);
 
         Transform t = cursor;
         if (h.point != default(Vector3))

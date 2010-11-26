@@ -14,7 +14,7 @@ public class GameWindow : Base2 {
     public GUITexture gunTexture;
     public GUITexture BlueBar;
     public List<Texture> gunTextures;
-    
+    public GUIText Score;
     public GUITexture RedBar;
     public GUIText blueTeam;
     public GUIText redTeam;

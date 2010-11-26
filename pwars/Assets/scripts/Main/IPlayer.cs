@@ -47,7 +47,13 @@ public abstract class IPlayer : Box
     {
         if (isOwner)
             nitro += Time.deltaTime / 5;
+        
+        UpdateTitle();
+        base.Update();
+    }
 
+    private void UpdateTitle()
+    {
         if (title != null)
         {
             if (OwnerID != -1 && (team == Team.Red || team == Team.Blue))
@@ -58,31 +64,18 @@ public abstract class IPlayer : Box
 
         if (title != null && _TimerA.TimeElapsed(50) && _Game.cameraActive)
         {
-            if (!isOwner && _localPlayer != null && ((_localPlayer.team == team && !mapSettings.DM) || IsPointed(_localPlayer.mskpl, 10)))
+
+            if (!isOwner && _localPlayer != null && ((_localPlayer.team == team && !mapSettings.DM) || IsPointed(1 << LayerMask.NameToLayer("Player"), 10)))
                 shownicktime = 2;
             if (OwnerID != -1 && shownicktime > 0)
                 title.text = _Game.players[OwnerID].nick + ":" + Life;
             else
                 title.text = "";
-
         }
 
         shownicktime -= Time.deltaTime;
-        base.Update();
     }
-    //[RPC]
-    //public void RPCSelectGun(int i)
-    //{        
-    //    CallRPC(i);
-    //    print(pr + i);
-    //    PlaySound("change");
-    //    selectedgun = i;
-    //    if(isOwner)
-    //        _GameWindow.tabGunImages = selectedgun;
-    //    foreach (GunBase gb in guns)
-    //        gb.DisableGun();
-    //    guns[i].EnableGun();
-    //}
+    
     [RPC]
     public virtual void Health()
     {        

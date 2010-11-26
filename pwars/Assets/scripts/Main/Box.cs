@@ -52,12 +52,7 @@ public class Box : Base
                     _Game.Emit(_Game.metalSparkEmiters, _Game.metalSpark, cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }
     public float tsendpackets;
-    [RPC]
-    public void RPCShow(bool value)
-    {
-        CallRPC(value);
-        Show(value);
-    }
+    
 
     protected virtual void Update()
     {

@@ -18,7 +18,7 @@ public class Player : IPlayer
     public int ping;
     public int deaths;
     new public string nick;
-    public LayerMask mskpl;
+    
     public bool spawned;
     public int frags;
     public ParticleEmitter speedparticles;
@@ -118,6 +118,25 @@ public class Player : IPlayer
 
     protected override void Update()
     {
+        _GameWindow.CenterText.text ="";
+        Collider c = GetPointedRay(1 << LayerMask.NameToLayer("Level"), 100).collider;
+        if (c != null)
+        {
+            
+            Door door = c.gameObject.transform.parent.GetComponent<Door>();
+            if (door != null && !door.opened)
+            {                
+                _GameWindow.CenterText.text = "Нажми G чтобы открыть дверь, нужно " + door.score + " очков";
+                if (Input.GetKeyDown(KeyCode.G))
+                {
+                    if(score > door.score || !build)
+                        door.RPCOpen();
+                    else
+                        PlaySound("doorclosed");
+                }                                    
+            }
+        }
+
         if (DebugKey(KeyCode.Keypad1))
             RPCSetLife(-1, -1);
         multikilltime-= Time.deltaTime;

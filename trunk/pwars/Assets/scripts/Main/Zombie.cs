@@ -49,7 +49,7 @@ public class Zombie : IPlayer
     protected override void Update()
     {        
         zombieBite += Time.deltaTime;
-        base.Update();
+        //base.Update();
 
         if (!Alive) return;
         if ((zombieWait -= Time.deltaTime) < 0 && selected != -1)

@@ -1,23 +1,29 @@
 using UnityEngine;
 using System.Collections;
+[ExecuteInEditMode]
 public class Door : Base
 {
     public int score;
-    void OnMouseEnter()
-    {
-        _GameWindow.CenterText.text = "Press F to open door, you must have " + score + " score";
-        lookat = true;
-    }
-    bool lookat;
+    public bool opened;
     //bool bought { get { return animation[0].time != 0; } }
-    void Update()
+    float tm;
+    
+    void Start()
     {
-        if (Input.GetKeyDown(KeyCode.F) && lookat)
-            animation.Play();
+        name = "door," + score;
     }
-    void OnMouseExit()
+    public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        lookat = false;
-        _GameWindow.CenterText.text = "";
+        networkView.RPC("RPCOpen", np, opened);
+        base.OnPlayerConnected1(np);
+    }
+     
+    [RPC]
+    public void RPCOpen()
+    {
+        CallRPC();
+        animation.Play();
+        PlaySound("dooropen",10);
+        opened = true;
     }
 }

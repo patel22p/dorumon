@@ -76,11 +76,10 @@ public class Game : Base
         clearObjects("zombie");
         print("ZGameStart");
         //_vk.enabled = false;        
-        print(mapSettings.timeLimit);
+        print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
-        print("asdasdkljadg1");
         Network.Instantiate(Resources.Load("Prefabs/Player"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
 
 
@@ -99,6 +98,8 @@ public class Game : Base
 
     private void AddFragment(Transform cur,Transform root,bool first)
     {
+        Fragment f = cur.gameObject.AddComponent<Fragment>();
+        f.first = first;
         ((MeshCollider)cur.collider).convex = true; 
         if (!first)
         {
@@ -113,12 +114,8 @@ public class Game : Base
             if (nw == null) break;
             nw.parent = cur;
             AddFragment(nw, root, false);
-            //if (first)
-            //{
-            //    nw.gameObject.AddComponent<FixedJoint>().breakForce =3000;
-            //}
         }
-        Fragment f = cur.gameObject.AddComponent<Fragment>();
+        
         
     }
 
@@ -148,6 +145,8 @@ public class Game : Base
                 _GameWindow.level.text = "Уровень" + stage.ToString();
             }
             _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
+
+            _GameWindow.Score.text = "Очки " + _localPlayer.score.ToString();
         }
         if (Input.GetKeyDown(KeyCode.M))
             onShowMap();

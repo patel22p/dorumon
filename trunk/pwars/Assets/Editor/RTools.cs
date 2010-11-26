@@ -20,8 +20,22 @@ public class RTools : EditorWindow
 
     private void Init()
     {
-        
-        
+        foreach (var g in GameObject.FindGameObjectsWithTag("door"))
+        {
+            if (g.GetComponent<Door>() == null)
+            {
+                Door d = g.AddComponent<Door>();
+                try
+                {
+                    d.score = int.Parse(d.name.Split(',')[1]);
+                }
+                catch { }
+                NetworkView nw = g.AddComponent<NetworkView>();
+                nw.observed = null;
+                g.AddComponent<AudioSource>();
+                
+            }
+        }
     }
     
 

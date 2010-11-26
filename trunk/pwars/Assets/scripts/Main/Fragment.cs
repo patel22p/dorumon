@@ -1,17 +1,13 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class Fragment : Base2
+public class Fragment : Base
 {
     void Start()
     {
         _Game.fragments.Add(this);
     }
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.impactForceSum.magnitude > 10 && transform.childCount > 0 && gameObject.active)
-    //        BreakAndDestroy();
-    //}
+    public bool first;
     public void Explosion(Vector3 pos, float power, float radius)
     {
         if (rigidbody != null)
@@ -26,7 +22,6 @@ public class Fragment : Base2
 
                 if (f != null)
                 {
-                    //print("exp");
                     f.Explosion(pos, power, radius/2);
                 }
             }
@@ -58,8 +53,6 @@ public class Fragment : Base2
                     r.angularVelocity = rigidbody.angularVelocity;
                     r.mass = rigidbody.mass *.8f;
                 }
-                //foreach (ContactPoint cp in collision.contacts)
-                //    r.AddExplosionForce(20, cp.point, 20);
             }
             
         }

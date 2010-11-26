@@ -32,7 +32,4 @@ public class Explosion : Base
                 f.Explosion(transform.position, exp, radius);
         }
     }
-    
-
-
 }

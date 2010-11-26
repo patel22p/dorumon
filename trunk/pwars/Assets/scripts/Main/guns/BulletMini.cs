@@ -21,7 +21,7 @@ public class BulletMini : BulletBase
         //if (b.rigidbody != null)
         //    b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, exp), hit.point);
         Fragment f = hit.collider.gameObject.GetComponent<Fragment>();
-        if (f!=null)
+        if (f != null)
         {
             f.BreakAndDestroy();
             //f.Explosion(hit.point, exp, exprad);

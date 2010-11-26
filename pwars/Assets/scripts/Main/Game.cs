@@ -91,17 +91,17 @@ public class Game : Base
         GameObject[] gs = GameObject.FindGameObjectsWithTag("fragment");
         foreach (var g in gs)
         {
-            Transform cur = g.transform.Find("frag");
+            Transform cur = g.transform.Find("Box02");
             AddFragment(cur, g.transform, true);
         }
         
     }
 
     private void AddFragment(Transform cur,Transform root,bool first)
-    {                
+    {
+        ((MeshCollider)cur.collider).convex = true; 
         if (!first)
         {
-            ((MeshCollider)cur.collider).convex = true;
             cur.gameObject.active = false;
             cur.gameObject.layer = LayerMask.NameToLayer("levelonly");
         }

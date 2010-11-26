@@ -19,9 +19,9 @@ public class BulletBazoka : BulletBase
     {
 
         base.Hit(hit);
-        //Fragment f = hit.collider.GetComponent<Fragment>();
-        //if (f != null)
-        //    f.BreakAndDestroy();
+        Fragment f = hit.collider.GetComponent<Fragment>();
+        if (f != null)
+            f.BreakAndDestroy();
 
         if (hit.collider.gameObject.isStatic)
         {
@@ -29,7 +29,7 @@ public class BulletBazoka : BulletBase
             Destroy((a = (Transform)Instantiate(_Game.decal, hit.point, Quaternion.LookRotation(hit.normal))), 10);
             a.parent = _Game.effects;
         }
-        Vector3 vector3 = hit.point - this.transform.rotation * new Vector3(0, 0, 1);
+        Vector3 vector3 = hit.point - this.transform.rotation * new Vector3(0, 0, 2);
         GameObject o;
         Destroy(o = (GameObject)Instantiate(Resources.Load("Detonator/Prefab Examples/Detonator-Base"), vector3, Quaternion.identity), 10);
         o.GetComponent<Detonator>().size = 8f;

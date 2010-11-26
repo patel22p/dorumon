@@ -27,7 +27,7 @@ public class Fragment : Base2
                 if (f != null)
                 {
                     //print("exp");
-                    f.Explosion(pos, power, radius);
+                    f.Explosion(pos, power, radius/2);
                 }
             }
             transform.DetachChildren();
@@ -56,7 +56,7 @@ public class Fragment : Base2
                 {
                     r.velocity = rigidbody.velocity;
                     r.angularVelocity = rigidbody.angularVelocity;
-                    r.mass = rigidbody.mass;
+                    r.mass = rigidbody.mass *.8f;
                 }
                 //foreach (ContactPoint cp in collision.contacts)
                 //    r.AddExplosionForce(20, cp.point, 20);

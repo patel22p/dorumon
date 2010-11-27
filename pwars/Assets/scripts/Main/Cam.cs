@@ -65,11 +65,10 @@ public class Cam : Base
     }
     void LateUpdate()
     {
-        camera.near = _SettingsWindow.Cam_near;
+        
         camera.fieldOfView = _SettingsWindow.Fieldof;
         xoffset = _SettingsWindow.Camx+0.01f;
         yoffset = _SettingsWindow.Camy + 0.01f;
-        //transform.Find("pointer").rotation = Quaternion.LookRotation(this.transform.position- Find<Tower>().transform.position);
 
         if (lockCursor)
         {
@@ -95,8 +94,13 @@ public class Cam : Base
             transform.position = pos2;
             transform.rotation = rotation;
         }
+        RaycastHit h;
+        Vector3 campos = transform.position;
+        Vector3 plpos = _localiplayer.transform.position;
+        if (Physics.Raycast(new Ray(campos, plpos - campos), out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
+            campos = h.point;
 
-        transform.Find("MainCam").localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
+        camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
         exp -= .1f;
         if (exp < 0) exp = 0;
     }

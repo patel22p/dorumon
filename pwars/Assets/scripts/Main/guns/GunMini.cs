@@ -2,10 +2,9 @@
 using System.Collections;
 public class GunMini : GunBase
 {
-
     public void Start()
     {
-        _Name = "Миниган";
+        _Name = "Mиниган";
         fire =transform.GetComponentsInChildren<ParticleEmitter>();
         
     }
@@ -23,7 +22,6 @@ public class GunMini : GunBase
         _TimerA.AddMethod(100, delegate {
             light1.enabled = false;
         });
-
         PlaySound("ARshoot1a_2D",.2f);
         ((GameObject)Instantiate(Load("BulletMini"), vector3, quaternion)).GetComponent<Base>().OwnerID = OwnerID;
     }

@@ -40,7 +40,7 @@ public class Game : Base
     public Transform decal;
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
-    public List<Fragment> fragments = new List<Fragment>();
+    public List<Transform> AmmoModels = new List<Transform>();
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
@@ -56,7 +56,6 @@ public class Game : Base
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);
         effects = GameObject.Find("GameEffects").transform;
         _Level = Level.z4game;
-        print(mapSettings.host);
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
@@ -72,8 +71,7 @@ public class Game : Base
     void Start()
     {
         Fragment();
-        clearObjects("None");
-        clearObjects("zombie");
+        
         print("ZGameStart");
         //_vk.enabled = false;        
         print("timelimit"+mapSettings.timeLimit);
@@ -235,7 +233,7 @@ public class Game : Base
         timeleft = time;
     }
     [RPC]
-    void RPCPause()
+    public void RPCPause()
     {
         CallRPC();
         Debug.Break();
@@ -386,14 +384,7 @@ public class Game : Base
             }
         }
     }
-    private void clearObjects(string name)
-    {
-
-        foreach (var spwn in GameObject.FindGameObjectsWithTag(name))
-            foreach (var a in spwn.GetComponents<Component>())
-                if (!(a is Transform))
-                    Destroy(a);
-    }
+    
 
     private void ZombieSuriveCheck()
     {

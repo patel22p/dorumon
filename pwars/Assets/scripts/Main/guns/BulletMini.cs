@@ -6,12 +6,10 @@ public class BulletMini : BulletBase
 {
     public float velocity = 100;
     public int damage=34;
-    
     public float exp=50;
     public float exprad = 2; 
     protected override void Hit(RaycastHit hit )
     {
-
         base.Hit(hit);
         Destroy(gameObject);
         IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
@@ -30,13 +28,9 @@ public class BulletMini : BulletBase
         }
         
     }
-
     protected override void FixedUpdate()
     {
-
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
         base.FixedUpdate();
     }
-
-
 }

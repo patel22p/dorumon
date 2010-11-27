@@ -16,12 +16,9 @@ public class Zombie : IPlayer
     public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
-    Transform zombiemodel;
     
     protected override void Awake()
     {
-        
-        zombiemodel = transform.Find("zombie");
         base.Awake();
     }
     protected override void Start()

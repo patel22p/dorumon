@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class BulletGranate : BulletBase
 {
     public float velocity;
@@ -56,7 +55,6 @@ public class BulletGranate : BulletBase
         rigidbody.detectCollisions = false;
         enabled = false;
     }
-    
     public override void onShow(bool value)
     {
         enabled = false;
@@ -65,5 +63,4 @@ public class BulletGranate : BulletBase
         //base.onShow(value);
         //enabled = false;
     }
-
 }

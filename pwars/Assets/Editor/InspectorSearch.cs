@@ -19,7 +19,6 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawSearch()
     {
-        string oldsr = search;
         search = EditorGUILayout.TextField(search);
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 1)

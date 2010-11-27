@@ -114,7 +114,7 @@ public class CarController : Car
         if (Life < life)
             Life += 30;
         RPCSetLife(Life, -1);
-        guns[0].bullets = guns[1].bullets += 50;
+        guns[0].patronsleft = guns[1].patronsleft += 50;
     }
 
     [RPC]
@@ -154,7 +154,7 @@ public class CarController : Car
 
     private void Reset()
     {
-        foreach (GunBase gunBase in guns)
+        foreach (Gun gunBase in guns)
             gunBase.Reset();
     }
     const int life = 300;

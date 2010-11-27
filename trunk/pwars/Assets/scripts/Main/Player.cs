@@ -23,13 +23,18 @@ public class Player : IPlayer
     public int frags;
     public ParticleEmitter speedparticles;
     const int life = 100;
+    enum GunType { ak, rocketlauncher, physxgun, healgun, voidgranate }
+    void AddGun(GunType gt)
+    {
+        guns.Add(transform.Find(gt.ToString()).GetComponent<Gun>());
+    }
     protected override void Awake() 
-    {        
-        guns.Add(transform.GetComponentInChildren<GunMini>());
-        guns.Add(transform.GetComponentInChildren<GunBazoka>());
-        guns.Add(transform.GetComponentInChildren<GunPhysix>());
-        guns.Add(transform.GetComponentInChildren<GunHealth>());
-        guns.Add(transform.GetComponentInChildren<GunGranate>());
+    {
+        AddGun((GunType)0);
+        AddGun((GunType)1);
+        AddGun((GunType)2);
+        AddGun((GunType)3);
+        AddGun((GunType)4);        
 
         this.rigidbody.maxAngularVelocity = 40;
         if (networkView.isMine)
@@ -95,7 +100,7 @@ public class Player : IPlayer
             transform.position = SpawnPoint();
             transform.rotation = Quaternion.identity;
         }
-        foreach (GunBase gunBase in guns)
+        foreach (Gun gunBase in guns)
             gunBase.Reset();
         Life = life;
         freezedt = 0;
@@ -116,7 +121,7 @@ public class Player : IPlayer
         selectedgun = i;
         if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
             _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
-        foreach (GunBase gb in guns)
+        foreach (Gun gb in guns)
             gb.DisableGun();
         guns[selectedgun].EnableGun();
     }

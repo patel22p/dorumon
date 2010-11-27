@@ -4,12 +4,12 @@ using System.Collections;
 public class Explosion : Base
 {
     public Box self;
-    public int maxdamage;
+    public int damage;
     public float exp = 500;
     public float radius = 4;
     void Start()
     {
-        maxdamage = 61;
+        damage = 61;
         foreach (IPlayer ip in GameObject.FindObjectsOfType(typeof(IPlayer)))
         {            
             
@@ -18,7 +18,7 @@ public class Explosion : Base
             {                
                 if (ip.isOwner)
                     _Cam.exp = 1;                
-                ip.RPCSetLife(ip.Life - maxdamage,OwnerID);
+                ip.RPCSetLife(ip.Life - damage,OwnerID);
             }
         }
         foreach (Box b in GameObject.FindObjectsOfType(typeof(IPlayer)))

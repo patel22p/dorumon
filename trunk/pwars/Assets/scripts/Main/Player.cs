@@ -24,7 +24,13 @@ public class Player : IPlayer
     public ParticleEmitter speedparticles;
     const int life = 100;
     protected override void Awake() 
-    {
+    {        
+        guns.Add(transform.GetComponentInChildren<GunMini>());
+        guns.Add(transform.GetComponentInChildren<GunBazoka>());
+        guns.Add(transform.GetComponentInChildren<GunPhysix>());
+        guns.Add(transform.GetComponentInChildren<GunHealth>());
+        guns.Add(transform.GetComponentInChildren<GunGranate>());
+
         this.rigidbody.maxAngularVelocity = 40;
         if (networkView.isMine)
         {
@@ -118,24 +124,7 @@ public class Player : IPlayer
 
     protected override void Update()
     {
-        _GameWindow.CenterText.text ="";
-        Collider c = GetPointedRay(1 << LayerMask.NameToLayer("Level"), 100).collider;
-        if (c != null)
-        {
-            
-            Door door = c.gameObject.transform.parent.GetComponent<Door>();
-            if (door != null && !door.opened)
-            {                
-                _GameWindow.CenterText.text = "Нажми G чтобы открыть дверь, нужно " + door.score + " очков";
-                if (Input.GetKeyDown(KeyCode.G))
-                {
-                    if(score > door.score || !build)
-                        door.RPCOpen();
-                    else
-                        PlaySound("doorclosed");
-                }                                    
-            }
-        }
+        UpdateOnPoint();
 
         if (DebugKey(KeyCode.Keypad1))
             RPCSetLife(-1, -1);
@@ -177,6 +166,26 @@ public class Player : IPlayer
         }
         base.Update();
     }
+
+    private void UpdateOnPoint()
+    {
+        _GameWindow.CenterText.text = "";
+        Collider c = RayCast(1 << LayerMask.NameToLayer("Level"), 10).collider;
+        if (c != null)
+        {
+            MapItem item = c.gameObject.transform.parent.GetComponent<MapItem>() ?? c.gameObject.transform.GetComponent<MapItem>();
+            if (item != null && item.enabled)
+            {
+                _GameWindow.CenterText.text = item.title();
+                if (Input.GetKeyDown(KeyCode.B) && (score > item.score || !build))
+                {
+                    
+                    item.CheckOut();
+                }
+            }
+        }
+    }
+
     protected virtual void FixedUpdate()
     {
         if (isOwner) LocalMove();
@@ -221,8 +230,8 @@ public class Player : IPlayer
                 guni++;
             if (a < 0)
                 guni--;
-            if (guni > guns.Length - 1) guni = 0;
-            if (guni < 0) guni = guns.Length - 1;
+            if (guni > guns.Count - 1) guni = 0;
+            if (guni < 0) guni = guns.Count - 1;
             RPCSelectGun(guni);
         }
     }

@@ -20,20 +20,31 @@ public class RTools : EditorWindow
 
     private void Init()
     {
+        Animation baseanim = GameObject.FindGameObjectWithTag("Level").GetComponent<Animation>();
+        clearObjects("None");
+        clearObjects("zombie");        
         foreach (var g in GameObject.FindGameObjectsWithTag("door"))
         {
+            
             if (g.GetComponent<Door>() == null)
-            {
+            {                
+                g.animation.playAutomatically = false;
                 Door d = g.AddComponent<Door>();
-                try
-                {
-                    d.score = int.Parse(d.name.Split(',')[1]);
-                }
-                catch { }
+                d.Parse();
                 NetworkView nw = g.AddComponent<NetworkView>();
                 nw.observed = null;
                 g.AddComponent<AudioSource>();
-                
+            }
+        }
+        foreach (var g in GameObject.FindGameObjectsWithTag("ammo"))
+        {
+            if (g.GetComponent<Ammo>() == null)
+            {
+                Ammo d = g.AddComponent<Ammo>();
+                d.Parse();                
+                NetworkView nw = g.AddComponent<NetworkView>();
+                nw.observed = null;
+                g.AddComponent<AudioSource>();
             }
         }
     }
@@ -89,6 +100,9 @@ public class RTools : EditorWindow
     }
     void Update()
     {
+        //if(Application.isPlaying)
+        //    if(Input.GetKey(KeyCode.P))
+        //        Game._Game.RPCPause();
         if ((t1 -= 1) < 0)
         {
             t1 = 50;
@@ -125,5 +139,14 @@ public class RTools : EditorWindow
             if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
             return _ewnd;
         }
+    }
+    private void clearObjects(string name)
+    {
+
+        foreach (var spwn in GameObject.FindGameObjectsWithTag(name))
+            foreach (var a in spwn.GetComponents<Component>())
+                if (!(a is Transform))
+                    DestroyImmediate(a);
+        
     }
 }  

@@ -5,16 +5,12 @@ public class GunGranate : GunBase
     BulletGranate bulletGranate;
     public void Start()
     {        
-
         _Name = "Граната";
     }
     protected override void Awake()
     {
         bulletGranate = transform.Find("bulletgranate").GetComponent<BulletGranate>();
-        
     }
-
-
     protected override void LocalShoot()
     {
         if (!bulletGranate.enabled)

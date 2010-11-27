@@ -3,10 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 public class Fragment : Base
 {
-    void Start()
-    {
-        _Game.fragments.Add(this);
-    }
     public bool first;
     public void Explosion(Vector3 pos, float power, float radius)
     {

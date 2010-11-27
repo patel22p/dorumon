@@ -12,8 +12,8 @@ public abstract class IPlayer : Box
     public int Life;
     public Transform CamPos;
     public virtual bool dead { get { return !enabled; } }
-    GunBase[] _guns;
-    public GunBase[] guns { get { if (_guns == null)  _guns = this.GetComponentsInChildren<GunBase>(); return _guns; } set { _guns = value; } }
+    
+    public List<GunBase> guns = new List<GunBase>();
     public int selectedgun = 0;
     float shownicktime;
     public Team? team
@@ -24,13 +24,11 @@ public abstract class IPlayer : Box
             else return _Game.players[OwnerID.GetHashCode()].team;
         }
     }
-
     protected override void Awake()
     {
         title = transform.GetComponentInChildren<TextMesh>();
         nitro = 10;
         base.Awake();
-
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
@@ -45,10 +43,13 @@ public abstract class IPlayer : Box
 
     protected override void Update()
     {
-        if (isOwner)
-            nitro += Time.deltaTime / 5;
-        
-        UpdateTitle();
+        if (!(this is Zombie))
+        {
+            if (isOwner)
+                nitro += Time.deltaTime / 5;
+
+            UpdateTitle();
+        }
         base.Update();
     }
 
@@ -81,11 +82,6 @@ public abstract class IPlayer : Box
     {        
     }
 
-
-
-    
-    
-    
     [RPC]
     public virtual void RPCSetLife(int NwLife, int killedby)
     {
@@ -100,8 +96,6 @@ public abstract class IPlayer : Box
     }
     public bool isEnemy(int killedby)
     {
-        //if ( && mapSettings.ZombiSurvive) return false;
-        //if (this is Player) Debug.Log("isEnemy me" + OwnerID + " patron" + killedby + " myteam"+team +" histeam"+ players[killedby].team);
         if (this is Zombie) return true;
         if (killedby == OwnerID) return false;
         if (killedby == -1) return true;

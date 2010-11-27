@@ -2,27 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 
-
 public class BulletBazoka : BulletBase
 {
-
     public float velocity;
     protected override void FixedUpdate()
     {
-
         this.transform.position += transform.TransformDirection(Vector3.forward) * velocity * Time.deltaTime;
         base.FixedUpdate();
     }
-
-    
     protected override void Hit(RaycastHit hit)
     {
-
         base.Hit(hit);
         Fragment f = hit.collider.GetComponent<Fragment>();
         if (f != null)
             f.BreakAndDestroy();
-
         if (hit.collider.gameObject.isStatic)
         {
             Transform a;
@@ -37,5 +30,4 @@ public class BulletBazoka : BulletBase
         o.GetComponent<Explosion>().OwnerID = OwnerID;
         Destroy(gameObject);
     }
-
 }

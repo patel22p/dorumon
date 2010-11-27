@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-public class Jumper : Base2
+public class Jumper : MapItem
 {
     public Vector3 Magnet;
     public Vector3 Release;

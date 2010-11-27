@@ -3,7 +3,7 @@ using System.Collections;
 using doru;
 using System.Collections.Generic;
 
-enum GunType { Mini,Rocket, phys, Heal, granate }
+
 public class Ammo : MapItem
 {
     public int gunIndex=0;
@@ -33,7 +33,7 @@ public class Ammo : MapItem
             }
         }
         else
-            player.guns[this.gunIndex].bullets += this.bullets;
+            player.guns[this.gunIndex].patronsleft += this.bullets;
 
     }
 }

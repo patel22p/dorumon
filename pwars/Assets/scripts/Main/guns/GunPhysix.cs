@@ -12,8 +12,10 @@ public class GunPhysix : GunBase
     public float expradius = 40;
     public float gravitaty = 1;
     public float scalefactor = 10;
+    public float energy;
     public bool power;
     Player pl;
+    
     public void Start()
     {
         pl = root.GetComponent<Player>();
@@ -23,11 +25,11 @@ public class GunPhysix : GunBase
 
     }
 
-    protected override void FixedUpdate()
+    protected void FixedUpdate()
     {
         if (power)
         {
-            if (bullets < exp) bullets += 80;
+            if (energy < exp) energy += 80;
             foreach (Transform t in _Game.jumpers)
             {
                 Jumper j = t.GetComponent<Jumper>();
@@ -50,14 +52,13 @@ public class GunPhysix : GunBase
                     b.rigidbody.velocity *= .97f;
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                     AudioSource a = audio;
-                    a.pitch = 0.1f + (bullets / exp / 20);
+                    a.pitch = 0.1f + (energy / exp / 20);
                     if (!a.isPlaying) a.Play();
                 }
             }
         }
         else
             audio.Stop();
-        base.FixedUpdate();
 
     }
 
@@ -67,7 +68,7 @@ public class GunPhysix : GunBase
         Quaternion rot = transform.rotation;
         Vector3 dir = rot * new Vector3(0, 0, dist);
         j.gameObject.layer = LayerMask.NameToLayer("Jumper");
-        bool hit = (Physics.CheckCapsule(pos, dir + pos, 1,jumper));
+        bool hit = (Physics.CheckCapsule(pos, dir + pos, 1, 1 << LayerMask.NameToLayer("Jumper")));
         j.gameObject.layer = 0;
         return hit;
     }
@@ -86,11 +87,11 @@ public class GunPhysix : GunBase
                 if (!(b is IPlayer) && Vector3.Distance(b.transform.position, cursor.position) < expradius)
                 {
                     b.rigidbody.angularDrag = 2;
-                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, bullets * scalefactor * b.rigidbody.mass));
+                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));
                     Destroy(Instantiate(Load("wave"), cursor.position, transform.rotation), 1.36f);
                     any = true;
                 }
-            if (bullets > 300 && any)
+            if (energy > 300 && any)
                 PlaySound("superphys_launch3");
 
             foreach (Transform t in _Game.jumpers)
@@ -104,15 +105,14 @@ public class GunPhysix : GunBase
                     Destroy(g, 1.6f);
                 }
             }
-            bullets = 0;
+            energy = 0;
 
         }
         //else
         //    this.GetComponents<AudioSource>()[0].Play();
     }
 
-    public LayerMask jumper;
-    protected override void LocalUpdate()
+    protected void LocalUpdate()
     {
         if (isOwner && enabled)
         {

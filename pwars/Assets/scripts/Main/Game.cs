@@ -37,7 +37,6 @@ public class Game : Base
     public Transform impactSpark;
     public Transform Blood;
     public ParticleEmitter[] BloodEmitors;
-    public Transform decal;
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     public List<Transform> AmmoModels = new List<Transform>();
@@ -46,7 +45,6 @@ public class Game : Base
     {
         
         base.Awake();
-        decal = Load("decal").transform;         
         metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
         metalSparkEmiters = metalSpark.GetComponentsInChildren<ParticleEmitter>();
         impactSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/Impact"))).transform;
@@ -135,7 +133,7 @@ public class Game : Base
         {
             _GameWindow.life = _localiplayer.Life;
             GunBase g = _localiplayer.guns[_localiplayer.selectedgun];
-            _GameWindow.gunPatrons.text = g._Name + ":" + g.bullets;
+            _GameWindow.gunPatrons.text = g._Name + ":" + g.patronsleft;
             _GameWindow.energy = (int)_localiplayer.nitro;
             if (mapSettings.zombi)
             {

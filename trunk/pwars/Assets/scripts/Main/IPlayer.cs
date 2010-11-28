@@ -12,9 +12,10 @@ public abstract class IPlayer : Box
     public int Life;
     public Transform CamPos;
     public virtual bool dead { get { return !enabled; } }
-    
 
-    public int selectedgun = 0;
+    public int selectedleft = 0;
+    public int selectedright = 0;
+    
     float shownicktime;
     public Team? team
     {

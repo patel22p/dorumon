@@ -132,8 +132,11 @@ public class Game : Base
         if (_localiplayer != null)
         {
             _GameWindow.life = _localiplayer.Life;
-            GunBase gun = _localPlayer.guns[_localiplayer.selectedgun];
+            GunBase gun = _localPlayer.gunsL[_localiplayer.selectedleft];
             _GameWindow.gunPatrons.text = gun._Name + ":" + gun.patronsleft;
+            gun = _localPlayer.gunsR[_localiplayer.selectedright];
+            _GameWindow.gunPatrons2.text = "" + gun.patronsleft;
+
             _GameWindow.energy = (int)_localiplayer.nitro;
             if (mapSettings.zombi)
             {

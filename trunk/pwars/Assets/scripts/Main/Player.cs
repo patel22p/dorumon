@@ -14,7 +14,7 @@ public class Player : IPlayer
     public float force;
     public int score;
     public float freezedt; 
-    public int guni;
+    //public int selectedgun;
     public int fps;
     public int ping;
     public int deaths;
@@ -74,7 +74,8 @@ public class Player : IPlayer
         {
             networkView.RPC("RPCSetTeam", np, (int)team);        
             networkView.RPC("RPCSpawn", np);
-            networkView.RPC("RPCSelectGun", np, selectedgun, LeftGun);        
+            networkView.RPC("RPCSelectGun", np, selectedleft, true);
+            networkView.RPC("RPCSelectGun", np, selectedright, false);        
             if (spawned && dead) networkView.RPC("RPCDie", np, -1);
             if (car != null) networkView.RPC("RPCCarIn", np);
         }
@@ -117,37 +118,19 @@ public class Player : IPlayer
         GameObject[] gs = GameObject.FindGameObjectsWithTag(team.ToString());
         return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).First().transform.position;        
     }
-    public void SelectGun(int id)
-    {
-        if (guns.Count(a => a.group == id && a.patronsleft > 0) == 0) return;
-        bool foundfirst = false;
-        bool foundnext=false;
-        for (int i = selectedgun; i < guns.Count; i++)
-            if (guns[i].group == id && guns[i].patronsleft > 0)
-            {
-                if (foundfirst) { selectedgun = i; foundnext = true; break; }
-                foundfirst = true;
-            }
-        if (!foundnext)
-            for (int i = 0; i < guns.Count; i++)
-                if (guns[i].group == id && guns[i].patronsleft > 0)
-                {
-                    selectedgun = i;
-                    break;
-                }
-        
-        RPCSelectGun(selectedgun,LeftGun);
-    }
     [RPC]
     public void RPCSelectGun(int i,bool left)
     {
         CallRPC(i,left);
         PlaySound("change");
-        selectedgun = i;
+        if (left)
+            selectedleft = i;
+        else
+            selectedright = i;
         foreach (GunBase gb in (left ? gunsL : gunsR))
             gb.DisableGun();
 
-        (left ? gunsL : gunsR)[selectedgun].EnableGun();
+        (left ? gunsL : gunsR)[i].EnableGun();
     }
     protected override void Update()
     {
@@ -170,28 +153,10 @@ public class Player : IPlayer
         if (isOwner && lockCursor)
         {
             //NextGun(Input.GetAxis("Mouse ScrollWheel"));
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-                SelectGun(1);
-            if (Input.GetKeyDown(KeyCode.Alpha2))
-                SelectGun(2);
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-                SelectGun(3);
-            if (Input.GetKeyDown(KeyCode.Alpha4))
-                SelectGun(4);
-            if (Input.GetKeyDown(KeyCode.Alpha5))
-                SelectGun(5);
-            if (Input.GetKeyDown(KeyCode.Alpha6))
-                SelectGun(6);
-            if (Input.GetKeyDown(KeyCode.Alpha7))
-                SelectGun(7);
-            if (Input.GetKeyDown(KeyCode.Alpha8))
-                SelectGun(8);
-            if (Input.GetKeyDown(KeyCode.Alpha9))
-                SelectGun(9);
             if (Input.GetKeyDown(KeyCode.Q))
-                LeftGun = true;
+                NextGun(1, true,ref selectedleft);
             if (Input.GetKeyDown(KeyCode.E))
-                LeftGun = false;
+                NextGun(1, false,ref selectedright);
             if (Input.GetKey(KeyCode.LeftShift))
                 this.transform.rotation = Quaternion.identity;
             if (Input.GetKeyDown(KeyCode.Space))
@@ -264,17 +229,18 @@ public class Player : IPlayer
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000));        
         PlaySound("nitrojump");
     }
-    public void NextGun(float a)
+    public void NextGun(float a,bool lgun,ref int selectedgun)
     {
+        LeftGun = lgun;
         if (a != 0)
         {                        
             if (a > 0)
-                guni++;
+                (selectedgun)++;
             if (a < 0)
-                guni--;
-            if (guni > guns.Count - 1) guni = 0;
-            if (guni < 0) guni = guns.Count - 1;
-            RPCSelectGun(guni,LeftGun);
+                selectedgun--;
+            if (selectedgun > guns.Count - 1) selectedgun = 0;
+            if (selectedgun < 0) selectedgun = guns.Count - 1;
+            RPCSelectGun(selectedgun, LeftGun);
         }
     }
     

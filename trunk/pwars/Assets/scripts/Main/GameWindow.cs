@@ -9,9 +9,12 @@ public class GameWindow : Base2 {
     public GUIText fpstext;
     public GUIText chatInput;
     public GUIText chatOutput;
-    public GUIText gunPatrons;
     public GUIText CenterText;
     public GUITexture gunTexture;
+    public GUIText gunPatrons;
+    public GUITexture gunTexture2;
+    public GUIText gunPatrons2;
+
     public GUITexture BlueBar;
     
     public GUIText Score;

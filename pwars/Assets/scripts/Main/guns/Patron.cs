@@ -112,7 +112,6 @@ public class Patron : Base
                 ((Player)iplayer).freezedt = freezetime;
             iplayer.RPCSetLife(iplayer.Life - substractLife, OwnerID);
         }
-        if (probivaemost > 0) print("hit1" + hit.collider.gameObject.name);
         probivaemost--;
         if(probivaemost<0)
             Destroy(gameObject);

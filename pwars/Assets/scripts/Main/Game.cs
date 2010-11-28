@@ -132,8 +132,8 @@ public class Game : Base
         if (_localiplayer != null)
         {
             _GameWindow.life = _localiplayer.Life;
-            GunBase g = _localiplayer.guns[_localiplayer.selectedgun];
-            _GameWindow.gunPatrons.text = g._Name + ":" + g.patronsleft;
+            GunBase gun = _localPlayer.guns[_localiplayer.selectedgun];
+            _GameWindow.gunPatrons.text = gun._Name + ":" + gun.patronsleft;
             _GameWindow.energy = (int)_localiplayer.nitro;
             if (mapSettings.zombi)
             {
@@ -453,4 +453,4 @@ public class Game : Base
     }
 
 }
-public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie }
+public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Gun }

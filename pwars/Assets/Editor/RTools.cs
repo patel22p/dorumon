@@ -24,7 +24,7 @@ public partial class RTools : EditorWindow
     private void Init()
     {
 
-        string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\Editor\Generated\";
+        string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
         clearObjects("None");
         clearObjects("zombie");
         foreach (var go in Selection.gameObjects)
@@ -35,9 +35,9 @@ public partial class RTools : EditorWindow
                     GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
                     if (ge != null)
                     {
-                        string cs = "";
+                        string cs = ""; 
                         Debug.Log("Found!" + ge.name);
-                        cs += "public Enum " + ge.name + "{";
+                        cs += "public enum " + ge.name + ":int{";
                         var ie = (IEnumerable)f.GetValue(g);
                         foreach (Base o in ie)
                             cs += o.name + ",";
@@ -76,8 +76,6 @@ public partial class RTools : EditorWindow
             }
         }
     }
-    
-
     private void BuildGUI()
     {
         if (!EditorApplication.currentScene.Contains("Game.unity")) return;
@@ -129,24 +127,10 @@ public partial class RTools : EditorWindow
     }
     void Update()
     {
-        //if(Application.isPlaying)
-        //    if(Input.GetKey(KeyCode.P))
-        //        Game._Game.RPCPause();
         if ((t1 -= 1) < 0)
         {
             t1 = 50;
             ewnd.Repaint();
-        }
-    }
-    private static Loader _Loader
-    {
-        get
-        {
-            
-            GameObject g = (GameObject)AssetDatabase.LoadAssetAtPath(@"Assets/Resources/Prefabs/loader.prefab", typeof(GameObject));
-            
-            Loader l = g.GetComponent<Loader>();
-            return l;
         }
     }
     private void Build()
@@ -159,6 +143,17 @@ public partial class RTools : EditorWindow
     static void rtoolsclick()
     {
         if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
+    }
+    private static Loader _Loader
+    {
+        get
+        {
+
+            GameObject g = (GameObject)AssetDatabase.LoadAssetAtPath(@"Assets/Resources/Prefabs/loader.prefab", typeof(GameObject));
+
+            Loader l = g.GetComponent<Loader>();
+            return l;
+        }
     }
     static EditorWindow _ewnd;
     static EditorWindow ewnd

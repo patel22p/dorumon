@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using doru;
+using System.Collections.Generic;
 
 
 public class CarController : Car
@@ -8,6 +9,7 @@ public class CarController : Car
     public Transform exp;
     public Transform nitropref;
     Renderer[] nitroprerrenderrs;
+    public List<GunBase> guns;
     protected override void Start()
     {
         nitroprerrenderrs = nitropref.GetComponentsInChildren<Renderer>();
@@ -46,7 +48,7 @@ public class CarController : Car
             if (Input.GetKeyDown(KeyCode.F))
             {
                 _localPlayer.RPCShow(true);
-                _localPlayer.RPCSelectGun(_localPlayer.selectedgun);
+                //_localPlayer.RPCSelectGun(_localPlayer.selectedgun);
                 _localPlayer.transform.position = transform.position + new Vector3(0, 1.5f, 0); ;
                 _Game._localiplayer = _localPlayer;
                 RPCCarOut(Network.player.GetHashCode());

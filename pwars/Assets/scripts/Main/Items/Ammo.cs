@@ -11,7 +11,7 @@ public class Ammo : MapItem
     public int spawnTime = 5000;
     public override string title()
     {
-        return "Нажми B чтобы купить "+_localPlayer.guns[gunIndex]._Name+", нужно "+score+" очков";
+        return "Нажми B чтобы купить "+ (GunType)gunIndex +", нужно "+score+" очков";
     }
     
     void Start()

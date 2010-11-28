@@ -12,7 +12,7 @@ public abstract class IPlayer : Box
     public int Life;
     public Transform CamPos;
     public virtual bool dead { get { return !enabled; } }
-    
+    [GenerateEnums("GunType")]
     public List<GunBase> guns = new List<GunBase>();
     public int selectedgun = 0;
     float shownicktime;
@@ -88,7 +88,7 @@ public abstract class IPlayer : Box
         if (!enabled) return;        
         if(isController) CallRPC(NwLife,killedby);
 
-        if (isEnemy(killedby))
+        if (isEnemy(killedby) || NwLife > Life)
             Life = NwLife;
 
         if (Life <= 0 && isController)
@@ -97,7 +97,7 @@ public abstract class IPlayer : Box
     public bool isEnemy(int killedby)
     {
         if (this is Zombie) return true;
-        if (killedby == OwnerID) return false;
+        if (killedby == OwnerID) return true;
         if (killedby == -1) return true;
         if (mapSettings.DM) return true;
         if (killedby != -1 && players[killedby] != null && players[killedby].team != team) return true;        

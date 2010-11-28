@@ -39,7 +39,6 @@ public class Game : Base
     public ParticleEmitter[] BloodEmitors;
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
-    public List<Transform> AmmoModels = new List<Transform>();
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
@@ -55,6 +54,7 @@ public class Game : Base
         effects = GameObject.Find("GameEffects").transform;
         _Level = Level.z4game;
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
+        print("mapSettings.host " + mapSettings.host);
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
                 Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);

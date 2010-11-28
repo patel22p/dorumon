@@ -25,7 +25,7 @@ public class GunPhysix : GunBase
 
     }
 
-    protected void FixedUpdate()
+    protected override void FixedUpdate()
     {
         if (power)
         {
@@ -112,7 +112,7 @@ public class GunPhysix : GunBase
         //    this.GetComponents<AudioSource>()[0].Play();
     }
 
-    protected void LocalUpdate()
+    protected override void Update()
     {
         if (isOwner && enabled)
         {
@@ -121,6 +121,7 @@ public class GunPhysix : GunBase
             else if (Input.GetMouseButtonUp(0))
                 RPCSetPower(false);
         }
+        base.Update();
 
     }
 

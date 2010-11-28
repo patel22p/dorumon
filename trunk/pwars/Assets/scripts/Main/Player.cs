@@ -23,19 +23,10 @@ public class Player : IPlayer
     public int frags;
     public ParticleEmitter speedparticles;
     const int life = 100;
-    enum GunType { ak, rocketlauncher, physxgun, healgun, voidgranate }
-    void AddGun(GunType gt)
-    {
-        guns.Add(transform.Find(gt.ToString()).GetComponent<Gun>());
-    }
+    enum GunType { ak, bazoka, physxgun, healgun, gravitygranate, uzi, shotgun, minigun,sniper }
+    
     protected override void Awake() 
     {
-        AddGun((GunType)0);
-        AddGun((GunType)1);
-        AddGun((GunType)2);
-        AddGun((GunType)3);
-        AddGun((GunType)4);        
-
         this.rigidbody.maxAngularVelocity = 40;
         if (networkView.isMine)
         {
@@ -62,7 +53,7 @@ public class Player : IPlayer
         base.OnPlayerConnected1(np);
         networkView.RPC("RPCSetUserInfo", np, nick);
         
-        networkView.RPC("RPCSetFrags", np, frags);
+        networkView.RPC("RPCSetFrags", np, frags,score);
         networkView.RPC("RPCSetDeaths", np, deaths);
         if (spawned)
         {
@@ -100,7 +91,7 @@ public class Player : IPlayer
             transform.position = SpawnPoint();
             transform.rotation = Quaternion.identity;
         }
-        foreach (Gun gunBase in guns)
+        foreach (GunBase gunBase in guns)
             gunBase.Reset();
         Life = life;
         freezedt = 0;
@@ -118,10 +109,8 @@ public class Player : IPlayer
     {
         CallRPC(i);
         PlaySound("change");
-        selectedgun = i;
-        if (isOwner && _GameWindow.gunTextures[selectedgun] != null)
-            _GameWindow.gunTexture.texture = _GameWindow.gunTextures[selectedgun];
-        foreach (Gun gb in guns)
+        selectedgun = i;        
+        foreach (GunBase gb in guns)
             gb.DisableGun();
         guns[selectedgun].EnableGun();
     }
@@ -158,6 +147,15 @@ public class Player : IPlayer
                 RPCSelectGun(3);
             if (Input.GetKeyDown(KeyCode.Alpha5))
                 RPCSelectGun(4);
+            if (Input.GetKeyDown(KeyCode.Alpha6))
+                RPCSelectGun(5);
+            if (Input.GetKeyDown(KeyCode.Alpha7))
+                RPCSelectGun(6);
+            if (Input.GetKeyDown(KeyCode.Alpha8))
+                RPCSelectGun(7);
+            if (Input.GetKeyDown(KeyCode.Alpha9))
+                RPCSelectGun(8);
+
             if (Input.GetKey(KeyCode.LeftShift))
                 this.transform.rotation = Quaternion.identity;
             if (Input.GetKeyDown(KeyCode.Space))
@@ -301,10 +299,10 @@ public class Player : IPlayer
         CallRPC(NwLife, killedby);
         if (isOwner)
             _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
+        
 
-        print(isEnemy(killedby));
-        if (isEnemy(killedby))
-            Life = NwLife;
+        if (isEnemy(killedby) || NwLife > Life)
+            Life = Math.Min(NwLife,100);
 
         if (Life <= 0 && isOwner)
             RPCDie(killedby);

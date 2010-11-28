@@ -1,0 +1,1 @@
+public partial class RTools{public enum GunType{healgun,ak,bazoka,sniper,uzi,gravitygranate,physxgun,minigun,shotgun}}

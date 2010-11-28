@@ -11,6 +11,7 @@ using System.IO;
 [ExecuteInEditMode]
 public class InspectorSearch : EditorWindow
 {
+    public List<string> instances = new List<string>();
     string search = "";
     void OnGUI()
     {
@@ -21,7 +22,7 @@ public class InspectorSearch : EditorWindow
     {
         search = EditorGUILayout.TextField(search);
         EditorGUIUtility.LookLikeInspector();
-        if (search.Length > 1)
+        if (search.Length > 0)
         {
             if (Selection.activeGameObject != null)
                 foreach (var m in Selection.activeGameObject.GetComponents<Component>())
@@ -42,13 +43,13 @@ public class InspectorSearch : EditorWindow
     private void DrawObjects()
     {
         if (GUI.Button("Add"))
-            if (!instances.Contains(Selection.activeGameObject))
-                instances.Add(Selection.activeGameObject);
-        List<GameObject> toremove = new List<GameObject>();
+            if (!instances.Contains(Selection.activeGameObject.name))
+                instances.Add(Selection.activeGameObject.name);
+        List<string> toremove = new List<string>();
         foreach (var inst in instances)
         {
             GUI.BeginHorizontal();
-            GameObject o = inst;
+            GameObject o = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
             if (o != null && GUI.Button(o.name))
                 Selection.activeGameObject = o;
             if (GUI.Button("X", GUI.ExpandWidth(false)))
@@ -73,5 +74,5 @@ public class InspectorSearch : EditorWindow
             return _ewnd;
         }
     }
-    public List<GameObject> instances = new List<GameObject>();
+    
 }

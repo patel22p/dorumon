@@ -6,7 +6,7 @@ public class Gun : GunBase
     public float interval = 1;
     [HideInInspector]
     public float tm;
-
+    
     public int howmuch = 1;
     public GameObject patronPrefab;
     public Vector3 random;
@@ -17,8 +17,9 @@ public class Gun : GunBase
     [HideInInspector]
     public Light fireLight;
     public AudioClip sound;
+    public Player p;
     protected override void Awake()
-    {
+    {        
         var t = transform.Find("light");
         if (t != null) fireLight = t.GetComponent<Light>();
         base.Awake();
@@ -36,7 +37,6 @@ public class Gun : GunBase
         if(GunPicture!=null && isOwner)
             _GameWindow.gunTexture.texture = GunPicture;
         
-        transform.rotation = rotation;
         if (isOwner)
             LocalUpdate();
 

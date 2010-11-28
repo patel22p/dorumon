@@ -9,7 +9,7 @@ public class GunBase : Base
     public int defcount;
     public string _Name ="None";
     internal Transform cursor;
-    internal Quaternion rotation;    
+    public int group=1;
     internal float patronsleft = 0;
     protected override void Awake()
     {
@@ -30,24 +30,9 @@ public class GunBase : Base
     }
     protected virtual void Update()
     {
-        UpdateAim();
     }
     protected virtual void FixedUpdate()
     {
-        UpdateAim();
     }
-    protected virtual void UpdateAim()
-    {
-        if (isOwner) rotation = _Cam.transform.rotation;
-        this.transform.rotation = rotation;
-    }
-    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (!enabled) return;
-        if (isOwner) rotation = _Cam.transform.rotation;
-        stream.Serialize(ref rotation);
-        transform.rotation = rotation;
-    }
-
 
 }

@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+
 using System.Collections;
 using doru;
 using System.Collections.Generic;
@@ -18,36 +19,50 @@ public class Player : IPlayer
     public int ping;
     public int deaths;
     new public string nick;
-    
     public bool spawned;
     public int frags;
     public ParticleEmitter speedparticles;
     const int life = 100;
-    enum GunType { ak, bazoka, physxgun, healgun, gravitygranate, uzi, shotgun, minigun,sniper }
-    
+    public Transform guntr;
+
+    [GenerateEnums("GunType")]
+    public List<GunBase> gunsR = new List<GunBase>();
+    public List<GunBase> gunsL = new List<GunBase>();
+    public List<GunBase> guns { get { return LeftGun ? gunsL : gunsR; } }
+    public bool LeftGun = true;
+
     protected override void Awake() 
     {
+        Debug.Log("player awake");
+        guntr = this.transform.Find("Guns");
+        gunsL = guntr.GetChild(1).GetComponentsInChildren<GunBase>().ToList();
+        gunsR = guntr.GetChild(0).GetComponentsInChildren<GunBase>().ToList();
+        print("guns count" + gunsL.Count);
+        print("guns count" + gunsR.Count);
+        if (!build)
+        {
+            foreach (var g in gunsL.Concat(gunsR))
+                g.defcount = 999999;
+        }
+        
         this.rigidbody.maxAngularVelocity = 40;
         if (networkView.isMine)
         {
             _Game._localiplayer = _Game._localPlayer = this;
             RPCSetOwner();
-
             RPCSetUserInfo(LocalUserV.nick);
             this.RPCShow(false);
-            
         }
-
         speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
-
+        
         base.Awake();
     }
 
+    
     protected override void Start()
     {
         base.Start();                
     }
-
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
@@ -59,12 +74,11 @@ public class Player : IPlayer
         {
             networkView.RPC("RPCSetTeam", np, (int)team);        
             networkView.RPC("RPCSpawn", np);
-            networkView.RPC("RPCSelectGun", np, selectedgun);        
+            networkView.RPC("RPCSelectGun", np, selectedgun, LeftGun);        
             if (spawned && dead) networkView.RPC("RPCDie", np, -1);
             if (car != null) networkView.RPC("RPCCarIn", np);
         }
     }
-    
     public override void OnSetOwner()
     {
         print("set owner" + OwnerID);
@@ -75,7 +89,6 @@ public class Player : IPlayer
         _Game.players[OwnerID] = this;
         _Game.WriteMessage(nick + " зашел в игру ");
     }
-
     [RPC]
     public void RPCSpawn()
     {
@@ -87,12 +100,14 @@ public class Player : IPlayer
         if (isOwner)
         {
             RPCSetTeam((int)team);
-            RPCSelectGun(1);
+            RPCSelectGun(1, true);
+            RPCSelectGun(1, false);
             transform.position = SpawnPoint();
             transform.rotation = Quaternion.identity;
         }
-        foreach (GunBase gunBase in guns)
+        foreach (GunBase gunBase in gunsR.Concat(gunsL))
             gunBase.Reset();
+
         Life = life;
         freezedt = 0;
 
@@ -102,20 +117,38 @@ public class Player : IPlayer
         GameObject[] gs = GameObject.FindGameObjectsWithTag(team.ToString());
         return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).First().transform.position;        
     }
-
-    
-    [RPC]
-    public void RPCSelectGun(int i)
+    public void SelectGun(int id)
     {
-        CallRPC(i);
-        PlaySound("change");
-        selectedgun = i;        
-        foreach (GunBase gb in guns)
-            gb.DisableGun();
-        guns[selectedgun].EnableGun();
+        if (guns.Count(a => a.group == id && a.patronsleft > 0) == 0) return;
+        bool foundfirst = false;
+        bool foundnext=false;
+        for (int i = selectedgun; i < guns.Count; i++)
+            if (guns[i].group == id && guns[i].patronsleft > 0)
+            {
+                if (foundfirst) { selectedgun = i; foundnext = true; break; }
+                foundfirst = true;
+            }
+        if (!foundnext)
+            for (int i = 0; i < guns.Count; i++)
+                if (guns[i].group == id && guns[i].patronsleft > 0)
+                {
+                    selectedgun = i;
+                    break;
+                }
+        
+        RPCSelectGun(selectedgun,LeftGun);
     }
-    
+    [RPC]
+    public void RPCSelectGun(int i,bool left)
+    {
+        CallRPC(i,left);
+        PlaySound("change");
+        selectedgun = i;
+        foreach (GunBase gb in (left ? gunsL : gunsR))
+            gb.DisableGun();
 
+        (left ? gunsL : gunsR)[selectedgun].EnableGun();
+    }
     protected override void Update()
     {
         UpdateOnPoint();
@@ -136,26 +169,29 @@ public class Player : IPlayer
             freezedt -= Time.deltaTime * 5;
         if (isOwner && lockCursor)
         {
-            NextGun(Input.GetAxis("Mouse ScrollWheel"));
+            //NextGun(Input.GetAxis("Mouse ScrollWheel"));
             if (Input.GetKeyDown(KeyCode.Alpha1))
-                RPCSelectGun(0);
+                SelectGun(1);
             if (Input.GetKeyDown(KeyCode.Alpha2))
-                RPCSelectGun(1);
+                SelectGun(2);
             if (Input.GetKeyDown(KeyCode.Alpha3))
-                RPCSelectGun(2);
+                SelectGun(3);
             if (Input.GetKeyDown(KeyCode.Alpha4))
-                RPCSelectGun(3);
+                SelectGun(4);
             if (Input.GetKeyDown(KeyCode.Alpha5))
-                RPCSelectGun(4);
+                SelectGun(5);
             if (Input.GetKeyDown(KeyCode.Alpha6))
-                RPCSelectGun(5);
+                SelectGun(6);
             if (Input.GetKeyDown(KeyCode.Alpha7))
-                RPCSelectGun(6);
+                SelectGun(7);
             if (Input.GetKeyDown(KeyCode.Alpha8))
-                RPCSelectGun(7);
+                SelectGun(8);
             if (Input.GetKeyDown(KeyCode.Alpha9))
-                RPCSelectGun(8);
-
+                SelectGun(9);
+            if (Input.GetKeyDown(KeyCode.Q))
+                LeftGun = true;
+            if (Input.GetKeyDown(KeyCode.E))
+                LeftGun = false;
             if (Input.GetKey(KeyCode.LeftShift))
                 this.transform.rotation = Quaternion.identity;
             if (Input.GetKeyDown(KeyCode.Space))
@@ -167,9 +203,14 @@ public class Player : IPlayer
                 }
             }            
         }
+        UpdateAim();
         base.Update();
     }
-
+    protected virtual void UpdateAim()
+    {
+        if (isOwner) syncRot = _Cam.transform.rotation;
+        guntr.rotation = syncRot;
+    }
     private void UpdateOnPoint()
     {
         _GameWindow.CenterText.text = "";
@@ -188,15 +229,13 @@ public class Player : IPlayer
             }
         }
     }
-
     protected virtual void FixedUpdate()
     {
         if (isOwner) LocalMove();
+        UpdateAim();
     }
-
     private void LocalMove()
     {
-
         if (lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -235,7 +274,7 @@ public class Player : IPlayer
                 guni--;
             if (guni > guns.Count - 1) guni = 0;
             if (guni < 0) guni = guns.Count - 1;
-            RPCSelectGun(guni);
+            RPCSelectGun(guni,LeftGun);
         }
     }
     
@@ -405,7 +444,39 @@ public class Player : IPlayer
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
         return velocityChange;
     }
-    
+
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    {
+        if (!enabled) return;
+        if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
+        {
+            //if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets<0)
+            lock ("ser")
+            {
+                tsendpackets = 1;
+                if (stream.isWriting)
+                {
+                    syncPos = rigidbody.position;
+                    syncRot = guntr.rotation;
+                    syncVelocity = rigidbody.velocity;
+                    syncAngularVelocity = rigidbody.angularVelocity;
+                }
+                stream.Serialize(ref syncPos);
+                stream.Serialize(ref syncVelocity);
+                stream.Serialize(ref syncRot);
+                stream.Serialize(ref syncAngularVelocity);
+
+                if (stream.isReading)
+                {
+                    rigidbody.position = syncPos;
+                    rigidbody.velocity = syncVelocity;
+                    rigidbody.rotation = syncRot;
+                    rigidbody.angularVelocity = syncAngularVelocity;
+                }
+            }
+        }
+    }
+
     [RPC]
     public void RPCCarIn()
     {

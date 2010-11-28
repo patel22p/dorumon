@@ -35,14 +35,13 @@ public partial class RTools : EditorWindow
                     GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
                     if (ge != null)
                     {
-                        string cs = "public partial class RTools{";
+                        string cs = "";
                         Debug.Log("Found!" + ge.name);
                         cs += "public Enum " + ge.name + "{";
                         var ie = (IEnumerable)f.GetValue(g);
                         foreach (Base o in ie)
                             cs += o.name + ",";
                         cs = cs.Trim(new[] { ',' });
-                        cs += "}";
                         cs += "}";
                         Debug.Log("geneerated:" + cs);
                         File.WriteAllText(cspath + ge.name + ".cs", cs);

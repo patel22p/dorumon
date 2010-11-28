@@ -4,7 +4,6 @@ using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using doru;
 using System;
@@ -87,7 +86,89 @@ public partial class Base2 : MonoBehaviour
         return new Rect(u.x, u.y, v.x, v.y);
     }
     public virtual void OnSetOwner() { }
+
+    public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
+    public Vector3 pos { get { return transform.position; } set { transform.position = value; } }
+    public float rotx
+    {
+        get { return rot.eulerAngles.x; }
+        set
+        {
+            Quaternion r = rot;
+            Vector3 v = r.eulerAngles;
+            v.x = value;
+            r.eulerAngles = v;
+            transform.rotation = r;
+        }
+    }
+    public float roty
+    {
+        get { return rot.eulerAngles.y; }
+        set
+        {
+            Quaternion r = rot;
+            Vector3 v = r.eulerAngles;
+            v.y = value;
+            r.eulerAngles = v;
+            transform.rotation = r;
+        }
+    }
+    public float rotz
+    {
+        get { return rot.eulerAngles.z; }
+        set
+        {
+            Quaternion r = rot;
+            Vector3 v = r.eulerAngles;
+            v.z = value;
+            r.eulerAngles = v;
+            transform.rotation = r;
+        }
+    }
+    public float posx
+    {
+        get { return rot.x; }
+        set
+        {
+            Vector3 p = pos;
+            p.x = value;
+            pos = p;
+        }
+    }
+    public float posy
+    {
+        get { return rot.y; }
+        set
+        {
+            Vector3 p = pos;
+            p.y = value;
+            pos = p;
+        }
+    }
+    public float posz
+    {
+        get { return rot.z; }
+        set
+        {
+            Vector3 p = pos;
+            p.z = value;
+            pos = p;
+        }
+    }
+
+    
+
+
 }
+public class GenerateEnums : Attribute
+{
+    public string name;
+    public GenerateEnums(string enumName)
+    {
+        name = enumName;
+    }
+}
+
 [Serializable]
 public class MapSetting
 {
@@ -98,7 +179,8 @@ public class MapSetting
     public int fragLimit = 20;
     public string[] ipaddress;
     public int port=5300;
-    public bool host = true;
+    
+    public bool host;
     public int maxPlayers = 4;
     public float timeLimit=15;
     public bool TeamZombiSurvive { get { return gameMode == GameMode.TeamZombieSurvive; } }

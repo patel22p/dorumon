@@ -13,7 +13,7 @@ public class GameWindow : Base2 {
     public GUIText CenterText;
     public GUITexture gunTexture;
     public GUITexture BlueBar;
-    public List<Texture> gunTextures;
+    
     public GUIText Score;
     public GUITexture RedBar;
     public GUIText blueTeam;

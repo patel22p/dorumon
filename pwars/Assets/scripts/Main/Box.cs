@@ -11,8 +11,8 @@ public class Box : Base
 {
     public Transform bounds;
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
-    Vector3 pos;
-    Quaternion rot;
+    Vector3 syncPos;
+    Quaternion syncRot;
 
     Vector3 velocity;
     Vector3 angularVelocity;
@@ -160,25 +160,25 @@ public class Box : Base
                 tsendpackets = 1;
                 if (stream.isWriting)
                 {
-                    pos = rigidbody.position;
-                    rot = rigidbody.rotation;
+                    syncPos = rigidbody.position;
+                    syncRot = rigidbody.rotation;
                     velocity = rigidbody.velocity;
                     angularVelocity = rigidbody.angularVelocity;
                 }
-                stream.Serialize(ref pos);
+                stream.Serialize(ref syncPos);
                 stream.Serialize(ref velocity);
                 if (!zombieAlive)
                 {
-                    stream.Serialize(ref rot);
+                    stream.Serialize(ref syncRot);
                     stream.Serialize(ref angularVelocity);
                 }
-                if (stream.isReading && pos != default(Vector3))
+                if (stream.isReading && syncPos != default(Vector3))
                 {
-                    rigidbody.position = pos;
+                    rigidbody.position = syncPos;
                     rigidbody.velocity = velocity;
                     if (!zombieAlive)
                     {
-                        rigidbody.rotation = rot;
+                        rigidbody.rotation = syncRot;
                         rigidbody.angularVelocity = angularVelocity;
                     }
                 }

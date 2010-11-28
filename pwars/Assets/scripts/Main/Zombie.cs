@@ -46,7 +46,7 @@ public class Zombie : IPlayer
     protected override void Update()
     {        
         zombieBite += Time.deltaTime;
-        //base.Update();
+        base.Update();
 
         if (!Alive) return;
         if ((zombieWait -= Time.deltaTime) < 0 && selected != -1)
@@ -88,6 +88,7 @@ public class Zombie : IPlayer
     {        
         if(!biting && Alive)
             transform.position += r * new Vector3(0, 0, speed * Time.fixedDeltaTime);
+        
     }
     private Vector3 GetNextPathPoint(IPlayer ipl)
     {

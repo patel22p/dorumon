@@ -23,9 +23,8 @@ public class Base : Base2
         if (_Loader == null)
             Instantiate(Resources.Load("Prefabs/loader"));        
     }
-
     
-
+    
     public NetworkView myNetworkView
     {
         get

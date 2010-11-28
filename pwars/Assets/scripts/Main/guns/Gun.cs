@@ -2,45 +2,45 @@
 using System.Collections;
 public class Gun : GunBase
 {
+    
     public float interval = 1;
+    [HideInInspector]
     public float tm;
-    public int defcount;
-    
-    
-    public Quaternion rotation;
-    
-    public Transform patronPrefab;
-    public Vector3 Random;
+
+    public int howmuch = 1;
+    public GameObject patronPrefab;
+    public Vector3 random;
+    public Texture2D GunPicture;
     public bool laser;
-    public Vector3? Force;
+    public Vector3 Force;
     public ParticleEmitter[] fireEfects;
+    [HideInInspector]
     public Light fireLight;
     public AudioClip sound;
     protected override void Awake()
     {
+        var t = transform.Find("light");
+        if (t != null) fireLight = t.GetComponent<Light>();
         base.Awake();
     }
-    public void Reset()
-    {
-        patronsleft = defcount;
-    }
-    
-    protected virtual void FixedUpdate()
-    {
-        UpdateAim();
-        this.transform.rotation = rotation;
-    }
-    private void UpdateAim()
-    {
-        if (isOwner) rotation = _Cam.transform.rotation;
-    }
-    protected virtual void Update()
+    public override void onShow(bool enabled)
     {
 
-        UpdateAim();
+        base.onShow(enabled);
+    }
+    
+    
+    
+    protected override void Update()
+    {
+        if(GunPicture!=null && isOwner)
+            _GameWindow.gunTexture.texture = GunPicture;
+        
         transform.rotation = rotation;
         if (isOwner)
             LocalUpdate();
+
+        base.Update();
 
     }
     protected virtual void LocalUpdate()
@@ -60,6 +60,7 @@ public class Gun : GunBase
             }
         }
     }
+    [RPC]
     protected virtual void RPCShoot(Vector3 pos, Quaternion rot)
     {
         CallRPC(pos, rot);
@@ -68,17 +69,24 @@ public class Gun : GunBase
         if (fireLight != null)
         {
             fireLight.enabled = true;
-            _TimerA.AddMethod(100, delegate
+            _TimerA.AddMethod(20, delegate
             {
                 fireLight.enabled = false;
             });
         }
         if (sound != null)
             root.audio.PlayOneShot(sound);
-
-        Patron patron = ((GameObject)Instantiate(patronPrefab, pos, rot * Quaternion.Euler(Random))).GetComponent<Patron>();
-        patron.OwnerID = OwnerID;
-        if (Force != null) patron.rigidbody.AddForce(Force.Value);
+        for (int i = 0; i < howmuch; i++)
+        {
+            
+            Vector3 r;
+            r.x = Random.Range(-random.x, random.x);
+            r.y = Random.Range(-random.y, random.y);
+            r.z = Random.Range(-random.z, random.z);
+            Patron patron = ((GameObject)Instantiate(patronPrefab, pos, rot * Quaternion.Euler(r))).GetComponent<Patron>();
+            patron.OwnerID = OwnerID;
+            if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
+        }        
         
     }
     protected virtual void LocalShoot()
@@ -86,13 +94,7 @@ public class Gun : GunBase
         Transform t = GetRotation();
         RPCShoot(t.position, t.rotation);
     }
-    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (!enabled) return;
-        if (isOwner) rotation = _Cam.transform.rotation;
-        stream.Serialize(ref rotation);
-        transform.rotation = rotation;
-    }
+    
     
     
     public Transform GetRotation()

@@ -154,7 +154,7 @@ public class CarController : Car
 
     private void Reset()
     {
-        foreach (Gun gunBase in guns)
+        foreach (GunBase gunBase in guns)
             gunBase.Reset();
     }
     const int life = 300;

@@ -93,19 +93,21 @@ public class Cam : Base
             pos2.y += yoffset;
             transform.position = pos2;
             transform.rotation = rotation;
+
+            RaycastHit h;
+            Vector3 campos = transform.position;
+            Vector3 plpos = _localiplayer.transform.position;
+            if (Physics.Raycast(new Ray(campos, plpos - campos), out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
+                transform.position = h.point;
+
         }
-        RaycastHit h;
-        Vector3 campos = transform.position;
-        Vector3 plpos = _localiplayer.transform.position;
-        if (Physics.Raycast(new Ray(campos, plpos - campos), out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
-            campos = h.point;
 
         camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
         exp -= .1f;
         if (exp < 0) exp = 0;
     }
-    public float xoffset =2;
-    public float yoffset=3;
+    public float xoffset = 2;
+    public float yoffset = 3;
     Vector3 oldpos;
     public float exp;
     public static float ClampAngle(float angle, float min, float max, float clamp)

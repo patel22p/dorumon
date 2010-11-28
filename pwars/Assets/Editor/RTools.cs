@@ -6,8 +6,10 @@ using System.Linq;
 using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
 using System.IO;
+using System.Collections;
+
 [ExecuteInEditMode]
-public class RTools : EditorWindow
+public partial class RTools : EditorWindow
 {
     static float t1;
     string file;
@@ -15,17 +17,44 @@ public class RTools : EditorWindow
     {
         if (GUI.Button("Init"))
             Init();
-        BuildGUI(); 
+        BuildGUI();
+
     }
 
     private void Init()
     {
-        Animation baseanim = GameObject.FindGameObjectWithTag("Level").GetComponent<Animation>();
+
+        string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\Editor\Generated\";
         clearObjects("None");
-        clearObjects("zombie");        
+        clearObjects("zombie");
+        foreach (var go in Selection.gameObjects)
+            foreach (var g in go.GetComponents<Base>())
+            {
+                foreach (var f in g.GetType().GetFields())
+                {
+                    GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
+                    if (ge != null)
+                    {
+                        string cs = "public partial class RTools{";
+                        Debug.Log("Found!" + ge.name);
+                        cs += "public Enum " + ge.name + "{";
+                        var ie = (IEnumerable)f.GetValue(g);
+                        foreach (Base o in ie)
+                            cs += o.name + ",";
+                        cs = cs.Trim(new[] { ',' });
+                        cs += "}";
+                        cs += "}";
+                        Debug.Log("geneerated:" + cs);
+                        File.WriteAllText(cspath + ge.name + ".cs", cs);
+                    }
+                }
+
+            }
+
+        
         foreach (var g in GameObject.FindGameObjectsWithTag("door"))
         {
-            
+
             if (g.GetComponent<Door>() == null)
             {                
                 g.animation.playAutomatically = false;
@@ -77,18 +106,19 @@ public class RTools : EditorWindow
             new SerializedObject(_Loader).ApplyModifiedProperties();
             EditorApplication.isPlaying = true;
         }
+        if (GUILayout.Button("Server App"))
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
+        GUI.EndHorizontal();
+        GUI.BeginHorizontal();
+        if (GUILayout.Button("Client App"))
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
         if (GUILayout.Button("Client Editor"))
         {
             _Loader.mapSettings.host = false;
             new SerializedObject(_Loader).ApplyModifiedProperties();
             EditorApplication.isPlaying = true;
         }
-        GUI.EndHorizontal();
-        GUI.BeginHorizontal();
-        if (GUILayout.Button("Client App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
-        if (GUILayout.Button("Server App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
+        
         GUI.EndHorizontal();
         if (GUILayout.Button("Open Project Folder"))
         {

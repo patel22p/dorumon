@@ -48,6 +48,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Editor\Generated\GunType.cs" />
      <Compile Include="Assets\Editor\AstarDataEditor.cs" />
      <Compile Include="Assets\Editor\AstarPathEditor.cs" />
      <Compile Include="Assets\Editor\AstarWelcome.cs" />
@@ -80,9 +81,9 @@
      <None Include="Assets\materials\other\TwirlEffect.shader" />
      <Compile Include="Assets\materials\Shaders\BumpLightMap.cs" />
      <None Include="Assets\materials\Shaders\Particle Alpha Blend.shader" />
-     <None Include="Assets\ParticleTutorial\Explosion.js" />
-     <None Include="Assets\ParticleTutorial\ParticleLayer.js" />
-     <None Include="Assets\ParticleTutorial\Rocket.js" />
+     <None Include="Assets\other\ParticleTutorial\Explosion.js" />
+     <None Include="Assets\other\ParticleTutorial\ParticleLayer.js" />
+     <None Include="Assets\other\ParticleTutorial\Rocket.js" />
      <Compile Include="Assets\Pathfinding\AstarClasses.cs" />
      <Compile Include="Assets\Pathfinding\AstarData.cs" />
      <Compile Include="Assets\Pathfinding\AstarMath.cs" />

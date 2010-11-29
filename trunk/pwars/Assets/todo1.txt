@@ -1,0 +1,29 @@
+game.onplayerconnected foreach userviews!!
+статик где возможно натыкать обратно
+убрать папки в пути sounds,prefabs
+Убрать Root()
+
+
+deffered render option
+smena oruzhija sound
+когда входиш выходиш входиш ид присваевается как 3
+onconnect check if map loaded
+wingame disc all users, connect
+
+Menu login v menu
+Main Menu
+ip parse
+
+scale  
+
+editor save values
+editor bolean values
+
+коннект на уровне
+
+консоль ненужна , убрать онгуи
+
+длинный кабель
+, адоб афтер ефектс ,макс 9, унити, 
+
+кровь зомби

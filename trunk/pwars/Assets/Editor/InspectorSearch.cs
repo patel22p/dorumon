@@ -32,12 +32,62 @@ public class InspectorSearch : EditorWindow
                     pr.NextVisible(true);
                     do
                     {
-                        if (pr.propertyPath.ToLower().Contains(search.ToLower()))
+                        if (pr.propertyPath.ToLower().Contains(search.ToLower()) && pr.editable)
                             EditorGUILayout.PropertyField(pr);
+                        if (so.ApplyModifiedProperties() && Selection.gameObjects.Length > 1)
+                            SetMultiSelect(m, pr);
                     }
                     while (pr.NextVisible(true));
-                    so.ApplyModifiedProperties();
                 }
+        }
+    }
+
+    private void SetMultiSelect(Component m, SerializedProperty pr)
+    {
+        switch (pr.propertyType)
+        {
+            case SerializedPropertyType.Float:
+                SetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Boolean:
+                SetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Integer:
+                SetValue(m, pr.intValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.String:
+                SetValue(m, pr.stringValue, pr.propertyPath, pr.propertyType);
+                break;
+        }
+    }
+    void SetValue(Component c, object value, string prName, SerializedPropertyType type)
+    {
+        foreach (var o in Selection.gameObjects)
+        {
+            Component nc = o.GetComponent(c.GetType());
+            if (nc != null && nc != c)
+            {
+                SerializedObject so = new SerializedObject(nc);
+                var pr = so.FindProperty(prName);
+                switch (type)
+                {
+                    case SerializedPropertyType.Float:
+                        pr.floatValue = (float)value;
+                        break;
+                    case SerializedPropertyType.Boolean:
+                        pr.boolValue = (bool)value;
+                        break;
+                    case SerializedPropertyType.String:
+                        pr.stringValue = (string)value;
+                        break;
+                    case SerializedPropertyType.Integer:
+                        pr.intValue = (int)value;
+                        break;
+
+                }
+
+                so.ApplyModifiedProperties();
+            }
         }
     }
     private void DrawObjects()
@@ -74,5 +124,5 @@ public class InspectorSearch : EditorWindow
             return _ewnd;
         }
     }
-    
+
 }

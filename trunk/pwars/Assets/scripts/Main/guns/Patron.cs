@@ -9,11 +9,10 @@ public class Patron : Base
     public GameObject detonator;
     public bool DestroyOnHit;
     public bool explodeOnDestroy;
-    public int detonatorsize = 8;    
-    public int substractLife = 60;//damage
-
+    public int detonatorsize = 8;        
     public float ExpForce = 500;
-    public int probivaemost = 0;
+    internal int damage = 60;
+    internal int probivaemost = 0;
     public float magnet;
     public float samonavod;
     public bool breakwall;
@@ -100,17 +99,19 @@ public class Patron : Base
         }
 
         IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
+
+        
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
-            _Game.Emit(_Game.BloodEmitors, _Game.Blood, hit.point, transform.rotation);        
+            _Game.particles[1].Emit(hit.point, transform.rotation);        
         else
-            _Game.Emit(_Game.metalSparkEmiters, _Game.metalSpark, hit.point, transform.rotation);
+            _Game.particles[0].Emit(hit.point, transform.rotation);
         
 
         if (iplayer != null && iplayer.isController && !iplayer.dead)
         {
             if (iplayer is Player)
                 ((Player)iplayer).freezedt = freezetime;
-            iplayer.RPCSetLife(iplayer.Life - substractLife, OwnerID);
+            iplayer.RPCSetLife(iplayer.Life - damage, OwnerID);
         }
         probivaemost--;
         if(probivaemost<0)
@@ -125,7 +126,7 @@ public class Patron : Base
         o.GetComponent<Detonator>().size = detonatorsize;
         Explosion e = o.AddComponent<Explosion>();
         e.exp = ExpForce;
-        e.damage = substractLife;
+        e.damage = damage;
         e.OwnerID = OwnerID;
         Destroy(gameObject);
     }

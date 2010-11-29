@@ -47,7 +47,7 @@ public class GunPhysix : GunBase
             {
                 if (!(b is IPlayer))
                 {
-                    b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor.position, radius);
+                    b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor[0].position, radius);
                     b.rigidbody.angularDrag = 30;
                     b.rigidbody.velocity *= .97f;
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
@@ -84,11 +84,11 @@ public class GunPhysix : GunBase
             bool any = false;
 
             foreach (Base b in _Game.dynamic)
-                if (!(b is IPlayer) && Vector3.Distance(b.transform.position, cursor.position) < expradius)
+                if (!(b is IPlayer) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
                 {
                     b.rigidbody.angularDrag = 2;
                     b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));
-                    Destroy(Instantiate(Load("wave"), cursor.position, transform.rotation), 1.36f);
+                    Destroy(Instantiate(Load("wave"), cursor[0].position, transform.rotation), 1.36f);
                     any = true;
                 }
             if (energy > 300 && any)

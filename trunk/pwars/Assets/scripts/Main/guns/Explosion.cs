@@ -19,10 +19,10 @@ public class Explosion : Base
                 ip.RPCSetLife(ip.Life - damage,OwnerID);
             }
         }
-        foreach (Box b in GameObject.FindObjectsOfType(typeof(IPlayer)))
+        foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
             if (b != self)
             {
-                b.rigidbody.AddExplosionForce(exp, transform.position, radius);
+                b.rigidbody.AddExplosionForce(exp*b.rigidbody.mass, transform.position, radius);
             }
         foreach (Fragment f in FindObjectsOfType(typeof(Fragment)))
         {

@@ -16,7 +16,11 @@ public class Zombie : IPlayer
     public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
     Seeker seeker;
-    
+    public override void Init()
+    {
+        velSync = rotSync = angSync = false;
+        base.Init();
+    }
     protected override void Awake()
     {
         base.Awake();
@@ -32,6 +36,7 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
+        posSync = true;
         transform.position = SpawnPoint();
         gameObject.layer = LayerMask.NameToLayer("Zombie");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
@@ -62,7 +67,7 @@ public class Zombie : IPlayer
                 {
                     //Debug.DrawLine(transform.position, ipl.transform.position);
                     RaycastHit hitInfo;
-                    bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), _Loader.LevelMask);
+                    bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), 1 << LayerMask.NameToLayer("Level"));
                     if (shit || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
                         pathPointDir = zToPlDir;
                     Debug.DrawLine(p, p + pathPointDir);
@@ -92,7 +97,7 @@ public class Zombie : IPlayer
     }
     private Vector3 GetNextPathPoint(IPlayer ipl)
     {
-        print(_Loader.disablePathFinding);
+
         if ((seekPath -= Time.deltaTime) < 0)
         {
             seeker.StartPath(this.transform.position, ipl.transform.position);
@@ -118,7 +123,8 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        gameObject.layer = LayerMask.NameToLayer("DeadZombie");
+        posSync = false;
+        gameObject.layer = LayerMask.NameToLayer("levelonly");
         if (isController) CallRPC(killedby);
         PlayRandSound("gib");
         if (!Alive) { return; }
@@ -142,7 +148,7 @@ public class Zombie : IPlayer
 
     public override Vector3 SpawnPoint()
     {
-        GameObject[] gs = GameObject.FindGameObjectsWithTag("zombie");
+        GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         
         return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).Take(3).NextRandom().transform.position;        
     }
@@ -162,7 +168,7 @@ public class Zombie : IPlayer
         {            
             RPCSetLife(Life - Math.Max((int)collisionInfo.impactForceSum.sqrMagnitude * 5, 200), b.OwnerID);
             if(_SettingsWindow.Blood)
-                _Game.Emit(_Game.BloodEmitors, _Game.Blood, transform.position, Quaternion.identity, rigidbody.velocity);
+                _Game.particles[1].Emit(transform.position, Quaternion.identity, rigidbody.velocity);
         }
     }
 
@@ -171,6 +177,7 @@ public class Zombie : IPlayer
         base.OnPlayerConnected1(np);
         networkView.RPC("RPCSetup", np, (float)speed, (float)Life);
         if(!Alive) networkView.RPC("RPCDie", np, -1);
-    }    
+    }
+    
 
 }

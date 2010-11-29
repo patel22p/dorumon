@@ -17,7 +17,7 @@ public class Box : Base
     public Vector3 syncAngularVelocity;
 
     public int selected = -1;
-    public bool zombieAlive { get { return (this is Zombie && ((Zombie)this).Alive); } }
+    //public bool zombieAlive { get { return (this is Zombie && ((Zombie)this).Alive); } }
 
     protected override void Awake()
     {
@@ -49,7 +49,7 @@ public class Box : Base
         if (this.GetType() == typeof(Box) && _SettingsWindow.Sparks)
             if (collisionInfo.impactForceSum.magnitude > 10 && _TimerA.TimeElapsed(10))
                 foreach (ContactPoint cp in collisionInfo.contacts)                    
-                    _Game.Emit(_Game.metalSparkEmiters, _Game.metalSpark, cp.point, Quaternion.identity, -rigidbody.velocity / 4);
+                     _Game.particles[0].Emit(cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }
     public float tsendpackets;
     
@@ -147,40 +147,35 @@ public class Box : Base
         return spawnpos;
     }
 
+    public bool velSync = true, posSync = true, rotSync = true, angSync = true;
 
 
-    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled) return;
         if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
-            //if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets<0)
+            if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets<0)
             lock ("ser")
             {
-                tsendpackets = 1;
+                tsendpackets = .3f;
                 if (stream.isWriting)
                 {
-                    syncPos = rigidbody.position;
-                    syncRot = rigidbody.rotation;
+                    syncPos = pos;
+                    syncRot = rot;
                     syncVelocity = rigidbody.velocity;
                     syncAngularVelocity = rigidbody.angularVelocity;
                 }
-                stream.Serialize(ref syncPos);
-                stream.Serialize(ref syncVelocity);
-                if (!zombieAlive)
+                if (posSync) stream.Serialize(ref syncPos);
+                if (velSync) stream.Serialize(ref syncVelocity);
+                if (rotSync) stream.Serialize(ref syncRot);
+                if (angSync) stream.Serialize(ref syncAngularVelocity);
+                if (stream.isReading)//&& syncPos != default(Vector3)
                 {
-                    stream.Serialize(ref syncRot);
-                    stream.Serialize(ref syncAngularVelocity);
-                }
-                if (stream.isReading && syncPos != default(Vector3))
-                {
-                    rigidbody.position = syncPos;
-                    rigidbody.velocity = syncVelocity;
-                    if (!zombieAlive)
-                    {
-                        rigidbody.rotation = syncRot;
-                        rigidbody.angularVelocity = syncAngularVelocity;
-                    }
+                    if (posSync) pos = syncPos;
+                    if (velSync) rigidbody.velocity = syncVelocity;
+                    if (rotSync) rot = syncRot;
+                    if (angSync) rigidbody.angularVelocity = syncAngularVelocity;
                 }
             }
         }

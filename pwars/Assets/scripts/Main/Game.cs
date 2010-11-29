@@ -31,25 +31,17 @@ public class Game : Base
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
     public int maxzombies = 0;
-    public ParticleEmitter[] metalSparkEmiters;
-    public Transform metalSpark;
-    public ParticleEmitter[] impactSparkEmiters;
-    public Transform impactSpark;
-    public Transform Blood;
-    public ParticleEmitter[] BloodEmitors;
+
+    public List<Particles> particles = new List<Particles>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
-        
+
         base.Awake();
-        metalSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/particle_metal"))).transform;
-        metalSparkEmiters = metalSpark.GetComponentsInChildren<ParticleEmitter>();
-        impactSpark = ((GameObject)Instantiate(Resources.Load("Prefabs/Impact"))).transform;
-        impactSparkEmiters = impactSpark.GetComponentsInChildren<ParticleEmitter>();
-        Blood = ((GameObject)Instantiate(Resources.Load("Prefabs/BloodSplatters"))).transform;
-        BloodEmitors = Blood.GetComponentsInChildren<ParticleEmitter>();
+        clearObjects("SpawnNone");
+        clearObjects("SpawnZombie");
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);
         effects = GameObject.Find("GameEffects").transform;
         _Level = Level.z4game;
@@ -63,11 +55,22 @@ public class Game : Base
         else
             foreach (Base o in Component.FindObjectsOfType(typeof(Base))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
     }
+    private void clearObjects(string name)
+    {
+
+        foreach (var spwn in GameObject.FindGameObjectsWithTag(name))
+            foreach (var a in spwn.GetComponents<Component>())
+                if (!(a is Transform))
+                    DestroyImmediate(a);
+
+    }
+
     void OnServerInitialized() { Enable(); }
     void OnConnectedToServer() { Enable(); }
     void Enable() { enabled = true; }
     void Start()
     {
+        if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;
         Fragment();
         
         print("ZGameStart");
@@ -77,13 +80,11 @@ public class Game : Base
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
         Network.Instantiate(Resources.Load("Prefabs/Player"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
-
-
     }
 
     private void Fragment()
     {
-        GameObject[] gs = GameObject.FindGameObjectsWithTag("fragment");
+        GameObject[] gs = GameObject.FindGameObjectsWithTag("MapFragment");
         foreach (var g in gs)
         {
             Transform cur = g.transform.Find("Box02");
@@ -179,22 +180,7 @@ public class Game : Base
 
     }
 
-    public void Emit(ParticleEmitter[] emitors, Transform obj, Vector3 pos, Quaternion rot) { Emit(emitors, obj, pos, rot, Vector3.zero); }
-    public void Emit(ParticleEmitter[] emitors, Transform obj, Vector3 pos, Quaternion rot, Vector3 vel)
-    {
-
-        obj.position = pos;
-        obj.rotation = rot;
-        if (obj.audio != null) obj.audio.Play();
-        foreach (ParticleEmitter emitor in emitors)
-        {
-            if (emitor.particleCount < 50)
-            {
-                emitor.worldVelocity = vel;
-                emitor.Emit();
-            }
-        }
-    }
+    
 
     void onMenu() { _GameMenuWindow.Show(this); }
     void onIrcChatButton() { _IrcChatWindow.Show(this); }

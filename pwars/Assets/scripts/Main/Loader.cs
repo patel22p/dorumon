@@ -30,7 +30,6 @@ public class Loader : Base
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     new public MapSetting mapSettings = new MapSetting();
     public GUISkin _skin;
-    public LayerMask LevelMask;
     new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     
     protected override void Awake()

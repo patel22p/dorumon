@@ -16,46 +16,34 @@ public partial class RTools : EditorWindow
     void OnGUI()
     {
         if (GUI.Button("Init"))
-            Init();
+            Init(); 
         BuildGUI();
 
     }
-
     private void Init()
     {
 
         string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-        clearObjects("None");
-        clearObjects("zombie");
-        foreach (var go in Selection.gameObjects)
-            foreach (var g in go.GetComponents<Base>())
-            {
-                foreach (var f in g.GetType().GetFields())
-                {
-                    GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
-                    if (ge != null)
-                    {
-                        string cs = ""; 
-                        Debug.Log("Found!" + ge.name);
-                        cs += "public enum " + ge.name + ":int{";
-                        var ie = (IEnumerable)f.GetValue(g);
-                        foreach (Base o in ie)
-                            cs += o.name + ",";
-                        cs = cs.Trim(new[] { ',' });
-                        cs += "}";
-                        Debug.Log("geneerated:" + cs);
-                        File.WriteAllText(cspath + ge.name + ".cs", cs);
-                    }
-                }
-
-            }
-
         
-        foreach (var g in GameObject.FindGameObjectsWithTag("door"))
+        Undo.RegisterSceneUndo("SceneInit");
+        foreach (var go in Selection.gameObjects)
         {
+            foreach (var scr in go.GetComponents<Base>())
+            {
+                scr.Init();
+                foreach (var f in scr.GetType().GetFields())
+                {
+                    CreateEnum(cspath, scr, f);
+                }
+            }
+        }
+        foreach (Transform t in GameObject.FindGameObjectWithTag("Map").GetComponentsInChildren(typeof(Transform)))
+            t.gameObject.layer = LayerMask.NameToLayer("Level");
 
+        foreach (var g in GameObject.FindGameObjectsWithTag("MapDoor"))
+        {
             if (g.GetComponent<Door>() == null)
-            {                
+            {
                 g.animation.playAutomatically = false;
                 Door d = g.AddComponent<Door>();
                 d.Parse();
@@ -64,7 +52,7 @@ public partial class RTools : EditorWindow
                 g.AddComponent<AudioSource>();
             }
         }
-        foreach (var g in GameObject.FindGameObjectsWithTag("ammo"))
+        foreach (var g in GameObject.FindGameObjectsWithTag("MapAmmo"))
         {
             if (g.GetComponent<Ammo>() == null)
             {
@@ -74,6 +62,23 @@ public partial class RTools : EditorWindow
                 nw.observed = null;
                 g.AddComponent<AudioSource>();
             }
+        }
+    }
+    private static void CreateEnum(string cspath, Base g, FieldInfo f)
+    {
+        GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
+        if (ge != null)
+        {
+            string cs = "";
+            Debug.Log("Found!" + ge.name);
+            cs += "public enum " + ge.name + ":int{";
+            var ie = (IEnumerable)f.GetValue(g);
+            foreach (Base o in ie)
+                cs += o.name + ",";
+            cs = cs.Trim(new[] { ',' });
+            cs += "}";
+            Debug.Log("geneerated:" + cs);
+            File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
     private void BuildGUI()
@@ -164,13 +169,34 @@ public partial class RTools : EditorWindow
             return _ewnd;
         }
     }
-    private void clearObjects(string name)
-    {
+    
+    
+}
 
-        foreach (var spwn in GameObject.FindGameObjectsWithTag(name))
-            foreach (var a in spwn.GetComponents<Component>())
-                if (!(a is Transform))
-                    DestroyImmediate(a);
-        
-    }
-}  
+//[CustomEditor(typeof(LookAtPointEditor))]
+//class LookAtPointEditor : Editor {
+    
+
+//    //void OnInspectorGUI () {
+//    //    Debug.Log("asdasd");
+//    //    //target.lookAtPoint = EditorGUILayout.Vector3Field ("Look At Point", target.lookAtPoint);
+//    //    //if (GUI.changed)
+//    //    //    EditorUtility.SetDirty (target);
+//    //}
+//    public override void OnInspectorGUI()
+//    {
+//        Debug.Log("ads");
+//        base.OnInspectorGUI();
+//    }
+//    public override void OnPreviewGUI(Rect r, GUIStyle background)
+//    {
+//        Debug.Log("dssdf");
+//        base.OnPreviewGUI(r, background);
+//    }
+//    //void OnSceneGUI () {
+//    //    Debug.Log("asdasd");
+//    //    //target.lookAtPoint = Handles.PositionHandle (target.lookAtPoint, Quaternion.identity);
+//    //    //if (GUI.changed)
+//    //    //    EditorUtility.SetDirty (target);
+//    //}
+//}

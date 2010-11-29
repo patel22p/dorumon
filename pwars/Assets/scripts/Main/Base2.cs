@@ -87,8 +87,8 @@ public partial class Base2 : MonoBehaviour
     }
     public virtual void OnSetOwner() { }
 
-    public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
-    public Vector3 pos { get { return transform.position; } set { transform.position = value; } }
+    public virtual Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
+    public virtual Vector3 pos { get { return transform.position; } set { transform.position = value; } }
     public float rotx
     {
         get { return rot.eulerAngles.x; }
@@ -160,6 +160,15 @@ public partial class Base2 : MonoBehaviour
 
 
 }
+public class CopyField : Attribute
+{
+    public string name;
+    public CopyField(string from)
+    {
+        name = from;
+    }
+}
+
 public class GenerateEnums : Attribute
 {
     public string name;

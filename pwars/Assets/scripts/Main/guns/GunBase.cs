@@ -8,13 +8,20 @@ public class GunBase : Base
 {
     public int defcount;
     public string _Name ="None";
-    internal Transform cursor;
+    public List<Transform> cursor = new List<Transform>();
     public int group=1;
     internal float patronsleft = 0;
     protected override void Awake()
     {
-        cursor = transform.Find("cursor");
+        
         base.Awake();
+    }
+    public override void Init()
+    {
+
+        if (transform.Find("cursor") != null && cursor.Count == 0)
+            cursor.Add(transform.Find("cursor"));
+        base.Init();
     }
     public virtual void DisableGun()
     {

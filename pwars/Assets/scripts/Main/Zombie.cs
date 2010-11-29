@@ -28,8 +28,10 @@ public class Zombie : IPlayer
     protected override void Start()
     {
         if(!_Loader.disablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
+        seeker.debugPath = true;
         _Game.zombies.Add(this);
         base.Start();
+        
     }
     
     public float zombieBiteDist = 3;
@@ -38,7 +40,7 @@ public class Zombie : IPlayer
     {
         posSync = true;
         transform.position = SpawnPoint();
-        gameObject.layer = LayerMask.NameToLayer("Zombie");
+        gameObject.layer = LayerMask.NameToLayer("Default");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);
         Alive = true;
@@ -124,7 +126,7 @@ public class Zombie : IPlayer
     public override void RPCDie(int killedby)
     {
         posSync = false;
-        gameObject.layer = LayerMask.NameToLayer("levelonly");
+        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
         if (isController) CallRPC(killedby);
         PlayRandSound("gib");
         if (!Alive) { return; }

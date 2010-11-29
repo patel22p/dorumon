@@ -13,11 +13,20 @@ public class InspectorSearch : EditorWindow
 {
     public List<string> instances = new List<string>();
     string search = "";
-    void OnGUI()
+    protected virtual void OnGUI()
     {
         DrawObjects();
         DrawSearch();
     }
+    protected virtual void Awake()
+    {
+        instances = EditorPrefs.GetString("Favs").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
+    protected virtual void SaveParams()
+    {
+        EditorPrefs.SetString("Favs", string.Join(",", instances.ToArray()));
+    }
+    
     private void DrawSearch()
     {
         search = EditorGUILayout.TextField(search);
@@ -41,7 +50,29 @@ public class InspectorSearch : EditorWindow
                 }
         }
     }
+    private void DrawObjects()
+    {
+        if (GUI.Button("Add"))
+            if (!instances.Contains(Selection.activeGameObject.name))
+                instances.Add(Selection.activeGameObject.name);
+        List<string> toremove = new List<string>();
+        foreach (var inst in instances)
+        {
+            GUI.BeginHorizontal();
+            if (GUI.Button(inst))
+            {
+                GameObject o = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);                
+                Selection.activeGameObject = o;
+                SaveParams();
+            }
+            if (GUI.Button("X", GUI.ExpandWidth(false)))
+                toremove.Add(inst);
+            GUI.EndHorizontal();
+        }
+        foreach (var inst in toremove)
+            instances.Remove(inst);
 
+    }
     private void SetMultiSelect(Component m, SerializedProperty pr)
     {
         switch (pr.propertyType)
@@ -90,37 +121,30 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    private void DrawObjects()
-    {
-        if (GUI.Button("Add"))
-            if (!instances.Contains(Selection.activeGameObject.name))
-                instances.Add(Selection.activeGameObject.name);
-        List<string> toremove = new List<string>();
-        foreach (var inst in instances)
-        {
-            GUI.BeginHorizontal();
-            GameObject o = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
-            if (o != null && GUI.Button(o.name))
-                Selection.activeGameObject = o;
-            if (GUI.Button("X", GUI.ExpandWidth(false)))
-                toremove.Add(inst);
-            GUI.EndHorizontal();
-        }
-        foreach (var inst in toremove)
-            instances.Remove(inst);
 
-    }
-    [MenuItem("RTools/InspectorSearch")]
+    [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
-        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<InspectorSearch>();
+        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
     }
+    static float t1;
+    protected virtual void Update()
+    {
+
+        if ((t1++) % 50 == 0)
+        {                        
+            ewnd.Repaint();
+
+        }        
+
+    }
+
     static EditorWindow _ewnd;
     static EditorWindow ewnd
     {
         get
         {
-            if (_ewnd == null) _ewnd = EditorWindow.GetWindow<InspectorSearch>();
+            if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
             return _ewnd;
         }
     }

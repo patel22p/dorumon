@@ -7,24 +7,56 @@ using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
 using System.IO;
 using System.Collections;
+using AstarClasses;
 
 [ExecuteInEditMode]
-public partial class RTools : EditorWindow
+public partial class RTools : InspectorSearch 
 {
-    static float t1;
+
     string file;
-    void OnGUI()
+    protected override void OnGUI()
     {
         if (GUI.Button("Init"))
-            Init(); 
+            Init();
+        base.OnGUI();        
         BuildGUI();
 
     }
+
+    private static void InitGrids()
+    {
+        var ast = GameObject.Find("PathFinding").GetComponent<AstarPath>();
+        List<Grid> grids = new List<Grid>();
+        GameObject lb = GameObject.Find("bounds");
+        if (lb == null) Debug.Log("Error Setup Bounds!");
+        else
+        {
+            lb.active = false;
+            foreach (var g in lb.GetComponentsInChildren<Transform>().Select(a => a.gameObject))
+            {                
+                Debug.Log("found");
+                if (g.collider != null)
+                {
+                    Bounds b = g.collider.bounds;
+                    Grid grid = new Grid(5);
+                    grid.nodeSize = 5;
+                    grid.width = (int)(b.size.x / grid.nodeSize);
+                    grid.depth = (int)(b.size.z / grid.nodeSize);
+                    grid.height = (int)(b.size.y);
+                    grid.offset = b.center - b.extents;
+                    grid.physicsMask = 0;
+                    grids.Add(grid);
+                    g.active = false;
+                }
+                else
+                    Debug.Log("warning no colider");
+            }
+        }
+        ast.grids = grids.ToArray();
+    }
     private void Init()
     {
-
         string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-        
         Undo.RegisterSceneUndo("SceneInit");
         foreach (var go in Selection.gameObjects)
         {
@@ -37,49 +69,12 @@ public partial class RTools : EditorWindow
                 }
             }
         }
-        foreach (Transform t in GameObject.FindGameObjectWithTag("Map").GetComponentsInChildren(typeof(Transform)))
+        foreach (Transform t in GameObject.FindGameObjectWithTag("Level").GetComponentsInChildren(typeof(Transform)))
+        {
             t.gameObject.layer = LayerMask.NameToLayer("Level");
-
-        foreach (var g in GameObject.FindGameObjectsWithTag("MapDoor"))
-        {
-            if (g.GetComponent<Door>() == null)
-            {
-                g.animation.playAutomatically = false;
-                Door d = g.AddComponent<Door>();
-                d.Parse();
-                NetworkView nw = g.AddComponent<NetworkView>();
-                nw.observed = null;
-                g.AddComponent<AudioSource>();
-            }
+            t.gameObject.isStatic = true;
         }
-        foreach (var g in GameObject.FindGameObjectsWithTag("MapAmmo"))
-        {
-            if (g.GetComponent<Ammo>() == null)
-            {
-                Ammo d = g.AddComponent<Ammo>();
-                d.Parse();                
-                NetworkView nw = g.AddComponent<NetworkView>();
-                nw.observed = null;
-                g.AddComponent<AudioSource>();
-            }
-        }
-    }
-    private static void CreateEnum(string cspath, Base g, FieldInfo f)
-    {
-        GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
-        if (ge != null)
-        {
-            string cs = "";
-            Debug.Log("Found!" + ge.name);
-            cs += "public enum " + ge.name + ":int{";
-            var ie = (IEnumerable)f.GetValue(g);
-            foreach (Base o in ie)
-                cs += o.name + ",";
-            cs = cs.Trim(new[] { ',' });
-            cs += "}";
-            Debug.Log("geneerated:" + cs);
-            File.WriteAllText(cspath + ge.name + ".cs", cs);
-        }
+        //InitGrids();
     }
     private void BuildGUI()
     {
@@ -120,7 +115,7 @@ public partial class RTools : EditorWindow
             new SerializedObject(_Loader).ApplyModifiedProperties();
             EditorApplication.isPlaying = true;
         }
-        
+
         GUI.EndHorizontal();
         if (GUILayout.Button("Open Project Folder"))
         {
@@ -130,25 +125,33 @@ public partial class RTools : EditorWindow
         _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
         _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
     }
-    void Update()
+    
+    private static void CreateEnum(string cspath, Base g, FieldInfo f)
     {
-        if ((t1 -= 1) < 0)
+        GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
+        if (ge != null)
         {
-            t1 = 50;
-            ewnd.Repaint();
+            string cs = "";
+            Debug.Log("Found!" + ge.name);
+            cs += "public enum " + ge.name + ":int{";
+            var ie = (IEnumerable)f.GetValue(g);
+            foreach (Base o in ie)
+                cs += o.name + ",";
+            cs = cs.Trim(new[] { ',' });
+            cs += "}";
+            Debug.Log("geneerated:" + cs);
+            File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
+    
+    
     private void Build()
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
         BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
-    }
-    [MenuItem("RTools/RTools")]
-    static void rtoolsclick()
-    {
-        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
-    }
+    } 
+    
     private static Loader _Loader
     {
         get
@@ -160,15 +163,7 @@ public partial class RTools : EditorWindow
             return l;
         }
     }
-    static EditorWindow _ewnd;
-    static EditorWindow ewnd
-    {
-        get
-        {
-            if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
-            return _ewnd;
-        }
-    }
+    
     
     
 }

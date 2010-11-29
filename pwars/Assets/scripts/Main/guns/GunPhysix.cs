@@ -67,8 +67,8 @@ public class GunPhysix : GunBase
         Vector3 pos = transform.position;
         Quaternion rot = transform.rotation;
         Vector3 dir = rot * new Vector3(0, 0, dist);
-        j.gameObject.layer = LayerMask.NameToLayer("Jumper");
-        bool hit = (Physics.CheckCapsule(pos, dir + pos, 1, 1 << LayerMask.NameToLayer("Jumper")));
+        j.gameObject.layer = LayerMask.NameToLayer("HitTest");
+        bool hit = (Physics.CheckCapsule(pos, dir + pos, 1, 1 << LayerMask.NameToLayer("HitTest")));
         j.gameObject.layer = 0;
         return hit;
     }

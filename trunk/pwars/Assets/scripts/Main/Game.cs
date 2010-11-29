@@ -101,7 +101,7 @@ public class Game : Base
         if (!first)
         {
             cur.gameObject.active = false;
-            cur.gameObject.layer = LayerMask.NameToLayer("levelonly");
+            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
         }
         int i = 1;
         for (; ; i++)

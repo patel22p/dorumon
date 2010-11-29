@@ -46,7 +46,7 @@ public class Patron : Base
             RaycastHit hitInfo;
             Ray ray = new Ray(previousPosition, movementThisStep);
 
-            if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, collmask))
+            if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1))
             {
                 
                 //if (!hitInfo.collider.isTrigger || hitInfo.collider.gameObject.name == "hit")

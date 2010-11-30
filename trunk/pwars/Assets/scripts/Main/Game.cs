@@ -18,7 +18,7 @@ public class Game : Base
     public List<Zombie> zombies = new List<Zombie>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
-
+    public GameObject bounds;
     public List<Base> dynamic = new List<Base>();
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
@@ -63,6 +63,12 @@ public class Game : Base
                 if (!(a is Transform))
                     DestroyImmediate(a);
 
+    }
+    public override void Init()
+    {
+        bounds = GameObject.Find("bounds");
+        if (bounds == null) Debug.Log("warning no bounds founded");
+        base.Init();
     }
 
     void OnServerInitialized() { Enable(); }

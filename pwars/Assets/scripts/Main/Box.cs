@@ -9,7 +9,6 @@ using doru;
 [AddComponentMenu("_Box")]
 public class Box : Base
 {
-    public Transform bounds;
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
     public Vector3 syncPos;
     public Quaternion syncRot;
@@ -23,7 +22,6 @@ public class Box : Base
     {
         if (Network.peerType == NetworkPeerType.Disconnected)
             enabled = false;
-        bounds = GameObject.Find("bounds").transform;
         base.Awake();
     }
     void OnServerInitialized() { Enable(); }
@@ -57,7 +55,7 @@ public class Box : Base
     protected virtual void Update()
     {
         tsendpackets-=Time.deltaTime;
-        if (bounds != null && !bounds.collider.bounds.Contains(this.transform.position) && enabled)
+        if (_Game.bounds != null && !_Game.bounds.collider.bounds.Contains(this.transform.position) && enabled)
         {
             transform.position = SpawnPoint();
             rigidbody.velocity = Vector3.zero;

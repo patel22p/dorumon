@@ -15,9 +15,11 @@ public class Zombie : IPlayer
     public Vector3 oldpos;
     public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
     public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
-    Seeker seeker;
+    public Seeker seeker;
     public override void Init()
     {
+        seeker = this.GetComponent<Seeker>();
+        if (seeker == null) Debug.Log("Could not find seeker");
         velSync = rotSync = angSync = false;
         base.Init();
     }
@@ -27,8 +29,7 @@ public class Zombie : IPlayer
     }
     protected override void Start()
     {
-        if(!_Loader.disablePathFinding) seeker = this.gameObject.AddComponent<Seeker>();
-        seeker.debugPath = true;
+        if(!_Loader.disablePathFinding) seeker.enabled = true;
         _Game.zombies.Add(this);
         base.Start();
         
@@ -70,7 +71,7 @@ public class Zombie : IPlayer
                     //Debug.DrawLine(transform.position, ipl.transform.position);
                     RaycastHit hitInfo;
                     bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), 1 << LayerMask.NameToLayer("Level"));
-                    if (shit || (pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
+                    if ((pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
                         pathPointDir = zToPlDir;
                     Debug.DrawLine(p, p + pathPointDir);
                     pathPointDir.y = 0;

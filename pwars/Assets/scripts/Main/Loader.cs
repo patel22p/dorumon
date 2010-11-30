@@ -25,6 +25,7 @@ public class Loader : Base
     public bool logged;
     new public UserView LocalUserV;
     new public Level _Level;
+    
     new public TimerA _TimerA = new TimerA();
     public List<MapSetting> mapsets = new List<MapSetting>();
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
@@ -47,6 +48,7 @@ public class Loader : Base
             //new MapSetting { mapName = "z5city" , title  = "Город" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
     }
+    
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     void Start()
     {

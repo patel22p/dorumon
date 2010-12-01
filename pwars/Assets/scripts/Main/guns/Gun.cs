@@ -2,7 +2,6 @@
 using System.Collections;
 public class Gun : GunBase
 {
-    
     public float interval = 1;
     [HideInInspector]
     public float tm;
@@ -12,30 +11,46 @@ public class Gun : GunBase
     public Texture2D GunPicture;
     public bool laser;
     public Vector3 Force;
-    public ParticleEmitter[] fireEfects;
-    [HideInInspector]
-    public Light fireLight;
+    public Transform barrel;
+    public float exp;
+    public float vibration=0;
     public AudioClip sound;
     internal Player player;
     public int damage = 60;
     public int probivaemost = 0;
     public float otbrasivanie;
+    public float ves;
+    Vector3 defPos;
+    public float barrelVell;
     protected override void Awake()
     {
+        
+        defPos = transform.localPosition;
         player = root.GetComponent<Player>();
-        var t = transform.Find("light");
-        if (t != null) fireLight = t.GetComponent<Light>();
         base.Awake();
+    }
+    public override void Init()
+    {
+        base.Init();
     }
     public override void onShow(bool enabled)
     {
+        if (enabled)
+            player.rigidbody.mass = player.defmass + ves * player.defmass;
         base.onShow(enabled);
     }
     protected override void Update()
     {
         if(GunPicture!=null && isOwner)
             _GameWindow.gunTexture.texture = GunPicture;
-        
+
+        if (barrel != null)
+        {            
+            if(barrelVell>.1)
+                barrel.rotation = Quaternion.Euler(barrel.rotation.eulerAngles + new Vector3(0, 0, barrelVell));
+            barrelVell *= .98f;
+        }
+        transform.localPosition = defPos + transform.localPosition / 2;
         if (isOwner)
             LocalUpdate();
 
@@ -44,6 +59,7 @@ public class Gun : GunBase
     }
     protected virtual void LocalUpdate()
     {
+        
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
@@ -61,16 +77,8 @@ public class Gun : GunBase
     protected virtual void RPCShoot()
     {
         CallRPC();
-        foreach (ParticleEmitter p in fireEfects)
-            p.Emit();
-        if (fireLight != null)
-        {
-            fireLight.enabled = true;
-            _TimerA.AddMethod(20, delegate
-            {
-                fireLight.enabled = false;
-            });
-        }
+
+
         if (sound != null)
             root.audio.PlayOneShot(sound);
         player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));
@@ -82,12 +90,27 @@ public class Gun : GunBase
             r.z = Random.Range(-random.z, random.z);
             cursorid++;
             if (cursorid >= cursor.Count) cursorid = 0;
+            foreach (var p in cursor[cursorid].GetComponentsInChildren<ParticleEmitter>())
+                p.Emit();
+            Light fireLight = cursor[cursorid].GetComponentInChildren<Light>();
+            if (fireLight != null && !fireLight.enabled)
+            {
+                fireLight.enabled = true;
+                _TimerA.AddMethod(20, delegate
+                {
+                    fireLight.enabled = false;
+                });
+            }
+            if (barrel != null) barrelVell += 10;
+
             Patron patron = ((GameObject)Instantiate(patronPrefab, cursor[cursorid].position , rot * Quaternion.Euler(r))).GetComponent<Patron>();
             patron.OwnerID = OwnerID;
             patron.damage = this.damage;
+            if (exp != 0) patron.ExpForce = exp;
             patron.probivaemost = this.probivaemost;
             if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
-        }        
+        }
+        this.pos -= rot * new Vector3(0, 0, vibration);
         
     }
     

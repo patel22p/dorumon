@@ -13,7 +13,6 @@ public class GunBase : Base
     internal float patronsleft = 0;
     protected override void Awake()
     {
-        
         base.Awake();
     }
     public override void Init()

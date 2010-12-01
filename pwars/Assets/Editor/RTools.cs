@@ -60,7 +60,7 @@ public partial class RTools : InspectorSearch
         Undo.RegisterSceneUndo("SceneInit");
         foreach (var go in Selection.gameObjects)
         {
-            foreach (var scr in go.GetComponents<Base>())
+            foreach (var scr in go.GetComponentsInChildren<Base>())
             {
                 scr.Init();
                 foreach (var f in scr.GetType().GetFields())
@@ -150,16 +150,14 @@ public partial class RTools : InspectorSearch
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
         BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
-    } 
-    
+    }
+
     private static Loader _Loader
     {
         get
         {
 
-            GameObject g = (GameObject)AssetDatabase.LoadAssetAtPath(@"Assets/Resources/Prefabs/loader.prefab", typeof(GameObject));
-
-            Loader l = g.GetComponent<Loader>();
+            Loader l  =  (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();            
             return l;
         }
     }

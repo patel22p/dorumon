@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ public class Base : Base2
     protected virtual void Awake()
     {        
         if (_Loader == null)
-            Instantiate(Resources.Load("Prefabs/loader"));        
+            Instantiate(GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First());        
     }
     public virtual void Init()
     {

@@ -31,14 +31,12 @@ public class Game : Base
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
     public int maxzombies = 0;
-
     public List<Particles> particles = new List<Particles>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     protected override void Awake()
     {
-
         base.Awake();
         clearObjects("SpawnNone");
         clearObjects("SpawnZombie");
@@ -76,7 +74,7 @@ public class Game : Base
     void Enable() { enabled = true; }
     void Start()
     {
-        if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;
+        //if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;
         Fragment();
         
         print("ZGameStart");
@@ -288,6 +286,7 @@ public class Game : Base
     private void RPCNextStage(int stage)
     {
         CallRPC(stage);
+        Debug.Log("Next Stage"+stage);
         PlaySound("stage");
         this.stage = stage;
         maxzombies = mapSettings.fragLimit + stage;

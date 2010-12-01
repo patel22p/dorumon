@@ -13,9 +13,8 @@ public class Zombie : IPlayer
     public float up = 1f;
     public bool biting;
     public Vector3 oldpos;
-    public Quaternion r { get { return this.rigidbody.rotation; } set { this.rigidbody.rotation = value; } }
-    public Vector3 p { get { return this.rigidbody.position; } set { this.rigidbody.position = value; } }
-    public Seeker seeker;
+    
+    Seeker seeker;
     public override void Init()
     {
         seeker = this.GetComponent<Seeker>();
@@ -64,19 +63,19 @@ public class Zombie : IPlayer
             if (ipl.enabled)
             {
                 Vector3 pathPointDir;
-                Vector3 zToPlDir = ipl.transform.position - p;
+                Vector3 zToPlDir = ipl.transform.position - pos;
 
                 if (zToPlDir.magnitude > zombieBiteDist)
                 {
                     //Debug.DrawLine(transform.position, ipl.transform.position);
-                    RaycastHit hitInfo;
-                    bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(p, zToPlDir.normalized), out hitInfo, Vector3.Distance(p, ipl.transform.position), 1 << LayerMask.NameToLayer("Level"));
-                    if ((pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
+                    //RaycastHit hitInfo;
+                    //bool shit = _Loader.disablePathFinding || Physics.Raycast(new Ray(pos, zToPlDir.normalized), out hitInfo, Vector3.Distance(pos, ipl.transform.position), 1 << LayerMask.NameToLayer("Level"));
+                    //if ((pathPointDir = GetNextPathPoint(ipl)) == default(Vector3))
                         pathPointDir = zToPlDir;
-                    Debug.DrawLine(p, p + pathPointDir);
+                    Debug.DrawLine(pos, pos + pathPointDir);
                     pathPointDir.y = 0;
-                    r = Quaternion.LookRotation(pathPointDir.normalized);                    
-                    oldpos = p;
+                    rot = Quaternion.LookRotation(pathPointDir.normalized);                    
+                    oldpos = pos;
                     biting = false;
                 }
                 else if (ipl.isOwner && zombieBite > 1)
@@ -95,7 +94,7 @@ public class Zombie : IPlayer
     void FixedUpdate()
     {        
         if(!biting && Alive)
-            transform.position += r * new Vector3(0, 0, speed * Time.fixedDeltaTime);
+            transform.position += rot * new Vector3(0, 0, speed * Time.fixedDeltaTime);
         
     }
     private Vector3 GetNextPathPoint(IPlayer ipl)

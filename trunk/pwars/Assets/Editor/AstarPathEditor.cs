@@ -41,7 +41,7 @@ public class AstarPathEditor : Editor {
 	
 	public string version {
 		get {
-			return "2.9";
+			return "2.91";
 		}
 	}
 	private string updateVersion = "";

@@ -10,7 +10,7 @@ using System.Collections;
 using AstarClasses;
 
 [ExecuteInEditMode]
-public partial class RTools : InspectorSearch 
+public partial class RTools : InspectorSearch
 {
 
     string file;
@@ -18,67 +18,79 @@ public partial class RTools : InspectorSearch
     {
         if (GUI.Button("Init"))
             Init();
-        base.OnGUI();        
+        base.OnGUI();
         BuildGUI();
 
     }
 
-    private static void InitGrids()
-    {
-        var ast = GameObject.Find("PathFinding").GetComponent<AstarPath>();
-        List<Grid> grids = new List<Grid>();
-        GameObject lb = GameObject.Find("bounds");
-        if (lb == null) Debug.Log("Error Setup Bounds!");
-        else
-        {
-            lb.active = false;
-            foreach (var g in lb.GetComponentsInChildren<Transform>().Select(a => a.gameObject))
-            {                
-                Debug.Log("found");
-                if (g.collider != null)
-                {
-                    Bounds b = g.collider.bounds;
-                    Grid grid = new Grid(5);
-                    grid.nodeSize = 5;
-                    grid.width = (int)(b.size.x / grid.nodeSize);
-                    grid.depth = (int)(b.size.z / grid.nodeSize);
-                    grid.height = (int)(b.size.y);
-                    grid.offset = b.center - b.extents;
-                    grid.physicsMask = 0;
-                    grids.Add(grid);
-                    g.active = false;
-                }
-                else
-                    Debug.Log("warning no colider");
-            }
-        }
-        ast.grids = grids.ToArray();
-    }
+
+
     private void Init()
     {
         string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
         Undo.RegisterSceneUndo("SceneInit");
+        foreach (UnityEngine.Object go in FindObjectsOfTypeIncludingAssets(typeof(UnityEngine.Object)))
+        {
+            if (AssetDatabase.IsMainAsset(go))
+            {
+                if (go is GameObject || go is PhysicMaterial)
+                    AssetDatabase.SetLabels(go, new[] { go.name });
+            }
+        }
         foreach (var go in Selection.gameObjects)
         {
-            foreach (var scr in go.GetComponentsInChildren<Base>())
+            foreach (var scr in go.GetComponentsInChildren<Base2>())
             {
-                scr.Init();
-                foreach (var f in scr.GetType().GetFields())
+                foreach (var pf in scr.GetType().GetFields())
                 {
-                    CreateEnum(cspath, scr, f);
+                    InitLoadPath(scr, pf);
+                    CreateEnum(cspath, scr, pf);
+                }
+                scr.Init();
+            }
+        }
+        if (gameScene)
+            foreach (Transform t in GameObject.FindGameObjectWithTag("Level").GetComponentsInChildren(typeof(Transform)))
+            {
+                if (t.gameObject.renderer != null)
+                    t.gameObject.renderer.sharedMaterial.color = new Color(.2f, .2f, .2f, 0);
+                t.gameObject.layer = LayerMask.NameToLayer("Level");
+                t.gameObject.isStatic = true;
+            }
+        foreach (Transform t in GameObject.FindGameObjectWithTag("Level").GetComponentsInChildren<Transform>())
+        {
+            GameObject g = t.gameObject;
+            foreach (string s in Enum.GetNames(typeof(MapItemType)))
+            {
+                if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                {
+                    MapItem mi = g.AddComponent<MapItem>();
+                    mi.Init();
                 }
             }
         }
-        foreach (Transform t in GameObject.FindGameObjectWithTag("Level").GetComponentsInChildren(typeof(Transform)))
-        {
-            t.gameObject.layer = LayerMask.NameToLayer("Level");
-            t.gameObject.isStatic = true;
-        }
-        //InitGrids();
     }
+
+    private static void InitLoadPath(Base2 scr, FieldInfo pf)
+    {
+        LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
+        if (ap != null)
+        {
+            //Debug.Log("Found Load Path " + ap.name);
+            if (pf.FieldType == typeof(AudioClip))
+                pf.SetValue(scr, LoadAudioClip(ap.name));
+            else if (pf.FieldType == typeof(GameObject))
+                pf.SetValue(scr, LoadPrefab(ap.name));
+            else if (pf.FieldType == typeof(AudioClip[]))
+                pf.SetValue(scr, LoadAudioClips(ap.name));
+            else
+                pf.SetValue(scr, LoadAsset(ap.name, pf.FieldType));
+        }
+    }
+    bool gameScene { get { return EditorApplication.currentScene.Contains("Game.unity"); } }
     private void BuildGUI()
     {
-        if (!EditorApplication.currentScene.Contains("Game.unity")) return;
+        if (!gameScene) return;
 
         GUI.Space(10);
         if (Application.isPlaying && Application.loadedLevelName.Contains("Game"))
@@ -125,8 +137,8 @@ public partial class RTools : InspectorSearch
         _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
         _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
     }
-    
-    private static void CreateEnum(string cspath, Base g, FieldInfo f)
+
+    private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
         GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
         if (ge != null)
@@ -143,8 +155,8 @@ public partial class RTools : InspectorSearch
             File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
-    
-    
+
+
     private void Build()
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
@@ -157,18 +169,57 @@ public partial class RTools : InspectorSearch
         get
         {
 
-            Loader l  =  (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();            
+            Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();
             return l;
         }
     }
-    
-    
-    
+
+    public static GameObject LoadPrefab(string path)
+    {
+        var g = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/" + path + ".prefab", typeof(GameObject)) ??
+        (GameObject)AssetDatabase.LoadAssetAtPath("Assets/" + path + ".prefab", typeof(GameObject));
+        if (g == null) Debug.Log("not found prefab " + path);
+        return g;
+    }
+    public static UnityEngine.Object LoadAsset(string path, Type t)
+    {
+        var o = AssetDatabase.LoadAssetAtPath("Assets/" + path, t);
+        if (o == null) Debug.Log("could not load asset " + path);
+        return o;
+    }
+    public static AudioClip LoadAudioClip(string path)
+    {
+        var ac = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/sounds/" + path + ".wav", typeof(AudioClip));
+        if (ac == null)
+            ac = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/sounds/" + path + ".mp3", typeof(AudioClip));
+        if (ac == null) Debug.Log("not found sound " + path);
+        return ac;
+
+    }
+    public static AudioClip[] LoadAudioClips(string path)
+    {
+        path = "Assets/sounds/" + path + "/";
+        List<AudioClip> aus = new List<AudioClip>();
+        foreach (string s in Directory.GetFiles(path))
+        {
+            var au = (AudioClip)AssetDatabase.LoadAssetAtPath(s, typeof(AudioClip));
+            if (au != null)
+                aus.Add(au);
+            else
+                Debug.Log("not found audio+" + s);
+        }
+        return aus.ToArray();
+    }
+    //public static UnityEngine.Object[] LoadPrefabs(string name)
+    //{
+    //    return AssetDatabase.LoadAllAssetsAtPath("Assets/Prefabs/" + name);
+    //} 
+
 }
 
 //[CustomEditor(typeof(LookAtPointEditor))]
 //class LookAtPointEditor : Editor {
-    
+
 
 //    //void OnInspectorGUI () {
 //    //    Debug.Log("asdasd");

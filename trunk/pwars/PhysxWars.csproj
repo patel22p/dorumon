@@ -1,307 +1,307 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Irrelevant</RootNamespace>
-    <AssemblyName>Irrelvant</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>9.0.21022</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{802CEFE0-68D0-BCFC-05CC-B631E68E0D98}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace>Irrelevant</RootNamespace>
+	<AssemblyName>Irrelvant</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>Temp\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;UNITY_3_1_0;UNITY_3_1;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_1_0;UNITY_3_1;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>Temp\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
+	<Reference Include="System" />
     <Reference Include="System.XML" />
-    <Reference Include="System.Core" />
-    <Reference Include="UnityEngine">
-      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor">
-      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="Boo.Lang">
-      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/Boo.Lang.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityScript">
-      <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/UnityScript.dll</HintPath>
-    </Reference>
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+	<Reference Include="Boo.Lang">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/Boo.Lang.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityScript">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono/unity/UnityScript.dll</HintPath>
+	</Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
-    <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
-    <None Include="Assets\materials\Image Based\NoiseEffectShaderYUV.shader" />
-    <None Include="Assets\materials\Lighter\~ControlScripts\DragTransform.js" />
-    <Compile Include="Assets\materials\Lighter\LightningBolt.cs" />
-    <Compile Include="Assets\materials\Lighter\MeshExtrusion.cs" />
-    <Compile Include="Assets\materials\Lighter\Perlin.cs" />
-    <Compile Include="Assets\materials\Menu\LightEffect.cs" />
-    <None Include="Assets\materials\other\ExternalLightmappingTool-Diffuse.shader" />
-    <None Include="Assets\materials\other\FX-IslandWaterFull.shader" />
-    <None Include="Assets\materials\other\FX-IslandWaterSimple.shader" />
-    <None Include="Assets\materials\other\FX-UnderwaterSurface.shader" />
-    <None Include="Assets\materials\other\Glass-Stained-BumpDistort.shader" />
-    <None Include="Assets\materials\other\Glass-Stained-BumpSpecDistort.shader" />
-    <Compile Include="Assets\materials\other\GlowEffect.cs" />
-    <None Include="Assets\materials\other\GlowEffectDownsample.shader" />
-    <Compile Include="Assets\materials\other\MotionBlur.cs" />
-    <None Include="Assets\materials\other\MotionBlur.shader" />
-    <None Include="Assets\materials\other\Normal-BumpSpec_EnvLightmapped.shader" />
-    <None Include="Assets\materials\other\Particle Alpha Blend goodfog.shader" />
-    <None Include="Assets\materials\other\ShadowProjection.shader" />
-    <None Include="Assets\materials\other\Skidmarks.shader" />
-    <Compile Include="Assets\materials\other\TwirlEffect.cs" />
-    <None Include="Assets\materials\other\TwirlEffect.shader" />
-    <None Include="Assets\materials\ParticleTutorial\Explosion.js" />
-    <None Include="Assets\materials\ParticleTutorial\ParticleLayer.js" />
-    <None Include="Assets\materials\ParticleTutorial\Rocket.js" />
-    <Compile Include="Assets\materials\Shaders\BumpLightMap.cs" />
-    <None Include="Assets\materials\Shaders\Particle Alpha Blend.shader" />
-    <Compile Include="Assets\scripts\Editor\AstarDataEditor.cs" />
-    <Compile Include="Assets\scripts\Editor\AstarPathEditor.cs" />
-    <Compile Include="Assets\scripts\Editor\AstarWelcome.cs" />
-    <None Include="Assets\scripts\Editor\HeightmapExportPNG.js" />
-    <Compile Include="Assets\scripts\Editor\InspectorSearch.cs" />
-    <Compile Include="Assets\scripts\Editor\RTools.cs" />
-    <Compile Include="Assets\scripts\GUI\AboutWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\GameMenuWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\GameStatsWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\GunType.cs" />
-    <Compile Include="Assets\scripts\GUI\HostWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\IrcChatWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\LoginWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\MenuWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\PopUpWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\ServersWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\SettingsWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\StaticsWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\TeamSelectWindow.cs" />
-    <Compile Include="Assets\scripts\GUI\Window.cs" />
-    <Compile Include="Assets\scripts\GUI\WindowBase.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Constants.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Exception.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2InputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2OutputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\Adler32.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\CRC32.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\IChecksum.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\StrangeCRC.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\FileSystemScanner.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\INameTransform.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\IScanFilter.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\NameFilter.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\PathFilter.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\StreamUtils.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Core\WindowsPathUtils.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\PkzipClassic.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESTransform.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZIPConstants.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZipException.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipInputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipOutputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\InvalidHeaderException.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarArchive.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarBuffer.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarEntry.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarException.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarHeader.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarInputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarOutputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\InflaterInputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\OutputWindow.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\StreamManipulator.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Deflater.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterConstants.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterEngine.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterHuffman.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterPending.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Inflater.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterDynHeader.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterHuffmanTree.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\PendingBuffer.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\IEntryFactory.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\WindowsNameTransform.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipConstants.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipEntry.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipException.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipExtraData.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipHelperStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipInputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipNameTransform.cs" />
-    <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipOutputStream.cs" />
-    <Compile Include="Assets\scripts\Helpers\H.cs" />
-    <Compile Include="Assets\scripts\Helpers\SharpZipBaseException.cs" />
-    <Compile Include="Assets\scripts\Helpers\VkontakteBase.cs" />
-    <Compile Include="Assets\scripts\Helpers\WebServer.cs" />
-    <Compile Include="Assets\scripts\Main\guns\Explosion.cs" />
-    <Compile Include="Assets\scripts\Main\guns\Gun.cs" />
-    <Compile Include="Assets\scripts\Main\guns\GunBase.cs" />
-    <Compile Include="Assets\scripts\Main\guns\GunPhysix.cs" />
-    <Compile Include="Assets\scripts\Main\guns\Patron.cs" />
-    <Compile Include="Assets\scripts\Main\Items\Fragment.cs" />
-    <Compile Include="Assets\scripts\Main\Items\MapItem.cs" />
-    <Compile Include="Assets\scripts\Main\Base.cs" />
-    <Compile Include="Assets\scripts\Main\Base2.cs" />
-    <Compile Include="Assets\scripts\Main\Box.cs" />
-    <Compile Include="Assets\scripts\Main\Cam.cs" />
-    <Compile Include="Assets\scripts\Main\Car.cs" />
-    <Compile Include="Assets\scripts\Main\CarController.cs" />
-    <Compile Include="Assets\scripts\Main\Console.cs" />
-    <Compile Include="Assets\scripts\Main\Game.cs" />
-    <Compile Include="Assets\scripts\Main\GameWindow.cs" />
-    <Compile Include="Assets\scripts\Main\Helper.cs" />
-    <Compile Include="Assets\scripts\Main\IPlayer.cs" />
-    <Compile Include="Assets\scripts\Main\Irc.cs" />
-    <Compile Include="Assets\scripts\Main\Loader.cs" />
-    <Compile Include="Assets\scripts\Main\Menu.cs" />
-    <Compile Include="Assets\scripts\Main\Music.cs" />
-    <Compile Include="Assets\scripts\Main\Particles.cs" />
-    <Compile Include="Assets\scripts\Main\Player.cs" />
-    <Compile Include="Assets\scripts\Main\ShadowToTexture.cs" />
-    <Compile Include="Assets\scripts\Main\Skidmarks.cs" />
-    <Compile Include="Assets\scripts\Main\Text3D.cs" />
-    <Compile Include="Assets\scripts\Main\UserView.cs" />
-    <Compile Include="Assets\scripts\Main\Vk.cs" />
-    <Compile Include="Assets\scripts\Main\Zombie.cs" />
-    <Compile Include="Assets\scripts\Other\Generate2DReflection.cs" />
-    <Compile Include="Assets\scripts\Other\IslandWater.cs" />
-    <None Include="Assets\scripts\Other\LightmapperObjectUV.js" />
-    <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
-    <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
-    <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />
-    <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\PlatformInputController.js" />
-    <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonCamera.js" />
-    <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonController.js" />
-    <None Include="Assets\Standard Assets\Detonator\Resources\Detonator\Textures\HeatDistort.shader" />
-    <None Include="Assets\Standard Assets\Detonator\Sample Supporting Emitters\Detonator Spray Helper.js" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\Detonator.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorBurstEmitter.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorCloudRing.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorFireball.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorForce.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorGlow.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorHeatwave.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorLight.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorShockwave.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSmoke.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSparks.cs" />
-    <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSpray.cs" />
-    <None Include="Assets\Standard Assets\Detonator\TestScene\DetonatorTest.js" />
-    <None Include="Assets\Standard Assets\Editor\Image Effects\BloomAndFlaresEditor.js" />
-    <None Include="Assets\Standard Assets\Editor\Image Effects\ColorCorrectionCurvesEditor.js" />
-    <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
-    <None Include="Assets\Standard Assets\Editor\Image Effects\EdgeDetectEffectNormalsEditor.js" />
-    <None Include="Assets\Standard Assets\Editor\Image Effects\SunShaftsEditor.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Adaptation.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Luminance.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\MinMaxReduction.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\AddAlphaHack.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\AddStuff.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BrightPassFilter.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\HollywoodFlareBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\HollywoodFlareStretch.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\LensFlareCreate.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\SeparableBlurPlus.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\VignetteShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\CopyDepthToRGBA.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\DepthOfField.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\DofForegroundBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\PreDepthOfField.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\PreDepthOfFieldZRead.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\RecordCenterDepth.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableRGBADepthBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableWeightedBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ChromaticAberrationShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ClearExceptSkyboxShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionCurves.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionCurvesSimple.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionEffect.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionSelective.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ContrastComposite.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ConvertDepth.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\CreaseApply.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\DepthRGBA8RadialBlur.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeApply.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeBlurApply.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectNormals.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectNormalsHQ.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectX.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ExtractSkyboxShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\FisheyeShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\frag_ao.cginc" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GlowCompose.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GlowConeTap.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GrayscaleEffect.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SepiaToneEffect.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ShowAlphaChannel.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SimpleClear.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SkyboxToRGBADepth.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SSAOShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SunShafts.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\VignettingShader.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\VortexEffect.shader" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\BloomAndFlares.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\BlurEffect.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\ColorCorrectionCurves.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ColorCorrectionEffect.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\ContrastEnhance.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ContrastStretchEffect.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Crease.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\DepthOfField.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeBlurEffectNormals.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeDetectEffect.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeDetectEffectNormals.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Fisheye.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\GrayscaleEffect.cs" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ImageEffectBase.cs" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ImageEffects.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\PostEffectsBase.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\PostEffectsHelper.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\SepiaToneEffect.cs" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\SSAOEffect.cs" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\SunShafts.js" />
-    <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Vignetting.js" />
-    <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\VortexEffect.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarClasses.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarData.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarMath.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarPath.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarProcessing.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\AstarUser.cs" />
-    <Compile Include="Assets\Standard Assets\Pathfinding\Seeker.cs" />
-    <None Include="Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js" />
-    <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothFollow.js" />
-    <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothLookAt.js" />
-    <Compile Include="Assets\Standard Assets\Scripts\General Scripts\ActivateTrigger.cs" />
-    <None Include="Assets\Standard Assets\Scripts\General Scripts\DragRigidbody.js" />
-    <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
-    <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
-    <None Include="Assets\todo.txt" />
+     <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
+     <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
+     <None Include="Assets\materials\Image Based\NoiseEffectShaderYUV.shader" />
+     <None Include="Assets\materials\Lighter\~ControlScripts\DragTransform.js" />
+     <Compile Include="Assets\materials\Lighter\LightningBolt.cs" />
+     <Compile Include="Assets\materials\Lighter\MeshExtrusion.cs" />
+     <Compile Include="Assets\materials\Lighter\Perlin.cs" />
+     <Compile Include="Assets\materials\Menu\LightEffect.cs" />
+     <None Include="Assets\materials\other\ExternalLightmappingTool-Diffuse.shader" />
+     <None Include="Assets\materials\other\FX-IslandWaterFull.shader" />
+     <None Include="Assets\materials\other\FX-IslandWaterSimple.shader" />
+     <None Include="Assets\materials\other\FX-UnderwaterSurface.shader" />
+     <None Include="Assets\materials\other\Glass-Stained-BumpDistort.shader" />
+     <None Include="Assets\materials\other\Glass-Stained-BumpSpecDistort.shader" />
+     <Compile Include="Assets\materials\other\GlowEffect.cs" />
+     <None Include="Assets\materials\other\GlowEffectDownsample.shader" />
+     <Compile Include="Assets\materials\other\MotionBlur.cs" />
+     <None Include="Assets\materials\other\MotionBlur.shader" />
+     <None Include="Assets\materials\other\Normal-BumpSpec_EnvLightmapped.shader" />
+     <None Include="Assets\materials\other\Particle Alpha Blend goodfog.shader" />
+     <None Include="Assets\materials\other\ShadowProjection.shader" />
+     <None Include="Assets\materials\other\Skidmarks.shader" />
+     <Compile Include="Assets\materials\other\TwirlEffect.cs" />
+     <None Include="Assets\materials\other\TwirlEffect.shader" />
+     <None Include="Assets\materials\ParticleTutorial\Explosion.js" />
+     <None Include="Assets\materials\ParticleTutorial\ParticleLayer.js" />
+     <None Include="Assets\materials\ParticleTutorial\Rocket.js" />
+     <Compile Include="Assets\materials\Shaders\BumpLightMap.cs" />
+     <None Include="Assets\materials\Shaders\Particle Alpha Blend.shader" />
+     <Compile Include="Assets\scripts\Editor\AstarDataEditor.cs" />
+     <Compile Include="Assets\scripts\Editor\AstarPathEditor.cs" />
+     <Compile Include="Assets\scripts\Editor\AstarWelcome.cs" />
+     <None Include="Assets\scripts\Editor\HeightmapExportPNG.js" />
+     <Compile Include="Assets\scripts\Editor\InspectorSearch.cs" />
+     <Compile Include="Assets\scripts\Editor\RTools.cs" />
+     <Compile Include="Assets\scripts\GUI\AboutWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\GameMenuWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\GameStatsWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\GunType.cs" />
+     <Compile Include="Assets\scripts\GUI\HostWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\IrcChatWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\LoginWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\MenuWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\PopUpWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\ServersWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\SettingsWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\StaticsWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\TeamSelectWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\Window.cs" />
+     <Compile Include="Assets\scripts\GUI\WindowBase.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Constants.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Exception.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2InputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2OutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\Adler32.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\CRC32.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\IChecksum.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Checksums\StrangeCRC.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\FileSystemScanner.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\INameTransform.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\IScanFilter.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\NameFilter.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\PathFilter.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\StreamUtils.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Core\WindowsPathUtils.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\PkzipClassic.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Encryption\ZipAESTransform.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZIPConstants.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GZipException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipInputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\GZip\GzipOutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\InvalidHeaderException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarArchive.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarBuffer.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarEntry.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarHeader.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarInputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Tar\TarOutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\InflaterInputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\OutputWindow.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Streams\StreamManipulator.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Deflater.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterConstants.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterEngine.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterHuffman.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\DeflaterPending.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\Inflater.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterDynHeader.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\InflaterHuffmanTree.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\Compression\PendingBuffer.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\IEntryFactory.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\WindowsNameTransform.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipConstants.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipEntry.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipException.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipExtraData.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipHelperStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipInputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipNameTransform.cs" />
+     <Compile Include="Assets\scripts\Helpers\ZLib\Zip\ZipOutputStream.cs" />
+     <Compile Include="Assets\scripts\Helpers\H.cs" />
+     <Compile Include="Assets\scripts\Helpers\SharpZipBaseException.cs" />
+     <Compile Include="Assets\scripts\Helpers\VkontakteBase.cs" />
+     <Compile Include="Assets\scripts\Helpers\WebServer.cs" />
+     <Compile Include="Assets\scripts\Main\guns\Explosion.cs" />
+     <Compile Include="Assets\scripts\Main\guns\Gun.cs" />
+     <Compile Include="Assets\scripts\Main\guns\GunBase.cs" />
+     <Compile Include="Assets\scripts\Main\guns\GunPhysix.cs" />
+     <Compile Include="Assets\scripts\Main\guns\Patron.cs" />
+     <Compile Include="Assets\scripts\Main\Items\Fragment.cs" />
+     <Compile Include="Assets\scripts\Main\Items\MapItem.cs" />
+     <Compile Include="Assets\scripts\Main\Base.cs" />
+     <Compile Include="Assets\scripts\Main\Base2.cs" />
+     <Compile Include="Assets\scripts\Main\Box.cs" />
+     <Compile Include="Assets\scripts\Main\Cam.cs" />
+     <Compile Include="Assets\scripts\Main\Car.cs" />
+     <Compile Include="Assets\scripts\Main\CarController.cs" />
+     <Compile Include="Assets\scripts\Main\Console.cs" />
+     <Compile Include="Assets\scripts\Main\Game.cs" />
+     <Compile Include="Assets\scripts\Main\GameWindow.cs" />
+     <Compile Include="Assets\scripts\Main\Helper.cs" />
+     <Compile Include="Assets\scripts\Main\IPlayer.cs" />
+     <Compile Include="Assets\scripts\Main\Irc.cs" />
+     <Compile Include="Assets\scripts\Main\Loader.cs" />
+     <Compile Include="Assets\scripts\Main\Menu.cs" />
+     <Compile Include="Assets\scripts\Main\Music.cs" />
+     <Compile Include="Assets\scripts\Main\Particles.cs" />
+     <Compile Include="Assets\scripts\Main\Player.cs" />
+     <Compile Include="Assets\scripts\Main\ShadowToTexture.cs" />
+     <Compile Include="Assets\scripts\Main\Skidmarks.cs" />
+     <Compile Include="Assets\scripts\Main\Text3D.cs" />
+     <Compile Include="Assets\scripts\Main\UserView.cs" />
+     <Compile Include="Assets\scripts\Main\Vk.cs" />
+     <Compile Include="Assets\scripts\Main\Zombie.cs" />
+     <Compile Include="Assets\scripts\Other\Generate2DReflection.cs" />
+     <Compile Include="Assets\scripts\Other\IslandWater.cs" />
+     <None Include="Assets\scripts\Other\LightmapperObjectUV.js" />
+     <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
+     <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
+     <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />
+     <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\PlatformInputController.js" />
+     <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonCamera.js" />
+     <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\ThirdPersonController.js" />
+     <None Include="Assets\Standard Assets\Detonator\Resources\Detonator\Textures\HeatDistort.shader" />
+     <None Include="Assets\Standard Assets\Detonator\Sample Supporting Emitters\Detonator Spray Helper.js" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\Detonator.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorBurstEmitter.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorCloudRing.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorFireball.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorForce.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorGlow.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorHeatwave.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorLight.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorShockwave.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSmoke.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSparks.cs" />
+     <Compile Include="Assets\Standard Assets\Detonator\System\DetonatorSpray.cs" />
+     <None Include="Assets\Standard Assets\Detonator\TestScene\DetonatorTest.js" />
+     <None Include="Assets\Standard Assets\Editor\Image Effects\BloomAndFlaresEditor.js" />
+     <None Include="Assets\Standard Assets\Editor\Image Effects\ColorCorrectionCurvesEditor.js" />
+     <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
+     <None Include="Assets\Standard Assets\Editor\Image Effects\EdgeDetectEffectNormalsEditor.js" />
+     <None Include="Assets\Standard Assets\Editor\Image Effects\SunShaftsEditor.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Adaptation.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Luminance.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\MinMaxReduction.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\AddAlphaHack.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\AddStuff.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BrightPassFilter.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\HollywoodFlareBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\HollywoodFlareStretch.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\LensFlareCreate.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\SeparableBlurPlus.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\VignetteShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\CopyDepthToRGBA.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\DepthOfField.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\DofForegroundBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\PreDepthOfField.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\PreDepthOfFieldZRead.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\RecordCenterDepth.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableRGBADepthBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableWeightedBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ChromaticAberrationShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ClearExceptSkyboxShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionCurves.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionCurvesSimple.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionEffect.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionSelective.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ContrastComposite.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ConvertDepth.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\CreaseApply.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\DepthRGBA8RadialBlur.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeApply.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeBlurApply.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectNormals.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectNormalsHQ.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\EdgeDetectX.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ExtractSkyboxShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\FisheyeShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\frag_ao.cginc" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GlowCompose.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GlowConeTap.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GrayscaleEffect.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SepiaToneEffect.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ShowAlphaChannel.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SimpleClear.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SkyboxToRGBADepth.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SSAOShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\SunShafts.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\VignettingShader.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\VortexEffect.shader" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\BloomAndFlares.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\BlurEffect.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\ColorCorrectionCurves.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ColorCorrectionEffect.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\ContrastEnhance.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ContrastStretchEffect.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Crease.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\DepthOfField.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeBlurEffectNormals.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeDetectEffect.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\EdgeDetectEffectNormals.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Fisheye.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\GrayscaleEffect.cs" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ImageEffectBase.cs" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\ImageEffects.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\PostEffectsBase.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\PostEffectsHelper.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\SepiaToneEffect.cs" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\SSAOEffect.cs" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\SunShafts.js" />
+     <None Include="Assets\Standard Assets\Image Effects (Pro Only)\Vignetting.js" />
+     <Compile Include="Assets\Standard Assets\Image Effects (Pro Only)\VortexEffect.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarClasses.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarData.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarMath.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarPath.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarProcessing.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\AstarUser.cs" />
+     <Compile Include="Assets\Standard Assets\Pathfinding\Seeker.cs" />
+     <None Include="Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js" />
+     <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothFollow.js" />
+     <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothLookAt.js" />
+     <Compile Include="Assets\Standard Assets\Scripts\General Scripts\ActivateTrigger.cs" />
+     <None Include="Assets\Standard Assets\Scripts\General Scripts\DragRigidbody.js" />
+     <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
+     <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
+     <None Include="Assets\todo.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -311,4 +311,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  
 </Project>
+	

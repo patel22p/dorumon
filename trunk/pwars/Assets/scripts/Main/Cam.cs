@@ -11,9 +11,10 @@ public class Cam : Base
     public TextMesh LevelText;
     public TextMesh ScoreText;
     protected override void Awake()
-    {        
-        blur = GetComponentInChildren<MotionBlur>();
-        camera = GetComponentInChildren<Camera>();
+    {
+        _Game.MapCamera.camera.enabled = true;
+        _Game.MapCamera.active = false;
+        blur = GetComponentInChildren<MotionBlur>();        
         LevelText = transform.Find("LevelText").GetComponent<TextMesh>();
         ScoreText = transform.Find("ScoreText").GetComponent<TextMesh>();
         ambientsmoke =transform.Find("ambientsmoke");
@@ -24,6 +25,11 @@ public class Cam : Base
         yMaxLimit = 90;        
         base.Awake();
         
+    }
+    public override void Init()
+    {
+        camera = GetComponentInChildren<Camera>();
+        base.Init();
     }
     public new Camera camera;
     Transform ambientsmoke;

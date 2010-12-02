@@ -12,7 +12,8 @@ public partial class Base2:MonoBehaviour
 
 public class GameMenuWindow : WindowBase {
 		
-	public string pathImage2 = "Images/physx_wars_title";
+	[LoadPath("Skin/Images/physx_wars_title.png")]
+	public Texture2D ImageImage2;
 	public bool focusTeamSelectButton;
 	public bool TeamSelectButton=false;
 	public bool focusIrcChatButton;
@@ -45,7 +46,7 @@ public class GameMenuWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-279.5f + Screen.width/2,-226f + Screen.height/2,509.968f,457f), Wnd1,"");
 
@@ -54,7 +55,7 @@ public class GameMenuWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.DrawTexture(Image2,(Texture2D)Resources.Load("Images/physx_wars_title"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
 		if(focusTeamSelectButton) { focusTeamSelectButton = false; GUI.FocusControl("TeamSelectButton");}
 		GUI.SetNextControlName("TeamSelectButton");
 		bool oldTeamSelectButton = TeamSelectButton;

@@ -20,9 +20,11 @@ public class TeamSelectWindow : WindowBase {
 	public bool focusImages;
 	public int tabImages;
 	public bool focusRed;
-	public string pathRed = "Images/Image2";
+	[LoadPath("Skin/Images/Image2.png")]
+	public Texture2D ImageRed;
 	public bool focusBlue;
-	public string pathBlue = "Images/Image1";
+	[LoadPath("Skin/Images/Image1.png")]
+	public Texture2D ImageBlue;
 	public bool focusTeamSelect;
 	public bool TeamSelect=false;
 	public bool focusObserver;
@@ -57,7 +59,7 @@ public class TeamSelectWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-308.5f + Screen.width/2,-197f + Screen.height/2,596f,316f), Wnd1,"");
 
@@ -91,12 +93,12 @@ public class TeamSelectWindow : WindowBase {
 		if(tabImages==0){
 		if(focusRed) { focusRed = false; GUI.FocusControl("Red");}
 		GUI.SetNextControlName("Red");
-		GUI.DrawTexture(Red,(Texture2D)Resources.Load("Images/Image2"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Red,ImageRed, ScaleMode.ScaleToFit);
 		}
 		if(tabImages==1){
 		if(focusBlue) { focusBlue = false; GUI.FocusControl("Blue");}
 		GUI.SetNextControlName("Blue");
-		GUI.DrawTexture(Blue,(Texture2D)Resources.Load("Images/Image1"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Blue,ImageBlue, ScaleMode.ScaleToFit);
 		}
 		GUI.EndGroup();
 		GUI.EndGroup();

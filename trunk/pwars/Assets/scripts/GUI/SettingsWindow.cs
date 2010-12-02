@@ -83,7 +83,7 @@ public class SettingsWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-262.5f + Screen.width/2,-346f + Screen.height/2,531f,641f), Wnd1,"");
 

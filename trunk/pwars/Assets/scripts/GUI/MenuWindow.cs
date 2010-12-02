@@ -12,7 +12,8 @@ public partial class Base2:MonoBehaviour
 
 public class MenuWindow : WindowBase {
 		
-	public string pathImage2 = "Images/1";
+	[LoadPath("Skin/Images/1.png")]
+	public Texture2D ImageImage2;
 	public bool focusServers;
 	public bool Servers=false;
 	public bool focusIrcChat;
@@ -51,7 +52,7 @@ public class MenuWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-403.5f + Screen.width/2,-365f + Screen.height/2,791f,694f), Wnd1,"", GUI.skin.customStyles[5]);
 
@@ -60,7 +61,7 @@ public class MenuWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.DrawTexture(Image2,(Texture2D)Resources.Load("Images/1"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
 		if(focusServers) { focusServers = false; GUI.FocusControl("Servers");}
 		GUI.SetNextControlName("Servers");
 		bool oldServers = Servers;

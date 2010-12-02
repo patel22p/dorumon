@@ -36,7 +36,7 @@ public class GameStatsWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-310.5f + Screen.width/2,-220f + Screen.height/2,611f,371f), Wnd1,"");
 

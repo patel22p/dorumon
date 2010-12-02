@@ -76,7 +76,7 @@ public partial class Base2 : MonoBehaviour
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { return _Loader._TimerA; } }
     public static VK _vk;
-    public static bool lockCursor { get { return Screen.lockCursor || _Game.MapCamera.active; } set { Screen.lockCursor = value; } }
+    public static bool lockCursor { get { return Screen.lockCursor && !_Game.MapCamera.active; } set { Screen.lockCursor = value; } }
     public static Rect CenterRect(float w, float h)
     {
         
@@ -156,14 +156,17 @@ public partial class Base2 : MonoBehaviour
         }
     }
 
-    
+    public virtual void Init()
+    {
+
+    }
 
 
 }
-public class CopyField : Attribute
+public class LoadPath : Attribute
 {
     public string name;
-    public CopyField(string from)
+    public LoadPath(string from)
     {
         name = from;
     }

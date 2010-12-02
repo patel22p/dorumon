@@ -30,19 +30,7 @@ public class GunPhysix : GunBase
         if (power)
         {
             if (energy < exp) energy += 80;
-            foreach (Transform t in _Game.jumpers)
-            {
-                Jumper j = t.GetComponent<Jumper>();
-                if (HitTest(t, j.distance))
-                {
-                    Vector3 v = transform.rotation * j.Magnet;
-                    v.x *= j.multiplier.x;
-                    v.z *= j.multiplier.x;
-                    v.y *= j.multiplier.y;
-                    pl.rigidbody.AddForce(v * scalefactor * pl.rigidbody.mass);
-
-                }
-            }
+            
             foreach (Base b in _Game.dynamic)
             {
                 if (!(b is IPlayer))
@@ -72,7 +60,14 @@ public class GunPhysix : GunBase
         j.gameObject.layer = 0;
         return hit;
     }
-
+    public override void Init()
+    {
+        base.Init();
+    }
+    [LoadPath("wave")]
+    public GameObject wavePrefab;
+    [LoadPath("superphys_launch3")]
+    public AudioClip superphys_launch3;
     [RPC]
     public void RPCSetPower(bool e)
     {
@@ -80,36 +75,21 @@ public class GunPhysix : GunBase
         power = e;
         if (!e)
         {
-            //this.GetComponents<AudioSource>()[0].Stop();
             bool any = false;
-
             foreach (Base b in _Game.dynamic)
                 if (!(b is IPlayer) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
                 {
                     b.rigidbody.angularDrag = 2;
                     b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));
-                    Destroy(Instantiate(Load("wave"), cursor[0].position, transform.rotation), 1.36f);
+                    Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
                     any = true;
                 }
             if (energy > 300 && any)
-                PlaySound("superphys_launch3");
+                PlaySound(superphys_launch3);
 
-            foreach (Transform t in _Game.jumpers)
-            {
-                Jumper j = t.GetComponent<Jumper>();
-                if (HitTest(t,.3f))
-                {
-                    PlaySound("superphys_launch3");
-                    pl.rigidbody.AddForce(j.Release * scalefactor * pl.rigidbody.mass);
-                    GameObject g = (GameObject)Instantiate(Load("wave"), j.transform.position, j.transform.rotation * Quaternion.Euler(90, 0, 0));
-                    Destroy(g, 1.6f);
-                }
-            }
             energy = 0;
 
         }
-        //else
-        //    this.GetComponents<AudioSource>()[0].Play();
     }
 
     protected override void Update()

@@ -417,7 +417,7 @@ public class AstarPath : MonoBehaviour {
 			}
 			
 			if (to != new Int3 (-1,-1,-1) && !grids[to.y].changed) {
-				//Debug.Log (to + " "+grids.Length +" "+grids[to.y].width+grids[to.y].width);
+				////Debug.Log (to + " "+grids.Length +" "+grids[to.y].width+grids[to.y].width);
 				toNode = GetNode (to);//.vectorPos;
 				
 			} else {
@@ -489,7 +489,7 @@ public class AstarPath : MonoBehaviour {
 		}
 		
 		if (nextPath == currentCalculatingPath) {
-			Debug.LogError ("To Many Paths In Queue, please increase queue size or call StartPath less often");
+			//Debug.LogError ("To Many Paths In Queue, please increase queue size or call StartPath less often");
 			return;
 		}
 		
@@ -533,7 +533,7 @@ public class AstarPath : MonoBehaviour {
 					
 					ptf += 0.99F;
 					
-
+					float startTime = Time.realtimeSinceStartup;
 					
 					
 					active.lastPath = p;
@@ -610,7 +610,7 @@ public class AstarPath : MonoBehaviour {
 			
 			active.lastPathFrame = Time.frameCount;
 			active.pathsThisFrame++;
-			//Debug.Log ("Pathfinding started, calculating...\nPathfinding started at frame "+Time.frameCount +"  "+active.pathsThisFrame);
+			////Debug.Log ("Pathfinding started, calculating...\nPathfinding started at frame "+Time.frameCount +"  "+active.pathsThisFrame);
 			activePath = true;
 			active.lastPath = p;
 			if (!p.error) {
@@ -628,7 +628,7 @@ public class AstarPath : MonoBehaviour {
 			}
 			activePath = false;
 		}
-		//Debug.Log ("Finito");
+		////Debug.Log ("Finito");
 		s.OnCompleteLater (p);
 		//Thread.Abort ();
 	}*/
@@ -649,8 +649,8 @@ public class AstarPath : MonoBehaviour {
 			float startTime = Time.realtimeSinceStartup;
 			Scan (true,0);
 			float elapsed = Time.realtimeSinceStartup-startTime;
-			Debug.Log ("Grid calculated. Generation took "+elapsed+" seconds to complete");
-			//Debug.Log ("calc");
+			//Debug.Log ("Grid calculated. Generation took "+elapsed+" seconds to complete");
+			////Debug.Log ("calc");
 		} else {
 			if (astarData != null) {
 				LoadAstarData ();
@@ -707,7 +707,9 @@ public class AstarPath : MonoBehaviour {
 						Node node = GetNode (x,y,z);
 						float dist = Mathf.Abs (node.vectorPos.y-pos.y);
 						if (dist < minYDist && (forceNodesUnder ? node.vectorPos.y <= pos.y + 0.0001F : true)) {
-							if (Polygon.ContainsPoint (node.GetArea (),pos2D)) {
+							Vector2[] area = node.GetArea ();
+							
+							if (area != null && Polygon.ContainsPoint (area,pos2D)) {
 								minNode = node;
 								minYDist = dist;
 							}
@@ -949,7 +951,7 @@ public class AstarPath : MonoBehaviour {
 		
 		public Path (Seeker s,Vector3 newstart,Vector3 newend,float NmaxAngle,float NangleCost,bool NstepByStep) {
 			if (active == null || active.staticNodes == null) {
-				Debug.LogError ("The navmesh is not calculated yet - Check the 'Scan Map On Startup' toggle to make sure the map is scanned at start - Don't run any pathfinding calls in Awake");
+				//Debug.LogError ("The navmesh is not calculated yet - Check the 'Scan Map On Startup' toggle to make sure the map is scanned at start - Don't run any pathfinding calls in Awake");
 				error = true;
 				return;
 			}
@@ -969,7 +971,7 @@ public class AstarPath : MonoBehaviour {
 		
 		public Path (Seeker s,Vector3 newstart,Vector3 newend,float NmaxAngle,float NangleCost,bool NstepByStep,int grid) {
 			if (active == null || active.staticNodes == null) {
-				Debug.LogError ("The navmesh is not calculated yet - Check the 'Scan Map On Startup' toggle to make sure the map is scanned at start - Don't run any pathfinding calls in Awake");
+				//Debug.LogError ("The navmesh is not calculated yet - Check the 'Scan Map On Startup' toggle to make sure the map is scanned at start - Don't run any pathfinding calls in Awake");
 				error = true;
 				return;
 			}
@@ -993,13 +995,13 @@ public class AstarPath : MonoBehaviour {
 			realStartTime = startTime;
 			
 			if (startPos == new Int3 (-1,-1,-1)) {
-				//Debug.LogWarning ("Start is not inside any grids");
+				////Debug.LogWarning ("Start Point : No nearby Nodes Were found (Position not inside any grids or no nodes were close enough");
 				error = true;
 				return;
 			}
 			
 			if (endPos == new Int3 (-1,-1,-1)) {
-				//Debug.LogWarning ("Target is not inside any grids");
+				////Debug.LogWarning ("Target Point : No nearby Nodes Were found (Position not inside any grids or no nodes were close enough");
 				error = true;
 				return;
 			}
@@ -1009,9 +1011,8 @@ public class AstarPath : MonoBehaviour {
 			end = GetNode (endPos);
 			if (!start.walkable) {
 				start = GetNearest (start,true,120);
-				
 				if (start == null) {
-					Debug.LogWarning ("Cannot find any valid start nodes (the start is on unwalkable ground)");
+					////Debug.LogWarning ("Cannot find any valid start nodes (the start is on unwalkable ground)");
 				}
 				
 				forceStartSnap = true;
@@ -1019,9 +1020,9 @@ public class AstarPath : MonoBehaviour {
 				/*if (start.enabledConnections.Length > 0) {
 					
 					start = start.enabledConnections[0];
-					Debug.LogWarning ("Start point is not walkable, setting a node close to start as start");
+					////Debug.LogWarning ("Start point is not walkable, setting a node close to start as start");
 				} else {
-					Debug.LogWarning ("Starting from non walkable node");
+					////Debug.LogWarning ("Starting from non walkable node");
 					error= true;
 					return;
 				}*/
@@ -1032,28 +1033,28 @@ public class AstarPath : MonoBehaviour {
 				end = GetNearest (end,true,start.area,400);
 				
 				if (end == null) {
-					Debug.LogWarning ("Cannot find any valid target nodes");
+					////Debug.LogWarning ("Cannot find any valid target nodes");
 					error = true;
 					return;
 				}
 				
 				if (end.area != start.area) {
-					Debug.LogError ("WUT!!?!?");
+					//Debug.LogError ("WUT!!?!?");
 				}
 				
 				forceEndSnap = true;
 				/*if (end.enabledConnections.Length > 0) {
 					end = end.enabledConnections[0];
-					Debug.LogWarning ("Target point is not walkable, setting a node close to target as target");
+					////Debug.LogWarning ("Target point is not walkable, setting a node close to target as target");
 				} else {
-					Debug.LogWarning ("Target point is not walkable");
+					////Debug.LogWarning ("Target point is not walkable");
 					error= true;
 					return;
 				}*/
 			}
 			
 			if (end.area != start.area) {
-				Debug.LogWarning ("We can't walk from start to end, differend areas");
+				////Debug.LogWarning ("We can't walk from start to end, differend areas");
 				error= true;
 				return;
 			}
@@ -1081,7 +1082,7 @@ public class AstarPath : MonoBehaviour {
 							if (p.start == start && p.end == end) {
 								path = p.path;
 								foundEnd = true;
-								Debug.Log ("A* Pathfinding Completed Succesfully, a cached path was used"); 
+								//Debug.Log ("A* Pathfinding Completed Succesfully, a cached path was used"); 
 								return;
 							}
 						} else {
@@ -1095,7 +1096,7 @@ public class AstarPath : MonoBehaviour {
 				
 				foundEnd = true;
 				path = new Node[2] {start,end};
-				Debug.Log ("A* Pathfinding Completed Succesfully, a straight path was used");
+				//Debug.Log ("A* Pathfinding Completed Succesfully, a straight path was used");
 				return;
 			}
 			t += Time.realtimeSinceStartup-startTime;
@@ -1112,17 +1113,17 @@ public class AstarPath : MonoBehaviour {
 			//Continue to search while there hasn't ocurred an error and the end hasn't been found
 			while (!foundEnd && !error) {
 				counter++;
-				//Debug.Log ("C0 "+counter);
+				////Debug.Log ("C0 "+counter);
 				//Close the current node, if the current node is the target node then the path is finnished
 				if (current==end) {
 					foundEnd = true;
 					break;
 				}
 				
-				//Debug.Log ("C1 "+counter);
+				////Debug.Log ("C1 "+counter);
 				
 				if (current == null) {
-					Debug.LogWarning ("Current is Null");
+					////Debug.LogWarning ("Current is Null");
 					return;
 				}
 				
@@ -1130,8 +1131,8 @@ public class AstarPath : MonoBehaviour {
 				closedNodes++;
 				//Loop through all walkable neighbours of the node
 				
-				//Debug.Log ("C2 "+counter);
-				//Debug.Log (current.neighbours.Length);
+				////Debug.Log ("C2 "+counter);
+				////Debug.Log (current.neighbours.Length);
 				for (int i=0;i<current.enabledConnections.Length;i++) {
 					//Debug.DrawLine (current.vectorPos,current.neighbours[i].vectorPos,Color.red); //Uncomment for debug
 					//We shouldn't test the start node
@@ -1141,21 +1142,21 @@ public class AstarPath : MonoBehaviour {
 					}
 				}
 				
-				//Debug.Log ("C3 "+counter);
+				////Debug.Log ("C3 "+counter);
 				
 				//No nodes left to search?
 				if (open.numberOfItems <= 1) {
-					Debug.LogWarning ("No open points, whole area searched");
+					////Debug.LogWarning ("No open points, whole area searched");
 					error = true;
 					return;
 				}
 				
-				//Debug.Log ("C4 "+counter);
+				////Debug.Log ("C4 "+counter);
 				
 				//Select the node with the smallest F score and remove it from the open array
 				current = open.Remove ();
 				
-				//Debug.Log ("C5 "+counter);
+				////Debug.Log ("C5 "+counter);
 				
 				//Have we exceded the maxFrameTime, if so we should wait one frame before continuing the search since we don't want the game to lag
 				if (!multithreaded && (stepByStep || Time.realtimeSinceStartup-startTime>=maxFrameTime)) {//@Performance remove that step By Step thing in the IF, if you don't use in the seeker component
@@ -1182,9 +1183,9 @@ public class AstarPath : MonoBehaviour {
 					
 				} else if (AstarPath.active.simplify == Simplify.Simple) {
 					if (active.gridGenerator != GridGenerator.Grid && active.gridGenerator != GridGenerator.Texture) {
-						Debug.LogError ("Simplification can not be used with grid generators other than 'Texture' and 'Grid', excpect weird results");
+						//Debug.LogError ("Simplification can not be used with grid generators other than 'Texture' and 'Grid', excpect weird results");
 					}
-					Debug.LogWarning ("The Simple Simplification is broken");
+					////Debug.LogWarning ("The Simple Simplification is broken");
 					/*Node c = end;
 					int p = 0;
 					//Follow the parents of all nodes to the start point, but only add nodes if there is a change in direction
@@ -1207,7 +1208,7 @@ public class AstarPath : MonoBehaviour {
 						}
 						
 						if (p > 300) {
-							Debug.LogError ("Preventing possible infinity loop");
+							//Debug.LogError ("Preventing possible infinity loop");
 							break;
 						}
 					}
@@ -1220,11 +1221,11 @@ public class AstarPath : MonoBehaviour {
 					t += Time.realtimeSinceStartup-startTime;
 					
 					//@Performance Debug calls cost performance
-					Debug.Log ("A* Pathfinding Completed Succesfully : End code 2\nTime: "+t+" Seconds\nFrames "+frames+"\nAverage Seconds/Frame "+(t/frames)+"\nPoints:"+path.Length+" (simplified)"+"\nSearched Nodes"+closedNodes+"\nPath Length (G score) Was "+end.g);*/
+					//Debug.Log ("A* Pathfinding Completed Succesfully : End code 2\nTime: "+t+" Seconds\nFrames "+frames+"\nAverage Seconds/Frame "+(t/frames)+"\nPoints:"+path.Length+" (simplified)"+"\nSearched Nodes"+closedNodes+"\nPath Length (G score) Was "+end.g);*/
 					
 				} else if (AstarPath.active.simplify == Simplify.Full) {
 					if (active.gridGenerator != GridGenerator.Grid && active.gridGenerator != GridGenerator.Texture) {
-						Debug.LogError ("Simplification can not be used with grid generators other than 'Texture' and 'Grid' excpect weird results");
+						//Debug.LogError ("Simplification can not be used with grid generators other than 'Texture' and 'Grid' excpect weird results");
 					}
 					
 					Node c = end;
@@ -1245,7 +1246,7 @@ public class AstarPath : MonoBehaviour {
 						
 						//@Performance this IF is almost completely unnecessary
 						//if (p > 300) {
-						//	Debug.LogError ("Preventing possible infinity loop, remove this code if you have very long paths");
+						//	//Debug.LogError ("Preventing possible infinity loop, remove this code if you have very long paths");
 						//	break;
 						//}
 					}
@@ -1269,7 +1270,7 @@ public class AstarPath : MonoBehaviour {
 					t += Time.realtimeSinceStartup-startTime;
 					
 					//@Performance Debug calls cost performance
-					Debug.Log ("A* Pathfinding Completed Succesfully : End code 3\nTime: "+t+" Seconds\nFrames "+frames+"\nAverage Seconds/Frame "+(t/frames)+"\nPoints:"+path.Length+" (simplified)"+"\nSearched Nodes"+closedNodes+"\nPath Length (G score) Was "+end.g);
+					//Debug.Log ("A* Pathfinding Completed Succesfully : End code 3\nTime: "+t+" Seconds\nFrames "+frames+"\nAverage Seconds/Frame "+(t/frames)+"\nPoints:"+path.Length+" (simplified)"+"\nSearched Nodes"+closedNodes+"\nPath Length (G score) Was "+end.g);
 					
 					//We have now found the end and filled the "path" array
 					//The next update the Seeker script will find that this is done and send a message with the data
@@ -1293,7 +1294,7 @@ public class AstarPath : MonoBehaviour {
 						
 						//@Performance this IF is almost completely unnecessary
 						if (p > 700) {
-							Debug.LogError ("Preventing possible infinity loop, remove this code if you have very long paths (i.e more than 300 nodes)");
+							//Debug.LogError ("Preventing possible infinity loop, remove this code if you have very long paths (i.e more than 300 nodes)");
 							break;
 						}
 					}
@@ -1427,7 +1428,7 @@ public class AstarPath : MonoBehaviour {
 	
 	public void SetNodes (bool walkable, Vector3 point, int gridIndex,bool allGrids) {
 		if (gridGenerator != GridGenerator.Grid && gridGenerator != GridGenerator.Texture) {
-			Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
+			//Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
 			return;
 		}
 		
@@ -1489,14 +1490,14 @@ public class AstarPath : MonoBehaviour {
 	public void SetNodes (bool walkable, Bounds bounds, bool fullPhysicsCheck, bool allGrids) {
 		
 		if (gridGenerator != GridGenerator.Grid && gridGenerator != GridGenerator.Texture) {
-			Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
+			//Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
 			return;
 		}
 		
 		Vector3 min = bounds.min;
 		Vector3 max = bounds.max;
 		Rect rect = Rect.MinMaxRect (min.x,min.z,max.x,max.z);
-		Debug.Log ("Changing the Grid...");
+		//Debug.Log ("Changing the Grid...");
 		
 		//Check if the bounds center is inside any grids, and if so, call SetNodesWorld
 		if (allGrids) {
@@ -1514,7 +1515,7 @@ public class AstarPath : MonoBehaviour {
 			}
 			
 			if (!any) {
-				Debug.LogWarning ("Can't set nodes, area center is not inside any grid");
+				////Debug.LogWarning ("Can't set nodes, area center is not inside any grid");
 			}
 			
 		} else {
@@ -1523,7 +1524,7 @@ public class AstarPath : MonoBehaviour {
 			if (p != new Int3 (-1,-1,-1)) {
 				SetNodesWorld (walkable,rect,p.y, fullPhysicsCheck);
 			} else {
-				Debug.LogWarning ("Can't set nodes, area center is not inside any grid");
+				////Debug.LogWarning ("Can't set nodes, area center is not inside any grid");
 			}
 		}
 	}
@@ -1532,7 +1533,7 @@ public class AstarPath : MonoBehaviour {
 	public void SetNodesWorld (bool walkable, Rect rect,int gridIndex, bool fullPhysicsCheck) {
 		
 		if (gridGenerator != GridGenerator.Grid && gridGenerator != GridGenerator.Texture) {
-			Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
+			//Debug.LogError ("The SetNodes function can not be used with grid generators other than 'Texture' and 'Grid'");
 			return;
 		}
 		
@@ -1552,7 +1553,7 @@ public class AstarPath : MonoBehaviour {
 			Mathf.CeilToInt ((rect.yMax/grid.nodeSize)-0.5F)
 		};
 		
-		Debug.LogError (localRect[0]+" "+localRect[1]+" "+localRect[2]+" "+localRect[3]);
+		//Debug.LogError (localRect[0]+" "+localRect[1]+" "+localRect[2]+" "+localRect[3]);
 		
 		if (fullPhysicsCheck) {
 			RecalculateArea (localRect,gridIndex);
@@ -1882,14 +1883,14 @@ public class AstarPath : MonoBehaviour {
 		Int3 startPos = ToLocal (from);
 		
 		if (startPos == new Int3(-1,-1,-1)) {
-			Debug.LogError ("'From' is outside the grid bounds");
+			//Debug.LogError ("'From' is outside the grid bounds");
 			return false;
 		}
 		
 		Int3 endPos = ToLocal (to);
 		
 		if (endPos == new Int3(-1,-1,-1)) {
-			Debug.LogError ("'To' is outside the grid bounds");
+			//Debug.LogError ("'To' is outside the grid bounds");
 			return false;
 		}
 		
@@ -1915,14 +1916,14 @@ public class AstarPath : MonoBehaviour {
 		Int3 startPos = ToLocal (from);
 		
 		if (startPos == new Int3(-1,-1,-1)) {
-			Debug.LogError ("'From' is outside the grid bounds");
+			//Debug.LogError ("'From' is outside the grid bounds");
 			return 0;
 		}
 		
 		Int3 endPos = ToLocal (to);
 		
 		if (endPos == new Int3(-1,-1,-1)) {
-			Debug.LogError ("'To' is outside the grid bounds");
+			//Debug.LogError ("'To' is outside the grid bounds");
 			return 0;
 		}
 		
@@ -2005,7 +2006,7 @@ public class AstarPath : MonoBehaviour {
 		while (open.Count > 0) {
 			searched++;
 			if (searched > totalNodeAmount) {
-				Debug.Log ("Infinity Loop");
+				//Debug.Log ("Infinity Loop");
 			}
 			current = open[0] as Node;
 			current.area = area;
@@ -2019,7 +2020,7 @@ public class AstarPath : MonoBehaviour {
 				}
 			}
 		}
-		Debug.Log ("Flood Filled "+searched+ " Nodes, The Grid now contains "+area +" Areas");
+		//Debug.Log ("Flood Filled "+searched+ " Nodes, The Grid now contains "+area +" Areas");
 	}
 	
 	public void FloodFillAll () {
@@ -2051,7 +2052,7 @@ public class AstarPath : MonoBehaviour {
 			
 			areaColorsArr.Add (area <= presetAreaColors.Length ? presetAreaColors[area-1] : new Color (Random.value,Random.value,Random.value));
 			if (area > 400) {
-				Debug.Log ("Preventing possible Infinity Loop (Searched " + searched+" nodes in the flood fill pass)");
+				//Debug.Log ("Preventing possible Infinity Loop (Searched " + searched+" nodes in the flood fill pass)");
 				break;
 			}
 			for (int y=0;y<grids.Length;y++) {//Height
@@ -2082,7 +2083,7 @@ public class AstarPath : MonoBehaviour {
 				
 				
 				if (searched > totalWalkableNodeAmount) {
-					Debug.LogError ("Infinity Loop, can't flood fill more than the total node amount (System Failure)");
+					//Debug.LogError ("Infinity Loop, can't flood fill more than the total node amount (System Failure)");
 					break;
 				}
 				current = open[0] as Node;
@@ -2125,7 +2126,7 @@ public class AstarPath : MonoBehaviour {
 			if (calcAll) {
 				ScanTexture ();
 			} else {
-				Debug.LogWarning ("The Texture Mode don't use passes, calculate everything once instead");
+				////Debug.LogWarning ("The Texture Mode don't use passes, calculate everything once instead");
 			}
 			binaryHeap = new BinaryHeap (Mathf.CeilToInt (totalNodeAmount*heapSize));
 			return;
@@ -2135,7 +2136,7 @@ public class AstarPath : MonoBehaviour {
 			if (calcAll) {
 				ScanBounds ();
 			} else {
-				Debug.LogWarning ("The Bounds Mode don't use passes, calculate everything once instead");
+				////Debug.LogWarning ("The Bounds Mode don't use passes, calculate everything once instead");
 			}
 			binaryHeap = new BinaryHeap (Mathf.CeilToInt (totalNodeAmount*heapSize));
 			return;
@@ -2146,7 +2147,7 @@ public class AstarPath : MonoBehaviour {
 			if (calcAll) {
 				ScanList ();
 			} else {
-				Debug.LogWarning ("The List Mode don't use passes, calculate everything once instead");
+				////Debug.LogWarning ("The List Mode don't use passes, calculate everything once instead");
 			}
 			binaryHeap = new BinaryHeap (Mathf.CeilToInt (totalNodeAmount*heapSize));
 			return;
@@ -2157,7 +2158,7 @@ public class AstarPath : MonoBehaviour {
 			if (calcAll) {
 				ScanNavmesh ();
 			} else {
-				Debug.LogWarning ("The Mesh Mode don't use passes, calculate everything once instead");
+				////Debug.LogWarning ("The Mesh Mode don't use passes, calculate everything once instead");
 			}
 			binaryHeap = new BinaryHeap (Mathf.CeilToInt (totalNodeAmount*heapSize));
 			return;
@@ -2182,7 +2183,7 @@ public class AstarPath : MonoBehaviour {
 		
 		//float startTime3 = Time.realtimeSinceStartup;
 			
-		//Debug.Log ("Pass 1");
+		////Debug.Log ("Pass 1");
 		bool anyWalkable = false;
 		for (int y=0;y<grids.Length && (pass==1 || calcAll) ;y++) {//Height
 			Grid grid = grids[y];
@@ -2217,7 +2218,7 @@ public class AstarPath : MonoBehaviour {
 		//float startTime4 = Time.realtimeSinceStartup;
 		
 		//Pass 2
-		//Debug.Log ("Pass 2");
+		////Debug.Log ("Pass 2");
 		for (int y=0;y<grids.Length  && (pass==2 || calcAll);y++) {//Height
 			Grid grid = grids[y];
 			for (int z=0;z<grid.depth;z++) {//Depth
@@ -2290,7 +2291,7 @@ public class AstarPath : MonoBehaviour {
 		
 		//float startTime6 = Time.realtimeSinceStartup;
 		
-		//Debug.Log ("Pass 3");
+		////Debug.Log ("Pass 3");
 		for (int y=0;y<grids.Length && (pass==3 || calcAll);y++) {//Height
 			Grid grid = grids[y];
 			for (int z=0;z<grid.depth;z++) {//Depth
@@ -2313,7 +2314,7 @@ public class AstarPath : MonoBehaviour {
 		
 		if ((pass == 4 || calcAll)) {
 			
-			//Debug.Log ("Pass 4");
+			////Debug.Log ("Pass 4");
 			//Pass 4
 			FloodFillAll ();
 		}
@@ -2321,15 +2322,15 @@ public class AstarPath : MonoBehaviour {
 		//float startTime9 = Time.realtimeSinceStartup;
 		
 		if ((pass==1 || calcAll) && !anyWalkable) {
-			Debug.LogError ("No nodes are walkable (maybe you should change the layer mask)");
+			//Debug.LogError ("No nodes are walkable (maybe you should change the layer mask)");
 		}
 		
 		binaryHeap = new BinaryHeap (Mathf.CeilToInt (totalNodeAmount*heapSize));
 		
 		//float startTime10 = Time.realtimeSinceStartup;
 		
-		//Debug.Log ("Times are:\n1"+(startTime2-startTime1)+"\n2"+(startTime3-startTime2)+"\n3"+(startTime4-startTime3)+"\n4"+(startTime5-startTime4)+"\n5"+(startTime6-startTime5)+"\n6"+(startTime7-startTime6)+"\n7"+(startTime8-startTime7)+"\n8"+(startTime9-startTime8)+"\n9"+(startTime10-startTime9)+"\n");
-		//Debug.Log ("Length is "+nodes.Length);
+		////Debug.Log ("Times are:\n1"+(startTime2-startTime1)+"\n2"+(startTime3-startTime2)+"\n3"+(startTime4-startTime3)+"\n4"+(startTime5-startTime4)+"\n5"+(startTime6-startTime5)+"\n6"+(startTime7-startTime6)+"\n7"+(startTime8-startTime7)+"\n8"+(startTime9-startTime8)+"\n9"+(startTime10-startTime9)+"\n");
+		////Debug.Log ("Length is "+nodes.Length);
 	}
 		
 	public void ScanTexture () {
@@ -2404,16 +2405,16 @@ public class AstarPath : MonoBehaviour {
 	public void ScanTilemap (bool[] array,int width,int depth) {
 		
 		if (width * depth != array.Length) {
-			Debug.LogError ("The array length and width*depth values must match");
+			//Debug.LogError ("The array length and width*depth values must match");
 			return;
 		}
 		if (gridGenerator != GridGenerator.Texture) {
-			Debug.LogError ("Only use this grid generator with the Texture mode");
+			//Debug.LogError ("Only use this grid generator with the Texture mode");
 			return;
 		}
 		
 		if (!calculateOnStartup) {
-			Debug.LogWarning ("To prevent that other grids gets generated at startup just to be replaced by this grid you should switch Calculate Grid On Startup to FALSE");
+			////Debug.LogWarning ("To prevent that other grids gets generated at startup just to be replaced by this grid you should switch Calculate Grid On Startup to FALSE");
 		}
 		
 		Grid grid = textureGrid;
@@ -2520,7 +2521,7 @@ public class AstarPath : MonoBehaviour {
 		GenerateRotationMatrix (grid);
 		
 		if (meshPoints.Length <= 3) {
-			Debug.LogError ("Mesh Scanner : Make sure the mesh does contains at least three vertices");
+			//Debug.LogError ("Mesh Scanner : Make sure the mesh does contains at least three vertices");
 			return;
 		}
 		
@@ -2612,13 +2613,13 @@ public class AstarPath : MonoBehaviour {
 							Debug.DrawRay (e1.endPointA,Vector3.up,Color.blue);
 							Debug.DrawRay (e1.endPointB,Vector3.up,Color.yellow);
 							//Debug.DrawRay (points[tri+1].center,Vector3.up*2,Color.cyan);
-							Debug.Log ("Position is "+points[tri+1].center);
+							//Debug.Log ("Position is "+points[tri+1].center);
 							Debug.DrawRay (points[tri].center,Vector3.up,Color.cyan*10);
 						}*/
 				
 						break;
 					default:
-						Debug.LogError ("Triangles with more than 3 vertices?? Eeeh...");
+						//Debug.LogError ("Triangles with more than 3 vertices?? Eeeh...");
 						break;
 				}
 				/*for (int x=0;x<points.Length;x++) {
@@ -2687,7 +2688,7 @@ public class AstarPath : MonoBehaviour {
 			
 		//Make sure there is at least one connection
 		if (c <= 0) {
-			Debug.LogError ("Mesh Scanner : Make sure there is at least one connection");
+			//Debug.LogError ("Mesh Scanner : Make sure there is at least one connection");
 			return;
 		}
 		
@@ -2709,7 +2710,7 @@ public class AstarPath : MonoBehaviour {
 		}
 		
 		b.extents += Vector3.one * boundsMargin;
-		//Debug.Log (""+b.ToString ());
+		////Debug.Log (""+b.ToString ());
 		grids = new Grid[1] {grid};
 		grid.width = points.Length;
 		grid.depth = 1;
@@ -2749,7 +2750,7 @@ public class AstarPath : MonoBehaviour {
 				bool drawDebug = x == 30;
 				
 				if (drawDebug) {
-					Debug.Log ("Offset is "+node.edge.offset);
+					//Debug.Log ("Offset is "+node.edge.offset);
 				}
 				
 				//area.Add (trisCenters[triConnection1]);
@@ -2803,7 +2804,7 @@ public class AstarPath : MonoBehaviour {
 						Debug.DrawLine (debugCenter+ (area3D[i]-debugCenter)*0.9F,debugCenter+ (area3D[i+1]-debugCenter)*0.9F,drawDebug ? Color.cyan : Color.magenta);
 					}
 				}
-				Debug.Log (triConnection1+ "  "+triConnection2+"  "+trisCenters.Length);
+				//Debug.Log (triConnection1+ "  "+triConnection2+"  "+trisCenters.Length);
 			} else {*/
 				if (triConnection2 >= 0) {
 					Vector3 p1 = trisCenters[triConnection1];
@@ -2878,7 +2879,7 @@ public class AstarPath : MonoBehaviour {
 		GenerateRotationMatrix (grid);
 		
 		if (meshPoints.Length <= 2) {
-			Debug.LogError ("Make sure the mash does contains at least two vertices");
+			//Debug.LogError ("Make sure the mash does contains at least two vertices");
 			return;
 		}
 		
@@ -2897,7 +2898,7 @@ public class AstarPath : MonoBehaviour {
 		}
 		
 		b.extents += Vector3.one * boundsMargin;
-		//Debug.Log (""+b.ToString ());
+		////Debug.Log (""+b.ToString ());
 		grids = new Grid[1] {grid};
 		grid.width = points.Length;
 		grid.depth = 1;
@@ -2925,6 +2926,15 @@ public class AstarPath : MonoBehaviour {
 			};*/
 			
 			staticNodes[0][x,0] = node;
+			
+			//Set the area of the node (triangle vertices)	
+			Vector3[] verts = new Vector3[3] {
+				meshPoints[tris[x*3]],
+				meshPoints[tris[x*3+1]],
+				meshPoints[tris[x*3+2]]
+			};
+			
+			node.area2D = new Vector2[3] {new Vector2 (verts[0].x,verts[0].z),new Vector2 (verts[1].x,verts[1].z),new Vector2 (verts[2].x,verts[2].z)};
 		}
 		
 		ApplyEnablerLinks ();
@@ -2938,7 +2948,6 @@ public class AstarPath : MonoBehaviour {
 				meshPoints[tris[x*3+2]]
 			};
 			
-			node.area2D = new Vector2[3] {new Vector2 (verts[0].x,verts[0].z),new Vector2 (verts[1].x,verts[1].z),new Vector2 (verts[2].x,verts[2].z)};
 			if (!node.walkable) {
 				continue;
 			}
@@ -2986,7 +2995,7 @@ public class AstarPath : MonoBehaviour {
 					}
 					
 					if (connections.Count >= 3) {
-						Debug.LogError ("The system does only support polygons with at most three connections");
+						//Debug.LogError ("The system does only support polygons with at most three connections");
 						continue;
 					}
 			
@@ -3022,7 +3031,7 @@ public class AstarPath : MonoBehaviour {
 	
 	public void ScanList () {
 		if (listRootNode == null) {
-			Debug.LogError ("No Root Node Was Assigned");
+			//Debug.LogError ("No Root Node Was Assigned");
 			return;
 		}
 		
@@ -3069,7 +3078,7 @@ public class AstarPath : MonoBehaviour {
 					FillWithNode (node,node.pos,w);
 					
 					if (node.pos.x+r == 196 && node.pos.z+r == 192) {
-						Debug.Log ("Node 196*192\nR : "+r+"\nDepth: "+node.depth+"\nPos : "+node.pos);
+						//Debug.Log ("Node 196*192\nR : "+r+"\nDepth: "+node.depth+"\nPos : "+node.pos);
 					}
 					
 					node.vectorPos = new Vector3(
@@ -3084,7 +3093,7 @@ public class AstarPath : MonoBehaviour {
 					int width = (int)Mathf.Pow (2,log-node.depth-1);
 					for (int z=0;z<2;z++) {//Depth
 						for (int x=0;x<2;x++) {//Width
-							//Debug.Log (x+"  "+z+"  "+width+"  "+node.depth+"  "+node.dia);
+							////Debug.Log (x+"  "+z+"  "+width+"  "+node.depth+"  "+node.dia);
 							int x2 = x*width+node.pos.x;
 							int z2 = z*width+node.pos.z;
 							//Calculate the position of the node
@@ -3211,7 +3220,7 @@ public class AstarPath : MonoBehaviour {
 		for (int x=pos.x;x<pos.x+w;x++) {
 			for (int z=pos.z;z<pos.z+w;z++) {
 				if (x >= grid.width || z >= grid.depth) {
-					Debug.LogError ("Out of range!! X: "+x+" Z: "+z+" Pos: "+pos+" Width: "+w);
+					//Debug.LogError ("Out of range!! X: "+x+" Z: "+z+" Pos: "+pos+" Width: "+w);
 				}
 				staticNodes[pos.y][x,z] = node;
 			}
@@ -3239,7 +3248,7 @@ public class AstarPath : MonoBehaviour {
 	
 	public void CreateGrid (SimpleNode[][] nodes) {
 		if (nodes.Length < 1) {
-			Debug.LogError ("Make sure you use at least one grid");
+			//Debug.LogError ("Make sure you use at least one grid");
 		}
 		
 		
@@ -3251,7 +3260,7 @@ public class AstarPath : MonoBehaviour {
 			allGrids[i].depth = 1;
 			
 			if (allGrids[i].width < 1) {
-				Debug.LogError ("Make sure you use at least one node for each grid");
+				//Debug.LogError ("Make sure you use at least one node for each grid");
 				return;
 			}
 		}
@@ -3438,7 +3447,7 @@ public class AstarPath : MonoBehaviour {
 			for (int i=0;i<grid.width;i++) {//Width
 				Node otherNode = staticNodes[0][i,0];
 				if (otherNode.vectorPos == node.vectorPos && otherNode != node) {
-					//Debug.LogWarning ("Similar "+x+" "+i);
+					//////Debug.LogWarning ("Similar "+x+" "+i);
 				}
 			}
 		}
@@ -3526,16 +3535,16 @@ public class AstarPath : MonoBehaviour {
 			}
 			astarData.grid = grids[0];
 			//AssetDatabase.AddObjectToAsset (h,astarData);
-			Debug.Log (astarData.staticNodes.Length + " "+astarData.staticNodes.Length);
+			//Debug.Log (astarData.staticNodes.Length + " "+astarData.staticNodes.Length);
 		} else {
-			Debug.LogWarning ("No AstarData to save to");
+			////Debug.LogWarning ("No AstarData to save to");
 		}
 	}
 	
 	public void LoadAstarData () {
 		if (astarData != null) {
-			Debug.Log ("Loading...");
-			Debug.Log ((astarData.staticNodes != null ? ""+astarData.staticNodes.Length/* + (astarData.staticNodes.Length > 0 ? astarData.staticNodes[0].Length+"" : " Length Is Zero ")*/ : "Static Nodes Is Null "));
+			//Debug.Log ("Loading...");
+			//Debug.Log ((astarData.staticNodes != null ? ""+astarData.staticNodes.Length/* + (astarData.staticNodes.Length > 0 ? astarData.staticNodes[0].Length+"" : " Length Is Zero ")*/ : "Static Nodes Is Null "));
 			staticNodes = new Node[1][,];
 			staticNodes[0] = new Node[astarData.grid.width,astarData.grid.depth];
 			grids = new Grid[1] {astarData.grid};
@@ -3547,13 +3556,13 @@ public class AstarPath : MonoBehaviour {
 					node.vectorPos.y += 2;
 					node.pos = new Int3 (x,0,z);
 					staticNodes[0][x,z] = node;
-					//Debug.Log (node.pos.x);
+					////Debug.Log (node.pos.x);
 				}
 			}
 			
 			FloodFillAll ();
 		} else {
-			Debug.LogWarning ("No AstarData to load from");
+			////Debug.LogWarning ("No AstarData to load from");
 		}
 	}
 	
@@ -3570,9 +3579,9 @@ public class AstarPath : MonoBehaviour {
 		WWW w = new WWW("http://arongranberg.com/wp-content/uploads/astarpathfinding/bugreport.php", form);
 		yield return w;
 		if (w.error != null) {
-			Debug.LogError ("Error: "+w.error);
+			//Debug.LogError ("Error: "+w.error);
 		} else {
-			Debug.Log ("Bug report sent");
+			//Debug.Log ("Bug report sent");
 		}
 	}
 	

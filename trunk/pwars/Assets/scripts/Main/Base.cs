@@ -122,6 +122,8 @@ public class Base : Base2
     }
     public static void Show(GameObject g, bool value)
     {
+            
+            
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
         {
             rigidbody.isKinematic = !value;

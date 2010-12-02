@@ -207,7 +207,6 @@ namespace AstarClasses {
 	[System.Serializable]
 	public class MeshCenterNode : MeshEdgeNode {
 		public Edge[] neighbourEdges;
-		
 	}
 	
 	//For nodes which's vectorPos is placed on one edge
@@ -331,7 +330,7 @@ namespace AstarClasses {
 		public int depth = 0;
 		
 		public virtual Vector2[] GetArea () {
-			return new Vector2[1] {vectorPos};
+			return null;
 		}
 		
 		public void GenerateEnabledConnections () {

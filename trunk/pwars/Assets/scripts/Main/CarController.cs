@@ -116,7 +116,7 @@ public class CarController : Car
         if (Life < life)
             Life += 30;
         RPCSetLife(Life, -1);
-        guns[0].patronsleft = guns[1].patronsleft += 50;
+        guns[0].patronsLeft = guns[1].patronsLeft += 50;
     }
 
     [RPC]

@@ -30,14 +30,13 @@ public class Loader : Base
     public List<MapSetting> mapsets = new List<MapSetting>();
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     new public MapSetting mapSettings = new MapSetting();
-    public GUISkin _skin;
+    [LoadPath("Skin/Skin.guiskin")]
+    public GUISkin Skin;
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
-    
     protected override void Awake()
     {
         LocalUserV = gameObject.AddComponent<UserView>();
-        base.Awake();
-        _skin = (GUISkin)Resources.Load("Skin/Skin");
+        base.Awake();        
         print("loader awake");        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
@@ -120,7 +119,7 @@ public class Loader : Base
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.N))
             _Console.enabled = !_Console.enabled;
 
         //if (Input.GetKeyDown(KeyCode.G))

@@ -23,7 +23,6 @@ public class Game : Base
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
-    public IEnumerable<Transform> jumpers { get { return getChild(transform.Find("jumpers")); } }
     public Transform effects;
     public int stage;
     public float timeleft = 20;
@@ -65,6 +64,7 @@ public class Game : Base
     public override void Init()
     {
         bounds = GameObject.Find("bounds");
+        MapCamera = GameObject.Find("MapCamera");
         if (bounds == null) Debug.Log("warning no bounds founded");
         base.Init();
     }
@@ -83,9 +83,10 @@ public class Game : Base
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
-        Network.Instantiate(Resources.Load("Prefabs/Player"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
+        Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
     }
-
+    [LoadPath("player")]
+    public GameObject playerPrefab;
     private void Fragment()
     {
         GameObject[] gs = GameObject.FindGameObjectsWithTag("MapFragment");
@@ -194,7 +195,13 @@ public class Game : Base
     void onDisconnect() { Network.Disconnect(); }
     void onTeamSelectButton() { _TeamSelectWindow.Show(this); }
     void onScoreBoard() { _GameStatsWindow.Show(this); }
-    void onShowMap() { MapCamera.active = !MapCamera.active; _Cam.camera.gameObject.active = !MapCamera.active; lockCursor = true; }
+    void onShowMap()
+    {        
+        MapCamera.active = !MapCamera.active;
+        _Cam.camera.gameObject.active = !MapCamera.active; 
+        lockCursor = false;                
+        
+    }
     [RPC]
     private void RPCGameSettings(string version, int gameMode, int frags, float timelimit)
     {
@@ -230,6 +237,8 @@ public class Game : Base
 
     
     bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
+    [LoadPath("Zombie")]
+    public GameObject ZombiePrefab;
     private void ZUpdate()
     {
         
@@ -241,7 +250,7 @@ public class Game : Base
                     CreateZombie(zombies[zombiespawnindex]);
                 else
                 {
-                    GameObject t = (GameObject)Network.Instantiate(Resources.Load("Prefabs/Zombie"), Vector3.zero, Quaternion.identity, (int)GroupNetwork.Zombie);
+                    GameObject t = (GameObject)Network.Instantiate(ZombiePrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Zombie);
                     Zombie z = (t).GetComponent<Zombie>();
                     CreateZombie(z);
                 }
@@ -282,12 +291,14 @@ public class Game : Base
             UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
         wait = false;
     }
+    [LoadPath("stage")]
+    public AudioClip stageSound;
     [RPC]
     private void RPCNextStage(int stage)
     {
         CallRPC(stage);
         Debug.Log("Next Stage"+stage);
-        PlaySound("stage");
+        PlaySound(stageSound);
         this.stage = stage;
         maxzombies = mapSettings.fragLimit + stage;
         zombiespawnindex = 0;

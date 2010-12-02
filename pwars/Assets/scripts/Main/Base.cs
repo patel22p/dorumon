@@ -8,6 +8,7 @@ using doru;
 using System.Xml.Serialization;
 using System;
 using System.Diagnostics.CodeAnalysis;
+
 public class Base : Base2
 {
     public int OwnerID = -1;
@@ -24,10 +25,7 @@ public class Base : Base2
         if (_Loader == null)
             Instantiate(GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First());        
     }
-    public virtual void Init()
-    {
-
-    }
+    
     
     public NetworkView myNetworkView
     {
@@ -68,19 +66,14 @@ public class Base : Base2
         foreach (Player p in players)
                 if (p != null && p.team == t) yield return p;
     }
-    public static GameObject Load(string s)
-    {
-        GameObject g = (GameObject)Resources.Load("Prefabs/" + s);
-        if (g == null) print("Could Not Load GameObject");
-        return g;
-    }
-
     public static bool IsPointed(LayerMask collmask, float len)
     {
         return RayCast(collmask,len).collider != null;
     }
     public static RaycastHit RayCast(LayerMask msk,float len)
     {
+        if (!lockCursor) return default(RaycastHit);
+        
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
         ray.origin = ray.GetPoint(1);
         RaycastHit h;
@@ -99,27 +92,25 @@ public class Base : Base2
         return a;
     }
     public static Player[] players { get { return _Game.players; } }
-    public void PlaySound(string path)
+    public void PlaySound(AudioClip au)
     {
-        PlaySound(path, 1);
+        PlaySound(au, 1);
     }
-    public void PlaySound(string path,float volume)
-    {        
-        AudioClip au = (AudioClip)Resources.Load("sounds/"+path);        
-        if (au == null) print("could not load" + path);
-        else
-            transform.root.audio.PlayOneShot(au,volume);
-    }
-    public void PlayRandSound(string s)
+    public void PlaySound(AudioClip au, float volume)
     {
-        var au = Resources.LoadAll("sounds/" + s);
-         if (!transform.root.audio.isPlaying)
-             transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)]);
+        transform.root.audio.PlayOneShot(au, volume);
+    }
+    public void PlayRandSound(AudioClip[] au)
+    {
+        if (!transform.root.audio.isPlaying)
+            transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)]);
     }
     public Transform root { get { return this.transform.root; } }
     public virtual void OnPlayerConnected1(NetworkPlayer np)
     {        
     }
+    
+
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
 
@@ -129,28 +120,35 @@ public class Base : Base2
         CallRPC(value);
         Show(value);
     }
-
-    public void Show(bool value) 
+    public static void Show(GameObject g, bool value)
     {
-        
-        //foreach (var r in this.GetComponentInChildren<MonoBehaviour>
-        foreach (var rigidbody in this.GetComponentsInChildren<Rigidbody>())
+        foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
         {
             rigidbody.isKinematic = !value;
             rigidbody.detectCollisions = value;
             rigidbody.useGravity = value;
         }
-        
-        foreach (var r in this.GetComponentsInChildren<Renderer>())
+
+        foreach (var r in g.GetComponentsInChildren<Renderer>())
             r.enabled = value;
-        foreach (var r in this.GetComponentsInChildren<AudioSource>())
-        {            
+        foreach (var r in g.GetComponentsInChildren<AudioListener>())
+            r.enabled = value;
+        foreach (var r in g.GetComponentsInChildren<Camera>())
+            r.enabled = value;
+
+        foreach (var r in g.GetComponentsInChildren<AudioSource>())
+        {
             r.enabled = value;
             if (!value)
                 r.Stop();
             else
                 if (r.playOnAwake) r.Play();
         }
+    }
+
+    public void Show(bool value) 
+    {        
+        Show(this.gameObject, value);
         foreach (Base r in this.GetComponentsInChildren<Base>())
         {
             r.enabled = value;

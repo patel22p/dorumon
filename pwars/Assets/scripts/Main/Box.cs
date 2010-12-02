@@ -36,10 +36,12 @@ public class Box : Base
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
+    [LoadPath("Collision1")]
+    public AudioClip soundcollision;
     void OnCollisionEnter(Collision infO)
     {
         if (infO.impactForceSum.magnitude > 10)
-            PlaySound("Collision1");
+            PlaySound(soundcollision);
     }
     void OnCollisionStay(Collision collisionInfo)
     {

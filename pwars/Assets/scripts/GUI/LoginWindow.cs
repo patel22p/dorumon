@@ -44,7 +44,7 @@ public class LoginWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-302.5f + Screen.width/2,-192f + Screen.height/2,612f,346f), Wnd1,"");
 

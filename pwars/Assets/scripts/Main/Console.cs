@@ -27,7 +27,7 @@ public class Console : Base
 
     public void OnGUI()
     {
-        GUI.skin = _Loader._skin;
+        GUI.skin = _Loader.Skin;
         r = new Rect(0, 0, Screen.width, Screen.height);
         GUI.Window(-1, r, Window, "Console");
 

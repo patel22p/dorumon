@@ -46,14 +46,17 @@ public class WindowBase : Base2
         this.controller = controller;
     }
 
-    
+    [LoadPath("mouseover")]
+    public AudioClip mouseOver;
+    [LoadPath("click")]
+    public AudioClip mouseclick;
     public void onOver()
     {
-        _Loader.audio.PlayOneShot((AudioClip)Resources.Load("sounds/mouseover"));
+        _Loader.audio.PlayOneShot(mouseOver);
     }
     public void onButtonClick()
     {
-        _Loader.audio.PlayOneShot((AudioClip)Resources.Load("sounds/click"));
+        _Loader.audio.PlayOneShot(mouseclick);
     }
 
     public void Hide()

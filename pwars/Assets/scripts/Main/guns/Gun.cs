@@ -8,8 +8,7 @@ public class Gun : GunBase
     public int howmuch = 1;
     public GameObject patronPrefab;
     public Vector3 random;
-    public Texture2D GunPicture;
-    public bool laser;
+    public Texture2D GunPicture;    
     public Vector3 Force;
     public Transform barrel;
     public float exp;
@@ -20,7 +19,11 @@ public class Gun : GunBase
     public int probivaemost = 0;
     public float otbrasivanie;
     public float ves;
+    public float bulletForce;
     Vector3 defPos;
+    [LoadPath("noammo")]
+    public AudioClip noammoSound;
+    int cursorid;
     public float barrelVell;
     protected override void Awake()
     {
@@ -28,10 +31,6 @@ public class Gun : GunBase
         defPos = transform.localPosition;
         player = root.GetComponent<Player>();
         base.Awake();
-    }
-    public override void Init()
-    {
-        base.Init();
     }
     public override void onShow(bool enabled)
     {
@@ -69,10 +68,10 @@ public class Gun : GunBase
                 RPCShoot();
             }
             else
-                PlaySound("noammo");                    
+                PlaySound(noammoSound);                    
         }
     }
-    int cursorid;
+    
     [RPC]
     protected virtual void RPCShoot()
     {
@@ -107,6 +106,7 @@ public class Gun : GunBase
             patron.OwnerID = OwnerID;
             patron.damage = this.damage;
             if (exp != 0) patron.ExpForce = exp;
+            if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
             patron.probivaemost = this.probivaemost;
             if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
         }

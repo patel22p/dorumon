@@ -43,7 +43,7 @@ public class IrcChatWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-347.5f + Screen.width/2,-320f + Screen.height/2,679f,608.476f), Wnd1,"");
 

@@ -34,7 +34,8 @@ public class HostWindow : WindowBase {
 	public string[] Map = new string[] {"none",};
 	public int iMap = 0;
 	public int tabTabControl15;
-	public string pathImage16 = "Images/Image3";
+	[LoadPath("Skin/Images/Image3.png")]
+	public Texture2D ImageImage16;
 	public bool focusStartServer;
 	public bool StartServer=false;
 	private int wndid1;
@@ -60,7 +61,7 @@ public class HostWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-305f + Screen.width/2,-216f + Screen.height/2,615f,422.5f), Wnd1,"");
 
@@ -134,7 +135,7 @@ public class HostWindow : WindowBase {
 		GUI.BeginGroup(new Rect(346f, 19.897f, 202.5f, 153.77f), "");
 		GUI.Box(new Rect(0, 0, 202.5f, 153.77f), "");
 		if(tabTabControl15==0){
-		GUI.DrawTexture(Image16,(Texture2D)Resources.Load("Images/Image3"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Image16,ImageImage16, ScaleMode.ScaleToFit);
 		}
 		GUI.EndGroup();
 		GUI.EndGroup();

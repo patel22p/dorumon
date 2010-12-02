@@ -14,13 +14,16 @@ public class StaticsWindow : WindowBase {
 		
 	public int tabTabControl2;
 	public bool focusYourRank;
-	public string pathYourRank = "Images/1_ефрейтор";
+	[LoadPath("Skin/Images/1_ефрейтор.jpg")]
+	public Texture2D ImageYourRank;
 	public bool focusNextRank;
-	public string pathNextRank = "Images/2_мл сержант";
+	[LoadPath("Skin/Images/2_мл сержант.jpg")]
+	public Texture2D ImageNextRank;
 	public bool focusUserRank;
 	public float UserRank = 100;
 	public bool Button11=false;
-	public string path = "Images/unity";
+	[LoadPath("Skin/Images/unity.jpg")]
+	public Texture2D Image;
 	public bool focusPlayer;
 	public bool isReadOnlyPlayer = true;
 	public string Player = @"";
@@ -69,7 +72,7 @@ public class StaticsWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-309.5f + Screen.width/2,-228f + Screen.height/2,617f,389f), Wnd1,"");
 
@@ -91,14 +94,14 @@ public class StaticsWindow : WindowBase {
 		GUI.Label(new Rect(12.32f, 18f, 111.72f, 21.96f), @"Ваш текуший ранк");
 		if(focusYourRank) { focusYourRank = false; GUI.FocusControl("YourRank");}
 		GUI.SetNextControlName("YourRank");
-		GUI.DrawTexture(YourRank,(Texture2D)Resources.Load("Images/1_ефрейтор"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(YourRank,ImageYourRank, ScaleMode.ScaleToFit);
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(380f, 31f, 136f, 189f), "");
 		GUI.Box(new Rect(0, 0, 136f, 189f), "");
 		GUI.Label(new Rect(8f, 18f, 119.2633f, 21.96f), @"Ваш следуйши ранк");
 		if(focusNextRank) { focusNextRank = false; GUI.FocusControl("NextRank");}
 		GUI.SetNextControlName("NextRank");
-		GUI.DrawTexture(NextRank,(Texture2D)Resources.Load("Images/2_мл сержант"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(NextRank,ImageNextRank, ScaleMode.ScaleToFit);
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(148f, 31f, 228f, 189f), "");
 		GUI.Box(new Rect(0, 0, 228f, 189f), "");
@@ -113,7 +116,7 @@ public class StaticsWindow : WindowBase {
 		GUI.BeginGroup(new Rect(8f, 230f, 508f, 75f), "");
 		GUI.Box(new Rect(0, 0, 508f, 75f), "");
 		bool oldButton11 = Button11;
-		Button11 = GUI.Button(new Rect(28f, 8f, 64f, 59f), new GUIContent((Texture2D)Resources.Load("Images/unity"),"+100 очков. Медаль за установку плеера unity."));
+		Button11 = GUI.Button(new Rect(28f, 8f, 64f, 59f), new GUIContent(Image,"+100 очков. Медаль за установку плеера unity."));
 		if (Button11 != oldButton11 && Button11 ) {Action("onButton11");onButtonClick(); }
 		onMouseOver = new Rect(28f, 8f, 64f, 59f).Contains(Event.current.mousePosition);
 		if (oldMouseOverButton11 != onMouseOver && onMouseOver) onOver();

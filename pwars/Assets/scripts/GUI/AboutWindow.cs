@@ -12,7 +12,8 @@ public partial class Base2:MonoBehaviour
 
 public class AboutWindow : WindowBase {
 		
-	public string pathImage2 = "Images/physx_wars_title";
+	[LoadPath("Skin/Images/physx_wars_title.png")]
+	public Texture2D ImageImage2;
 	private int wndid1;
 	private Rect Image2;
 	
@@ -33,7 +34,7 @@ public class AboutWindow : WindowBase {
     
     void OnGUI()
     {		
-		GUI.skin = _Loader._skin;
+		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-372.5f + Screen.width/2,-291f + Screen.height/2,715f,529f), Wnd1,"");
 
@@ -42,7 +43,7 @@ public class AboutWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.DrawTexture(Image2,(Texture2D)Resources.Load("Images/physx_wars_title"), ScaleMode.ScaleToFit);
+		GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
 		GUI.Label(new Rect(111f, 290f, 480f, 176f), @"Copyright PhysxWars Team
 
 

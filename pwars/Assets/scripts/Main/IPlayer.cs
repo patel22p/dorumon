@@ -14,8 +14,7 @@ public abstract class IPlayer : Box
     public Transform CamPos;
     public virtual bool dead { get { return !Alive; } set { Alive = !value; } }
     public virtual bool Alive { get { return enabled; } set { enabled = value; } }
-    public int selectedleft = 0;
-    public int selectedright = 0;
+    
     
     float shownicktime;
     public Team? team

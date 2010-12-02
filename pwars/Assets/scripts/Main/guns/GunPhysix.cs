@@ -14,11 +14,9 @@ public class GunPhysix : GunBase
     public float scalefactor = 10;
     public float energy;
     public bool power;
-    Player pl;
-    
     public void Start()
     {
-        pl = root.GetComponent<Player>();
+
         _Name = "Грави Пушка";
 
         audio.clip = (AudioClip)Resources.Load("sounds/PowerGun");

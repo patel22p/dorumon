@@ -62,9 +62,9 @@ public class Gun : GunBase
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
-            if (patronsleft > 0 || !build)
+            if (patronsLeft > 0 || !build)
             {
-                patronsleft--;
+                patronsLeft--;
                 RPCShoot();
             }
             else

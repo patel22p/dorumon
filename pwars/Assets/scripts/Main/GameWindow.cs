@@ -70,6 +70,8 @@ public class GameWindow : Base2 {
         if (_TimerA.TimeElapsed(500))
             fps = (int)_TimerA.GetFps();
         fpstext.text = "Fps: " + fps + " Errors:" + _Console.errorcount;
+
+
         foreach (GUITexture a in blood)
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);

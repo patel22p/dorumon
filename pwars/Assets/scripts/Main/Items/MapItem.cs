@@ -12,8 +12,8 @@ public class MapItem : Base
     public AudioClip opendoor;
     public bool payonce;
     public bool hide;
-    public float JumperMagnet;
-    public float JumperRelease;
+    public float JumperMagnet = 1000;
+    public float JumperRelease = 1000;
     public float JumperDistance = 2;
     public float distance = 50;
     public Vector2 JumperMultiplier = new Vector2(1, 1);
@@ -25,39 +25,31 @@ public class MapItem : Base
     public int bullets = 1000;
     public string text = "";
     public float onTm;
+    public int respawnTm;
     public float tmJumperMagnet;
     public float tmJumperRelease;
     string[] param { get { return name.Split(','); } }
     float tmCollEnter;
-
+    
     public override void Init()
-    {
-        if (animation != null)
-        {
-            gameObject.isStatic = false;
-            networkView.observed = animation;
-            animation.playAutomatically = false;
-            gameObject.AddComponent<Rigidbody>();
-            rigidbody.isKinematic = true;
-            animation.animatePhysics = true;            
-        }
+    {        
         if (canCheckOut)
             Parse(ref score, 1);
         if (itemType == MapItemType.lift)
         {
-            animation.wrapMode = WrapMode.Once;
-            text = "Чтобы использовать лифт нажми B";            
+            text = "Чтобы использовать лифт нажми B";
+            payonce = true;
         }
 
         if (itemType == MapItemType.shop)
         {
-            text = "Нажми B чтобы купить " + (GunType)gunIndex + ", нужно " + score + " очков";
+            text = "Нажми B чтобы купить " + (GunType)gunIndex;
             endless = true;
         }
         if (itemType == MapItemType.door)
         {
             endless = false;
-            text = "чтобы открыть дверь вам надо " + score + " очков, (Нажми B)";
+            text = "чтобы открыть дверь нажми B";
         }
 
         if (itemType == MapItemType.speed)
@@ -71,17 +63,17 @@ public class MapItem : Base
         if (itemType == MapItemType.money)
         {
             hide = true;
-            text = "Нажми B чтобы взять";
+            text = "Нажми B чтобы взять деньги";
         }
         if (itemType == MapItemType.laser)
-            text = "Нажми B чтобы купить для оружия лазерный прицел, цена:" + score;
+            text = "Нажми B чтобы купить для оружия лазерный прицел";
         if (itemType == MapItemType.jumper)
         {
             text = "Выбери гравипушку и стреляй по етому предмету";
             payonce = true;
         }
         if (itemType == MapItemType.health)
-            text = "Чтобы купить енергию нужно " + score + " очков";
+            text = "Чтобы купить енергию нажми B";
 
         base.Init();
     }
@@ -111,6 +103,7 @@ public class MapItem : Base
     public AudioClip superphys_launch3;
     void Update()
     {
+    
         tmCollEnter -= Time.deltaTime;
         tmJumperMagnet -= Time.deltaTime;
         tmJumperRelease -= Time.deltaTime;
@@ -122,22 +115,22 @@ public class MapItem : Base
             {
                 CheckOut();
             }
-            _GameWindow.CenterText.text = text;
+            if(endless|| itemsLeft>0)
+                _GameWindow.CenterText.text = text + (score > 0 ? (", нужно заплатить " + score + " очков") : "");
             JumperUpdate();
         }
         if (onTm < 0)
         {
-            Debug.Log("off");
+
             _GameWindow.CenterText.text = "";
             onTm = 0;
         }
-    }
-
+    }    
     private void JumperUpdate()
     {
         tmJumperMagnet -= Time.deltaTime;
         tmJumperRelease -= Time.deltaTime;
-        if (itemType == MapItemType.jumper && _localPlayer.selectedgun == (int)GunType.physxgun)
+        if (itemType == MapItemType.jumper && _localPlayer.selectedgun == (int)GunType.physxgun && score == 0)
         {
             bool down = Input.GetMouseButtonDown(0) && this.JumperMagnet > 0 && tmJumperMagnet < 0;
             bool up = Input.GetMouseButtonUp(0) && this.JumperRelease > 0 && tmJumperRelease < 0 && Vector3.Distance(pos, _localPlayer.pos) < JumperDistance;
@@ -176,9 +169,10 @@ public class MapItem : Base
 
     }
     public void CheckOut()
-    {
+    {        
         if (itemsLeft > 0 || endless)
         {
+            _localPlayer.score -= score;
             itemsLeft--;            
             if (itemType == MapItemType.shop)
                 _localPlayer.guns[this.gunIndex].patronsLeft += this.bullets;
@@ -193,9 +187,7 @@ public class MapItem : Base
                 }
             }
             if (itemType == MapItemType.laser)
-                _localPlayer.guns[_localPlayer.guni].laser = true;
-            if (itemType == MapItemType.money)
-                _localPlayer.score += 10;
+                _localPlayer.guns[_localPlayer.guni].laser = true;            
             RPCCheckOut(itemsLeft);
         }
     }
@@ -204,15 +196,26 @@ public class MapItem : Base
     {
         CallRPC(i);
         itemsLeft = i;
-        if (animation != null)
-        {
-            animation.wrapMode = animation.wrapMode == WrapMode.PingPong ? WrapMode.Once : WrapMode.PingPong;
-            animation.Play();
-        }
+
+        if (animation != null && animation.clip != null)
+            animation["Take 001"].enabled = true;
+
+        
+        if (payonce) { score = 0;  endless = true; }
         if (opendoor != null)
             PlaySound(opendoor, 10);
-        if (itemType == MapItemType.money && itemsLeft == 0)
+        
+        if (hide && itemsLeft == 0)
+        {
             this.Show(false);
+            if (respawnTm > 0) _TimerA.AddMethod(respawnTm, delegate { this.Show(true); itemsLeft = 1; });
+        }
+                    
+    }
+    void Stop()
+    {
+        if (animation != null && animation.clip != null)
+            animation["Take 001"].enabled = false;
     }
 
     

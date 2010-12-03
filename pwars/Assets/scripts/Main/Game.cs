@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
 
-public class Game : Base
+public class Game : MapObject
 {
     new public Player[] players = new Player[10];
     public List<IPlayer> iplayers = new List<IPlayer>();
@@ -23,7 +23,8 @@ public class Game : Base
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
-    public Transform effects;
+    [PathFind("GameEffects",true)]
+    public GameObject effects;
     public int stage;
     public float timeleft = 20;
     public bool wait;
@@ -34,13 +35,16 @@ public class Game : Base
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
+    [LoadPath("player")]
+    public GameObject playerPrefab;
     protected override void Awake()
     {
+        Debug.Log("+game Awake");
         base.Awake();
         clearObjects("SpawnNone");
         clearObjects("SpawnZombie");
-        if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);
-        effects = GameObject.Find("GameEffects").transform;
+
+        if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
         print("mapSettings.host " + mapSettings.host);
@@ -68,15 +72,12 @@ public class Game : Base
         if (bounds == null) Debug.Log("warning no bounds founded");
         base.Init();
     }
-
-    void OnServerInitialized() { Enable(); }
-    void OnConnectedToServer() { Enable(); }
-    void Enable() { enabled = true; }
+    
     void Start()
     {
+        Debug.Log("+game Start");
         //if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;
         Fragment();
-        
         print("ZGameStart");
         //_vk.enabled = false;        
         print("timelimit"+mapSettings.timeLimit);
@@ -85,47 +86,15 @@ public class Game : Base
         RPCWriteMessage("Игрок законектился " + nick);
         Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
     }
-    [LoadPath("player")]
-    public GameObject playerPrefab;
-    private void Fragment()
+    public void onTeamSelect()
     {
-        GameObject[] gs = GameObject.FindGameObjectsWithTag("MapFragment");
-        foreach (var g in gs)
-        {
-            Transform cur = g.transform.Find("Box02");
-            AddFragment(cur, g.transform, true);
-        }
-        
+        _TeamSelectWindow.Hide();
+        _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
+        if (!_localPlayer.spawned) _localPlayer.RPCAlive(true);
+        lockCursor = true;
     }
-
-    private void AddFragment(Transform cur,Transform root,bool first)
-    {
-        Fragment f = cur.gameObject.AddComponent<Fragment>();
-        f.first = first;
-        ((MeshCollider)cur.collider).convex = true; 
-        if (!first)
-        {
-            cur.gameObject.active = false;
-            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        }
-        int i = 1;
-        for (; ; i++)
-        {
-            string nwpath = cur.name + "_frag_0" + i;
-            Transform nw = root.Find(nwpath);
-            if (nw == null) break;
-            nw.parent = cur;
-            AddFragment(nw, root, false);
-        }
-        
-        
-    }
-
-
-
     void Update()
     {
-
         timeleft -= Time.deltaTime / 60;
         var ts = TimeSpan.FromMinutes(timeleft);
         _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
@@ -183,13 +152,10 @@ public class Game : Base
                 _GameWindow.fps);
 
     }
-
-    
-
     void onMenu() { _GameMenuWindow.Show(this); }
     void onIrcChatButton() { _IrcChatWindow.Show(this); }
     void onTeams() { _TeamSelectWindow.tabImages = _TeamSelectWindow.iTeams; }
-    void onObserver() { Spectator(); }
+    //void onObserver() { Spectator(); }
     void onOptions() { _SettingsWindow.Show(_Loader); }
     void onDisconnect() { Network.Disconnect(); }
     void onTeamSelectButton() { _TeamSelectWindow.Show(this); }
@@ -309,25 +275,17 @@ public class Game : Base
                     p.RPCSpawn();
     }
     
-    public void onTeamSelect()
-    {
-        _TeamSelectWindow.Hide();
-
-        _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
-        
-        if(!_localPlayer.spawned) _localPlayer.RPCSpawn();
-        lockCursor = true;                    
-    }
-    public void Spectator()
-    {
-        lockCursor = true;
-        _TeamSelectWindow.Hide();
-        if (_localPlayer != null && _localPlayer.car == null)
-        {            
-            _localPlayer.RPCShow(false);
-            _localPlayer.RPCSetTeam((int)Team.Spectator);            
-        }
-    }
+    
+    //public void Spectator()
+    //{
+    //    lockCursor = true;
+    //    _TeamSelectWindow.Hide();
+    //    if (_localPlayer != null && _localPlayer.car == null)
+    //    {                        
+    //        _localPlayer.RPCSetTeam((int)Team.None);
+    //        _localPlayer.RPCAlive(false);
+    //    }
+    //}
     void OnDisconnectedFromServer(NetworkDisconnection nd)
     {
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
@@ -453,6 +411,37 @@ public class Game : Base
         Debug.Break();
         Network.Disconnect();
     }
+    private void Fragment()
+    {
+        GameObject[] gs = GameObject.FindGameObjectsWithTag("MapFragment");
+        foreach (var g in gs)
+        {
+            Transform cur = g.transform.Find("Box02");
+            AddFragment(cur, g.transform, true);
+        }
 
+    }
+    private void AddFragment(Transform cur, Transform root, bool first)
+    {
+        Fragment f = cur.gameObject.AddComponent<Fragment>();
+        f.first = first;
+        ((MeshCollider)cur.collider).convex = true;
+        if (!first)
+        {
+            cur.gameObject.active = false;
+            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
+        }
+        int i = 1;
+        for (; ; i++)
+        {
+            string nwpath = cur.name + "_frag_0" + i;
+            Transform nw = root.Find(nwpath);
+            if (nw == null) break;
+            nw.parent = cur;
+            AddFragment(nw, root, false);
+        }
+
+
+    }
 }
 public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Gun }

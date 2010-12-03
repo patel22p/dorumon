@@ -83,6 +83,16 @@ public partial class RTools : InspectorSearch
                 {
                     InitLoadPath(scr, pf);
                     CreateEnum(cspath, scr, pf);
+                    PathFind ap = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
+                    if (ap != null)
+                    {
+                        if(ap.scene)
+                            pf.SetValue(scr, GameObject.Find(ap.name).gameObject);
+                        else if(pf.FieldType== typeof(GameObject))
+                            pf.SetValue(scr, scr.transform.Find(ap.name).gameObject);
+                        else
+                            pf.SetValue(scr, scr.transform.Find(ap.name).GetComponent(pf.FieldType));
+                    }
                 }
                 scr.Init();
             }

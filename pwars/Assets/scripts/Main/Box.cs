@@ -6,27 +6,23 @@ using System.Collections.Generic;
 using doru;
 
 
-[AddComponentMenu("_Box")]
-public class Box : Base
+public class Box : MapObject
 {
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
     public Vector3 syncPos;
     public Quaternion syncRot;
     public Vector3 syncVelocity;
     public Vector3 syncAngularVelocity;
-
+    protected Vector3 spawnpos;
+    public bool velSync = true, posSync = true, rotSync = true, angSync = true;
     public int selected = -1;
-    //public bool zombieAlive { get { return (this is Zombie && ((Zombie)this).Alive); } }
-
+    public float tsendpackets;
+    [LoadPath("Collision1")]
+    public AudioClip soundcollision;
     protected override void Awake()
-    {
-        if (Network.peerType == NetworkPeerType.Disconnected)
-            enabled = false;
+    {        
         base.Awake();
     }
-    void OnServerInitialized() { Enable(); }
-    void OnConnectedToServer() { Enable(); }
-    void Enable() { enabled = true; }
     protected virtual void Start()
     {
         _Game.dynamic.Add(this);
@@ -36,8 +32,7 @@ public class Box : Base
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
-    [LoadPath("Collision1")]
-    public AudioClip soundcollision;
+    
     void OnCollisionEnter(Collision infO)
     {
         if (infO.impactForceSum.magnitude > 10)
@@ -51,9 +46,6 @@ public class Box : Base
                 foreach (ContactPoint cp in collisionInfo.contacts)                    
                      _Game.particles[0].Emit(cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }
-    public float tsendpackets;
-    
-
     protected virtual void Update()
     {
         tsendpackets-=Time.deltaTime;
@@ -68,13 +60,12 @@ public class Box : Base
     }
     void ControllerUpdate()
     {
-
         float min = float.MaxValue;
         IPlayer nearp = null;
         foreach (IPlayer p in _Game.iplayers)
             if (p != null)
             {
-                if (p.enabled && p.OwnerID != -1)
+                if (p.Alive && p.OwnerID != -1)
                 {
                     float dist = Vector3.Distance(p.transform.position, this.transform.position);
                     if (min > dist)
@@ -87,8 +78,6 @@ public class Box : Base
             networkView.RPC("SetController", RPCMode.All, nearp.OwnerID);
 
     }
-
-
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         if (OwnerID != -1) networkView.RPC("RPCSetOwner", np, OwnerID);
@@ -96,7 +85,6 @@ public class Box : Base
         networkView.RPC("RPCShow", np, enabled);
         base.OnPlayerConnected1(np);        
     }
-
     [RPC]
     void RPCSetOwner(int owner)
     {
@@ -139,17 +127,10 @@ public class Box : Base
     {
         RPCSetOwner(Network.player.GetHashCode());
     }
-
-
-    protected Vector3 spawnpos;
     public virtual Vector3 SpawnPoint()
     {
         return spawnpos;
-    }
-
-    public bool velSync = true, posSync = true, rotSync = true, angSync = true;
-
-
+    }    
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled) return;
@@ -180,4 +161,16 @@ public class Box : Base
             }
         }
     }
+}
+public class MapObject : Base
+{
+    protected override void Awake()
+    {
+        if (Network.peerType == NetworkPeerType.Disconnected)
+            enabled = false;
+        base.Awake();
+    }
+    protected virtual void OnServerInitialized() { Enable(); }
+    protected virtual void OnConnectedToServer() { Enable(); }
+    protected virtual void Enable() { enabled = true; }
 }

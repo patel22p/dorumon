@@ -9,11 +9,22 @@ using doru;
 using System;
 
 public static class Ext { 
-    public static T NextRandom<T>(this IEnumerable<T> source)
+    public static T Random<T>(this IEnumerable<T> source)
     {
         return source.Skip(UnityEngine.Random.Range(0, source.Count() - 1) - 1).First();
     }
+    //public static IEnumerable<T> ShuffleIterator<T>(
+    //   this IEnumerable<T> source, Random rng)
+    //{
+    //    T[] buffer = source.ToArray();
+    //    for (int n = 0; n < buffer.Length; n++)
+    //    {
+    //        int k = rng.Next(n, buffer.Length);
+    //        yield return buffer[k];
 
+    //        buffer[k] = buffer[n];
+    //    }
+    //}
 
 }
 
@@ -169,6 +180,21 @@ public class LoadPath : Attribute
     public LoadPath(string from)
     {
         name = from;
+    }
+}
+
+public class PathFind : Attribute
+{
+    public string name;
+    public PathFind(string enumName)
+    {
+        name = enumName;
+    }
+    public bool scene;
+    public PathFind(string enumName,bool FindInScene)
+    {
+        scene = FindInScene;
+        name = enumName;
     }
 }
 

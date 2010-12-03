@@ -85,7 +85,7 @@ public class Patron : Base
         {
             Transform a;
             Destroy((a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal))), 10);
-            a.parent = _Game.effects;
+            a.parent = _Game.effects.transform;
         }
         if (explodeOnDestroy)
             Explode(hit.point);

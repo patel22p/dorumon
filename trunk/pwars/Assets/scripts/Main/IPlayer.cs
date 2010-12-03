@@ -13,8 +13,7 @@ public abstract class IPlayer : Box
     public int Life;
     public Transform CamPos;
     public virtual bool dead { get { return !Alive; } set { Alive = !value; } }
-    public virtual bool Alive { get { return enabled; } set { enabled = value; } }
-    
+    public virtual bool Alive { get; set; }
     
     float shownicktime;
     public Team? team
@@ -27,7 +26,6 @@ public abstract class IPlayer : Box
     }
     protected override void Awake()
     {
-        
         title = transform.GetComponentInChildren<TextMesh>();
         nitro = 10;
         base.Awake();
@@ -87,7 +85,7 @@ public abstract class IPlayer : Box
     [RPC]
     public virtual void RPCSetLife(int NwLife, int killedby)
     {
-        if (!enabled) return;        
+        if (dead) return;        
         if(isController) CallRPC(NwLife,killedby);
 
         if (isEnemy(killedby) || NwLife > Life)

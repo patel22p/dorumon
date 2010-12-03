@@ -27,13 +27,13 @@ public class Gun : GunBase
     public float barrelVell;
     protected override void Awake()
     {
-        
-         defPos3=defPos2 = defPos = transform.localPosition;
+        defPos3=defPos2 = defPos = transform.localPosition;
         player = root.GetComponent<Player>();
         base.Awake();
     }
     public override void onShow(bool enabled)
     {
+
         if (enabled)
             player.rigidbody.mass = player.defmass + ves * player.defmass;
         base.onShow(enabled);
@@ -65,7 +65,7 @@ public class Gun : GunBase
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
-            if (patronsLeft > 0 || !build)
+            if (patronsLeft > 0)
             {
                 patronsLeft--;
                 RPCShoot();

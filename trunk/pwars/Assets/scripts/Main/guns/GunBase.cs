@@ -7,19 +7,18 @@ using UnityEngine;
 public class GunBase : Base
 {
     public bool laser;
-    internal int patronsDefaultCount;
+    public int patronsDefaultCount;
     public string _Name ="None";
     public List<Transform> cursor = new List<Transform>();
     public int group { get { return int.Parse(transform.parent.name); } }
     public int patronsLeft = 0;
     protected override void Awake()
     {
-        patronsDefaultCount = patronsLeft;
         base.Awake();
     }
     public override void Init()
     {
-        
+        patronsDefaultCount = patronsLeft;
         //if (transform.Find("cursor") != null && cursor.Count == 0)
         //    cursor.Add(transform.Find("cursor"));
         base.Init();
@@ -34,7 +33,8 @@ public class GunBase : Base
     }
     public void Reset()
     {
-        patronsLeft = patronsDefaultCount;
+        patronsLeft = build ? patronsDefaultCount : 99999;
+        
     }
     protected virtual void Update()
     {

@@ -43,7 +43,7 @@ public class Cam : Base
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
         ssao.enabled = _SettingsWindow.Sao;
         blur.enabled = _SettingsWindow.MotionBlur;
-        bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares;
+        //bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares;
         if (!_SettingsWindow.Shadows)
             foreach (Light l in GameObject.FindObjectsOfType(typeof(Light)))
                 l.shadows = LightShadows.None;
@@ -83,7 +83,7 @@ public class Cam : Base
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
-        if (_localiplayer == null || _localiplayer.dead || _localiplayer.team == Team.Spectator)
+        if (_localiplayer == null)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);

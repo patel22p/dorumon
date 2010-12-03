@@ -25,12 +25,14 @@ public class Zombie : IPlayer
     public Seeker seeker;
     public float zombieBiteDist = 3;
     Vector3[] pathPoints;
+    public override bool Alive { get { return enabled; } set { enabled = value; } }
     public override void Init()
     {
         base.Init();
         seeker = this.GetComponent<Seeker>();
         if (seeker == null) Debug.Log("Could not find seeker");
-        velSync = rotSync = angSync = false;
+        velSync = angSync = false;
+        posSync = rotSync = true;
     }
     protected override void Awake()
     {
@@ -63,7 +65,7 @@ public class Zombie : IPlayer
         base.Update();
         
         if (!Alive || selected==-1) return;
-        IPlayer ipl = players.Where(b => b != null && b.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        IPlayer ipl = Nearest();
 
         if (ipl != null)
         {
@@ -92,6 +94,14 @@ public class Zombie : IPlayer
                 if (build && isController) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
             }
         }
+        else
+            move = false;
+    }
+
+    private IPlayer Nearest()
+    {
+        IPlayer ipl = players.Where(b => b != null && b.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        return ipl;
     }
 
     void FixedUpdate()
@@ -161,12 +171,11 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        
-        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        if (isController) CallRPC(killedby);
-        PlayRandSound(gibSound);
         if (!Alive) { return; }
         Alive = false;
+        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
+        if (isController) CallRPC(killedby);
+        PlayRandSound(gibSound);        
         this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", zombieDeadImage);        
         if (isController)
         {            
@@ -181,13 +190,15 @@ public class Zombie : IPlayer
         {
             _TimerA.AddMethod(UnityEngine.Random.Range(5000, 50000), PlayRandom);            
             PlayRandSound(ZombieSound);
+            
         }
     }
     public override Vector3 SpawnPoint()
     {
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
-        
-        return gs.OrderBy(a => Vector3.Distance(a.transform.position, transform.position)).Take(3).NextRandom().transform.position;        
+        IPlayer pl = Nearest(); 
+        if (pl == null) return gs.First().transform.position;
+        return gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.transform.position)).Take(3).Random().transform.position;        
     }
     [RPC]
     public override void RPCSetLife(int NwLife, int killedby)

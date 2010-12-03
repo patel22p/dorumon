@@ -32,7 +32,6 @@ public class MouseLook : MonoBehaviour {
 
 	void Update ()
 	{
-        if (!Screen.lockCursor) return;
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;

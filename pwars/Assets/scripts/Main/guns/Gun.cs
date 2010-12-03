@@ -20,7 +20,7 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
-    Vector3 defPos;
+    Vector3 defPos,defPos2,defPos3;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
     int cursorid;
@@ -28,7 +28,7 @@ public class Gun : GunBase
     protected override void Awake()
     {
         
-        defPos = transform.localPosition;
+         defPos3=defPos2 = defPos = transform.localPosition;
         player = root.GetComponent<Player>();
         base.Awake();
     }
@@ -49,7 +49,10 @@ public class Gun : GunBase
                 barrel.rotation = Quaternion.Euler(barrel.rotation.eulerAngles + new Vector3(0, 0, barrelVell));
             barrelVell *= .98f;
         }
-        transform.localPosition = defPos + transform.localPosition / 2;
+        if(_TimerA.TimeElapsed(5000))
+            defPos2 = Vector3.Scale(Random.onUnitSphere, new Vector3(1, 1, 3)) / 30;
+        defPos = (defPos * 200 + defPos2) / 201;
+        transform.localPosition = defPos + transform.localPosition /2;
         if (isOwner)
             LocalUpdate();
 
@@ -76,8 +79,6 @@ public class Gun : GunBase
     protected virtual void RPCShoot()
     {
         CallRPC();
-
-
         if (sound != null)
             root.audio.PlayOneShot(sound);
         player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));

@@ -12,11 +12,8 @@ public class MapItem : Base
     public AudioClip opendoor;
     public bool payonce;
     public bool hide;
-    public float JumperMagnet = 1000;
-    public float JumperRelease = 1000;
-    public float JumperDistance = 2;
-    public float distance = 50;
-    public Vector2 JumperMultiplier = new Vector2(1, 1);
+    public Vector3 Jumper = new Vector3(0, 1000, 0);        
+    public float _distance=5;
     public Vector2 Speed;
     public int itemsLeft = 1;
     public bool endless;
@@ -26,8 +23,7 @@ public class MapItem : Base
     public string text = "";
     public float onTm;
     public int respawnTm;
-    public float tmJumperMagnet;
-    public float tmJumperRelease;
+    public float tmJumper;
     string[] param { get { return name.Split(','); } }
     float tmCollEnter;
     
@@ -93,7 +89,7 @@ public class MapItem : Base
         }
         catch (System.Exception) { }
     }
-    void OnMouseOver1()
+    void OnPlayerOver()
     {
         onTm = 1;
     }
@@ -103,13 +99,14 @@ public class MapItem : Base
     public AudioClip superphys_launch3;
     void Update()
     {
-    
+        if (Vector3.Distance(pos, _localPlayer.pos) < _distance)
+            OnPlayerOver();
+
         tmCollEnter -= Time.deltaTime;
-        tmJumperMagnet -= Time.deltaTime;
-        tmJumperRelease -= Time.deltaTime;
+        tmJumper -= Time.deltaTime;
         if (onTm > 0)
             onTm -= Time.deltaTime;
-        if (onTm > 0 && (Vector3.Distance(_localPlayer.pos, pos) < distance))
+        if (onTm > 0 && (Vector3.Distance(_localPlayer.pos, pos) < _distance))
         {
             if (Input.GetKeyDown(KeyCode.B) && _localPlayer.score >= score)
             {
@@ -128,26 +125,17 @@ public class MapItem : Base
     }    
     private void JumperUpdate()
     {
-        tmJumperMagnet -= Time.deltaTime;
-        tmJumperRelease -= Time.deltaTime;
+        tmJumper -= Time.deltaTime;
         if (itemType == MapItemType.jumper && _localPlayer.selectedgun == (int)GunType.physxgun && score == 0)
         {
-            bool down = Input.GetMouseButtonDown(0) && this.JumperMagnet > 0 && tmJumperMagnet < 0;
-            bool up = Input.GetMouseButtonUp(0) && this.JumperRelease > 0 && tmJumperRelease < 0 && Vector3.Distance(pos, _localPlayer.pos) < JumperDistance;
-            if (up || down)
+            if (Input.GetMouseButtonDown(0) && tmJumper<0)
             {
-                Vector3 v = transform.rotation * Vector3.forward * (down ? this.JumperMagnet : this.JumperRelease);
-                v.x *= this.JumperMultiplier.x;
-                v.z *= this.JumperMultiplier.x;
-                v.y *= this.JumperMultiplier.y;
-                PlaySound(superphys_launch3);
-                if (up)
-                    _localPlayer.rigidbody.AddForce(v * this.JumperRelease * _localPlayer.rigidbody.mass);
-                if (down)
-                    _localPlayer.rigidbody.AddForce(v * this.JumperMagnet * _localPlayer.rigidbody.mass);
-                GameObject g = (GameObject)Instantiate(wavePrefab, _localPlayer.pos, _localPlayer.rot);
-                Destroy(g, 1.6f);
+                tmJumper = 1;
+                _localPlayer.rigidbody.AddForce(this.Jumper* _localPlayer.rigidbody.mass);
             }
+            PlaySound(superphys_launch3);
+            GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot * Quaternion.Euler(90, 0, 0));
+            Destroy(g, 1.6f);
         }
     }
     public override void OnPlayerConnected1(NetworkPlayer np)

@@ -106,9 +106,7 @@ public class Base : Base2
             transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)]);
     }
     public Transform root { get { return this.transform.root; } }
-    public virtual void OnPlayerConnected1(NetworkPlayer np)
-    {        
-    }
+    
     
 
     public void Hide() { Show(false); }

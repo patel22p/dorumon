@@ -24,7 +24,7 @@ public class MapItem : MapObject
     public int respawnTm;
     public float tmJumper;
     string[] param { get { return name.Split(','); } }
-    float tmCollEnter;
+    public float tmCollEnter;
     [LoadPath("wave")]
     public GameObject wavePrefab;
     [LoadPath("superphys_launch3")]
@@ -120,12 +120,12 @@ public class MapItem : MapObject
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        networkView.RPC("CheckOut", np, itemsLeft);
+        networkView.RPC("RPCCheckOut", np, itemsLeft);
         base.OnPlayerConnected1(np);
     }
     void OnCollisionEnter(Collision c)
     {
-        if (c.gameObject.name == "LocalPlayer")
+        if (c.gameObject == _localPlayer.gameObject)
         {
             if (itemType == MapItemType.speed && tmCollEnter < 0)
             {
@@ -135,6 +135,7 @@ public class MapItem : MapObject
         }
 
     }
+    [RPC]
     public void CheckOut()
     {
         if (itemsLeft > 0 || endless)

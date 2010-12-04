@@ -12,8 +12,8 @@ public abstract class IPlayer : Box
     public List<Vector3> plPathPoints = new List<Vector3>();
     public int Life;
     public Transform CamPos;
-    public virtual bool dead { get { return !Alive; } set { Alive = !value; } }
-    public virtual bool Alive { get; set; }
+    public bool dead { get { return !Alive; } set { Alive = !value; } }
+    public bool Alive;
     
     float shownicktime;
     public Team? team
@@ -24,10 +24,14 @@ public abstract class IPlayer : Box
             else return _Game.players[OwnerID.GetHashCode()].team;
         }
     }
-    protected override void Awake()
-    {
+    public override void Init()
+    {        
+        base.Init();
         title = transform.GetComponentInChildren<TextMesh>();
         nitro = 10;
+    }
+    protected override void Awake()
+    {        
         base.Awake();
     }
     public override void OnPlayerConnected1(NetworkPlayer np)

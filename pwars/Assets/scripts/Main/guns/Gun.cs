@@ -20,14 +20,14 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
-    Vector3 defPos,defPos2,defPos3;
+    Vector3 defPos,defPos2;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
     int cursorid;
     public float barrelVell;
     protected override void Awake()
     {
-        defPos3=defPos2 = defPos = transform.localPosition;
+        defPos2 = defPos = transform.localPosition;
         player = root.GetComponent<Player>();
         base.Awake();
     }

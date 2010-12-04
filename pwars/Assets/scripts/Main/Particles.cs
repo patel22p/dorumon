@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 public class Particles : MonoBehaviour
 {
     ParticleEmitter[] emitors;
@@ -8,6 +9,7 @@ public class Particles : MonoBehaviour
         emitors = this.GetComponentsInChildren<ParticleEmitter>();
     }
     public void Emit(Vector3 pos, Quaternion rot) { Emit(pos, rot, Vector3.zero); }
+    
     public void Emit(Vector3 pos, Quaternion rot, Vector3 vel)
     {
         Transform obj = this.transform;
@@ -24,4 +26,9 @@ public class Particles : MonoBehaviour
         }
     }
 
+    
+    void Update()
+    {
+        
+    }
 }

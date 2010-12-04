@@ -1,1 +1,1 @@
-public enum GunType:int{ak,gravitygranate,shotgun,uzi,bazoka,physxgun,healgun,granate,sniper,minigun,pistol}
+public enum GunType:int{ak,minigun,pistol,shotgun,sniper,uzi,bazoka,granate,gravitygranate,physxgun,healgun}

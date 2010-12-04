@@ -91,6 +91,7 @@
      <Compile Include="Assets\scripts\GUI\IrcChatWindow.cs" />
      <Compile Include="Assets\scripts\GUI\LoginWindow.cs" />
      <Compile Include="Assets\scripts\GUI\MenuWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\ParticleTypes.cs" />
      <Compile Include="Assets\scripts\GUI\PopUpWindow.cs" />
      <Compile Include="Assets\scripts\GUI\ServersWindow.cs" />
      <Compile Include="Assets\scripts\GUI\SettingsWindow.cs" />

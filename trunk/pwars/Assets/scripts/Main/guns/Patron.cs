@@ -17,14 +17,19 @@ public class Patron : Base
     public float samonavod;
     public bool breakwall;
     public float timeToDestroy =5; 
-    public float freezetime;
-    public GameObject decal;
+    public float freezetime;    
     public float tm;
+    public Decal decal;    
     protected Vector3 previousPosition;
     protected virtual void Start()
     {        
-        previousPosition = transform.position;
         
+        previousPosition = transform.position;        
+    }
+    public override void Init()
+    {
+        
+        base.Init();
     }
     protected virtual void Update()
     {
@@ -60,13 +65,14 @@ public class Patron : Base
 
     private void Magnet()
     {
-        foreach (var b in _Game.dynamic.Union(_Game.zombies.Cast<Base>()))
+        foreach (var b in _Game.boxDerived.Union(_Game.zombies.Cast<Box>()))
         {
-            if (b.GetType() == typeof(Box) || b is Zombie || (b.OwnerID != OwnerID && b is Player && b.enabled))
-            {
-                b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
-                b.rigidbody.velocity *= .97f;                
-            }
+            if (b != null)
+                if (b.GetType() == typeof(Box) || b is Zombie)
+                {
+                    b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
+                    b.rigidbody.velocity *= .97f;
+                }
         }
 
     }
@@ -80,12 +86,23 @@ public class Patron : Base
             if (f != null)
                 f.BreakAndDestroy();
         }
-        
+
         if (decal != null && hit.collider.gameObject.isStatic)
         {
-            Transform a;
-            Destroy((a = (Transform)Instantiate(decal, hit.point, Quaternion.LookRotation(hit.normal))), 10);
-            a.parent = _Game.effects.transform;
+            _Cam.Decals.Enqueue(
+                new Decal { mesh = decal.mesh, mat = decal.mat, pos = hit.point - rot * Vector3.forward * 0.12f, rot = Quaternion.LookRotation(hit.normal)}
+                );            
+        }
+        Zombie z=  hit.collider.gameObject.GetComponent<Zombie>();
+        if (z != null)
+        {
+            z.Decals.Add(new Decal
+            {
+                mesh = _Game.bloodHoleDecal.mesh,
+                mat = _Game.bloodHoleDecal.mat,
+                pos = z.transform.InverseTransformPoint(hit.point - rot * Vector3.forward * 0.12f),
+                rot = Quaternion.LookRotation(z.transform.InverseTransformDirection(hit.normal))
+            });            
         }
         if (explodeOnDestroy)
             Explode(hit.point);
@@ -100,11 +117,25 @@ public class Patron : Base
 
         IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
 
-        
+
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
-            _Game.particles[1].Emit(hit.point, transform.rotation);        
+        {
+            _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
+
+            RaycastHit h;
+            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            {
+                _Cam.Decals.Enqueue(new Decal
+                {
+                    mat = _Game.bloodDecal.mat,
+                    mesh = _Game.bloodDecal.mesh,
+                    pos = h.point - transform.rotation * Vector3.forward * 0.1f,
+                    rot = Quaternion.AngleAxis(Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal) 
+                });
+            }
+        }
         else
-            _Game.particles[0].Emit(hit.point, transform.rotation);
+            _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
         
 
         if (iplayer != null && iplayer.isController && !iplayer.dead)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 public class Cam : Base
 {
     public float xSpeed = 120.0f;
@@ -51,6 +52,9 @@ public class Cam : Base
             foreach (Camera c in GameObject.FindObjectsOfType(typeof(Camera)))
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
     }
+
+
+    public Queue<Decal> Decals = new Queue<Decal>();
     void Start()
     {
         Vector3 angles = transform.eulerAngles;
@@ -59,6 +63,18 @@ public class Cam : Base
         onEffect();
     }
     float blurtime;
+    void Update()
+    {
+        UpdateDecal(Decals);
+    }
+
+    public static void UpdateDecal(Queue<Decal> Decals)
+    {
+        if (Decals.Count > 100)
+            Decals.Dequeue();
+        foreach (Decal d in Decals)
+            Graphics.DrawMesh(d.mesh, d.pos, d.rot, d.mat, 0);
+    }
     void FixedUpdate()
     {
         blurtime += Time.fixedDeltaTime;
@@ -126,4 +142,12 @@ public class Cam : Base
     }
 
 
+}
+[System.Serializable]
+public class Decal
+{
+    public Mesh mesh;
+    public Material mat;
+    public Vector3 pos;
+    public Quaternion rot;    
 }

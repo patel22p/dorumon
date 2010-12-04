@@ -1,0 +1,1 @@
+public enum ParticleTypes:int{particle_metal,BloodSplatters}

@@ -19,21 +19,25 @@ public class Game : MapObject
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
     public GameObject bounds;
-    public List<Base> dynamic = new List<Base>();
+    public List<MapObject> mapobjects = new List<MapObject>();
+    public List<Box> boxDerived = new List<Box>();
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
     [PathFind("GameEffects",true)]
-    public GameObject effects;
+    public GameObject effects;    
     public int stage;
     public float timeleft = 20;
     public bool wait;
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
     public int maxzombies = 0;
+    [GenerateEnums("ParticleTypes")]
     public List<Particles> particles = new List<Particles>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
+    
+
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [LoadPath("player")]
     public GameObject playerPrefab;
@@ -46,6 +50,7 @@ public class Game : MapObject
 
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
+        
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
         print("mapSettings.host " + mapSettings.host);
         if (Network.peerType == NetworkPeerType.Disconnected)
@@ -65,11 +70,23 @@ public class Game : MapObject
                     DestroyImmediate(a);
 
     }
+    public Decal bloodDecal;
+    public Decal bloodHoleDecal;
     public override void Init()
     {
+        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());
         bounds = GameObject.Find("bounds");
         MapCamera = GameObject.Find("MapCamera");
         if (bounds == null) Debug.Log("warning no bounds founded");
+    }
+
+    private void SetDecal(string s, Decal bloodDecal)
+    {
+        Debug.Log("+" + s);
+        var g = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == s);
+        bloodDecal = new Decal();
+        bloodDecal.mesh = g.GetComponent<MeshFilter>().mesh;
+        bloodDecal.mat = g.renderer.material;
         base.Init();
     }
     
@@ -95,6 +112,7 @@ public class Game : MapObject
     }
     void Update()
     {
+
         timeleft -= Time.deltaTime / 60;
         var ts = TimeSpan.FromMinutes(timeleft);
         _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
@@ -185,8 +203,9 @@ public class Game : MapObject
         networkView.RPC("SetTimeLeft", np, timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
         networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
-            b.OnPlayerConnected1(np);
+        foreach (MapObject b in mapobjects)
+            if (b != null)
+                b.OnPlayerConnected1(np);
     }
     [RPC]
     void SetTimeLeft(float time)
@@ -349,19 +368,19 @@ public class Game : MapObject
         int live = 0;
         foreach (Player p in players)
             if (p != null && !p.dead) live++;
-        if (live == 0 && HasAny() || TimeCaput)
+        if (live == 0 && HasAny() || TimeEnd)
         {
             RPCWriteMessage(String.Format("Вы умерли дожив до {0} раунда", stage));
             ShowEndStats();
         }
     }
-    bool TimeCaput { get { return timeleft < 0; } }
+    bool TimeEnd { get { return timeleft < 0; } }
     private void DMCheck()
     {
         foreach (Player pl in players)
             if (pl != null && pl.OwnerID != -1)
             {
-                if (!win && pl.frags >= mapSettings.fragLimit || TimeCaput)
+                if (!win && pl.frags >= mapSettings.fragLimit || TimeEnd)
                 {
                     RPCWriteMessage(pl.nick + " Win");
                     ShowEndStats();
@@ -372,7 +391,7 @@ public class Game : MapObject
     {
       
 
-        if ((BlueFrags >= mapSettings.fragLimit || RedFrags >= mapSettings.fragLimit || TimeCaput))
+        if ((BlueFrags >= mapSettings.fragLimit || RedFrags >= mapSettings.fragLimit || TimeEnd))
         {                        
             RPCWriteMessage((BlueFrags > RedFrags ? "Синяя" : "Красная") + " команда Выграла");
             ShowEndStats();
@@ -399,7 +418,7 @@ public class Game : MapObject
             if (!p.dead) RedteamLive = true;
         }
 
-        if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive) || TimeCaput)
+        if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive) || TimeEnd)
         {
             RPCWriteMessage((!RedteamLive ? "Blue" : "Red") + " Team Win");
             ShowEndStats();

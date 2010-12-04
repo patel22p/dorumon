@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using doru;
+using System.Text.RegularExpressions;
 
 
 public class Box : MapObject
@@ -14,7 +15,7 @@ public class Box : MapObject
     public Vector3 syncVelocity;
     public Vector3 syncAngularVelocity;
     protected Vector3 spawnpos;
-    public bool velSync = true, posSync = true, rotSync = true, angSync = true;
+    public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
     public float tsendpackets;
     [LoadPath("Collision1")]
@@ -22,17 +23,16 @@ public class Box : MapObject
     protected override void Awake()
     {        
         base.Awake();
+        _Game.boxDerived.Add(this);
     }
     protected virtual void Start()
     {
-        _Game.dynamic.Add(this);
         spawnpos = transform.position;
         if (!(this is Player))
             if (!Network.isServer)
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
-    
     void OnCollisionEnter(Collision infO)
     {
         if (infO.impactForceSum.magnitude > 10)
@@ -82,7 +82,6 @@ public class Box : MapObject
     {
         if (OwnerID != -1) networkView.RPC("RPCSetOwner", np, OwnerID);
         if (selected != -1) networkView.RPC("SetController", np, selected);
-        networkView.RPC("RPCShow", np, enabled);
         base.OnPlayerConnected1(np);        
     }
     [RPC]
@@ -116,12 +115,13 @@ public class Box : MapObject
     [RPC]
     public void RPCAddNetworkView(NetworkViewID id)
     {
-
+        var ss = networkView.stateSynchronization;
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)GroupNetwork.RPCAssignID;
         nw.observed = this;
-        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        nw.stateSynchronization = ss;
         nw.viewID = id;
+        name += "+" + Regex.Match(nw.viewID.ToString(), @"\d+").Value;
     }
     public void RPCSetOwner()
     {
@@ -133,7 +133,7 @@ public class Box : MapObject
     }    
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-        if (!enabled) return;
+        if (!enabled || !Sync) return;
         if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
             if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets<0)
@@ -164,10 +164,16 @@ public class Box : MapObject
 }
 public class MapObject : Base
 {
+    public virtual void OnPlayerConnected1(NetworkPlayer np)
+    {
+        
+    }
     protected override void Awake()
     {
+        name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
         if (Network.peerType == NetworkPeerType.Disconnected)
             enabled = false;
+        _Game.mapobjects.Add(this);
         base.Awake();
     }
     protected virtual void OnServerInitialized() { Enable(); }

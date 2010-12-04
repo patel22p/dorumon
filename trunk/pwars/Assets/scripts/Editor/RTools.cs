@@ -26,17 +26,17 @@ public partial class RTools : InspectorSearch
     {
         string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
         Undo.RegisterSceneUndo("SceneInit");
-        foreach (UnityEngine.Object go in FindObjectsOfTypeIncludingAssets(typeof(UnityEngine.Object)))
-        {
-            if (AssetDatabase.IsMainAsset(go))
-            {
-
-                if ((go is GameObject && go.hideFlags != HideFlags.NotEditable ) || go is PhysicMaterial || go is MonoScript)
-                    AssetDatabase.SetLabels(go, new[] { go.name });
-                else
-                    AssetDatabase.SetLabels(go, new string[] { });
-            }
-        }
+        //foreach (UnityEngine.Object go in FindObjectsOfTypeIncludingAssets(typeof(UnityEngine.Object)))
+        //{            
+        //    if (AssetDatabase.IsMainAsset(go))
+        //    {                
+        //        if ((go is GameObject && go.hideFlags != HideFlags.NotEditable ) || go is PhysicMaterial || go is MonoScript)
+        //            AssetDatabase.SetLabels(go, new[] { go.name });
+        //        else
+        //            AssetDatabase.SetLabels(go, new string[] { });
+        //    }
+        //}
+        //SetupTextures();
         if (gameScene)
         {
             GameObject.Find("map").tag = "Level";
@@ -75,26 +75,64 @@ public partial class RTools : InspectorSearch
                 }
             }
         }
+        
         foreach (var go in Selection.gameObjects)
         {
             foreach (var scr in go.GetComponentsInChildren<Base2>())
             {
+                scr.Init();
                 foreach (var pf in scr.GetType().GetFields())
                 {
                     InitLoadPath(scr, pf);
                     CreateEnum(cspath, scr, pf);
-                    PathFind ap = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
-                    if (ap != null)
-                    {
-                        if(ap.scene)
-                            pf.SetValue(scr, GameObject.Find(ap.name).gameObject);
-                        else if(pf.FieldType== typeof(GameObject))
-                            pf.SetValue(scr, scr.transform.Find(ap.name).gameObject);
-                        else
-                            pf.SetValue(scr, scr.transform.Find(ap.name).GetComponent(pf.FieldType));
-                    }
+                    PathFind(scr, pf);
+                }                
+                if (scr.networkView != null && scr.networkView.observed == null)
+                    scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+            }
+        }
+    }
+
+    private static void PathFind(Base2 scr, FieldInfo pf)
+    {
+        PathFind ap = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
+        if (ap != null)
+        {
+            Debug.Log(pf.Name);
+            if (ap.scene)
+            {
+                if (pf.FieldType == typeof(GameObject))
+                    pf.SetValue(scr, GameObject.Find(ap.name).gameObject);
+                else
+                    pf.SetValue(scr, GameObject.Find(ap.name).GetComponent(pf.FieldType));
+            }
+            else
+            {
+                if (pf.FieldType == typeof(GameObject))
+                    pf.SetValue(scr, scr.transform.Find(ap.name).gameObject);
+                else
+                    pf.SetValue(scr, scr.transform.Find(ap.name).GetComponent(pf.FieldType));
+            }
+        }
+    }
+
+    private static void SetupTextures()
+    {
+        foreach (var o in Selection.objects)
+        {
+            if (o is Texture2D)
+            {
+                TextureImporter ti = ((TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(o)));
+                int max = 256;
+                if (!ti.lightmap)
+                {
+                    TextureImporterSettings tis = new TextureImporterSettings();
+                    ti.ReadTextureSettings(tis);
+                    tis.maxTextureSize = max;
+                    ti.SetTextureSettings(tis);
+
+                    AssetDatabase.ImportAsset(ti.assetPath, ImportAssetOptions.ForceUpdate);
                 }
-                scr.Init();
             }
         }
     }
@@ -174,7 +212,7 @@ public partial class RTools : InspectorSearch
             Debug.Log("Found!" + ge.name);
             cs += "public enum " + ge.name + ":int{";
             var ie = (IEnumerable)f.GetValue(g);
-            foreach (Base o in ie)
+            foreach (UnityEngine.Object o in ie)
                 cs += o.name + ",";
             cs = cs.Trim(new[] { ',' });
             cs += "}";

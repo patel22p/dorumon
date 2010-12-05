@@ -13,6 +13,11 @@ public static class Ext {
     {
         return source.Skip(UnityEngine.Random.Range(0, source.Count() - 1) - 1).First();
     }
+    public static T GetOrAdd<T>(this GameObject g)where T : Component
+    {
+        return g.GetComponent<T>() ?? g.AddComponent<T>();
+    }
+
     //public static IEnumerable<T> ShuffleIterator<T>(
     //   this IEnumerable<T> source, Random rng)
     //{

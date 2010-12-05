@@ -26,6 +26,11 @@ public class Fragment : Base
 
         }
     }
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.impactForceSum.magnitude > 10 && transform.childCount > 0 && gameObject.active)
+            BreakAndDestroy();
+    }
     public void BreakAndDestroy()
     {
         Break();

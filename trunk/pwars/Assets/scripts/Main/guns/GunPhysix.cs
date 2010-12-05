@@ -16,11 +16,8 @@ public class GunPhysix : GunBase
     public bool power;
     public void Start()
     {
-
         _Name = "Грави Пушка";
-
         audio.clip = (AudioClip)Resources.Load("sounds/PowerGun");
-
     }
 
     protected override void FixedUpdate()

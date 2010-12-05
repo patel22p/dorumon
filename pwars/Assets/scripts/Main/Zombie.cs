@@ -7,8 +7,6 @@ public class Zombie : IPlayer
 {
     public float zombieBite;
     public float speed = .3f;
-    //public override bool dead { get { return !Alive; } }        
-    //new public bool Alive;
     public float up = 1f;
     float seekPath;
     public bool move;
@@ -48,7 +46,6 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
-        Decals.Clear();
         Alive = true;
         Sync = true;
         transform.position = SpawnPoint();
@@ -64,6 +61,19 @@ public class Zombie : IPlayer
     public override void RPCDie(int killedby)
     {
         if (!Alive) { return; }
+        RaycastHit h;
+        if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
+        {
+            _Cam.Decals.Enqueue(new Decal
+            {
+                mat = _Game.bloodDecal.mat,
+                mesh = _Game.bloodDecal.mesh,
+                pos = h.point - new Vector3(0, -1, 1) * 0.1f,
+                rot = Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal)
+            });
+        }
+
+
         Sync = false;
         Alive = false;
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
@@ -77,15 +87,10 @@ public class Zombie : IPlayer
                     p.SetFrags(+1, 1);
         }
     }
-    public List<Decal> Decals = new List<Decal>();
+    float tiltTm;
     protected override void Update()
     {
         base.Update();
-        foreach (Decal d in Decals)
-        {
-            Graphics.DrawMesh(d.mesh, transform.TransformPoint(d.pos), rot*d.rot, d.mat, 0);
-        }
-
         if (!Alive || selected == -1) return;
         zombieBite += Time.deltaTime;        
         IPlayer ipl = Nearest();
@@ -100,16 +105,19 @@ public class Zombie : IPlayer
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
                 move = true;
-                //if (_TimerA.TimeElapsed(2000) && isController)
-                //{
-                //    if (Vector3.Distance(oldpos, pos) < 2)
-                //        pos = SpawnPoint();
-                //    oldpos = pos;
-                //}
+                tiltTm += Time.deltaTime;
+                if (tiltTm>1 && isController)
+                {
+                    tiltTm = 0;
+                    if (Vector3.Distance(oldpos, pos) < 2)
+                        pos = SpawnPoint();
+                    oldpos = pos;
+                }
             }
             else
             {
                 move = false;
+                tiltTm = 0;
                 if (zombieBite > 1)
                 {
                     zombieBite = 0;
@@ -120,7 +128,10 @@ public class Zombie : IPlayer
             }
         }
         else
+        {
             move = false;
+            tiltTm = 0;
+        }
     }
     private IPlayer Nearest()
     {

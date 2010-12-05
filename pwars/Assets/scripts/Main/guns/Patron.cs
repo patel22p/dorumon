@@ -52,11 +52,7 @@ public class Patron : Base
             Ray ray = new Ray(previousPosition, movementThisStep);
 
             if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1))
-            {
-                
-                //if (!hitInfo.collider.isTrigger || hitInfo.collider.gameObject.name == "hit")
-                    ExplodeOnHit(hitInfo);
-            }
+                ExplodeOnHit(hitInfo);
         }
         previousPosition = transform.position;
         if (magnet > 0)
@@ -88,22 +84,8 @@ public class Patron : Base
         }
 
         if (decal != null && hit.collider.gameObject.isStatic)
-        {
-            _Cam.Decals.Enqueue(
-                new Decal { mesh = decal.mesh, mat = decal.mat, pos = hit.point - rot * Vector3.forward * 0.12f, rot = Quaternion.LookRotation(hit.normal)}
-                );            
-        }
-        Zombie z=  hit.collider.gameObject.GetComponent<Zombie>();
-        if (z != null)
-        {
-            z.Decals.Add(new Decal
-            {
-                mesh = _Game.bloodHoleDecal.mesh,
-                mat = _Game.bloodHoleDecal.mat,
-                pos = z.transform.InverseTransformPoint(hit.point - rot * Vector3.forward * 0.12f),
-                rot = Quaternion.LookRotation(z.transform.InverseTransformDirection(hit.normal))
-            });            
-        }
+            _Cam.Decals.Enqueue(new Decal { mesh = decal.mesh, mat = decal.mat, pos = hit.point - rot * Vector3.forward * 0.12f, rot = Quaternion.LookRotation(hit.normal)});            
+
         if (explodeOnDestroy)
             Explode(hit.point);
 
@@ -121,18 +103,7 @@ public class Patron : Base
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
-
-            RaycastHit h;
-            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
-            {
-                _Cam.Decals.Enqueue(new Decal
-                {
-                    mat = _Game.bloodDecal.mat,
-                    mesh = _Game.bloodDecal.mesh,
-                    pos = h.point - transform.rotation * Vector3.forward * 0.1f,
-                    rot = Quaternion.AngleAxis(Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal) 
-                });
-            }
+            
         }
         else
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);

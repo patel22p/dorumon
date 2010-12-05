@@ -37,45 +37,14 @@ public partial class RTools : InspectorSearch
         //    }
         //}
         //SetupTextures();
-        if (gameScene)
-        {
-            GameObject.Find("map").tag = "Level";
-            foreach (Transform t in GameObject.FindGameObjectWithTag("Level").GetComponentsInChildren<Transform>())
-            {
-                GameObject g = t.gameObject;                
-                g.layer = LayerMask.NameToLayer("Level");
-                g.isStatic = true;
-                if (g.name == "path")
-                    g.renderer.enabled = false;
+        //foreach (Transform go in Selection.activeGameObject.GetComponentInChildren<Transform>())
+        //    go.gameObject.tag = go.gameObject.name;        
+        SetupLevel();
+        Inits(cspath);
+    }
 
-                foreach (string s in Enum.GetNames(typeof(MapItemType)))
-                {
-                    if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
-                    {
-                        g.AddComponent<NetworkView>();
-                        g.AddComponent<AudioSource>();
-                        if (g.animation != null && g.animation.clip != null)
-                        {
-                            
-                            AnimationUtility.SetAnimationEvents(g.animation.clip, new[] { 
-                                new AnimationEvent() { time = g.animation.clip.length, functionName = "Stop" }, 
-                                new AnimationEvent() { time = 0, functionName = "Stop" }
-                            });                            
-                            
-                            g.AddComponent<Rigidbody>();
-                            g.isStatic = false;
-                            g.networkView.observed = g.animation;
-                            g.animation.playAutomatically = true;
-                            g.rigidbody.isKinematic = true;
-                            g.animation.animatePhysics = true;                            
-                        }
-                        MapItem mi = g.AddComponent<MapItem>();
-                        mi.itemType = (MapItemType)Enum.Parse(typeof(MapItemType), s);                                                                          
-                    }
-                }
-            }
-        }
-        
+    private void Inits(string cspath)
+    {
         foreach (var go in Selection.gameObjects)
         {
             foreach (var scr in go.GetComponentsInChildren<Base2>())
@@ -86,9 +55,82 @@ public partial class RTools : InspectorSearch
                     InitLoadPath(scr, pf);
                     CreateEnum(cspath, scr, pf);
                     PathFind(scr, pf);
-                }                
+                }
                 if (scr.networkView != null && scr.networkView.observed == null)
                     scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+            }
+        }
+    }
+
+    private void SetupLevel()
+    {
+        List<Material> handled = new List<Material>();
+        foreach (var t in GameObject.Find("Level").GetComponentsInChildren<Renderer>())
+            foreach (var m in t.sharedMaterials)
+            {
+                if (!handled.Contains(m))
+                {
+                    
+                    handled.Add(m);
+                    if (m.name.Contains("glass"))
+                    {
+                        m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
+                        string name = m.mainTexture.name.Replace("diffuse", "");
+                        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains("normal"));
+                        m.SetTexture("_BumpMap", o);
+                    }
+                    if (m.name.Contains("paralax"))
+                    {
+                        
+                        m.shader = Shader.Find("Reflective/Parallax Diffuse");
+                        string name = m.mainTexture.name.Replace("diffuse", "");
+                        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains("normal"));
+                        m.SetTexture("_BumpMap", o);
+
+                        var g = new GameObject("cc", typeof(Camera));
+                        g.transform.position = t.transform.position;
+                        Cubemap cm = new Cubemap(256, TextureFormat.RGB24,false);
+                        t.gameObject.GetOrAdd<CubeMap>();
+                        g.camera.RenderToCubemap(cm);
+                        m.SetTexture("_Cube", cm);
+                        DestroyImmediate(g);
+                    }
+                }
+
+            }
+        if(gameScene)
+        foreach (Transform t in GameObject.Find("Level").GetComponentsInChildren<Transform>())
+        {            
+            GameObject g = t.gameObject;
+            g.layer = LayerMask.NameToLayer("Level");
+            g.isStatic = true;
+            if (g.name == "path")
+                g.renderer.enabled = false;
+
+            foreach (string s in Enum.GetNames(typeof(MapItemType)))
+            {
+                if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                {
+                    g.AddComponent<NetworkView>();
+                    g.AddComponent<AudioSource>();
+                    if (g.animation != null && g.animation.clip != null)
+                    {
+
+                        AnimationUtility.SetAnimationEvents(g.animation.clip, new[] { 
+                                new AnimationEvent() { time = g.animation.clip.length, functionName = "Stop" }, 
+                                new AnimationEvent() { time = 0, functionName = "Stop" }
+                            });
+
+                        g.AddComponent<Rigidbody>();
+                        g.isStatic = false;
+                        g.networkView.observed = g.animation;
+                        g.animation.playAutomatically = true;
+                        g.rigidbody.isKinematic = true;
+                        g.animation.animatePhysics = true;
+                    }
+                    MapItem mi = g.AddComponent<MapItem>();
+                    mi.itemType = (MapItemType)Enum.Parse(typeof(MapItemType), s);
+                }
             }
         }
     }

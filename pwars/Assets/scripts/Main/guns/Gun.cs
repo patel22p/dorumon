@@ -52,7 +52,7 @@ public class Gun : GunBase
         if(_TimerA.TimeElapsed(5000))
             defPos2 = Vector3.Scale(Random.onUnitSphere, new Vector3(1, 1, 3)) / 30;
         defPos = (defPos * 200 + defPos2) / 201;
-        transform.localPosition = defPos + transform.localPosition /2;
+        transform.localPosition = defPos + transform.localPosition / 2;
         if (isOwner)
             LocalUpdate();
 
@@ -74,11 +74,9 @@ public class Gun : GunBase
                 PlaySound(noammoSound);                    
         }
     }
-    
     [RPC]
     protected virtual void RPCShoot()
     {
-        CallRPC();
         if (sound != null)
             root.audio.PlayOneShot(sound);
         player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));

@@ -71,7 +71,6 @@ public class Game : MapObject
 
     }
     public Decal bloodDecal;
-    public Decal bloodHoleDecal;
     public override void Init()
     {
         particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());
@@ -80,15 +79,6 @@ public class Game : MapObject
         if (bounds == null) Debug.Log("warning no bounds founded");
     }
 
-    private void SetDecal(string s, Decal bloodDecal)
-    {
-        Debug.Log("+" + s);
-        var g = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == s);
-        bloodDecal = new Decal();
-        bloodDecal.mesh = g.GetComponent<MeshFilter>().mesh;
-        bloodDecal.mat = g.renderer.material;
-        base.Init();
-    }
     
     void Start()
     {
@@ -432,10 +422,10 @@ public class Game : MapObject
     }
     private void Fragment()
     {
-        GameObject[] gs = GameObject.FindGameObjectsWithTag("MapFragment");
+        var gs = GameObject.FindObjectsOfType(typeof(GameObject)).Where(a => a.name == "fragmentation").Cast<GameObject>();
         foreach (var g in gs)
         {
-            Transform cur = g.transform.Find("Box02");
+            Transform cur = g.transform.Find("frag");
             AddFragment(cur, g.transform, true);
         }
 

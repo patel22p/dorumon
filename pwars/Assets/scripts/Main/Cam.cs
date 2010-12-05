@@ -25,7 +25,6 @@ public class Cam : Base
         yMinLimit = -90;
         yMaxLimit = 90;        
         base.Awake();
-        
     }
     public override void Init()
     {
@@ -65,7 +64,7 @@ public class Cam : Base
     float blurtime;
     void Update()
     {
-        UpdateDecal(Decals);
+        UpdateDecal(Decals);        
     }
 
     public static void UpdateDecal(Queue<Decal> Decals)

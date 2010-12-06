@@ -25,7 +25,16 @@ public class Game : MapObject
     public new IPlayer _localiplayer;
     public new Player _localPlayer;
     [PathFind("GameEffects",true)]
-    public GameObject effects;    
+    public GameObject effects;
+    [PathFind("GameEffects/decals", true)]
+    public GameObject decals;
+    public void AddDecal(DecalTypes t, Vector3 pos, Quaternion rot)
+    {
+        Decal d = decalPresets[(int)t];
+        d.mesh.renderer.material = d.mat;
+        d.mesh.transform.localScale = Vector3.one * d.scale;
+        ((GameObject)Instantiate(d.mesh, pos, rot)).transform.parent = decals.transform;
+    }
     public int stage;
     public float timeleft = 20;
     public bool wait;
@@ -35,7 +44,7 @@ public class Game : MapObject
     [GenerateEnums("ParticleTypes")]
     public List<Particles> particles = new List<Particles>();
     [GenerateEnums("DecalTypes")]
-    public List<Decal> decals = new List<Decal>();
+    public List<Decal> decalPresets = new List<Decal>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     
@@ -267,14 +276,14 @@ public class Game : MapObject
             UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
         wait = false;
     }
-    [LoadPath("stage")]
-    public AudioClip stageSound;
+    [LoadPath("nextLevel")]
+    public AudioClip[] stageSound;
     [RPC]
     private void RPCNextStage(int stage)
     {
         CallRPC(stage);
         Debug.Log("Next Stage"+stage);
-        PlaySound(stageSound);
+        PlayRandSound(stageSound);
         this.stage = stage;
         maxzombies = mapSettings.fragLimit + stage;
         zombiespawnindex = 0;

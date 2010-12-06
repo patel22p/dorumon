@@ -52,8 +52,6 @@ public class Cam : Base
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
     }
 
-
-    public Queue<Decal> Decals = new Queue<Decal>();
     void Start()
     {
         Vector3 angles = transform.eulerAngles;
@@ -62,23 +60,7 @@ public class Cam : Base
         onEffect();
     }
     float blurtime;
-    void Update()
-    {
-        UpdateDecal(Decals);        
-    }
 
-    public void UpdateDecal(Queue<Decal> Decals)
-    {
-        if (Decals.Count > 100)
-            Decals.Dequeue();
-        foreach (Decal d in Decals)
-        {
-            //Graphics.DrawMesh(d.mesh, d.pos, d.rot, d.mat, 0, camera, 0, new MaterialPropertyBlock(), false, false);
-            
-            Graphics.DrawMesh(d.mesh, Matrix4x4.TRS(d.pos, d.rot, Vector3.one * d.scale), d.mat, 0, camera, 0, new MaterialPropertyBlock(), false, false);
-            
-        }
-    }
     void FixedUpdate()
     {
         blurtime += Time.fixedDeltaTime;
@@ -156,18 +138,6 @@ public class Decal
     {
         return name;
     }
-    public Decal() { }
-    public Decal(Decal d, Vector3 pos, Quaternion rot)
-    {
-        mat = d.mat;
-        mesh = d.mesh;
-        scale = d.scale;
-        this.pos = pos;
-        this.rot = rot;
-        
-    }
-    public Mesh mesh;
+    public GameObject mesh;
     public Material mat;
-    public Vector3 pos;
-    public Quaternion rot;    
 }

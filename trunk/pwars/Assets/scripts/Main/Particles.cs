@@ -26,7 +26,10 @@ public class Particles : MonoBehaviour
         }
     }
 
-    
+    public override string ToString()
+    {
+        return name;
+    }
     void Update()
     {
         

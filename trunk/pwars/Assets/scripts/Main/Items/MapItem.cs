@@ -170,8 +170,8 @@ public class MapItem : MapObject
 
 
         if (payonce) { score = 0; endless = true; }
-        if (opendoor != null)
-            PlaySound(opendoor, 10);
+        //if (opendoor != null)
+        //    PlaySound(opendoor, 10);
 
         if (hide && itemsLeft == 0)
         {

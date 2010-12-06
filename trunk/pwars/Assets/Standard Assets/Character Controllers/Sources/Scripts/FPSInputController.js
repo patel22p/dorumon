@@ -7,6 +7,7 @@ function Awake () {
 
 // Update is called once per frame
 function Update () {
+    if (Input.GetMouseButtonUp(1)) if (Screen.lockCursor) Screen.lockCursor = false; else Screen.lockCursor = true;
 	// Get the input vector from kayboard or analog stick
 	var directionVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 	

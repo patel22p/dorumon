@@ -82,6 +82,7 @@
      <Compile Include="Assets\scripts\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\scripts\Editor\RTools.cs" />
      <Compile Include="Assets\scripts\GUI\AboutWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\DecalTypes.cs" />
      <Compile Include="Assets\scripts\GUI\GameMenuWindow.cs" />
      <Compile Include="Assets\scripts\GUI\GameStatsWindow.cs" />
      <Compile Include="Assets\scripts\GUI\GunType.cs" />

@@ -34,6 +34,8 @@ public class Game : MapObject
     public int maxzombies = 0;
     [GenerateEnums("ParticleTypes")]
     public List<Particles> particles = new List<Particles>();
+    [GenerateEnums("DecalTypes")]
+    public List<Decal> decals = new List<Decal>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
     
@@ -70,7 +72,7 @@ public class Game : MapObject
                     DestroyImmediate(a);
 
     }
-    public Decal bloodDecal;
+    
     public override void Init()
     {
         particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());

@@ -67,12 +67,17 @@ public class Cam : Base
         UpdateDecal(Decals);        
     }
 
-    public static void UpdateDecal(Queue<Decal> Decals)
+    public void UpdateDecal(Queue<Decal> Decals)
     {
         if (Decals.Count > 100)
             Decals.Dequeue();
         foreach (Decal d in Decals)
-            Graphics.DrawMesh(d.mesh, d.pos, d.rot, d.mat, 0);
+        {
+            //Graphics.DrawMesh(d.mesh, d.pos, d.rot, d.mat, 0, camera, 0, new MaterialPropertyBlock(), false, false);
+            
+            Graphics.DrawMesh(d.mesh, Matrix4x4.TRS(d.pos, d.rot, Vector3.one * d.scale), d.mat, 0, camera, 0, new MaterialPropertyBlock(), false, false);
+            
+        }
     }
     void FixedUpdate()
     {
@@ -145,6 +150,22 @@ public class Cam : Base
 [System.Serializable]
 public class Decal
 {
+    public string name;
+    public float scale = 1;
+    public override string ToString()
+    {
+        return name;
+    }
+    public Decal() { }
+    public Decal(Decal d, Vector3 pos, Quaternion rot)
+    {
+        mat = d.mat;
+        mesh = d.mesh;
+        scale = d.scale;
+        this.pos = pos;
+        this.rot = rot;
+        
+    }
     public Mesh mesh;
     public Material mat;
     public Vector3 pos;

@@ -122,6 +122,27 @@ public class InspectorSearch : EditorWindow
         }
     }
 
+    
+    [MenuItem("GameObject/Child")]
+    static void CreateChild()
+    {
+        var t = Selection.activeTransform;
+        var nwt = new GameObject(Selection.activeObject.name + "1").transform;
+        nwt.position = t.position;
+        nwt.rotation = t.rotation;
+        nwt.parent = t;
+    }
+    [MenuItem("GameObject/Parent")]
+    static void CreateParent()
+    {
+        var t = Selection.activeTransform;
+        var t2 = new GameObject(Selection.activeObject.name + "1").transform;
+        t2.position = t.position;
+        t2.rotation = t.rotation;
+        t2.parent = t.parent;
+        t.parent = t2;
+    }
+
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {

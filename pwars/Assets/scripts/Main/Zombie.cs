@@ -16,8 +16,11 @@ public class Zombie : IPlayer
     public AudioClip[] gibSound;
     [LoadPath("Zombie")]
     public AudioClip[] ZombieSound;
-    public Material zombieAlive;
-    public Material zombieDead;
+    [PathFind("zombieAlive")]
+    public GameObject AliveZombie;
+    [PathFind("zombieDead")]
+    public GameObject DeadZombie;
+
     public Seeker seeker;
     public float zombieBiteDist = 3;
     Vector3[] pathPoints;
@@ -49,8 +52,9 @@ public class Zombie : IPlayer
         transform.position = SpawnPoint();
         gameObject.layer = LayerMask.NameToLayer("Default");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
-        CallRPC(zombiespeed, zombieLife);        
-        this.transform.Find("zombie").renderer.sharedMaterials[1] = zombieAlive;
+        CallRPC(zombiespeed, zombieLife);
+        AliveZombie.renderer.enabled = true;
+        DeadZombie.renderer.enabled = false;
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
         Life = (int)zombieLife;
@@ -62,6 +66,7 @@ public class Zombie : IPlayer
         RaycastHit h;
         if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
         {
+
             _Game.AddDecal
             (
                 DecalTypes.Blood,
@@ -70,14 +75,14 @@ public class Zombie : IPlayer
             );
         }
 
-
         Sync = false;
         Alive = false;
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
         if (isController) CallRPC(killedby);
         PlayRandSound(gibSound);
-        Debug.Log(this.transform.Find("zombie").renderer.sharedMaterials[1].name);
-        this.transform.Find("zombie").renderer.sharedMaterials[1] = zombieDead;
+        AliveZombie.renderer.enabled = false;
+        DeadZombie.renderer.enabled = true;
+
         if (isController)
         {
             foreach (Player p in players)
@@ -99,15 +104,15 @@ public class Zombie : IPlayer
             if (zToPlDir.magnitude > zombieBiteDist)
             {
                 pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
-                Debug.DrawLine(pos, pos + pathPointDir);
+                //Debug.DrawLine(pos, pos + pathPointDir);
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
                 move = true;
                 tiltTm += Time.deltaTime;
-                if (tiltTm>1 && isController)
+                if (tiltTm>10 && isController)
                 {
                     tiltTm = 0;
-                    if (Vector3.Distance(oldpos, pos) < 2)
+                    if (Vector3.Distance(oldpos, pos) < 1)
                         pos = SpawnPoint();
                     oldpos = pos;
                 }
@@ -163,7 +168,7 @@ public class Zombie : IPlayer
         int ni = 0;
         for (int i = 0; i < points.Count; i++)
         {
-            if (i != 0) Debug.DrawLine(points[i - 1], points[i]);
+            //if (i != 0) //Debug.DrawLine(points[i - 1], points[i]);
             Vector3 newp = points[i] - pos;
             if (newp.magnitude < nearest.magnitude)
             {
@@ -213,7 +218,9 @@ public class Zombie : IPlayer
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         IPlayer pl = Nearest(); 
         if (pl == null) return gs.First().transform.position;
-        return gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.transform.position)).Take(3).Random().transform.position;        
+        return (gs.Where(a => Vector3.Distance(a.transform.position, pos) < 10).FirstOrDefault() ?? 
+            gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.transform.position)).First()
+            ).transform.position;        
     }
     [RPC]
     public override void RPCSetLife(int NwLife, int killedby)

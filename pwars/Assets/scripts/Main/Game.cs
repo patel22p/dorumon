@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
 
-public class Game : MapObject
+public class Game : Base
 {
     new public Player[] players = new Player[10];
     public List<IPlayer> iplayers = new List<IPlayer>();
@@ -19,7 +19,7 @@ public class Game : MapObject
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
     public GameObject bounds;
-    public List<MapObject> mapobjects = new List<MapObject>();
+    public List<Base> nViews = new List<Base>();
     public List<Box> boxDerived = new List<Box>();
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
     public new IPlayer _localiplayer;
@@ -30,10 +30,17 @@ public class Game : MapObject
     public GameObject decals;
     public void AddDecal(DecalTypes t, Vector3 pos, Quaternion rot)
     {
+        if (t == DecalTypes.Blood)
+        {
+            Debug.DrawRay(pos, Vector3.up);
+            Debug.Log(pos + "+");
+        }
         Decal d = decalPresets[(int)t];
         d.mesh.renderer.material = d.mat;
         d.mesh.transform.localScale = Vector3.one * d.scale;
-        ((GameObject)Instantiate(d.mesh, pos, rot)).transform.parent = decals.transform;
+        var g = ((GameObject)Instantiate(d.mesh, pos, rot));
+        g.transform.parent = decals.transform;
+        Destroy(g,10);
     }
     public int stage;
     public float timeleft = 20;
@@ -94,8 +101,7 @@ public class Game : MapObject
     void Start()
     {
         Debug.Log("+game Start");
-        //if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;
-        Fragment();
+        //if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;        
         print("ZGameStart");
         //_vk.enabled = false;        
         print("timelimit"+mapSettings.timeLimit);
@@ -115,29 +121,9 @@ public class Game : MapObject
     {
 
         timeleft -= Time.deltaTime / 60;
-        var ts = TimeSpan.FromMinutes(timeleft);
-        _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
-        if (mapSettings.Team)
-        {
-            _GameWindow.blueTeam.text = BlueFrags.ToString();
-            _GameWindow.redTeam.text = RedFrags.ToString();
-        }
-        if (DebugKey(KeyCode.P)) RPCPause();
-        if (_localiplayer != null)
-        {
-            _GameWindow.life = _localiplayer.Life;
-            _GameWindow.gunPatrons.text = _localPlayer.gun._Name + ":" + _localPlayer.gun.patronsLeft;
-
-            _GameWindow.energy = (int)_localiplayer.nitro;
-            if (mapSettings.zombi)
-            {
-                _GameWindow.zombiesLeft.text = "Зомби" + AliveZombies.Count().ToString();
-                _GameWindow.level.text = "Уровень" + stage.ToString();
-            }
-            _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
-
-            _GameWindow.Score.text = "Очки " + _localPlayer.score.ToString();
-        }
+        
+        if (Input.GetKeyDown(KeyCode.P)) RPCPause();
+    
         if (Input.GetKeyDown(KeyCode.M))
             onShowMap();
 
@@ -204,7 +190,7 @@ public class Game : MapObject
         networkView.RPC("SetTimeLeft", np, timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
         networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        foreach (MapObject b in mapobjects)
+        foreach (Base b in nViews)
             if (b != null)
                 b.OnPlayerConnected1(np);
     }
@@ -226,10 +212,10 @@ public class Game : MapObject
     public GameObject ZombiePrefab;
     private void ZUpdate()
     {
-        
-        if ( HasAny() && Network.isServer)
+
+        if (_TimerA.TimeElapsed(500) && HasAny() && Network.isServer)
         {
-            if (_TimerA.TimeElapsed(500) && zombiespawnindex < maxzombies)
+            if (zombiespawnindex < maxzombies)
             {
                 if (zombiespawnindex < zombies.Count)
                     CreateZombie(zombies[zombiespawnindex]);
@@ -244,7 +230,7 @@ public class Game : MapObject
             if (AliveZombies.Count() == 0 && zombiespawnindex == maxzombies && !wait)
             {
                 wait = true;
-                _TimerA.AddMethod(100, delegate { RPCNextStage(stage + 1); });
+                _TimerA.AddMethod(2000, delegate { RPCNextStage(stage + 1); });
             }
         }
     }
@@ -431,37 +417,6 @@ public class Game : MapObject
         Debug.Break();
         Network.Disconnect();
     }
-    private void Fragment()
-    {
-        var gs = GameObject.FindObjectsOfType(typeof(GameObject)).Where(a => a.name == "fragmentation").Cast<GameObject>();
-        foreach (var g in gs)
-        {
-            Transform cur = g.transform.Find("frag");
-            AddFragment(cur, g.transform, true);
-        }
-
-    }
-    private void AddFragment(Transform cur, Transform root, bool first)
-    {
-        Fragment f = cur.gameObject.AddComponent<Fragment>();
-        f.first = first;
-        ((MeshCollider)cur.collider).convex = true;
-        if (!first)
-        {
-            cur.gameObject.active = false;
-            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        }
-        int i = 1;
-        for (; ; i++)
-        {
-            string nwpath = cur.name + "_frag_0" + i;
-            Transform nw = root.Find(nwpath);
-            if (nw == null) break;
-            nw.parent = cur;
-            AddFragment(nw, root, false);
-        }
-
-
-    }
+    
 }
 public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Gun }

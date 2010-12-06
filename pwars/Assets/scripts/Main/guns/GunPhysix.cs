@@ -14,12 +14,11 @@ public class GunPhysix : GunBase
     public float scalefactor = 10;
     public float energy;
     public bool power;
-    public void Start()
+    protected override void Awake()
     {
-        _Name = "Грави Пушка";
-        audio.clip = (AudioClip)Resources.Load("sounds/PowerGun");
+        base.Awake();
     }
-
+    
     protected override void FixedUpdate()
     {
         if (power)
@@ -58,6 +57,7 @@ public class GunPhysix : GunBase
     public override void Init()
     {
         base.Init();
+        audio.clip = (AudioClip)FindObjectsOfTypeIncludingAssets(typeof(AudioClip)).FirstOrDefault(a => a.name == "PowerGun");
     }
     [LoadPath("wave")]
     public GameObject wavePrefab;

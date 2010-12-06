@@ -43,8 +43,6 @@ public abstract class IPlayer : Box
         _Game.iplayers.Add(this);
         base.Start();
     }
-    
-
     protected override void Update()
     {
         if (!(this is Zombie))
@@ -56,7 +54,6 @@ public abstract class IPlayer : Box
         }
         base.Update();
     }
-
     private void UpdateTitle()
     {
         if (title != null)
@@ -81,11 +78,6 @@ public abstract class IPlayer : Box
         shownicktime -= Time.deltaTime;
     }
     
-    [RPC]
-    public virtual void Health()
-    {        
-    }
-
     [RPC]
     public virtual void RPCSetLife(int NwLife, int killedby)
     {

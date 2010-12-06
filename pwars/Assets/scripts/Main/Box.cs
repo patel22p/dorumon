@@ -7,7 +7,7 @@ using doru;
 using System.Text.RegularExpressions;
 
 
-public class Box : MapObject
+public class Box : Base
 {
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
     public Vector3 syncPos;
@@ -161,22 +161,4 @@ public class Box : MapObject
             }
         }
     }
-}
-public class MapObject : Base
-{
-    public virtual void OnPlayerConnected1(NetworkPlayer np)
-    {
-        
-    }
-    protected override void Awake()
-    {
-        name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
-        if (Network.peerType == NetworkPeerType.Disconnected)
-            enabled = false;
-        _Game.mapobjects.Add(this);
-        base.Awake();
-    }
-    protected virtual void OnServerInitialized() { Enable(); }
-    protected virtual void OnConnectedToServer() { Enable(); }
-    protected virtual void Enable() { enabled = true; }
 }

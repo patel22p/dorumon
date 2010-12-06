@@ -1,1 +1,1 @@
-public enum DecalTypes:int{Blood,Decal,Hole}
+public enum DecalTypes:int{Blood,Hole,Decal}

@@ -17,7 +17,8 @@ public class MapItem : MapObject
     public int itemsLeft = 1;
     public bool endless;
     public MapItemType itemType = MapItemType.door;
-    public int gunIndex = 0;
+    
+    public GunType gunIndex;
     public int bullets = 1000;
     public string text = "";
     public float onTm;
@@ -143,7 +144,7 @@ public class MapItem : MapObject
             _localPlayer.score -= score;
             itemsLeft--;
             if (itemType == MapItemType.shop)
-                _localPlayer.guns[this.gunIndex].patronsLeft += this.bullets;
+                _localPlayer.guns[(int)this.gunIndex].patronsLeft += this.bullets;
             if (itemType == MapItemType.health)
             {
                 _localPlayer.Life += this.bullets;

@@ -16,10 +16,8 @@ public class Zombie : IPlayer
     public AudioClip[] gibSound;
     [LoadPath("Zombie")]
     public AudioClip[] ZombieSound;
-    [LoadPath("Skin/Images/zombie.png")]
-    public Texture zombieImage;
-    [LoadPath("Skin/Images/zombiedead.png")]
-    public Texture zombieDeadImage;
+    public Material zombieAlive;
+    public Material zombieDead;
     public Seeker seeker;
     public float zombieBiteDist = 3;
     Vector3[] pathPoints;
@@ -52,7 +50,7 @@ public class Zombie : IPlayer
         gameObject.layer = LayerMask.NameToLayer("Default");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         CallRPC(zombiespeed, zombieLife);        
-        this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", zombieImage);
+        this.transform.Find("zombie").renderer.sharedMaterials[1] = zombieAlive;
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
         Life = (int)zombieLife;
@@ -64,12 +62,12 @@ public class Zombie : IPlayer
         RaycastHit h;
         if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
         {
-            _Cam.Decals.Enqueue(new Decal
+            _Game.AddDecal
             (
-                _Game.decals[(int)DecalTypes.Blood],                
+                DecalTypes.Blood,
                 h.point - new Vector3(0, -1, 1) * 0.1f,
                 Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal)
-            ));
+            );
         }
 
 
@@ -78,7 +76,8 @@ public class Zombie : IPlayer
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
         if (isController) CallRPC(killedby);
         PlayRandSound(gibSound);
-        this.transform.Find("zombie").renderer.materials[2].SetTexture("_MainTex", zombieDeadImage);
+        Debug.Log(this.transform.Find("zombie").renderer.sharedMaterials[1].name);
+        this.transform.Find("zombie").renderer.sharedMaterials[1] = zombieDead;
         if (isController)
         {
             foreach (Player p in players)

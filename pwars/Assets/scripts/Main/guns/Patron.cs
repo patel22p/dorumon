@@ -83,7 +83,7 @@ public class Patron : Base
         }
 
         if (hit.collider.gameObject.isStatic)
-            _Cam.Decals.Enqueue(new Decal(_Game.decals[(int)decal], hit.point - rot * Vector3.forward * 0.12f, Quaternion.LookRotation(hit.normal)));            
+            _Game.AddDecal(decal, hit.point - rot * Vector3.forward * 0.12f, Quaternion.LookRotation(hit.normal));            
 
         if (explodeOnDestroy)
             Explode(hit.point);

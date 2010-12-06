@@ -15,16 +15,18 @@ public partial class RTools : InspectorSearch
 {
 
     string file;
+    public GameObject selectedGameObject;
     protected override void OnGUI()
     {
         if (GUI.Button("Init"))
-            Init();
+            Init();        
+        
         base.OnGUI();
         BuildGUI();
-
     }
     private void Init()
     {
+        
         string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
         Undo.RegisterSceneUndo("SceneInit");
         //foreach (UnityEngine.Object go in FindObjectsOfTypeIncludingAssets(typeof(UnityEngine.Object)))
@@ -42,6 +44,28 @@ public partial class RTools : InspectorSearch
         //    go.gameObject.tag = go.gameObject.name;        
         SetupLevel();
         Inits(cspath);
+    }
+
+    private void CopyComponent()
+    {
+        if (GUI.Button("Select"))
+        {
+            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
+        }
+        if (selectedGameObject != null)
+        {
+            foreach (var c in selectedGameObject.GetComponents<Component>())
+                if (GUI.Button(c.GetType().Name))
+                {
+                    foreach (GameObject g in Selection.gameObjects)
+                    {
+                        var c2 = g.AddComponent(c.GetType());
+                        foreach (FieldInfo f in c.GetType().GetFields())
+                            f.SetValue(c2, f.GetValue(c));
+                    }
+                }
+            GUI.Space(10);
+        }
     }
 
     private void Inits(string cspath)
@@ -189,7 +213,7 @@ public partial class RTools : InspectorSearch
             }
         }
     }
-    
+
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
         LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
@@ -206,10 +230,10 @@ public partial class RTools : InspectorSearch
                 pf.SetValue(scr, LoadAsset(ap.name, pf.FieldType));
         }
     }
-    bool gameScene { get { return EditorApplication.currentScene.Contains("Game.unity"); } }
+
     private void BuildGUI()
     {
-        if (!gameScene) return;
+        CopyComponent();
 
         GUI.Space(10);
         if (Application.isPlaying && Application.loadedLevelName.Contains("Game"))
@@ -228,33 +252,37 @@ public partial class RTools : InspectorSearch
         }
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
-        if (GUILayout.Button("Server Editor"))
+        if (_Loader != null)
         {
-            _Loader.mapSettings.host = true;
-            new SerializedObject(_Loader).ApplyModifiedProperties();
-            EditorApplication.isPlaying = true;
-        }
-        if (GUILayout.Button("Server App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
-        GUI.EndHorizontal();
-        GUI.BeginHorizontal();
-        if (GUILayout.Button("Client App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
-        if (GUILayout.Button("Client Editor"))
-        {
-            _Loader.mapSettings.host = false;
-            new SerializedObject(_Loader).ApplyModifiedProperties();
-            EditorApplication.isPlaying = true;
-        }
+            if (GUILayout.Button("Server Editor"))
+            {
+                _Loader.mapSettings.host = true;
+                new SerializedObject(_Loader).ApplyModifiedProperties();
+                EditorApplication.isPlaying = true;
+            }
+            if (GUILayout.Button("Server App"))
+                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
+            GUI.EndHorizontal();
+            GUI.BeginHorizontal();
+            if (GUILayout.Button("Client App"))
+                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
+            if (GUILayout.Button("Client Editor"))
+            {
+                _Loader.mapSettings.host = false;
+                new SerializedObject(_Loader).ApplyModifiedProperties();
+                EditorApplication.isPlaying = true;
+            }
 
-        GUI.EndHorizontal();
-        if (GUILayout.Button("Open Project Folder"))
-        {
-            System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
+            GUI.EndHorizontal();
+            if (GUILayout.Button("Open Project Folder"))
+            {
+                System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
+            }
+            _Loader.build = GUI.Toggle(_Loader.build, "build");
+            _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
+            _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
         }
-        _Loader.build = GUI.Toggle(_Loader.build, "build");
-        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
-        _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
+        
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
@@ -284,7 +312,7 @@ public partial class RTools : InspectorSearch
         get
         {
 
-            Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();
+            Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).FirstOrDefault();
             return l;
         }
     }

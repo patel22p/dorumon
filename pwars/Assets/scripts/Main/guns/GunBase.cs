@@ -42,5 +42,9 @@ public class GunBase : Base
     protected virtual void FixedUpdate()
     {
     }
+    public override string ToString()
+    {
+        return name;
+    }
 
 }

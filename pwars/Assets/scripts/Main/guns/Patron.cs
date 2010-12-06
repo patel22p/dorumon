@@ -19,16 +19,15 @@ public class Patron : Base
     public float timeToDestroy =5; 
     public float freezetime;    
     public float tm;
-    public Decal decal;    
+    public DecalTypes decal;    
     protected Vector3 previousPosition;
     protected virtual void Start()
-    {        
-        
+    {                
         previousPosition = transform.position;        
     }
     public override void Init()
     {
-        
+        decal = DecalTypes.Hole;
         base.Init();
     }
     protected virtual void Update()
@@ -83,8 +82,8 @@ public class Patron : Base
                 f.BreakAndDestroy();
         }
 
-        if (decal != null && hit.collider.gameObject.isStatic)
-            _Cam.Decals.Enqueue(new Decal { mesh = decal.mesh, mat = decal.mat, pos = hit.point - rot * Vector3.forward * 0.12f, rot = Quaternion.LookRotation(hit.normal)});            
+        if (hit.collider.gameObject.isStatic)
+            _Cam.Decals.Enqueue(new Decal(_Game.decals[(int)decal], hit.point - rot * Vector3.forward * 0.12f, Quaternion.LookRotation(hit.normal)));            
 
         if (explodeOnDestroy)
             Explode(hit.point);

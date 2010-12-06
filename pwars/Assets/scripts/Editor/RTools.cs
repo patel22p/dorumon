@@ -8,6 +8,7 @@ using GUI = UnityEngine.GUILayout;
 using System.IO;
 using System.Collections;
 using AstarClasses;
+using System.Text.RegularExpressions;
 
 [ExecuteInEditMode]
 public partial class RTools : InspectorSearch
@@ -65,45 +66,44 @@ public partial class RTools : InspectorSearch
     private void SetupLevel()
     {
         List<Material> handled = new List<Material>();
-        foreach (var t in GameObject.Find("Level").GetComponentsInChildren<Renderer>())
+        if(Selection.activeGameObject.name=="Level")
+        foreach (var t in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
             foreach (var m in t.sharedMaterials)
             {
-                if (!handled.Contains(m))
+                SetAlfa(m, 100f / 255f);
+                t.gameObject.isStatic = !Regex.IsMatch(m.name, "glass|light|paralax");
+                if (m.name.Contains("glass"))
+                    t.castShadows = false;
+
+
+                if (m.name.Contains("glass"))
                 {
-                    
-                    handled.Add(m);
-                    if (m.name.Contains("glass"))
-                    {
-                        m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
-                        string name = m.mainTexture.name.Replace("diffuse", "");
-                        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains("normal"));
-                        m.SetTexture("_BumpMap", o);
-                    }
-                    if (m.name.Contains("paralax"))
-                    {
-                        
-                        m.shader = Shader.Find("Reflective/Parallax Diffuse");
-                        string name = m.mainTexture.name.Replace("diffuse", "");
-                        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains("normal"));
-                        m.SetTexture("_BumpMap", o);
+                    m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
+                    string name = m.mainTexture.name.Replace("diffuse", "");
+                    Texture2D o = GetTexture(name, "normal");
 
-                        var g = new GameObject("cc", typeof(Camera));
-                        g.transform.position = t.transform.position;
-                        Cubemap cm = new Cubemap(256, TextureFormat.RGB24,false);
-                        t.gameObject.GetOrAdd<CubeMap>();
-                        g.camera.RenderToCubemap(cm);
-                        m.SetTexture("_Cube", cm);
-                        DestroyImmediate(g);
-                    }
+                    m.SetTexture("_BumpMap", o);
                 }
-
+                if (m.name.Contains("paralax"))
+                {
+                    m.shader = Shader.Find("Parallax Specular");
+                    string name = m.mainTexture.name.Replace("diffuse", "");
+                    m.SetTexture("_BumpMap", GetTexture(name, "normal"));
+                    m.SetTexture("_ParallaxMap", GetTexture(name, "bump"));                    
+                }
+                if (m.name.Contains("lamp"))
+                {
+                    m.shader = Shader.Find("Self-Illumin/Diffuse");
+                    SetAlfa(m, 150f / 255f);
+                }
             }
-        if(gameScene)
+
+
         foreach (Transform t in GameObject.Find("Level").GetComponentsInChildren<Transform>())
-        {            
+        {
             GameObject g = t.gameObject;
             g.layer = LayerMask.NameToLayer("Level");
-            g.isStatic = true;
+            //g.isStatic = true;
             if (g.name == "path")
                 g.renderer.enabled = false;
 
@@ -133,6 +133,17 @@ public partial class RTools : InspectorSearch
                 }
             }
         }
+    }
+
+    private void SetAlfa(Material m, float alfa)
+    {        
+        var c = m.color; c.a = alfa; m.color = c;
+    }
+
+    private static Texture2D GetTexture(string name, string type)
+    {
+        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains(type));
+        return o;
     }
 
     private static void PathFind(Base2 scr, FieldInfo pf)
@@ -254,8 +265,8 @@ public partial class RTools : InspectorSearch
             Debug.Log("Found!" + ge.name);
             cs += "public enum " + ge.name + ":int{";
             var ie = (IEnumerable)f.GetValue(g);
-            foreach (UnityEngine.Object o in ie)
-                cs += o.name + ",";
+            foreach (object o in ie)
+                cs += o+ ",";
             cs = cs.Trim(new[] { ',' });
             cs += "}";
             Debug.Log("geneerated:" + cs);

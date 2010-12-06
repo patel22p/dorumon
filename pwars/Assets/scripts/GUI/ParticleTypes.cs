@@ -1,1 +1,1 @@
-public enum ParticleTypes:int{particle_metal,BloodSplatters}
+public enum ParticleTypes:int{BloodSplatters,particle_metal}

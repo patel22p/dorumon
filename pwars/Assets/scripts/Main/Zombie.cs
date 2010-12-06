@@ -65,12 +65,11 @@ public class Zombie : IPlayer
         if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
         {
             _Cam.Decals.Enqueue(new Decal
-            {
-                mat = _Game.bloodDecal.mat,
-                mesh = _Game.bloodDecal.mesh,
-                pos = h.point - new Vector3(0, -1, 1) * 0.1f,
-                rot = Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal)
-            });
+            (
+                _Game.decals[(int)DecalTypes.Blood],                
+                h.point - new Vector3(0, -1, 1) * 0.1f,
+                Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal)
+            ));
         }
 
 

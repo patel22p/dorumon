@@ -233,6 +233,3 @@ public class MapSetting
     public bool Team { get { return TeamZombiSurvive || TDM; } }
     public bool zombi { get { return ZombiSurvive || TeamZombiSurvive; } }
 }
-
-
-

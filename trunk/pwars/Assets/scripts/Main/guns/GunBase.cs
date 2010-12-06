@@ -8,7 +8,7 @@ public class GunBase : Base
 {
     public bool laser;
     public int patronsDefaultCount;
-    public string _Name ="None";
+    
     public List<Transform> cursor = new List<Transform>();
     public int group { get { return int.Parse(transform.parent.name); } }
     public int patronsLeft = 0;

@@ -111,13 +111,6 @@ public class CarController : Car
         _Game.players[np].car = null;
     }
 
-    public override void Health()
-    {
-        if (Life < life)
-            Life += 30;
-        RPCSetLife(Life, -1);
-        guns[0].patronsLeft = guns[1].patronsLeft += 50;
-    }
 
     [RPC]
     public override void RPCDie(int killedby)

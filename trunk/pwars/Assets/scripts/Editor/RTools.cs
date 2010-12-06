@@ -62,11 +62,17 @@ public partial class RTools : InspectorSearch
                         var c2 = g.AddComponent(c.GetType());
                         foreach (FieldInfo f in c.GetType().GetFields())
                             f.SetValue(c2, f.GetValue(c));
+                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                        //    if(p.CanRead && p.CanWrite)
+                        //        p.SetValue(c2, p.GetValue(c,null),null);
+                        //Debug.Log(c.GetType().GetProperties().Length+"+");
                     }
                 }
             GUI.Space(10);
         }
     }
+    
+
 
     private void Inits(string cspath)
     {
@@ -89,76 +95,129 @@ public partial class RTools : InspectorSearch
 
     private void SetupLevel()
     {
+        SetupMaterials();
+        SetupItems();
+    }
+
+    private void SetupMaterials()
+    {
         List<Material> handled = new List<Material>();
-        if(Selection.activeGameObject.name=="Level")
-        foreach (var t in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
-            foreach (var m in t.sharedMaterials)
-            {
-                SetAlfa(m, 100f / 255f);
-                t.gameObject.isStatic = !Regex.IsMatch(m.name, "glass|light|paralax");
-                if (m.name.Contains("glass"))
-                    t.castShadows = false;
-
-
-                if (m.name.Contains("glass"))
+        if (Selection.activeGameObject.name == "Level")
+            foreach (var t in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
+                foreach (var m in t.sharedMaterials)
                 {
-                    m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
-                    string name = m.mainTexture.name.Replace("diffuse", "");
-                    Texture2D o = GetTexture(name, "normal");
-
-                    m.SetTexture("_BumpMap", o);
-                }
-                if (m.name.Contains("paralax"))
-                {
-                    m.shader = Shader.Find("Parallax Specular");
-                    string name = m.mainTexture.name.Replace("diffuse", "");
-                    m.SetTexture("_BumpMap", GetTexture(name, "normal"));
-                    m.SetTexture("_ParallaxMap", GetTexture(name, "bump"));                    
-                }
-                if (m.name.Contains("lamp"))
-                {
-                    m.shader = Shader.Find("Self-Illumin/Diffuse");
-                    SetAlfa(m, 150f / 255f);
-                }
-            }
+                    SetAlfa(m, 100f / 255f);
+                    t.gameObject.isStatic = !Regex.IsMatch(m.name, "glass|light|paralax");
+                    if (m.name.Contains("glass"))
+                        t.castShadows = false;
 
 
-        foreach (Transform t in GameObject.Find("Level").GetComponentsInChildren<Transform>())
-        {
-            GameObject g = t.gameObject;
-            g.layer = LayerMask.NameToLayer("Level");
-            //g.isStatic = true;
-            if (g.name == "path")
-                g.renderer.enabled = false;
-
-            foreach (string s in Enum.GetNames(typeof(MapItemType)))
-            {
-                if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
-                {
-                    g.AddComponent<NetworkView>();
-                    g.AddComponent<AudioSource>();
-                    if (g.animation != null && g.animation.clip != null)
+                    if (m.name.Contains("glass"))
                     {
+                        m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
+                        string name = m.mainTexture.name.Replace("diffuse", "");
+                        Texture2D o = GetTexture(name, "normal");
 
-                        AnimationUtility.SetAnimationEvents(g.animation.clip, new[] { 
+                        m.SetTexture("_BumpMap", o);
+                    }
+                    if (m.name.Contains("paralax"))
+                    {
+                        m.shader = Shader.Find("Parallax Specular");
+                        string name = m.mainTexture.name.Replace("diffuse", "");
+                        m.SetTexture("_BumpMap", GetTexture(name, "normal"));
+                        m.SetTexture("_ParallaxMap", GetTexture(name, "bump"));
+                    }
+                    if (m.name.Contains("lamp"))
+                    {
+                        m.shader = Shader.Find("Self-Illumin/Diffuse");
+                        SetAlfa(m, 150f / 255f);
+                    }
+                }
+    }
+
+    private void SetupItems()
+    {
+        if (Selection.activeGameObject.name == "Level")
+            foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+            {
+                if (t.animation != null && t.animation.clip == null)
+                    DestroyImmediate(t.animation);
+
+                if (t.name == "fragmentation")
+                {
+                    Transform cur = t.Find("frag");
+                    if (cur.GetComponent<Fragment>() == null)
+                        AddFragment(cur, t, true);
+                }
+
+                GameObject g = t.gameObject;
+                g.layer = LayerMask.NameToLayer("Level");
+                //g.isStatic = true;
+                if (g.name == "path")
+                {
+                    g.renderer.enabled = false;
+                    DestroyImmediate(g.collider);
+                }
+
+                foreach (string s in Enum.GetNames(typeof(MapItemType)))
+                {
+                    if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                    {
+                        g.AddComponent<NetworkView>();
+                        g.AddComponent<AudioSource>();
+                        if (g.animation != null && g.animation.clip != null)
+                        {
+
+                            AnimationUtility.SetAnimationEvents(g.animation.clip, new[] { 
                                 new AnimationEvent() { time = g.animation.clip.length, functionName = "Stop" }, 
                                 new AnimationEvent() { time = 0, functionName = "Stop" }
                             });
 
-                        g.AddComponent<Rigidbody>();
-                        g.isStatic = false;
-                        g.networkView.observed = g.animation;
-                        g.animation.playAutomatically = true;
-                        g.rigidbody.isKinematic = true;
-                        g.animation.animatePhysics = true;
+                            g.AddComponent<Rigidbody>();
+                            g.isStatic = false;
+                            g.networkView.observed = g.animation;
+                            g.animation.playAutomatically = true;
+                            g.rigidbody.isKinematic = true;
+                            g.animation.animatePhysics = true;
+                        }
+                        MapItem mi = g.AddComponent<MapItem>();
+                        mi.itemType = (MapItemType)Enum.Parse(typeof(MapItemType), s);
                     }
-                    MapItem mi = g.AddComponent<MapItem>();
-                    mi.itemType = (MapItemType)Enum.Parse(typeof(MapItemType), s);
                 }
             }
-        }
     }
+    private void Fragment()
+    {
+        var gs = GameObject.FindObjectsOfType(typeof(GameObject)).Where(a => a.name == "fragmentation").Cast<GameObject>();
+        foreach (var g in gs)
+        {
+            Transform cur = g.transform.Find("frag");
+            AddFragment(cur, g.transform, true);
+        }
 
+    }
+    private void AddFragment(Transform cur, Transform root, bool first)
+    {
+        Fragment f = cur.gameObject.AddComponent<Fragment>();        
+        f.first = first;
+        ((MeshCollider)cur.collider).convex = true;
+        if (!first)
+        {
+            cur.gameObject.active = false;
+            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
+        }
+        int i = 1;
+        for (; ; i++)
+        {
+            string nwpath = cur.name + "_frag_0" + i;
+            Transform nw = root.Find(nwpath);
+            if (nw == null) break;
+            nw.parent = cur;
+            AddFragment(nw, root, false);
+        }
+
+
+    }
     private void SetAlfa(Material m, float alfa)
     {        
         var c = m.color; c.a = alfa; m.color = c;
@@ -352,37 +411,6 @@ public partial class RTools : InspectorSearch
         }
         return aus.ToArray();
     }
-    //public static UnityEngine.Object[] LoadPrefabs(string name)
-    //{
-    //    return AssetDatabase.LoadAllAssetsAtPath("Assets/Prefabs/" + name);
-    //} 
 
 }
 
-//[CustomEditor(typeof(LookAtPointEditor))]
-//class LookAtPointEditor : Editor {
-
-
-//    //void OnInspectorGUI () {
-//    //    Debug.Log("asdasd");
-//    //    //target.lookAtPoint = EditorGUILayout.Vector3Field ("Look At Point", target.lookAtPoint);
-//    //    //if (GUI.changed)
-//    //    //    EditorUtility.SetDirty (target);
-//    //}
-//    public override void OnInspectorGUI()
-//    {
-//        Debug.Log("ads");
-//        base.OnInspectorGUI();
-//    }
-//    public override void OnPreviewGUI(Rect r, GUIStyle background)
-//    {
-//        Debug.Log("dssdf");
-//        base.OnPreviewGUI(r, background);
-//    }
-//    //void OnSceneGUI () {
-//    //    Debug.Log("asdasd");
-//    //    //target.lookAtPoint = Handles.PositionHandle (target.lookAtPoint, Quaternion.identity);
-//    //    //if (GUI.changed)
-//    //    //    EditorUtility.SetDirty (target);
-//    //}
-//}

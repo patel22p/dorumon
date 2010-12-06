@@ -4,10 +4,11 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health }
-public class MapItem : MapObject
+[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
+public class MapItem : Base
 {
     public int score;
-    [LoadPath("dooropen")]
+    //[LoadPath("Swish grainy")]
     public AudioClip opendoor;
     public bool payonce;
     public bool hide;
@@ -17,7 +18,6 @@ public class MapItem : MapObject
     public int itemsLeft = 1;
     public bool endless;
     public MapItemType itemType = MapItemType.door;
-    
     public GunType gunIndex;
     public int bullets = 1000;
     public string text = "";
@@ -47,6 +47,7 @@ public class MapItem : MapObject
         {
             endless = false;
             text = "чтобы открыть дверь нажми B";
+            Parse(ref score, 1);
         }
 
         if (itemType == MapItemType.speed)
@@ -73,6 +74,12 @@ public class MapItem : MapObject
             text = "Чтобы купить енергию нажми B";
 
         base.Init();
+    }
+    protected override void Awake()
+    {
+        foreach (var r in GetComponentsInChildren<Renderer>())
+            r.material.shader = Shader.Find("Self-Illumin/Diffuse");
+        base.Awake();
     }
     void OnPlayerOver()
     {
@@ -171,8 +178,8 @@ public class MapItem : MapObject
 
 
         if (payonce) { score = 0; endless = true; }
-        //if (opendoor != null)
-        //    PlaySound(opendoor, 10);
+        if (opendoor != null)
+            audio.PlayOneShot(opendoor, 10);        
 
         if (hide && itemsLeft == 0)
         {

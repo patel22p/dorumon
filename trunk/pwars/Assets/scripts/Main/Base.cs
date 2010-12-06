@@ -8,11 +8,11 @@ using doru;
 using System.Xml.Serialization;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 public class Base : Base2
 {
     public int OwnerID = -1;
-    //public bool logged; //{ get { return _vk._Status == VK.Status.connected; } }    
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }    
     public void ShowPopup(string s)
@@ -23,10 +23,26 @@ public class Base : Base2
     protected virtual void Awake()
     {        
         if (_Loader == null)
-            Instantiate(GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First());        
+            Instantiate(GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First());
+
+        if (networkView != null && enabled)
+        {
+            name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
+            if (Network.peerType == NetworkPeerType.Disconnected)
+            {
+                oldEnabled = enabled;
+                enabled = false;
+
+            }
+            _Game.nViews.Add(this);
+        }
     }
-    
-    
+    bool oldEnabled;
+    protected virtual void OnServerInitialized() { Enable(); }
+    protected virtual void OnConnectedToServer() { Enable(); }
+    protected virtual void Enable() { if (networkView != null) enabled = oldEnabled; }
+    public virtual void OnPlayerConnected1(NetworkPlayer np) { }
+
     public NetworkView myNetworkView
     {
         get
@@ -47,8 +63,6 @@ public class Base : Base2
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static UserView LocalUserV { get { return _Loader.LocalUserV; } set { _Loader.LocalUserV = value; } }
-    
-    //public static LayerMask collmask { get { return _Loader.collmask; } }
     public static bool DebugKey(KeyCode key)
     {
         if (Input.GetKeyDown(key) && !build) print("Debug Key" + key);
@@ -100,15 +114,13 @@ public class Base : Base2
     {
         transform.root.audio.PlayOneShot(au, volume);
     }
-    public void PlayRandSound(AudioClip[] au)
+    public void PlayRandSound(AudioClip[] au) { PlayRandSound(au, 1); }
+    public void PlayRandSound(AudioClip[] au,float volume)
     {
         if (!transform.root.audio.isPlaying)
-            transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)]);
+            transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)],volume);
     }
     public Transform root { get { return this.transform.root; } }
-    
-    
-
     public void Hide() { Show(false); }
     public void Show() { Show(true); }
 
@@ -120,8 +132,6 @@ public class Base : Base2
     }
     public static void Show(GameObject g, bool value)
     {
-            
-            
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
         {
             rigidbody.isKinematic = !value;
@@ -145,7 +155,6 @@ public class Base : Base2
                 if (r.playOnAwake) r.Play();
         }
     }
-
     public void Show(bool value) 
     {        
         Show(this.gameObject, value);

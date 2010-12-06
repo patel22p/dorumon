@@ -71,6 +71,29 @@ public class GameWindow : Base2 {
             fps = (int)_TimerA.GetFps();
         fpstext.text = "Fps: " + fps + " Errors:" + _Console.errorcount;
 
+        var ts = System.TimeSpan.FromMinutes(_Game.timeleft);
+        _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
+        if (mapSettings.Team)
+        {
+            _GameWindow.blueTeam.text = _Game.BlueFrags.ToString();
+            _GameWindow.redTeam.text = _Game.RedFrags.ToString();
+        }
+
+        if (_localiplayer != null)
+        {
+            _GameWindow.life = _localiplayer.Life;
+            _GameWindow.gunPatrons.text = _localPlayer.gun.name + ":" + _localPlayer.gun.patronsLeft;
+
+            _GameWindow.energy = (int)_localiplayer.nitro;
+            if (mapSettings.zombi)
+            {
+                _GameWindow.zombiesLeft.text = "Зомби" + _Game.AliveZombies.Count().ToString();
+                _GameWindow.level.text = "Уровень" + _Game.stage.ToString();
+            }
+            _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
+
+            _GameWindow.Score.text = "Очки " + _localPlayer.score.ToString();
+        }
 
         foreach (GUITexture a in blood)
             if (a.guiTexture.color.a > 0)

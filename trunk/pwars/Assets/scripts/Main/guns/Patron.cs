@@ -97,16 +97,14 @@ public class Patron : Base
         }
 
         IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
-
+        
 
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
-            
         }
         else
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
-        
 
         if (iplayer != null && iplayer.isController && !iplayer.dead)
         {

@@ -4,6 +4,7 @@ using UnityEngine;
 using doru;
 using System.Collections;
 
+
 [Serializable]
 public abstract class IPlayer : Box
 {
@@ -90,7 +91,7 @@ public abstract class IPlayer : Box
         if (Life <= 0 && isController)
             RPCDie(killedby);
     }
-    public bool isEnemy(int killedby)
+    public virtual bool isEnemy(int killedby)
     {
         if (this is Zombie) return true;
         if (killedby == OwnerID) return true;

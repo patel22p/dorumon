@@ -18,6 +18,7 @@ public class AstarPathEditor : Editor {
 	public AstarTab settings = AstarTab.Static;
 	public bool showGrids = true;
 	public bool showLog = false;
+	public bool showAdvanced = false;
 	
 	public GUISkin gskin;
 	public int selectedLink;
@@ -917,7 +918,17 @@ public class AstarPathEditor : Editor {
 			path.isNeighbours = AstarGUI.NeighboursToolbar (path.isNeighbours,icons[10],icons[9]);
 		}
 		
-		path.heapSize = EditorGUILayout.Slider ("Heap Size",path.heapSize,0.0F,1.0F);
+		//Advanced options
+		showAdvanced = EditorGUILayout.Foldout (showAdvanced, "Advanced");
+		
+		if (showAdvanced) {
+			EditorGUI.indentLevel++;
+			path.heapSize = EditorGUILayout.Slider ("Heap Size",path.heapSize,0.0F,1.0F);
+			AstarPath.maxPathQueueSize = EditorGUILayout.IntSlider (new GUIContent ("Path Queue Size","The max number of paths which will be able to be in the path queue at once \n[default value 1000]"),AstarPath.maxPathQueueSize,100,5000);
+			EditorGUI.indentLevel--;
+		}
+		
+		EditorGUILayout.Separator ();
 		
 		if (path.gridGenerator == GridGenerator.Texture) {
 			if (path.navTex == null) {

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health }
-[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
+//[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base
 {
     public int score;

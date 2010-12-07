@@ -47,12 +47,12 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
+        CallRPC(zombiespeed, zombieLife);
         Alive = true;
         Sync = true;
         transform.position = SpawnPoint();
         gameObject.layer = LayerMask.NameToLayer("Default");
-        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
-        CallRPC(zombiespeed, zombieLife);
+        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);        
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
         speed = zombiespeed;

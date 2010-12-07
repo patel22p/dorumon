@@ -18,6 +18,7 @@ public class Box : Base
     public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
     public float tsendpackets;
+    public bool shared=true;
     [LoadPath("Collision1")]
     public AudioClip soundcollision;
     protected override void Awake()
@@ -28,7 +29,7 @@ public class Box : Base
     protected virtual void Start()
     {
         spawnpos = transform.position;
-        if (!(this is Player))
+        if (shared)
             if (!Network.isServer)
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
@@ -55,7 +56,7 @@ public class Box : Base
             rigidbody.velocity = Vector3.zero;
         }
 
-        if (!(this is Player) && Network.isServer)
+        if (shared && Network.isServer)
             ControllerUpdate();
     }
     void ControllerUpdate()

@@ -107,7 +107,7 @@ public partial class RTools : InspectorSearch
                 foreach (var m in t.sharedMaterials)
                 {
                     SetAlfa(m, 100f / 255f);
-                    t.gameObject.isStatic = !Regex.IsMatch(m.name, "glass|light|paralax");
+                    t.gameObject.isStatic = !Regex.IsMatch(m.name, "light|paralax");
                     if (m.name.Contains("glass"))
                         t.castShadows = false;
 
@@ -116,8 +116,9 @@ public partial class RTools : InspectorSearch
                     {
                         m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
                         string name = m.mainTexture.name.Replace("diffuse", "");
-                        Texture2D o = GetTexture(name, "normal");
-
+                        Texture o = GetTexture(name, "normal");
+                        if (o == null) Debug.Log("texture not found " + name);
+                        t.tag = "glass";
                         m.SetTexture("_BumpMap", o);
                     }
                     if (m.name.Contains("paralax"))
@@ -152,7 +153,6 @@ public partial class RTools : InspectorSearch
 
                 GameObject g = t.gameObject;
                 g.layer = LayerMask.NameToLayer("Level");
-                //g.isStatic = true;
                 if (g.name == "path")
                 {
                     g.renderer.enabled = false;
@@ -198,13 +198,13 @@ public partial class RTools : InspectorSearch
     }
     private void AddFragment(Transform cur, Transform root, bool first)
     {
-        Fragment f = cur.gameObject.AddComponent<Fragment>();        
+        Fragment f = cur.gameObject.AddComponent<Fragment>();                
         f.first = first;
         ((MeshCollider)cur.collider).convex = true;
         if (!first)
         {
-            cur.gameObject.active = false;
             cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
+            cur.gameObject.active = false;            
         }
         int i = 1;
         for (; ; i++)
@@ -223,9 +223,10 @@ public partial class RTools : InspectorSearch
         var c = m.color; c.a = alfa; m.color = c;
     }
 
-    private static Texture2D GetTexture(string name, string type)
+    private static Texture GetTexture(string name, string type)
     {
-        Texture2D o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains(type));
+
+        Texture o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains(type));
         return o;
     }
 
@@ -275,8 +276,9 @@ public partial class RTools : InspectorSearch
 
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
+
         LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
-        if (ap != null)
+        if (ap != null && pf.GetValue(scr) == null)
         {
             //Debug.Log("Found Load Path " + ap.name);
             if (pf.FieldType == typeof(AudioClip))

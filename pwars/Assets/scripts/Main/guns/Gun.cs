@@ -14,7 +14,6 @@ public class Gun : GunBase
     public float exp;
     public float vibration=0;
     public AudioClip sound;
-    internal Player player;
     public int damage = 60;
     public int probivaemost = 0;
     public float otbrasivanie;
@@ -27,8 +26,7 @@ public class Gun : GunBase
     public float barrelVell;
     protected override void Awake()
     {
-        defPos2 = defPos = transform.localPosition;
-        player = root.GetComponent<Player>();
+        defPos2 = defPos = transform.localPosition;        
         base.Awake();
     }
     public override void onShow(bool enabled)
@@ -40,6 +38,7 @@ public class Gun : GunBase
     }
     protected override void Update()
     {
+        base.Update();
         if(GunPicture!=null && isOwner)
             _GameWindow.gunTexture.texture = GunPicture;
 
@@ -56,9 +55,7 @@ public class Gun : GunBase
         if (isOwner)
             LocalUpdate();
 
-        base.Update();
-
-    }
+    }    
     protected virtual void LocalUpdate()
     {
         

@@ -9,43 +9,35 @@ using System.IO;
 using System.Collections;
 using AstarClasses;
 using System.Text.RegularExpressions;
-
+using Object = UnityEngine.Object;
 [ExecuteInEditMode]
 public partial class RTools : InspectorSearch
 {
-
     string file;
+    string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public GameObject selectedGameObject;
     protected override void OnGUI()
     {
+        if (GUI.Button("SetupLevel"))
+        {
+            DestroyImmediate(GameObject.Find("level"));
+            string path = EditorApplication.currentScene.Split('.')[0] + "/";
+            path = path.Substring("Assets/".Length);
+            Debug.Log(path);
+            Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
+            Selection.activeObject.name = "level";
+            SetupLevel();            
+            Inits(cspath);
+        }
         if (GUI.Button("Init"))
-            Init();        
-        
+        {
+            Undo.RegisterSceneUndo("SceneInit");
+            if (Selection.activeGameObject != null)
+                Inits(cspath);            
+        }
         base.OnGUI();
         BuildGUI();
     }
-    private void Init()
-    {
-        
-        string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-        Undo.RegisterSceneUndo("SceneInit");
-        //foreach (UnityEngine.Object go in FindObjectsOfTypeIncludingAssets(typeof(UnityEngine.Object)))
-        //{            
-        //    if (AssetDatabase.IsMainAsset(go))
-        //    {                
-        //        if ((go is GameObject && go.hideFlags != HideFlags.NotEditable ) || go is PhysicMaterial || go is MonoScript)
-        //            AssetDatabase.SetLabels(go, new[] { go.name });
-        //        else
-        //            AssetDatabase.SetLabels(go, new string[] { });
-        //    }
-        //}
-        //SetupTextures();
-        //foreach (Transform go in Selection.activeGameObject.GetComponentInChildren<Transform>())
-        //    go.gameObject.tag = go.gameObject.name;        
-        SetupLevel();
-        Inits(cspath);
-    }
-
     private void CopyComponent()
     {
         if (GUI.Button("Select"))
@@ -71,165 +63,164 @@ public partial class RTools : InspectorSearch
             GUI.Space(10);
         }
     }
-    
-
-
     private void Inits(string cspath)
     {
-        foreach (var go in Selection.gameObjects)
+        _TimerA.AddMethod(delegate()
         {
-            foreach (var scr in go.GetComponentsInChildren<Base2>())
+            foreach (var go in Selection.gameObjects)
             {
-                scr.Init();
-                foreach (var pf in scr.GetType().GetFields())
+                foreach (var scr in go.GetComponentsInChildren<Base2>())
                 {
-                    InitLoadPath(scr, pf);
-                    CreateEnum(cspath, scr, pf);
-                    PathFind(scr, pf);
+                    scr.Init();
+                    foreach (var pf in scr.GetType().GetFields())
+                    {
+                        InitLoadPath(scr, pf);
+                        CreateEnum(cspath, scr, pf);
+                        PathFind(scr, pf);
+                    }
+                    if (scr.networkView != null && scr.networkView.observed == null)
+                        scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
                 }
-                if (scr.networkView != null && scr.networkView.observed == null)
-                    scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
             }
+        });
+
+        _TimerA.AddMethod(delegate()
+        {
+            foreach (var au in Selection.activeGameObject.GetComponentsInChildren<AudioSource>())
+                au.minDistance = 10;
+        });
+        
+    }
+    IEnumerable<T> GetAssets<T>(string path ,string pattern) where T : Object
+    {
+        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
+        {
+            string  f = f2.Replace(@"\", "/").Replace("//", "/");
+            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));            
+            if (a != null)
+                yield return a;
         }
     }
-
+    
     private void SetupLevel()
     {
-        SetupMaterials();
-        SetupItems();
-    }
-
-    private void SetupMaterials()
-    {
-        List<Material> handled = new List<Material>();
-        if (Selection.activeGameObject.name == "Level")
-            foreach (var t in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
-                foreach (var m in t.sharedMaterials)
-                {
-                    SetAlfa(m, 100f / 255f);
-                    t.gameObject.isStatic = !Regex.IsMatch(m.name, "light|paralax");
-                    if (m.name.Contains("glass"))
-                        t.castShadows = false;
-
-
-                    if (m.name.Contains("glass"))
-                    {
-                        m.shader = Shader.Find("FX/Glass/Stained BumpDistort");
-                        string name = m.mainTexture.name.Replace("diffuse", "");
-                        Texture o = GetTexture(name, "normal");
-                        if (o == null) Debug.Log("texture not found " + name);
-                        t.tag = "glass";
-                        m.SetTexture("_BumpMap", o);
-                    }
-                    if (m.name.Contains("paralax"))
-                    {
-                        m.shader = Shader.Find("Parallax Specular");
-                        string name = m.mainTexture.name.Replace("diffuse", "");
-                        m.SetTexture("_BumpMap", GetTexture(name, "normal"));
-                        m.SetTexture("_ParallaxMap", GetTexture(name, "bump"));
-                    }
-                    if (m.name.Contains("lamp"))
-                    {
-                        m.shader = Shader.Find("Self-Illumin/Diffuse");
-                        SetAlfa(m, 150f / 255f);
-                    }
-                }
-    }
-
-    private void SetupItems()
-    {
-        if (Selection.activeGameObject.name == "Level")
-            foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+        List<GameObject> destroy = new List<GameObject>();
+        foreach (Transform t in Selection.activeGameObject.GetComponentInChildren<Transform>())
+        {
+            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
+                DestroyImmediate(t.gameObject.animation);
+            t.gameObject.isStatic = true;
+        }
+        
+        var items = GetAssets<GameObject>("/Items/","*.Prefab");                
+        Debug.Log("+items count" + items.Count());
+        foreach (Transform t in Selection.activeGameObject.transform)
+        {
+            GameObject g = t.gameObject;
+            if (t.name.StartsWith("fragmentation"))
             {
-                if (t.animation != null && t.animation.clip == null)
-                    DestroyImmediate(t.animation);
-
-                if (t.name == "fragmentation")
+                foreach (Transform cur in t)
                 {
-                    Transform cur = t.Find("frag");
-                    if (cur.GetComponent<Fragment>() == null)
-                        AddFragment(cur, t, true);
-                }
-
-                GameObject g = t.gameObject;
-                g.layer = LayerMask.NameToLayer("Level");
-                if (g.name == "path")
-                {
-                    g.renderer.enabled = false;
-                    DestroyImmediate(g.collider);
-                }
-
-                foreach (string s in Enum.GetNames(typeof(MapItemType)))
-                {
-                    if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                    if (!cur.name.Contains("_"))
                     {
-                        g.AddComponent<NetworkView>();
-                        g.AddComponent<AudioSource>();
-                        if (g.animation != null && g.animation.clip != null)
-                        {
-
-                            AnimationUtility.SetAnimationEvents(g.animation.clip, new[] { 
-                                new AnimationEvent() { time = g.animation.clip.length, functionName = "Stop" }, 
-                                new AnimationEvent() { time = 0, functionName = "Stop" }
-                            });
-
-                            g.AddComponent<Rigidbody>();
-                            g.isStatic = false;
-                            g.networkView.observed = g.animation;
-                            g.animation.playAutomatically = true;
-                            g.rigidbody.isKinematic = true;
-                            g.animation.animatePhysics = true;
-                        }
-                        MapItem mi = g.AddComponent<MapItem>();
-                        mi.itemType = (MapItemType)Enum.Parse(typeof(MapItemType), s);
+                        if (cur.GetComponent<Fragment>() == null)
+                            AddFragment(cur, t, true);
                     }
                 }
             }
-    }
-    private void Fragment()
-    {
-        var gs = GameObject.FindObjectsOfType(typeof(GameObject)).Where(a => a.name == "fragmentation").Cast<GameObject>();
-        foreach (var g in gs)
-        {
-            Transform cur = g.transform.Find("frag");
-            AddFragment(cur, g.transform, true);
-        }
+            if (t.name.Contains("glass"))
+            {
+                foreach (var r in t.GetComponentsInChildren<Renderer>())
+                {
+                    r.castShadows = false;
+                    r.name += ",glass";
+                }
+            }
+            if (t.name.StartsWith("coll"))
+            {
+                g.AddOrGet<Box>().Init();
+            }
+            foreach (var itemPrefab in items)
+            {
+                if (g.name.ToLower().StartsWith(itemPrefab.name.ToLower()) && g.GetComponent<MonoBehaviour>() == null)
+                {
+                    GameObject item = ((GameObject)Instantiate(itemPrefab));
+                    item.transform.position = t.position;
+                    try
+                    {
+                        item.transform.rotation = Quaternion.LookRotation(MapItem.ParseRotation(item.name.Split(',')[1]));
+                    }
+                    catch (Exception ){  }
+                    item.transform.parent = t.parent;
+                    t.parent = item.transform;
+                    item.name = g.name;
+                    if(!item.name.StartsWith("lamp"))
+                        destroy.Add(t.gameObject);
+                    
+                }
+            }
+            if (t.name.ToLower().StartsWith("zombiespawn"))
+            {
+                t.tag = "SpawnZombie";
+                DestroyImmediate(t.renderer);
+                DestroyImmediate(t.collider);
+            }
+            if (t.name.ToLower().StartsWith("playerspawn"))
+            {
+                t.tag = "SpawnNone";
+                DestroyImmediate(t.renderer);
+                DestroyImmediate(t.collider);
+            }
 
+            g.layer = LayerMask.NameToLayer("Level");
+            if (g.name == "path")
+            {
+                g.renderer.enabled = false;
+                DestroyImmediate(g.collider);
+            }
+            
+            foreach (string s in Enum.GetNames(typeof(MapItemType)))
+            {
+                if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                {
+                    g.AddComponent<MapItem>().Init();
+                }
+            }
+        }
+        foreach (var a in destroy)
+            DestroyImmediate(a);
+        _TimerA.AddMethod(delegate
+        {
+            foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+                if (t.name.StartsWith("hide"))
+                {
+                    DestroyImmediate(t.gameObject);
+                }
+        });
     }
     private void AddFragment(Transform cur, Transform root, bool first)
     {
-        Fragment f = cur.gameObject.AddComponent<Fragment>();                
+        GameObject g = cur.gameObject;
+        g.isStatic = true;
+        Fragment f = g.AddComponent<Fragment>();
         f.first = first;
         ((MeshCollider)cur.collider).convex = true;
         if (!first)
         {
-            cur.gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-            cur.gameObject.active = false;            
+            g.layer = LayerMask.NameToLayer("HitLevelOnly");
+            g.active = false;
         }
         int i = 1;
         for (; ; i++)
         {
-            string nwpath = cur.name + "_frag_0" + i;
-            Transform nw = root.Find(nwpath);
+            string nwpath = cur.name + "_frag_" + string.Format("{0:D2}", i);
+            Transform nw = root.Find(nwpath);            
             if (nw == null) break;
+            f.child.Add(nw);
             nw.parent = cur;
             AddFragment(nw, root, false);
         }
-
-
     }
-    private void SetAlfa(Material m, float alfa)
-    {        
-        var c = m.color; c.a = alfa; m.color = c;
-    }
-
-    private static Texture GetTexture(string name, string type)
-    {
-
-        Texture o = (Texture2D)FindObjectsOfTypeIncludingAssets(typeof(Texture)).FirstOrDefault(a => a.name.ToLower().Contains(name) && a.name.ToLower().Contains(type));
-        return o;
-    }
-
     private static void PathFind(Base2 scr, FieldInfo pf)
     {
         PathFind ap = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
@@ -252,7 +243,6 @@ public partial class RTools : InspectorSearch
             }
         }
     }
-
     private static void SetupTextures()
     {
         foreach (var o in Selection.objects)
@@ -273,25 +263,26 @@ public partial class RTools : InspectorSearch
             }
         }
     }
-
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
 
         LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
-        if (ap != null && pf.GetValue(scr) == null)
+        if (ap != null)
         {
-            //Debug.Log("Found Load Path " + ap.name);
-            if (pf.FieldType == typeof(AudioClip))
-                pf.SetValue(scr, LoadAudioClip(ap.name));
-            else if (pf.FieldType == typeof(GameObject))
-                pf.SetValue(scr, LoadPrefab(ap.name));
-            else if (pf.FieldType == typeof(AudioClip[]))
-                pf.SetValue(scr, LoadAudioClips(ap.name));
+            object value = pf.GetValue(scr);
+            if (value is Array)
+            {
+                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();                
+                pf.SetValue(scr, o);
+            }
             else
-                pf.SetValue(scr, LoadAsset(ap.name, pf.FieldType));
+            if ((value == null || value.Equals(null)))
+            {
+                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
+                pf.SetValue(scr, o);
+            }
         }
     }
-
     private void BuildGUI()
     {
         CopyComponent();
@@ -372,32 +363,9 @@ public partial class RTools : InspectorSearch
     {
         get
         {
-
             Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).FirstOrDefault();
             return l;
         }
-    }
-    public static GameObject LoadPrefab(string path)
-    {
-        var g = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Prefabs/" + path + ".prefab", typeof(GameObject)) ??
-        (GameObject)AssetDatabase.LoadAssetAtPath("Assets/" + path + ".prefab", typeof(GameObject));
-        if (g == null) Debug.Log("not found prefab " + path);
-        return g;
-    }
-    public static UnityEngine.Object LoadAsset(string path, Type t)
-    {
-        var o = AssetDatabase.LoadAssetAtPath("Assets/" + path, t);
-        if (o == null) Debug.Log("could not load asset " + path);
-        return o;
-    }
-    public static AudioClip LoadAudioClip(string path)
-    {
-        var ac = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/sounds/" + path + ".wav", typeof(AudioClip));
-        if (ac == null)
-            ac = (AudioClip)AssetDatabase.LoadAssetAtPath("Assets/sounds/" + path + ".mp3", typeof(AudioClip));
-        if (ac == null) Debug.Log("not found sound " + path);
-        return ac;
-
     }
     public static AudioClip[] LoadAudioClips(string path)
     {
@@ -413,6 +381,5 @@ public partial class RTools : InspectorSearch
         }
         return aus.ToArray();
     }
-
 }
 

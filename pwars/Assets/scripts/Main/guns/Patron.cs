@@ -51,7 +51,9 @@ public class Patron : Base
             Ray ray = new Ray(previousPosition, movementThisStep);
 
             if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1))
+            {
                 ExplodeOnHit(hitInfo);
+            }
         }
         previousPosition = transform.position;
         if (magnet > 0)
@@ -83,7 +85,8 @@ public class Patron : Base
         }
 
         if (hit.collider.gameObject.isStatic)
-            _Game.AddDecal(decal, hit.point - rot * Vector3.forward * 0.12f, Quaternion.LookRotation(hit.normal));            
+            _Game.AddDecal(hit.collider.gameObject.name.Contains("glass") && decal == DecalTypes.Hole ? DecalTypes.glass : decal,
+                hit.point - rot * Vector3.forward * 0.12f, hit.normal).parent = hit.collider.transform;            
 
         if (explodeOnDestroy)
             Explode(hit.point);
@@ -96,12 +99,20 @@ public class Patron : Base
                 b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce), hit.point);
         }
 
-        IPlayer iplayer = hit.collider.gameObject.transform.root.GetComponent<IPlayer>();
-        
+        IPlayer iplayer = hit.collider.gameObject.transform.GetRoot<IPlayer>();
+
 
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
+            RaycastHit h;
+            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 3)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            {
+                _Game.AddDecal(
+                    DecalTypes.Blood,
+                    h.point - new Vector3(0, -1, 3) * 0.1f,
+                    h.normal).parent = _Game.decals.transform;
+            }
         }
         else
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);

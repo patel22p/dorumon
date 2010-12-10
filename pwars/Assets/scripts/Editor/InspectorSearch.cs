@@ -6,7 +6,9 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
+using Object = UnityEngine.Object;
 using System.IO;
+using doru;
 
 [ExecuteInEditMode]
 public class InspectorSearch : EditorWindow
@@ -26,15 +28,17 @@ public class InspectorSearch : EditorWindow
     {
         EditorPrefs.SetString("Favs", string.Join(",", instances.ToArray()));
     }
-    
     private void DrawSearch()
     {
         search = EditorGUILayout.TextField(search);
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
         {
-            if (Selection.activeGameObject != null)
-                foreach (var m in Selection.activeGameObject.GetComponents<Component>())
+            if (Selection.activeObject is GameObject || Selection.activeObject is Material)
+            {
+                IEnumerable<Object> array = new Object[] { Selection.activeObject };
+                if(Selection.activeGameObject!=null) array = array.Union(Selection.activeGameObject.GetComponents<Component>());
+                foreach (var m in array)
                 {
                     SerializedObject so = new SerializedObject(m);
                     SerializedProperty pr = so.GetIterator();
@@ -43,11 +47,14 @@ public class InspectorSearch : EditorWindow
                     {
                         if (pr.propertyPath.ToLower().Contains(search.ToLower()) && pr.editable)
                             EditorGUILayout.PropertyField(pr);
-                        if (so.ApplyModifiedProperties() && Selection.gameObjects.Length > 1)
+                        if (so.ApplyModifiedProperties() && Selection.objects.Length > 1)
+                        {                            
                             SetMultiSelect(m, pr);
+                        }
                     }
                     while (pr.NextVisible(true));
                 }
+            }
         }
     }
     private void DrawObjects()
@@ -73,29 +80,31 @@ public class InspectorSearch : EditorWindow
             instances.Remove(inst);
 
     }
-    private void SetMultiSelect(Component m, SerializedProperty pr)
+    private void SetMultiSelect(Object m, SerializedProperty pr)
     {
         switch (pr.propertyType)
         {
             case SerializedPropertyType.Float:
-                SetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
+                MySetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
                 break;
             case SerializedPropertyType.Boolean:
-                SetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
+                MySetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
                 break;
             case SerializedPropertyType.Integer:
-                SetValue(m, pr.intValue, pr.propertyPath, pr.propertyType);
+                MySetValue(m, pr.intValue, pr.propertyPath, pr.propertyType);
                 break;
             case SerializedPropertyType.String:
-                SetValue(m, pr.stringValue, pr.propertyPath, pr.propertyType);
+                MySetValue(m, pr.stringValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Color:
+                MySetValue(m, pr.colorValue, pr.propertyPath, pr.propertyType);
                 break;
         }
     }
-    void SetValue(Component c, object value, string prName, SerializedPropertyType type)
+    void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
     {
-        foreach (var o in Selection.gameObjects)
-        {
-            Component nc = o.GetComponent(c.GetType());
+        foreach (var nc in Selection.gameObjects.Select(a=>a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a =>!(a is GameObject)))) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
+        {            
             if (nc != null && nc != c)
             {
                 SerializedObject so = new SerializedObject(nc);
@@ -114,15 +123,15 @@ public class InspectorSearch : EditorWindow
                     case SerializedPropertyType.Integer:
                         pr.intValue = (int)value;
                         break;
-
+                    case SerializedPropertyType.Color:
+                        pr.colorValue = (Color)value;
+                        break;
                 }
 
                 so.ApplyModifiedProperties();
             }
         }
     }
-
-    
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
@@ -142,24 +151,18 @@ public class InspectorSearch : EditorWindow
         t2.parent = t.parent;
         t.parent = t2;
     }
-
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
         if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
     }
-    static float t1;
+    public TimerA _TimerA = new TimerA();
     protected virtual void Update()
     {
-
-        if ((t1++) % 50 == 0)
-        {                        
+        _TimerA.Update();
+        if (_TimerA.TimeElapsed(3000))
             ewnd.Repaint();
-
-        }        
-
     }
-
     static EditorWindow _ewnd;
     static EditorWindow ewnd
     {

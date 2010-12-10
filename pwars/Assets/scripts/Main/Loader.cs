@@ -57,7 +57,6 @@ public class Loader : Base
         if (!isWebPlayer)
         {
             onScreenSize();
-            print("Creating Screenshots"+curdir);
             Directory.CreateDirectory(curdir + "/ScreenShots");
             foreach (var a in Directory.GetFiles(curdir + "/ScreenShots").Reverse().Skip(100))
                 File.Delete(a);
@@ -77,9 +76,9 @@ public class Loader : Base
     }
     void onScreenSize()
     {
-        print(pr);
         if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
         {
+            print(pr);
             Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
             Screen.SetResolution(r.width, r.height, _SettingsWindow.FullScreen);
         }

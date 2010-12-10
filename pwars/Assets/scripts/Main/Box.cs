@@ -26,6 +26,20 @@ public class Box : Base
         base.Awake();
         _Game.boxDerived.Add(this);
     }
+    public override void Init()
+    {
+        gameObject.isStatic = false;
+        gameObject.AddOrGet<NetworkView>().observed = this;
+        gameObject.AddOrGet<Rigidbody>();
+        if (collider is MeshCollider)
+        {
+            ((MeshCollider)collider).convex = true;
+            rigidbody.centerOfMass = transform.worldToLocalMatrix.MultiplyPoint(collider.bounds.center);
+        }
+        
+        
+        base.Init();
+    }
     protected virtual void Start()
     {
         spawnpos = transform.position;
@@ -34,10 +48,10 @@ public class Box : Base
                 networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
-    void OnCollisionEnter(Collision infO)
+    void OnCollisionEnter(Collision coll)
     {
-        if (infO.impactForceSum.magnitude > 10)
-            PlaySound(soundcollision);
+        if (this.GetType()==typeof(Box) && coll.impactForceSum.magnitude > 10)
+            audio.PlayOneShot(soundcollision);
     }
     void OnCollisionStay(Collision collisionInfo)
     {
@@ -45,7 +59,7 @@ public class Box : Base
         if (this.GetType() == typeof(Box) && _SettingsWindow.Sparks)
             if (collisionInfo.impactForceSum.magnitude > 10 && _TimerA.TimeElapsed(10))
                 foreach (ContactPoint cp in collisionInfo.contacts)                    
-                     _Game.particles[0].Emit(cp.point, Quaternion.identity, -rigidbody.velocity / 4);
+                     _Game.particles[(int)ParticleTypes.particle_metal].Emit(cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }
     protected virtual void Update()
     {

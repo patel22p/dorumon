@@ -9,8 +9,7 @@ namespace doru
 {
     [Serializable]
     public class TimerA
-    {        
-        //public delegate void Action2();
+    {                
         int _Ticks = Environment.TickCount;
         int oldtime;
 

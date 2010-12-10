@@ -62,19 +62,7 @@ public class Zombie : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        if (!Alive) { return; }
-        RaycastHit h;
-        if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 1)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
-        {
-
-            _Game.AddDecal
-            (
-                DecalTypes.Blood,
-                h.point - new Vector3(0, -1, 1) * 0.1f,
-                Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), h.normal) * Quaternion.LookRotation(h.normal)
-            );
-        }
-
+        if (!Alive) { return; }        
         Sync = false;
         Alive = false;
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");

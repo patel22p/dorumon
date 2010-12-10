@@ -22,7 +22,8 @@ public class WindowBase : Base2
 
     public void Toggle(MonoBehaviour obj)
     {
-        if (!enabled)
+        
+        if (!enabled)        
             Show(obj);
         else
             Hide();
@@ -30,6 +31,7 @@ public class WindowBase : Base2
     }
     public void Show(MonoBehaviour controller)
     {
+        lockCursor = false;
         SendMessageUpwards("HideWindow", SendMessageOptions.DontRequireReceiver);        
         enabled = true;
         this.controller = controller;                

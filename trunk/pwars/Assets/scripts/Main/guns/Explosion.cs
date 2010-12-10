@@ -26,6 +26,7 @@ public class Explosion : Base
             }
         foreach (Fragment f in FindObjectsOfType(typeof(Fragment)))
         {
+
             if(f!=null)
                 f.Explosion(transform.position, exp, radius);
         }

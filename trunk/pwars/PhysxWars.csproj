@@ -384,6 +384,9 @@
      <Compile Include="Assets\Standard Assets\Pathfinding\AstarProcessing.cs" />
      <Compile Include="Assets\Standard Assets\Pathfinding\AstarUser.cs" />
      <Compile Include="Assets\Standard Assets\Pathfinding\Seeker.cs" />
+     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
+     <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Multiply.shader" />
+     <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js" />
      <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothFollow.js" />
      <None Include="Assets\Standard Assets\Scripts\Camera Scripts\SmoothLookAt.js" />

@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 public class Base : Base2
-{
+{    
     public int OwnerID = -1;
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }    
@@ -130,15 +130,18 @@ public class Base : Base2
         CallRPC(value);
         Show(value);
     }
+    
     public static void Show(GameObject g, bool value)
     {
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
         {
             rigidbody.isKinematic = !value;
             rigidbody.detectCollisions = value;
-            rigidbody.useGravity = value;
+            rigidbody.useGravity = value;                        
         }
-
+        foreach (var t in g.GetComponentsInChildren<Transform>())
+            t.gameObject.layer = value ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("Ignore Raycast");
+    
         foreach (var r in g.GetComponentsInChildren<Renderer>())
             r.enabled = value;
         foreach (var r in g.GetComponentsInChildren<AudioListener>())
@@ -154,12 +157,13 @@ public class Base : Base2
             else
                 if (r.playOnAwake) r.Play();
         }
-    }
+        
+    }    
     public void Show(bool value) 
     {        
         Show(this.gameObject, value);
         foreach (Base r in this.GetComponentsInChildren<Base>())
-        {
+        {            
             r.enabled = value;
             r.onShow(value);
         }

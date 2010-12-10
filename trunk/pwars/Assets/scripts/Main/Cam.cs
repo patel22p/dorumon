@@ -41,15 +41,21 @@ public class Cam : Base
     {
         
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
-        ssao.enabled = _SettingsWindow.Sao;
-        blur.enabled = _SettingsWindow.MotionBlur;
-        //bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares;
+        if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
+        if (blur.enabled != _SettingsWindow.MotionBlur) { blur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + blur.enabled); }
+
         if (!_SettingsWindow.Shadows)
+        {
+            Debug.Log("shadows are dissabled" + _SettingsWindow.Shadows);
             foreach (Light l in GameObject.FindObjectsOfType(typeof(Light)))
                 l.shadows = LightShadows.None;
-        if (_SettingsWindow.iRenderSettings != -1)
+        }
+        if (_SettingsWindow.iRenderSettings != -1 && _SettingsWindow.iRenderSettings != 2)
+        {
+            Debug.Log("render type settings chagned" + (RenderingPath)_SettingsWindow.iRenderSettings);
             foreach (Camera c in GameObject.FindObjectsOfType(typeof(Camera)))
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
+        }
     }
 
     void Start()
@@ -105,8 +111,9 @@ public class Cam : Base
             RaycastHit h;
             Vector3 campos = transform.position;
             Vector3 plpos = _localiplayer.transform.position;
-            if (Physics.Raycast(new Ray(campos, plpos - campos), out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
-                transform.position = h.point;
+            Ray r = new Ray(campos, plpos - campos);
+            if (Physics.Raycast(r, out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
+                transform.position = h.point + r.direction.normalized;
 
         }
 

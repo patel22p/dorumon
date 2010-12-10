@@ -28,19 +28,14 @@ public class Game : Base
     public GameObject effects;
     [PathFind("GameEffects/decals", true)]
     public GameObject decals;
-    public void AddDecal(DecalTypes t, Vector3 pos, Quaternion rot)
+    public Transform AddDecal(DecalTypes t, Vector3 pos, Vector3 normal)
     {
-        if (t == DecalTypes.Blood)
-        {
-            Debug.DrawRay(pos, Vector3.up);
-            Debug.Log(pos + "+");
-        }
         Decal d = decalPresets[(int)t];
         d.mesh.renderer.material = d.mat;
         d.mesh.transform.localScale = Vector3.one * d.scale;
-        var g = ((GameObject)Instantiate(d.mesh, pos, rot));
-        g.transform.parent = decals.transform;
+        var g = ((GameObject)Instantiate(d.mesh, pos, Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), normal) * Quaternion.LookRotation(normal)));        
         Destroy(g,10);
+        return g.transform;
     }
     public int stage;
     public float timeleft = 20;
@@ -61,7 +56,7 @@ public class Game : Base
     public GameObject playerPrefab;
     protected override void Awake()
     {
-        Debug.Log("+game Awake");
+
         base.Awake();
         clearObjects("SpawnNone");
         clearObjects("SpawnZombie");
@@ -69,10 +64,11 @@ public class Game : Base
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
         
-        Debug.Log("cmdserver:" + _Loader.cmd.Contains("server"));
+        Debug.Log("cmdserver:" + _Loader.cmd.Contains("client"));
         print("mapSettings.host " + mapSettings.host);
+        
         if (Network.peerType == NetworkPeerType.Disconnected)
-            if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
+            if ((mapSettings.host && Application.isEditor) || !_Loader.cmd.Contains("client"))
                 Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);
             else
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
@@ -100,10 +96,7 @@ public class Game : Base
     
     void Start()
     {
-        Debug.Log("+game Start");
-        //if (_Loader.disablePathFinding) GameObject.Find("PathFinding").active = false;        
-        print("ZGameStart");
-        //_vk.enabled = false;        
+        Debug.Log("game Start");
         print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
@@ -141,7 +134,7 @@ public class Game : Base
                     _GameStatsWindow.PlayerStats += string.Format(table, "", pl.nick, pl.team, pl.score, pl.frags, pl.deaths, pl.fps, pl.ping) + "\r\n";
         }
 
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) lockCursor = !lockCursor;
+        if (Input.GetMouseButtonDown(1)) lockCursor = !lockCursor;
 
         if (!_Loader.dontcheckwin) CheckWin();
 
@@ -149,7 +142,9 @@ public class Game : Base
             ZUpdate();
 
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
             _GameMenuWindow.Toggle(this);
+        }
 
         if (_TimerA.TimeElapsed(1000))
             RPCPingFps(Network.player.GetHashCode(),

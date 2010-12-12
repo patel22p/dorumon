@@ -38,31 +38,6 @@ public partial class RTools : InspectorSearch
         base.OnGUI();
         BuildGUI();
     }
-    private void CopyComponent()
-    {
-        if (GUI.Button("Select"))
-        {
-            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
-        }
-        if (selectedGameObject != null)
-        {
-            foreach (var c in selectedGameObject.GetComponents<Component>())
-                if (GUI.Button(c.GetType().Name))
-                {
-                    foreach (GameObject g in Selection.gameObjects)
-                    {
-                        var c2 = g.AddComponent(c.GetType());
-                        foreach (FieldInfo f in c.GetType().GetFields())
-                            f.SetValue(c2, f.GetValue(c));
-                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                        //    if(p.CanRead && p.CanWrite)
-                        //        p.SetValue(c2, p.GetValue(c,null),null);
-                        //Debug.Log(c.GetType().GetProperties().Length+"+");
-                    }
-                }
-            GUI.Space(10);
-        }
-    }
     private void Inits(string cspath)
     {
         _TimerA.AddMethod(delegate()
@@ -91,33 +66,24 @@ public partial class RTools : InspectorSearch
         });
         
     }
-    IEnumerable<T> GetAssets<T>(string path ,string pattern) where T : Object
-    {
-        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
-        {
-            string  f = f2.Replace(@"\", "/").Replace("//", "/");
-            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));            
-            if (a != null)
-                yield return a;
-        }
-    }
-    
     private void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
+        
         foreach (Transform t in Selection.activeGameObject.GetComponentInChildren<Transform>())
         {
             if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
                 DestroyImmediate(t.gameObject.animation);
             t.gameObject.isStatic = true;
         }
-        
-        var items = GetAssets<GameObject>("/Items/","*.Prefab");                
-        Debug.Log("+items count" + items.Count());
+
+        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+            t.gameObject.layer = LayerMask.NameToLayer("Level");
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
-            if (t.name.StartsWith("fragmentation"))
+            string[] param = g.name.Split(',');
+            if (param[0] == ("fragmentation"))
             {
                 foreach (Transform cur in t)
                 {
@@ -130,63 +96,51 @@ public partial class RTools : InspectorSearch
             }
             if (t.name.Contains("glass"))
             {
-                foreach (var r in t.GetComponentsInChildren<Renderer>())
+                foreach (var t2 in t.GetComponentsInChildren<Transform>())
                 {
-                    r.castShadows = false;
-                    r.name += ",glass";
+                    if (t2.GetComponent<Renderer>() != null)
+                        t2.renderer.castShadows = false;
+                    t2.name += ",glass";
                 }
             }
-            if (t.name.StartsWith("coll"))
+            if (param[0] == ("coll"))
             {
                 g.AddOrGet<Box>().Init();
             }
+            var items = GetAssets<GameObject>("/Items/", "*.Prefab");
+            Debug.Log("+items count" + items.Count());
             foreach (var itemPrefab in items)
             {
-                if (g.name.ToLower().StartsWith(itemPrefab.name.ToLower()) && g.GetComponent<MonoBehaviour>() == null)
+                if (param[0].ToLower() == itemPrefab.name.ToLower() && g.GetComponent<MonoBehaviour>() == null)
                 {
                     GameObject item = ((GameObject)Instantiate(itemPrefab));
+                    if (ParseRotation(g.name) != Vector3.zero)
+                        item.transform.rotation = Quaternion.LookRotation(ParseRotation(g.name));
                     item.transform.position = t.position;
-                    try
-                    {
-                        item.transform.rotation = Quaternion.LookRotation(MapItem.ParseRotation(item.name.Split(',')[1]));
-                    }
-                    catch (Exception ){  }
                     item.transform.parent = t.parent;
                     t.parent = item.transform;
                     item.name = g.name;
-                    if(!item.name.StartsWith("lamp"))
+                    if (!item.name.StartsWith("lamp"))
                         destroy.Add(t.gameObject);
-                    
+
                 }
             }
-            if (t.name.ToLower().StartsWith("zombiespawn"))
-            {
-                t.tag = "SpawnZombie";
-                DestroyImmediate(t.renderer);
-                DestroyImmediate(t.collider);
-            }
-            if (t.name.ToLower().StartsWith("playerspawn"))
-            {
-                t.tag = "SpawnNone";
-                DestroyImmediate(t.renderer);
-                DestroyImmediate(t.collider);
-            }
-
-            g.layer = LayerMask.NameToLayer("Level");
             if (g.name == "path")
             {
-                g.renderer.enabled = false;
-                DestroyImmediate(g.collider);
+                Debug.Log("founded path");
+                destroy.Add(g);
             }
-            
+
             foreach (string s in Enum.GetNames(typeof(MapItemType)))
             {
-                if (t.name.StartsWith(s) && g.GetComponent<MapItem>() == null)
+                if (param[0].ToLower() == s.ToLower() && g.GetComponent<MapItem>() == null)
                 {
                     g.AddComponent<MapItem>().Init();
                 }
             }
+            
         }
+        
         foreach (var a in destroy)
             DestroyImmediate(a);
         _TimerA.AddMethod(delegate
@@ -223,23 +177,23 @@ public partial class RTools : InspectorSearch
     }
     private static void PathFind(Base2 scr, FieldInfo pf)
     {
-        PathFind ap = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
-        if (ap != null)
+        PathFind atr = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
+        if (atr != null)
         {
             Debug.Log(pf.Name);
-            if (ap.scene)
+            if (atr.scene)
             {
                 if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, GameObject.Find(ap.name).gameObject);
+                    pf.SetValue(scr, GameObject.Find(atr.name).gameObject);
                 else
-                    pf.SetValue(scr, GameObject.Find(ap.name).GetComponent(pf.FieldType));
+                    pf.SetValue(scr, GameObject.Find(atr.name).GetComponent(pf.FieldType));
             }
             else
             {
                 if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, scr.transform.Find(ap.name).gameObject);
+                    pf.SetValue(scr, scr.transform.Find(atr.name).gameObject);
                 else
-                    pf.SetValue(scr, scr.transform.Find(ap.name).GetComponent(pf.FieldType));
+                    pf.SetValue(scr, scr.transform.Find(atr.name).GetComponent(pf.FieldType));
             }
         }
     }
@@ -380,6 +334,73 @@ public partial class RTools : InspectorSearch
                 Debug.Log("not found audio+" + s);
         }
         return aus.ToArray();
+    }
+    public static Vector3 ParseRotation(string name)
+    {
+        Match m;
+        if ((m = Regex.Match(name, ",(-?(?:y|x|z))(?:$|,)")).Success)
+        {
+            string s = m.Groups[1].Value;
+            Vector3 v = new Vector3();
+            switch (s)
+            {
+                case "x":
+                    v = (new Vector3(-1, 0, 0));
+                    break;
+                case "-x":
+                    v = (new Vector3(1, 0, 0));
+                    break;
+                case "-z":
+                    v = (new Vector3(0, -1, 0));
+                    break;
+                case "z":
+                    v = (new Vector3(0, 1, 0));
+                    break;
+                case "y":
+                    v = (new Vector3(0, 0, -1));
+                    break;
+                case "-y":
+                    v = (new Vector3(0, 0, 1));
+                    break;
+            };
+            return v;
+        }
+        return new Vector3();
+    }
+    IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
+    {
+        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
+        {
+            string f = f2.Replace(@"\", "/").Replace("//", "/");
+            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));
+            if (a != null)
+                yield return a;
+        }
+    }
+    private void CopyComponent()
+    {
+        if (GUI.Button("Select"))
+        {
+            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
+        }
+        if (selectedGameObject != null)
+        {
+            foreach (var c in selectedGameObject.GetComponents<Component>())
+                if (GUI.Button(c.GetType().Name))
+                {
+                    foreach (GameObject g in Selection.gameObjects)
+                    {
+                        var c2 = g.AddComponent(c.GetType());
+                        foreach (FieldInfo f in c.GetType().GetFields())
+                            f.SetValue(c2, f.GetValue(c));
+                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                        //    if(p.CanRead && p.CanWrite)
+                        //        p.SetValue(c2, p.GetValue(c,null),null);
+                        //Debug.Log(c.GetType().GetProperties().Length+"+");
+                    }
+                }
+            GUI.Space(10);
+        }
     }
 }
 

@@ -11,7 +11,7 @@ using System;
 public static class Ext { 
     public static T Random<T>(this IEnumerable<T> source)
     {
-        return source.Skip(UnityEngine.Random.Range(0, source.Count() - 1) - 1).First();
+        return source.Skip(UnityEngine.Random.Range(0, source.Count() - 1) - 1).FirstOrDefault();
     }
     public static T AddOrGet<T>(this GameObject g)where T : Component
     {
@@ -30,6 +30,12 @@ public static class Ext {
             t = t.parent;
         }
     }
+
+    public static T GetComponentInParrent<T>(this Transform t) where T : Component
+    {
+        return t.GetComponent<T>()??t.parent.GetComponent<T>();
+    }
+
     //public static IEnumerable<T> ShuffleIterator<T>(
     //   this IEnumerable<T> source, Random rng)
     //{

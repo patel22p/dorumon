@@ -91,18 +91,23 @@ public class Zombie : IPlayer
             Vector3 zToPlDir = ipl.transform.position - pos;
             if (zToPlDir.magnitude > zombieBiteDist)
             {
-                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
-                //Debug.DrawLine(pos, pos + pathPointDir);
-                pathPointDir.y = 0;
-                rot = Quaternion.LookRotation(pathPointDir.normalized);
-                move = true;
-                tiltTm += Time.deltaTime;
-                if (tiltTm>10 && isController)
+                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? Vector3.zero);
+                if (pathPointDir == Vector3.zero)
+                    move = false;
+                else
                 {
-                    tiltTm = 0;
-                    if (Vector3.Distance(oldpos, pos) < 1)
-                        pos = SpawnPoint();
-                    oldpos = pos;
+                    Debug.DrawLine(pos, pos + pathPointDir);
+                    pathPointDir.y = 0;
+                    rot = Quaternion.LookRotation(pathPointDir.normalized);
+                    move = true;
+                    tiltTm += Time.deltaTime;
+                    if (tiltTm > 10 && isController)
+                    {
+                        tiltTm = 0;
+                        if (Vector3.Distance(oldpos, pos) < 1)
+                            pos = SpawnPoint();
+                        oldpos = pos;
+                    }
                 }
             }
             else
@@ -169,7 +174,7 @@ public class Zombie : IPlayer
         if (found)
             for (; ni < points.Count; ni++)
             {
-                if (Vector3.Distance(points[ni], pos) > 5)
+                if (Vector3.Distance(points[ni], pos) > 2)
                     return points[ni] - pos;
             }
 
@@ -206,8 +211,10 @@ public class Zombie : IPlayer
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         IPlayer pl = Nearest(); 
         if (pl == null) return gs.First().transform.position;
-        return (gs.Where(a => Vector3.Distance(a.transform.position, pos) < 10).FirstOrDefault() ?? 
-            gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.transform.position)).First()
+        var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 200 && Math.Abs(a.transform.position.y - pl.pos.y) < 3);
+        Debug.Log(neargs.Count());
+        return (neargs.Random() ??
+            gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos)).First()
             ).transform.position;        
     }
     [RPC]

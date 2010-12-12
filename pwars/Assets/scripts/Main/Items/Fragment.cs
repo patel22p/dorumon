@@ -9,6 +9,7 @@ public class Fragment : Base
     {
         if (rigidbody != null)
             rigidbody.AddExplosionForce(power, pos, radius);
+        
         if (transform.childCount > 0 && Vector3.Distance(transform.position, pos) < radius)
         {
             Break();
@@ -22,7 +23,6 @@ public class Fragment : Base
                 }
             }
             Destroy(this.gameObject);
-
         }
     }
     

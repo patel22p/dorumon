@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health }
+public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health, trap }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base
 {
@@ -13,6 +13,7 @@ public class MapItem : Base
     public AudioClip opendoor;
     public bool payonce;
     public bool hide;
+    public bool autoTake;
     public Vector3 Jumper = new Vector3(0, 1000, 0);
     public Vector2 Speed;
     public float distance=10;
@@ -31,7 +32,6 @@ public class MapItem : Base
     public GameObject wavePrefab;
     [LoadPath("superphys_launch3")]
     public AudioClip superphys_launch3;
-
     public override void Init()
     {
         foreach(Transform t in GetComponentsInChildren<Transform>())
@@ -53,7 +53,18 @@ public class MapItem : Base
             a.animation.wrapMode = WrapMode.Once;            
             a.animatePhysics = true;
         }
+        if (itemType == MapItemType.trap)
+        {
+            bullets = 20;
+            endless = true;
+            score = 2;
 
+        }
+
+        if (itemType == MapItemType.trap)
+        {
+            text = "Чтобы использовать лавушку нажми B";
+        }
         if (itemType == MapItemType.lift)
         {
             text = "Чтобы использовать лифт нажми B";
@@ -74,17 +85,14 @@ public class MapItem : Base
         
         if (itemType == MapItemType.speed)
         {
-            distance = 0;
-            payonce = true;
+            distance = 0;            
+            autoTake = true;
+            endless = true;
             text = "Ускоряет шар";
-            Debug.Log("init");
             try
             {
-                Vector3 v = ParseRotation(param[1]) * float.Parse(param[2]);
-                Speed.x = v.x;
-                Speed.y = v.z;
-                Debug.Log(Speed);
-
+                Speed.x = float.Parse(param[1]);
+                Speed.y = -float.Parse(param[2]);
             }
             catch (Exception e) { Debug.Log(e); }            
         }
@@ -100,6 +108,14 @@ public class MapItem : Base
         {
             text = "Выбери гравипушку и стреляй по етому предмету";
             payonce = true;
+            distance = 0;
+            try
+            {
+                Jumper.x = -float.Parse(param[1]);
+                Jumper.y = float.Parse(param[3]);
+                Jumper.z = -float.Parse(param[2]);
+            }
+            catch { }
         }
         if (itemType == MapItemType.health)
             text = "Чтобы купить енергию нажми B";
@@ -114,7 +130,6 @@ public class MapItem : Base
 
         base.Init();
     }
-
     protected override void Awake()
     {
         
@@ -123,7 +138,6 @@ public class MapItem : Base
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
         base.Awake();
     }
-
     void Start()
     {
         if(animation!=null)
@@ -144,23 +158,25 @@ public class MapItem : Base
 
         if (TmOn > 0 && (animation == null || !animation.isPlaying))
         {
-            if (itemType == MapItemType.speed && tmCollEnter < 0)
-            {
-                _localPlayer.rigidbody.AddTorque(Speed.y, 0, Speed.x);
-                tmCollEnter = 1;
-            }
+            JumperUpdate();
+            
 
-            if (Input.GetKeyDown(KeyCode.B) && _localPlayer.score >= score)
+            if ((Input.GetKeyDown(KeyCode.B) || autoTake) && (_localPlayer.score >= score || debug))
             {
+                if (itemType == MapItemType.speed && tmCollEnter < 0)
+                {
+                    _localPlayer.rigidbody.AddTorque(Speed.y, 0, Speed.x);
+                    tmCollEnter = 1;
+                }
+
                 CheckOut();
             }
-            if (endless || itemsLeft > 0)
+            if ((endless || itemsLeft > 0) && text != "")
                 _GameWindow.CenterText.text = text + (score > 0 ? (", нужно заплатить " + score + " очков") : "");
-            JumperUpdate();
+            
         }
         if (TmOn < 0)
         {
-
             _GameWindow.CenterText.text = "";
             TmOn = 0;
         }
@@ -170,14 +186,16 @@ public class MapItem : Base
         tmJumper -= Time.deltaTime;
         if (itemType == MapItemType.jumper && _localPlayer.selectedgun == (int)GunType.physxgun && score == 0)
         {
-            if (Input.GetMouseButtonDown(0) && tmJumper < 0)
+            if (Input.GetMouseButtonUp(0) && tmJumper < 0 && (_localPlayer.gun.patronsLeft > 10 || debug))
             {
                 tmJumper = 1;
+                _localPlayer.gun.patronsLeft -= 10;
                 _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass);
+                PlaySound(superphys_launch3);
+                GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
+                Destroy(g, 1.6f);
             }
-            PlaySound(superphys_launch3);
-            GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot * Quaternion.Euler(90, 0, 0));
-            Destroy(g, 1.6f);
+            
         }
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
@@ -185,9 +203,15 @@ public class MapItem : Base
         networkView.RPC("RPCCheckOut", np, itemsLeft);
         base.OnPlayerConnected1(np);
     }
-
     void OnCollisionStay(Collision c)
     {
+        if (itemType == MapItemType.trap)
+        {
+            var ipl = c.gameObject.GetComponent<IPlayer>();
+            if (_TimerA.TimeElapsed(100) && ipl != null && ipl.isController)
+                ipl.RPCSetLife(ipl.Life - bullets, -1);
+        }
+            
         if (c.gameObject == _localPlayer.gameObject)
             TmOn = 1;
     }
@@ -199,7 +223,10 @@ public class MapItem : Base
             _localPlayer.score -= score;
             itemsLeft--;
             if (itemType == MapItemType.shop)
+            {
                 _localPlayer.guns[(int)this.gunIndex].patronsLeft += this.bullets;
+                _localPlayer.RPCSelectGun((int)this.gunIndex);
+            }
             if (itemType == MapItemType.health)
             {
                 _localPlayer.Life += this.bullets;
@@ -225,7 +252,7 @@ public class MapItem : Base
             animation.Play();
 
 
-        if (payonce) { score = 0; endless = true; }
+        if (payonce) { score = 0; endless = true; payonce = false; }
         if (opendoor != null)
             audio.PlayOneShot(opendoor, 10);
 
@@ -241,7 +268,6 @@ public class MapItem : Base
         if (animation != null && animation.clip != null)
             animation["Take 001"].enabled = false;
     }
-
     private void Parse(ref float t, int id)
     {
         try
@@ -250,26 +276,7 @@ public class MapItem : Base
         }
         catch (System.Exception) { }
     }
-    public static Vector3 ParseRotation(string s)
-    {
-            switch (s)
-            {
-                case "x":
-                    return (new Vector3(-1, 0, 0));
-                case "-x":
-                    return (new Vector3(1, 0, 0));
-                case "-z":
-                    return (new Vector3(0, -1, 0));
-                case "z":
-                    return (new Vector3(0, 1, 0));
-                case "y":
-                    return (new Vector3(0, 0, -1));
-                case "-y":
-                    return (new Vector3(0, 0, 1));
-
-            };
-            throw new System.Exception("cannot parse");
-    }
+    
     private void Parse(ref int t, int id)
     {
         try

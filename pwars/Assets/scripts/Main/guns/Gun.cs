@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 public class Gun : GunBase
 {
     public float interval = 1;
@@ -19,11 +20,20 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
+    public LineRenderer laserRender;
     Vector3 defPos,defPos2;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
     int cursorid;
     public float barrelVell;
+    
+    public Light fireLight;
+    public override void Init()
+    {
+        base.Init();
+        fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point); 
+        laserRender = root.GetComponentInChildren<LineRenderer>();
+    }
     protected override void Awake()
     {
         defPos2 = defPos = transform.localPosition;        
@@ -39,8 +49,20 @@ public class Gun : GunBase
     protected override void Update()
     {
         base.Update();
-        if(GunPicture!=null && isOwner)
+        if (GunPicture != null && isOwner)
             _GameWindow.gunTexture.texture = GunPicture;
+
+        if (laser || debug)
+        {
+            laserRender.enabled = true;
+            Ray r = new Ray(cursor[0].position, rot * new Vector3(0,0,1));
+            RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
+            Physics.Raycast(r, out h, 100);
+            laserRender.SetPosition(0, r.origin);
+            laserRender.SetPosition(1, h.point);
+        }
+        else
+            laserRender.enabled = false;
 
         if (barrel != null)
         {            
@@ -62,7 +84,7 @@ public class Gun : GunBase
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
-            if (patronsLeft > 0)
+            if (patronsLeft > 0 || debug)
             {
                 patronsLeft--;
                 RPCShoot();
@@ -87,7 +109,7 @@ public class Gun : GunBase
             if (cursorid >= cursor.Count) cursorid = 0;
             foreach (var p in cursor[cursorid].GetComponentsInChildren<ParticleEmitter>())
                 p.Emit();
-            Light fireLight = cursor[cursorid].GetComponentInChildren<Light>();
+            
             if (fireLight != null && !fireLight.enabled)
             {
                 fireLight.enabled = true;

@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 public class Base : Base2
 {    
@@ -59,6 +60,7 @@ public class Base : Base2
     public static string version { get { return isWebPlayer ? "" : System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
     public const string hosting = "http://physxwars.rh10.ru/";
     public static bool build { get { return _Loader.build; } }
+    public static bool debug { get { return !_Loader.build; } }
     public static bool skip { get { return _Loader.skip; } }
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
@@ -110,15 +112,17 @@ public class Base : Base2
     {
         PlaySound(au, 1);
     }
+    
     public void PlaySound(AudioClip au, float volume)
     {
-        transform.root.audio.PlayOneShot(au, volume);
+
+        transform.GetComponentInParrent<AudioSource>().PlayOneShot(au, volume);
     }
     public void PlayRandSound(AudioClip[] au) { PlayRandSound(au, 1); }
     public void PlayRandSound(AudioClip[] au,float volume)
-    {
+    {        
         if (!transform.root.audio.isPlaying)
-            transform.root.audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)],volume);
+            transform.GetComponentInParrent<AudioSource>().audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)], volume);
     }
     public Transform root { get { return this.transform.root; } }
     public void Hide() { Show(false); }
@@ -171,16 +175,21 @@ public class Base : Base2
     public virtual void onShow(bool enabled)
     {
     }
-    public void CallRPC(params object[] obs)
-    {                
-        MethodBase rpcmethod = new System.Diagnostics.StackFrame(1, true).GetMethod();
+    public bool CallRPC(params object[] obs)
+    {
+        MethodBase rpcmethod = new StackFrame(1, true).GetMethod();        
         MethodBase mb;
         for (int i = 2; true; i++)
         {
-            mb = new System.Diagnostics.StackFrame(i, true).GetMethod();
+            mb = new StackFrame(i, true).GetMethod();
             if (mb == null || mb.Name != rpcmethod.Name) break;
         }
         if (mb != null)
-            networkView.RPC(rpcmethod.Name, RPCMode.Others, obs);
+        {                        
+            networkView.RPC(rpcmethod.Name, RPCMode.All, obs);
+            return true;
+        }
+        else
+            return false;
     }
 }

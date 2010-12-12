@@ -34,7 +34,7 @@ public class InspectorSearch : EditorWindow
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
         {
-            if (Selection.activeObject is GameObject || Selection.activeObject is Material)
+            if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
             {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
                 if(Selection.activeGameObject!=null) array = array.Union(Selection.activeGameObject.GetComponents<Component>());

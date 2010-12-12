@@ -29,8 +29,8 @@ public class SettingsWindow : WindowBase {
 	public bool FullScreen=false;
 	public bool focusBlood;
 	public bool Blood { get { return PlayerPrefs.GetInt("Blood", 1) == 1; } set { PlayerPrefs.SetInt("Blood", value?1:0); } }
-	public bool focusSparks;
-	public bool Sparks { get { return PlayerPrefs.GetInt("Sparks", 1) == 1; } set { PlayerPrefs.SetInt("Sparks", value?1:0); } }
+	public bool focusDecals;
+	public bool Decals { get { return PlayerPrefs.GetInt("Decals", 1) == 1; } set { PlayerPrefs.SetInt("Decals", value?1:0); } }
 	public bool focusAtmoSphere;
 	public bool AtmoSphere { get { return PlayerPrefs.GetInt("AtmoSphere", 1) == 1; } set { PlayerPrefs.SetInt("AtmoSphere", value?1:0); } }
 	public bool focusSao;
@@ -58,7 +58,7 @@ public class SettingsWindow : WindowBase {
 	private Vector2 sScreenSize;
 	private bool oldMouseOverFullScreen;
 	private bool oldMouseOverBlood;
-	private bool oldMouseOverSparks;
+	private bool oldMouseOverDecals;
 	private bool oldMouseOverAtmoSphere;
 	private bool oldMouseOverSao;
 	private bool oldMouseOverShadows;
@@ -85,15 +85,15 @@ public class SettingsWindow : WindowBase {
     {		
 		GUI.skin = _Loader.Skin;
         
-		GUI.Window(wndid1,new Rect(-262.5f + Screen.width/2,-346f + Screen.height/2,531f,641f), Wnd1,"");
+		GUI.Window(wndid1,new Rect(-366.5f + Screen.width/2,-209f + Screen.height/2,729f,418f), Wnd1,"");
 
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 413.333f), "");
-		GUI.Box(new Rect(0, 0, 463.5f, 413.333f), "");
+		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 368.333f), "");
+		GUI.Box(new Rect(0, 0, 463.5f, 368.333f), "");
 		if(focusGraphicQuality) { focusGraphicQuality = false; GUI.FocusControl("GraphicQuality");}
 		GUI.SetNextControlName("GraphicQuality");
 		GUI.Box(new Rect(49.5f, 38.833f, 111.013f, 112.167f), "");
@@ -129,14 +129,14 @@ public class SettingsWindow : WindowBase {
 		onMouseOver = new Rect(30.5f, 180f, 50.44667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverBlood != onMouseOver && onMouseOver) onOver();
 		oldMouseOverBlood = onMouseOver;
-		if(focusSparks) { focusSparks = false; GUI.FocusControl("Sparks");}
-		GUI.SetNextControlName("Sparks");
-		bool oldSparks = Sparks;
-		Sparks = GUI.Toggle(new Rect(30.5f, 199.96f, 53.06f, 15.96f),Sparks, new GUIContent("Искры",""));
-		if (Sparks != oldSparks ) {Action("onSparks");onButtonClick(); }
-		onMouseOver = new Rect(30.5f, 199.96f, 53.06f, 15.96f).Contains(Event.current.mousePosition);
-		if (oldMouseOverSparks != onMouseOver && onMouseOver) onOver();
-		oldMouseOverSparks = onMouseOver;
+		if(focusDecals) { focusDecals = false; GUI.FocusControl("Decals");}
+		GUI.SetNextControlName("Decals");
+		bool oldDecals = Decals;
+		Decals = GUI.Toggle(new Rect(30.5f, 199.96f, 49f, 15.96f),Decals, new GUIContent("decals",""));
+		if (Decals != oldDecals ) {Action("onDecals");onButtonClick(); }
+		onMouseOver = new Rect(30.5f, 199.96f, 49f, 15.96f).Contains(Event.current.mousePosition);
+		if (oldMouseOverDecals != onMouseOver && onMouseOver) onOver();
+		oldMouseOverDecals = onMouseOver;
 		if(focusAtmoSphere) { focusAtmoSphere = false; GUI.FocusControl("AtmoSphere");}
 		GUI.SetNextControlName("AtmoSphere");
 		bool oldAtmoSphere = AtmoSphere;
@@ -187,15 +187,14 @@ public class SettingsWindow : WindowBase {
 		GUI.EndScrollView();
 		GUI.Label(new Rect(330.5f, 72f, 49.81667f, 21.96f), @"Рендер");
 		GUI.Label(new Rect(8f, 162f, 49.98f, 21.96f), @"Ефекты");
-		GUI.Label(new Rect(357.5f, 162f, 55f, 14f), @"10");
 		GUI.BeginGroup(new Rect(8f, 228.92f, 447.5f, 134.667f), "");
 		GUI.Box(new Rect(0, 0, 447.5f, 134.667f), "");
 		GUI.Label(new Rect(14.667f, 8f, 50.93f, 21.96f), @"Камера");
 		GUI.Label(new Rect(43.334f, 35.334f, 170f, 14.666f), @"Положение камеры Ось X");
 		if(focusCamx) { focusCamx = false; GUI.FocusControl("Camx");}
 		GUI.SetNextControlName("Camx");
-		Camx = GUI.HorizontalSlider(new Rect(213.334f, 45f, 179.333f, 14f), Camx, 0f, 10f);
-		GUI.Label(new Rect(392.666992553711f,45f,40,15),System.Math.Round(Camx,1).ToString());
+		Camx = GUI.HorizontalSlider(new Rect(213.334f, 35.334f, 179.333f, 14f), Camx, 0f, 10f);
+		GUI.Label(new Rect(392.666992553711f,35.334f,40,15),System.Math.Round(Camx,1).ToString());
 		if(focusCamy) { focusCamy = false; GUI.FocusControl("Camy");}
 		GUI.SetNextControlName("Camy");
 		Camy = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), Camy, 0f, 10f);
@@ -213,19 +212,19 @@ public class SettingsWindow : WindowBase {
 		GUI.Label(new Rect(392.666992553711f,80.667f,40,15),System.Math.Round(Cam_near,1).ToString());
 		GUI.EndGroup();
 		GUI.EndGroup();
-		GUI.BeginGroup(new Rect(31.833f, 516.333f, 464.667f, 100f), "");
-		GUI.Box(new Rect(0, 0, 464.667f, 100f), "");
-		GUI.Label(new Rect(14.667f, 8f, 34.60667f, 21.96f), @"Звук");
+		GUI.BeginGroup(new Rect(511.5f, 138f, 194.167f, 169f), "");
+		GUI.Box(new Rect(0, 0, 194.167f, 169f), "");
+		GUI.Label(new Rect(8f, 8f, 34f, 14f), @"Звук");
 		GUI.Label(new Rect(64.667f, 34.001f, 126.667f, 14.666f), @"Громкость музыки");
 		if(focusMusicVolume) { focusMusicVolume = false; GUI.FocusControl("MusicVolume");}
 		GUI.SetNextControlName("MusicVolume");
-		MusicVolume = GUI.HorizontalSlider(new Rect(213.334f, 44.667f, 179.333f, 14f), MusicVolume, 0f, 1f);
-		GUI.Label(new Rect(392.666992553711f,44.667f,40,15),System.Math.Round(MusicVolume,1).ToString());
-		GUI.Label(new Rect(64.667f, 60.668f, 126.667f, 14.666f), @"Громкость звука");
+		MusicVolume = GUI.HorizontalSlider(new Rect(12.001f, 52.667f, 179.333f, 14f), MusicVolume, 0f, 1f);
+		GUI.Label(new Rect(191.333992553711f,52.667f,40,15),System.Math.Round(MusicVolume,1).ToString());
+		GUI.Label(new Rect(67.5f, 102.668f, 126.667f, 14.666f), @"Громкость звука");
 		if(focusSoundVolume) { focusSoundVolume = false; GUI.FocusControl("SoundVolume");}
 		GUI.SetNextControlName("SoundVolume");
-		SoundVolume = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), SoundVolume, 0f, 1f);
-		GUI.Label(new Rect(392.666992553711f,62.667f,40,15),System.Math.Round(SoundVolume,1).ToString());
+		SoundVolume = GUI.HorizontalSlider(new Rect(12.001f, 121.334f, 179.333f, 14f), SoundVolume, 0f, 1f);
+		GUI.Label(new Rect(191.333992553711f,121.334f,40,15),System.Math.Round(SoundVolume,1).ToString());
 		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 8f, 82f, 16f), @"Настройки");
 		if(focusReset) { focusReset = false; GUI.FocusControl("Reset");}
@@ -236,16 +235,16 @@ public class SettingsWindow : WindowBase {
 		onMouseOver = new Rect(94f, 8f, 100f, 24f).Contains(Event.current.mousePosition);
 		if (oldMouseOverReset != onMouseOver && onMouseOver) onOver();
 		oldMouseOverReset = onMouseOver;
-		GUI.BeginGroup(new Rect(34.5f, 453.333f, 466.167f, 48f), "");
-		GUI.Box(new Rect(0, 0, 466.167f, 48f), "");
-		GUI.Label(new Rect(8f, 8f, 55.16f, 21.96f), @"Network");
-		GUI.Label(new Rect(75f, 22f, 57.13f, 21.96f), @"Sendrate");
+		GUI.BeginGroup(new Rect(511.5f, 36f, 194.167f, 98f), "");
+		GUI.Box(new Rect(0, 0, 194.167f, 98f), "");
+		GUI.Label(new Rect(8f, 8f, 55f, 14f), @"Network");
+		GUI.Label(new Rect(12f, 32f, 57.13f, 21.96f), @"Sendrate");
 		if(focusNetworkSendRate) { focusNetworkSendRate = false; GUI.FocusControl("NetworkSendRate");}
 		GUI.SetNextControlName("NetworkSendRate");
-		NetworkSendRate = GUI.HorizontalSlider(new Rect(149.334f, 22f, 179.333f, 14f), NetworkSendRate, 1f, 50f);
-		GUI.Label(new Rect(328.666992553711f,22f,40,15),System.Math.Round(NetworkSendRate,1).ToString());
+		NetworkSendRate = GUI.HorizontalSlider(new Rect(0f, 50f, 179.333f, 14f), NetworkSendRate, 1f, 50f);
+		GUI.Label(new Rect(179.332992553711f,50f,40,15),System.Math.Round(NetworkSendRate,1).ToString());
 		GUI.EndGroup();
-		if (GUI.Button(new Rect(531f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(729f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
 	}
 
 

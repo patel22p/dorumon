@@ -21,10 +21,11 @@ public class GunPhysix : GunBase
     
     protected override void FixedUpdate()
     {
-        if (power)
+        if (power && (!isOwner || patronsLeft>0))
         {
-            if (energy < exp) energy += 80;
-            
+            patronsLeft-=Time.fixedDeltaTime;
+
+            if (energy < exp) energy += 80;            
             foreach (Base b in _Game.boxDerived)
             {
                 if (!(b is IPlayer))

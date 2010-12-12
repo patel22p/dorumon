@@ -28,7 +28,7 @@ public class GunPhysix : GunBase
             if (energy < exp) energy += 80;            
             foreach (Base b in _Game.boxDerived)
             {
-                if (!(b is IPlayer))
+                if (!(b is Destroible))
                 {
                     b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor[0].position, radius);
                     b.rigidbody.angularDrag = 30;
@@ -67,13 +67,13 @@ public class GunPhysix : GunBase
     [RPC]
     public void RPCSetPower(bool e)
     {
-        CallRPC(e);
+        if(CallRPC(e)) return;
         power = e;
         if (!e)
         {
             bool any = false;
             foreach (Base b in _Game.boxDerived)
-                if (!(b is IPlayer) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
+                if (!(b is Destroible) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
                 {
                     b.rigidbody.angularDrag = 2;
                     b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));

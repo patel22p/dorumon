@@ -76,8 +76,8 @@ public class Box : Base
     void ControllerUpdate()
     {
         float min = float.MaxValue;
-        IPlayer nearp = null;
-        foreach (IPlayer p in _Game.iplayers)
+        Destroible nearp = null;
+        foreach (Destroible p in _Game.destroyables)
             if (p != null)
             {
                 if (p.Alive && p.OwnerID != -1)
@@ -102,7 +102,7 @@ public class Box : Base
     [RPC]
     void RPCSetOwner(int owner)
     {
-        CallRPC(owner);
+        if(CallRPC(owner)) return;
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
@@ -120,7 +120,7 @@ public class Box : Base
     [RPC]
     public void RPCResetOwner()
     {
-        CallRPC();
+        if(CallRPC()) return;
         Debug.Log("_ResetOwner");
         ((Box)this).selected = -1;
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))

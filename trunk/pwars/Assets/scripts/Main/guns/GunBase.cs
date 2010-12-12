@@ -29,6 +29,19 @@ public class GunBase : Base
     {
         Show(false);
     }
+
+    public override void OnPlayerConnected1(NetworkPlayer np)
+    {
+        RPCSetLaser(laser);
+        base.OnPlayerConnected1(np);
+    }
+
+    public void RPCSetLaser(bool value)
+    {
+        CallRPC(value);
+        laser = value;
+    }
+
     public virtual void EnableGun()
     {
         Show(true);

@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-public class Zombie : IPlayer
+public class Zombie : Destroible
 {
     public float zombieBite;
     public float speed = .3f;
@@ -47,7 +47,7 @@ public class Zombie : IPlayer
     [RPC]
     public void RPCSetup(float zombiespeed, float zombieLife)
     {
-        CallRPC(zombiespeed, zombieLife);
+        if(CallRPC(zombiespeed, zombieLife)) return;
         Alive = true;
         Sync = true;
         transform.position = SpawnPoint();
@@ -66,7 +66,7 @@ public class Zombie : IPlayer
         Sync = false;
         Alive = false;
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        if (isController) CallRPC(killedby);
+        if (isController) if(CallRPC(killedby)) return;
         PlayRandSound(gibSound);
         AliveZombie.renderer.enabled = false;
         DeadZombie.renderer.enabled = true;
@@ -83,31 +83,26 @@ public class Zombie : IPlayer
     {
         base.Update();
         if (!Alive || selected == -1) return;
-        zombieBite += Time.deltaTime;        
-        IPlayer ipl = Nearest();
+        zombieBite += Time.deltaTime;
+        var ipl = Nearest();
         if (ipl != null)
         {
             Vector3 pathPointDir;
             Vector3 zToPlDir = ipl.transform.position - pos;
             if (zToPlDir.magnitude > zombieBiteDist)
             {
-                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? Vector3.zero);
-                if (pathPointDir == Vector3.zero)
-                    move = false;
-                else
+                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
+                Debug.DrawLine(pos, pos + pathPointDir);
+                pathPointDir.y = 0;
+                rot = Quaternion.LookRotation(pathPointDir.normalized);
+                move = true;
+                tiltTm += Time.deltaTime;
+                if (tiltTm > 10 && isController)
                 {
-                    Debug.DrawLine(pos, pos + pathPointDir);
-                    pathPointDir.y = 0;
-                    rot = Quaternion.LookRotation(pathPointDir.normalized);
-                    move = true;
-                    tiltTm += Time.deltaTime;
-                    if (tiltTm > 10 && isController)
-                    {
-                        tiltTm = 0;
-                        if (Vector3.Distance(oldpos, pos) < 1)
-                            pos = SpawnPoint();
-                        oldpos = pos;
-                    }
+                    tiltTm = 0;
+                    if (Vector3.Distance(oldpos, pos) < 1)
+                        pos = SpawnPoint();
+                    oldpos = pos;
                 }
             }
             else
@@ -129,10 +124,10 @@ public class Zombie : IPlayer
             tiltTm = 0;
         }
     }
-    private IPlayer Nearest()
+    private Player Nearest()
     {
-        IPlayer ipl = players.Where(b => b != null && b.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
-        return ipl;
+        Player pl = players.Where(b => b != null && b.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        return pl;
     }
     void FixedUpdate()
     {
@@ -148,7 +143,7 @@ public class Zombie : IPlayer
         }
         
     }
-    private Vector3? GetPlayerPathPoint(IPlayer ipl)
+    private Vector3? GetPlayerPathPoint(Player ipl)
     {
         var pathPoints = ipl.plPathPoints;
         return FindNextPoint(pathPoints);
@@ -172,15 +167,17 @@ public class Zombie : IPlayer
             }
         }
         if (found)
-            for (; ni < points.Count; ni++)
+            while(true)
             {
-                if (Vector3.Distance(points[ni], pos) > 2)
-                    return points[ni] - pos;
+                ni++;
+                if (ni >= points.Count) break;
+                //if (Vector3.Distance(points[ni], pos) > 2)
+                return points[ni] - pos;
             }
 
         return null;
     }
-    private Vector3? GetNextPathPoint(IPlayer ipl)
+    private Vector3? GetNextPathPoint(Destroible ipl)
     {
         if (_Loader.disablePathFinding) return null;
         if ((seekPath -= Time.deltaTime) < 0)
@@ -209,9 +206,9 @@ public class Zombie : IPlayer
     public override Vector3 SpawnPoint()
     {
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
-        IPlayer pl = Nearest(); 
+        Player pl = Nearest(); 
         if (pl == null) return gs.First().transform.position;
-        var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 200 && Math.Abs(a.transform.position.y - pl.pos.y) < 3);
+        var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 50 && Math.Abs(a.transform.position.y - pl.pos.y) < 3);
         Debug.Log(neargs.Count());
         return (neargs.Random() ??
             gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos)).First()

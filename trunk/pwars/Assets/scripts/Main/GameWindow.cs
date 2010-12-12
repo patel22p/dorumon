@@ -79,12 +79,12 @@ public class GameWindow : Base2 {
             _GameWindow.redTeam.text = _Game.RedFrags.ToString();
         }
 
-        if (_localiplayer != null)
+        if (_localPlayer != null)
         {
-            _GameWindow.life = _localiplayer.Life;
+            _GameWindow.life = _localPlayer.Life;
             _GameWindow.gunPatrons.text = _localPlayer.gun.name + ":" + _localPlayer.gun.patronsLeft;
 
-            _GameWindow.energy = (int)_localiplayer.nitro;
+            _GameWindow.energy = (int)_localPlayer.nitro;
             if (mapSettings.zombi)
             {
                 _GameWindow.zombiesLeft.text = "ַמלבט" + _Game.AliveZombies.Count().ToString();

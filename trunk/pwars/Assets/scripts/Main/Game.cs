@@ -14,15 +14,13 @@ public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMat
 public class Game : Base
 {
     new public Player[] players = new Player[10];
-    public List<IPlayer> iplayers = new List<IPlayer>();
+    public List<Destroible> destroyables = new List<Destroible>();
     public List<Zombie> zombies = new List<Zombie>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
     public GameObject bounds;
-    public List<Base> nViews = new List<Base>();
     public List<Box> boxDerived = new List<Box>();
-    public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
-    public new IPlayer _localiplayer;
+    public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }    
     public new Player _localPlayer;
     [PathFind("GameEffects",true)]
     public GameObject effects;
@@ -115,7 +113,7 @@ public class Game : Base
     }
     void Update()
     {
-
+        if (sendto != null) Debug.Log("warning,sendto is not null");
         timeleft -= Time.deltaTime / 60;
         
         if (Input.GetKeyDown(KeyCode.P)) RPCPause();
@@ -173,7 +171,7 @@ public class Game : Base
     [RPC]
     private void RPCGameSettings(string version, int gameMode, int frags, float timelimit)
     {
-        CallRPC(version, gameMode, frags, timelimit);
+        if(CallRPC(version, gameMode, frags, timelimit)) return;
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
         _TeamSelectWindow.tabGameType = (int)mapSettings.gameMode;
@@ -182,15 +180,21 @@ public class Game : Base
         _TeamSelectWindow.Show(this);
     }
     public void OnPlayerConnected(NetworkPlayer np)
-    {
-        base.OnPlayerConnected1(np);
-        print(pr);
+    {           
+        sendto = np;
         networkView.RPC("SetTimeLeft", np, timeleft);
         if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
         networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        foreach (Base b in nViews)
-            if (b != null)
-                b.OnPlayerConnected1(np);
+
+        var sorted = GameObject.FindObjectsOfType(typeof(Player))
+        .Union(GameObject.FindObjectsOfType(typeof(Gun)))
+        .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
+        .Union(GameObject.FindObjectsOfType(typeof(Box)))
+        .Union(GameObject.FindObjectsOfType(typeof(Base)));
+
+        foreach (Base b in sorted)
+            b.OnPlayerConnected1(np);
+        sendto = null;
     }
     [RPC]
     void SetTimeLeft(float time)
@@ -200,7 +204,7 @@ public class Game : Base
     [RPC]
     public void RPCPause()
     {
-        CallRPC();
+        if(CallRPC()) return;
         Debug.Break();
     }
 
@@ -240,7 +244,7 @@ public class Game : Base
     [RPC]
     public void RPCWriteMessage(string s)
     {
-        CallRPC(s);
+        if(CallRPC(s)) return;
         WriteMessage(s);
     }
     
@@ -248,7 +252,7 @@ public class Game : Base
     [RPC]    
     void RPCPingFps(int id, int ping, int fps)
     {
-        CallRPC(id, ping, fps);
+        if(CallRPC(id, ping, fps)) return;
         players[id].fps = fps;
         players[id].ping = ping;        
     }
@@ -265,7 +269,7 @@ public class Game : Base
     [RPC]
     private void RPCNextStage(int stage)
     {
-        CallRPC(stage);
+        if(CallRPC(stage)) return;
         Debug.Log("Next Stage"+stage);
         PlayRandSound(stageSound);
         this.stage = stage;
@@ -315,7 +319,7 @@ public class Game : Base
     [RPC]
     private void Destroy(NetworkViewID v)
     {
-        CallRPC(v);
+        if(CallRPC(v)) return;
         NetworkView nw = NetworkView.Find(v);
         nw.enabled = false;
         Component.Destroy(nw);

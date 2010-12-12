@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-public abstract class Car : IPlayer
+public abstract class Car : Destroible
 {
     public float maxCornerAccel = 10.0f;
     public float maxBrakeAccel = 10.0f;

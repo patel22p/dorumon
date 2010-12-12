@@ -35,7 +35,7 @@ public class Base : Base2
                 enabled = false;
 
             }
-            _Game.nViews.Add(this);
+            
         }
     }
     bool oldEnabled;
@@ -131,7 +131,7 @@ public class Base : Base2
     [RPC]
     public void RPCShow(bool value)
     {
-        CallRPC(value);
+        if(CallRPC(value)) return;
         Show(value);
     }
     
@@ -175,6 +175,7 @@ public class Base : Base2
     public virtual void onShow(bool enabled)
     {
     }
+    public static NetworkPlayer? sendto; 
     public bool CallRPC(params object[] obs)
     {
         MethodBase rpcmethod = new StackFrame(1, true).GetMethod();        
@@ -186,7 +187,10 @@ public class Base : Base2
         }
         if (mb != null)
         {                        
-            networkView.RPC(rpcmethod.Name, RPCMode.All, obs);
+            if(sendto==null)
+                networkView.RPC(rpcmethod.Name, RPCMode.All, obs);
+            else
+                networkView.RPC(rpcmethod.Name, sendto.Value, obs);
             return true;
         }
         else

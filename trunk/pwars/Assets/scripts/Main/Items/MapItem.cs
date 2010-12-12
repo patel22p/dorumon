@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health, trap }
+public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health, trap , spotlight }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base
 {
@@ -63,23 +63,25 @@ public class MapItem : Base
 
         if (itemType == MapItemType.trap)
         {
-            text = "Чтобы использовать лавушку нажми B";
+            text = "Чтобы использовать лавушку нажми F";
         }
         if (itemType == MapItemType.lift)
         {
-            text = "Чтобы использовать лифт нажми B";
+            text = "Чтобы использовать лифт нажми F";
             payonce = true;
         }
 
         if (itemType == MapItemType.shop)
-        {
-            text = "Нажми B чтобы купить " + (GunType)gunIndex;
-            endless = true;
+        {            
+            text = "Нажми F чтобы купить " + (GunType)gunIndex;            
+            Parse(ref score, 1);
+            Parse(ref autoTake, 2);
+            endless = !autoTake;
         }
         if (itemType == MapItemType.door)
         {
             endless = false;
-            text = "чтобы открыть дверь нажми B";
+            text = "чтобы открыть дверь нажми F";
             Parse(ref score, 1);
         }
         
@@ -100,10 +102,10 @@ public class MapItem : Base
         if (itemType == MapItemType.money)
         {
             hide = true;
-            text = "Нажми B чтобы взять деньги";
+            text = "Нажми F чтобы взять деньги";
         }
         if (itemType == MapItemType.laser)
-            text = "Нажми B чтобы купить для оружия лазерный прицел";
+            text = "Нажми F чтобы купить для оружия лазерный прицел";
         if (itemType == MapItemType.jumper)
         {
             text = "Выбери гравипушку и стреляй по етому предмету";
@@ -118,7 +120,7 @@ public class MapItem : Base
             catch { }
         }
         if (itemType == MapItemType.health)
-            text = "Чтобы купить енергию нажми B";
+            text = "Чтобы купить енергию нажми F";
 
         
         foreach(var a in g.GetComponentsInChildren<Collider>().Distinct())
@@ -159,9 +161,10 @@ public class MapItem : Base
         if (TmOn > 0 && (animation == null || !animation.isPlaying))
         {
             JumperUpdate();
+            bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[(int)gunIndex].patronsLeft != -1);
+            int Score = (donthavegun ? this.score * 3 : this.score);
             
-
-            if ((Input.GetKeyDown(KeyCode.B) || autoTake) && (_localPlayer.score >= score || debug))
+            if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug))
             {
                 if (itemType == MapItemType.speed && tmCollEnter < 0)
                 {
@@ -172,7 +175,7 @@ public class MapItem : Base
                 CheckOut();
             }
             if ((endless || itemsLeft > 0) && text != "")
-                _GameWindow.CenterText.text = text + (score > 0 ? (", нужно заплатить " + score + " очков") : "");
+                _GameWindow.CenterText.text = text + (Score > 0 ? (", нужно заплатить " + Score + " очков") : "");
             
         }
         if (TmOn < 0)
@@ -207,7 +210,7 @@ public class MapItem : Base
     {
         if (itemType == MapItemType.trap)
         {
-            var ipl = c.gameObject.GetComponent<IPlayer>();
+            var ipl = c.gameObject.GetComponent<Destroible>();
             if (_TimerA.TimeElapsed(100) && ipl != null && ipl.isController)
                 ipl.RPCSetLife(ipl.Life - bullets, -1);
         }
@@ -238,14 +241,16 @@ public class MapItem : Base
                 }
             }
             if (itemType == MapItemType.laser)
-                _localPlayer.guns[_localPlayer.guni].laser = true;
+                _localPlayer.guns[_localPlayer.guni].RPCSetLaser(true);
+            if (itemType == MapItemType.spotlight)
+                _localPlayer.RPCSetFanarik(true);
             RPCCheckOut(itemsLeft);
         }
     }
     [RPC]
     public void RPCCheckOut(int i)
     {
-        CallRPC(i);
+        if(CallRPC(i)) return;
         itemsLeft = i;
 
         if (animation != null && animation.clip != null)
@@ -268,6 +273,7 @@ public class MapItem : Base
         if (animation != null && animation.clip != null)
             animation["Take 001"].enabled = false;
     }
+
     private void Parse(ref float t, int id)
     {
         try
@@ -276,7 +282,16 @@ public class MapItem : Base
         }
         catch (System.Exception) { }
     }
-    
+
+    private void Parse(ref bool t, int id)
+    {
+        try
+        {
+            t = int.Parse(param[id]) == 1;
+        }
+        catch (System.Exception) { }
+    }
+
     private void Parse(ref int t, int id)
     {
         try

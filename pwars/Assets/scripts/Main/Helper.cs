@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using System.Collections;
 using doru;
-
+using System.Linq;
 namespace doru
 {
     [Serializable]
@@ -74,11 +74,14 @@ namespace doru
         }
         public void AddMethod(int _Miliseconds, Action _Action2)
         {
-            CA ca = new CA();
+            CA ca = _List.FirstOrDefault(a => a._Action2 == _Action2);
+            if (ca == null)
+            {
+                ca = new CA();
+                _List.Add(ca);
+            }
             ca._Action2 = _Action2;
             ca._Miliseconds = _Miliseconds;
-            lock("timer")
-                _List.Add(ca);
         }
         public void Clear()
         {

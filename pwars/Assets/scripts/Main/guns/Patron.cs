@@ -99,7 +99,7 @@ public class Patron : Base
                 b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce), hit.point);
         }
 
-        IPlayer iplayer = hit.collider.gameObject.transform.GetRoot<IPlayer>();
+        Destroible iplayer = hit.collider.gameObject.transform.GetRoot<Destroible>();
 
 
         if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)

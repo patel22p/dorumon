@@ -91,7 +91,7 @@ public class Cam : Base
         }
 
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
-        if (_localiplayer == null)
+        if (_localPlayer == null)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = transform.TransformDirection(moveDirection);
@@ -102,15 +102,14 @@ public class Cam : Base
         else
         {
             Quaternion rotation = Quaternion.Euler(y, x, 0);
-            Vector3 pos = _localiplayer.CamPos.transform.position;
-            Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset) + pos;
+            Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset);
             pos2.y += yoffset;
             transform.position = pos2;
             transform.rotation = rotation;
 
             RaycastHit h;
             Vector3 campos = transform.position;
-            Vector3 plpos = _localiplayer.transform.position;
+            Vector3 plpos = _localPlayer.transform.position;
             Ray r = new Ray(campos, plpos - campos);
             if (Physics.Raycast(r, out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
                 transform.position = h.point + r.direction.normalized;

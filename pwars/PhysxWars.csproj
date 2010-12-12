@@ -169,10 +169,10 @@
      <Compile Include="Assets\scripts\Main\Cam.cs" />
      <Compile Include="Assets\scripts\Main\Car.cs" />
      <Compile Include="Assets\scripts\Main\Console.cs" />
+     <Compile Include="Assets\scripts\Main\Destroible.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
      <Compile Include="Assets\scripts\Main\Helper.cs" />
-     <Compile Include="Assets\scripts\Main\IPlayer.cs" />
      <Compile Include="Assets\scripts\Main\Irc.cs" />
      <Compile Include="Assets\scripts\Main\Loader.cs" />
      <Compile Include="Assets\scripts\Main\Menu.cs" />

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
-public class Tower : IPlayer
+public class Tower : Destroible
 {
     
     public Detonator dt;

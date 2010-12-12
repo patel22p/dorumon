@@ -20,7 +20,7 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
-    public LineRenderer laserRender;
+    
     Vector3 defPos,defPos2;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
@@ -31,8 +31,9 @@ public class Gun : GunBase
     public override void Init()
     {
         base.Init();
+        if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point); 
-        laserRender = root.GetComponentInChildren<LineRenderer>();
+        
     }
     protected override void Awake()
     {
@@ -41,28 +42,21 @@ public class Gun : GunBase
     }
     public override void onShow(bool enabled)
     {
-
         if (enabled)
             player.rigidbody.mass = player.defmass + ves * player.defmass;
         base.onShow(enabled);
     }
+
+    
+    
+
+
     protected override void Update()
     {
         base.Update();
         if (GunPicture != null && isOwner)
             _GameWindow.gunTexture.texture = GunPicture;
-
-        if (laser || debug)
-        {
-            laserRender.enabled = true;
-            Ray r = new Ray(cursor[0].position, rot * new Vector3(0,0,1));
-            RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
-            Physics.Raycast(r, out h, 100);
-            laserRender.SetPosition(0, r.origin);
-            laserRender.SetPosition(1, h.point);
-        }
-        else
-            laserRender.enabled = false;
+        
 
         if (barrel != null)
         {            
@@ -80,7 +74,6 @@ public class Gun : GunBase
     }    
     protected virtual void LocalUpdate()
     {
-        
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;

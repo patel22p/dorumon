@@ -105,7 +105,7 @@ public partial class Base2 : MonoBehaviour
             table += "{" + i + ",-" + m[i].Length + "}";
         return table;
     }
-    public static IPlayer _localiplayer { get { return _Game._localiplayer; } set { _Game._localiplayer = value; } }
+    
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { return _Loader._TimerA; } }

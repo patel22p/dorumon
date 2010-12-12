@@ -9,7 +9,7 @@ public class Explosion : Base
     public float radius = 4;
     void Start()
     {
-        foreach (IPlayer ip in GameObject.FindObjectsOfType(typeof(IPlayer)))
+        foreach (Destroible ip in GameObject.FindObjectsOfType(typeof(Destroible)))
         {            
             float dist = Vector3.Distance(ip.transform.position, transform.position);
             if (ip != self && dist < radius && ip.isController && !ip.dead)

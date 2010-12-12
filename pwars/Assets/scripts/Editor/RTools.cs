@@ -18,6 +18,7 @@ public partial class RTools : InspectorSearch
     public GameObject selectedGameObject;
     protected override void OnGUI()
     {
+        
         if (GUI.Button("SetupLevel"))
         {
             DestroyImmediate(GameObject.Find("level"));
@@ -108,7 +109,6 @@ public partial class RTools : InspectorSearch
                 g.AddOrGet<Box>().Init();
             }
             var items = GetAssets<GameObject>("/Items/", "*.Prefab");
-            Debug.Log("+items count" + items.Count());
             foreach (var itemPrefab in items)
             {
                 if (param[0].ToLower() == itemPrefab.name.ToLower() && g.GetComponent<MonoBehaviour>() == null)

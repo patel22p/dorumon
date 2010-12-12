@@ -7,11 +7,11 @@ using UnityEngine;
 public class GunBase : Base
 {
     public bool laser;
-    public int patronsDefaultCount;
+    public float patronsDefaultCount;
     public Player player;
     public List<Transform> cursor = new List<Transform>();
     public int group { get { return int.Parse(transform.parent.name); } }
-    public int patronsLeft = 0;
+    public float patronsLeft = 0;
     
     protected override void Awake()
     {
@@ -35,7 +35,7 @@ public class GunBase : Base
     }
     public void Reset()
     {
-        patronsLeft = build ? patronsDefaultCount : 99999;
+        patronsLeft = patronsDefaultCount;
         
     }
     protected virtual void Update()

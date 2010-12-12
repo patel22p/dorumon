@@ -28,14 +28,17 @@ public class Game : Base
     public GameObject effects;
     [PathFind("GameEffects/decals", true)]
     public GameObject decals;
-    public Transform AddDecal(DecalTypes t, Vector3 pos, Vector3 normal)
+    public void AddDecal(DecalTypes t, Vector3 pos, Vector3 normal,Transform addto)
     {
-        Decal d = decalPresets[(int)t];
-        d.mesh.renderer.material = d.mat;
-        d.mesh.transform.localScale = Vector3.one * d.scale;
-        var g = ((GameObject)Instantiate(d.mesh, pos, Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), normal) * Quaternion.LookRotation(normal)));        
-        Destroy(g,10);
-        return g.transform;
+        if (_SettingsWindow.Decals)
+        {
+            Decal d = decalPresets[(int)t];
+            d.mesh.renderer.material = d.mat;
+            d.mesh.transform.localScale = Vector3.one * d.scale;
+            var g = ((GameObject)Instantiate(d.mesh, pos, Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), normal) * Quaternion.LookRotation(normal)));
+            Destroy(g, 10);
+            g.transform.parent = addto;            
+        }
     }
     public int stage;
     public float timeleft = 20;

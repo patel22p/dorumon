@@ -86,7 +86,7 @@ public class Patron : Base
 
         if (hit.collider.gameObject.isStatic)
             _Game.AddDecal(hit.collider.gameObject.name.Contains("glass") && decal == DecalTypes.Hole ? DecalTypes.glass : decal,
-                hit.point - rot * Vector3.forward * 0.12f, hit.normal).parent = hit.collider.transform;            
+                hit.point - rot * Vector3.forward * 0.12f, hit.normal, hit.collider.transform);            
 
         if (explodeOnDestroy)
             Explode(hit.point);
@@ -111,7 +111,7 @@ public class Patron : Base
                 _Game.AddDecal(
                     DecalTypes.Blood,
                     h.point - new Vector3(0, -1, 3) * 0.1f,
-                    h.normal).parent = _Game.decals.transform;
+                    h.normal, _Game.decals.transform);
             }
         }
         else

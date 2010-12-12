@@ -15,7 +15,7 @@ public class Menu : Base
 {
     public string gameVersionName = "Swiborg2";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
-    
+    public bool enableIrc;    
     protected override void Awake()
     {
         base.Awake();
@@ -94,7 +94,7 @@ public class Menu : Base
         if (!logged)
         {
             _Irc.ircNick = nick;
-            if (build) _Irc.enabled = true;
+            if (enableIrc) _Irc.enabled = true;
         }
         logged = true;
         _MenuWindow.Show(this);

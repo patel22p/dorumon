@@ -14,7 +14,6 @@ public class Tower : IPlayer
     [RPC]
     public override void RPCDie(int killedby)
     {
-        Debug.Log(killedby + "+" + "die");
         Alive = false;
         dt.autoCreateForce = false;
         GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);

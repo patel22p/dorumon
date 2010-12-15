@@ -16,26 +16,47 @@ public partial class RTools : InspectorSearch
     string file;
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public GameObject selectedGameObject;
+    public bool bake;
+    protected override void Awake()
+    {
+        base.Awake();
+        
+        
+    }
     protected override void OnGUI()
     {
         
+        GUI.BeginHorizontal();
+        bake = GUI.Toggle(bake, "Bake");
         if (GUI.Button("SetupLevel"))
         {
+            
             DestroyImmediate(GameObject.Find("level"));
             string path = EditorApplication.currentScene.Split('.')[0] + "/";
             path = path.Substring("Assets/".Length);
             Debug.Log(path);
             Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
             Selection.activeObject.name = "level";
-            SetupLevel();            
+            SetupLevel();
             Inits(cspath);
+            if (bake)
+            {
+                var old = RenderSettings.ambientLight;
+                RenderSettings.ambientLight = Color.white * .3f;
+                Lightmapping.BakeAsync();                
+                RenderSettings.ambientLight = old;
+            }
         }
+        
+
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
             if (Selection.activeGameObject != null)
                 Inits(cspath);            
         }
+            
+        GUI.EndHorizontal();
         base.OnGUI();
         BuildGUI();
     }
@@ -71,7 +92,7 @@ public partial class RTools : InspectorSearch
     {
         List<GameObject> destroy = new List<GameObject>();
         
-        foreach (Transform t in Selection.activeGameObject.GetComponentInChildren<Transform>())
+        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
         {
             if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
                 DestroyImmediate(t.gameObject.animation);
@@ -95,13 +116,13 @@ public partial class RTools : InspectorSearch
                     }
                 }
             }
-            if (t.name.Contains("glass"))
+            if (t.name.Contains("glass") || t.name.Contains("dontcast"))
             {
                 foreach (var t2 in t.GetComponentsInChildren<Transform>())
                 {
                     if (t2.GetComponent<Renderer>() != null)
                         t2.renderer.castShadows = false;
-                    t2.name += ",glass";
+                    if (t.name.Contains("glass")) t2.name += ",glass";
                 }
             }
             if (param[0] == ("coll"))
@@ -133,7 +154,7 @@ public partial class RTools : InspectorSearch
 
             foreach (string s in Enum.GetNames(typeof(MapItemType)))
             {
-                if (param[0].ToLower() == s.ToLower() && g.GetComponent<MapItem>() == null)
+                if (param[0].ToLower() == "i" + s.ToLower() && g.GetComponent<MapItem>() == null)
                 {
                     g.AddComponent<MapItem>().Init();
                 }
@@ -180,21 +201,12 @@ public partial class RTools : InspectorSearch
         PathFind atr = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
         if (atr != null)
         {
-            Debug.Log(pf.Name);
-            if (atr.scene)
-            {
-                if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, GameObject.Find(atr.name).gameObject);
-                else
-                    pf.SetValue(scr, GameObject.Find(atr.name).GetComponent(pf.FieldType));
-            }
+            GameObject g = atr.scene ? GameObject.Find(atr.name) : scr.transform.Find(atr.name).gameObject;
+            if (g == null) Debug.Log("cound not find path " + atr.name);
+            else if (pf.FieldType == typeof(GameObject))
+                pf.SetValue(scr, g);
             else
-            {
-                if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, scr.transform.Find(atr.name).gameObject);
-                else
-                    pf.SetValue(scr, scr.transform.Find(atr.name).GetComponent(pf.FieldType));
-            }
+                pf.SetValue(scr, g.GetComponent(pf.FieldType));
         }
     }
     private static void SetupTextures()
@@ -312,6 +324,11 @@ public partial class RTools : InspectorSearch
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
         BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
+    }
+    protected override void Update()
+    {        
+        
+        base.Update();
     }
     private static Loader _Loader
     {

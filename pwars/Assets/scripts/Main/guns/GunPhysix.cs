@@ -21,7 +21,7 @@ public class GunPhysix : GunBase
     
     protected override void FixedUpdate()
     {
-        if (power && (!isOwner || patronsLeft>0))
+        if (power)
         {
             patronsLeft-=Time.fixedDeltaTime;
 
@@ -64,10 +64,10 @@ public class GunPhysix : GunBase
     public GameObject wavePrefab;
     [LoadPath("superphys_launch3")]
     public AudioClip superphys_launch3;
+    public void RPCSetPower(bool e) { CallRPC("SetPower",e); }
     [RPC]
-    public void RPCSetPower(bool e)
-    {
-        if(CallRPC(e)) return;
+    void SetPower(bool e)
+    {        
         power = e;
         if (!e)
         {
@@ -76,12 +76,14 @@ public class GunPhysix : GunBase
                 if (!(b is Destroible) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
                 {
                     b.rigidbody.angularDrag = 2;
-                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));
-                    Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
+                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));                    
                     any = true;
                 }
             if (energy > 300 && any)
-                PlaySound(superphys_launch3);
+            {
+                root.audio.PlayOneShot(superphys_launch3);
+                Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);                
+            }
 
             energy = 0;
 
@@ -92,9 +94,9 @@ public class GunPhysix : GunBase
     {
         if (isOwner && enabled)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && (patronsLeft > 0 || debug))
                 RPCSetPower(true);
-            else if (Input.GetMouseButtonUp(0))
+            else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
                 RPCSetPower(false);
         }
         base.Update();

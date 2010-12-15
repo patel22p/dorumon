@@ -50,18 +50,18 @@ public class Game : Base
     public List<Decal> decalPresets = new List<Decal>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
-    
+    [PathFind("Sphere")]
+    public GameObject model;
 
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [LoadPath("player")]
     public GameObject playerPrefab;
     protected override void Awake()
     {
-
         base.Awake();
         clearObjects("SpawnNone");
         clearObjects("SpawnZombie");
-
+        
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
         
@@ -88,27 +88,29 @@ public class Game : Base
     
     public override void Init()
     {
-        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());
+        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());        
         bounds = GameObject.Find("bounds");
         MapCamera = GameObject.Find("MapCamera");
         if (bounds == null) Debug.Log("warning no bounds founded");
     }
 
     
-    void Start()
+    protected override void Start()
     {
         Debug.Log("game Start");
         print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
-        Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player);
+        _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
+        foreach (MeshRenderer r in _localPlayer.GetComponentsInChildren<MeshRenderer>())
+            r.castShadows = false;
     }
     public void onTeamSelect()
     {
         _TeamSelectWindow.Hide();
         _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
-        if (!_localPlayer.spawned) _localPlayer.RPCAlive(true);
+        if (!_localPlayer.spawned) _localPlayer.RPCSetAlive(true);
         lockCursor = true;
     }
     void Update()
@@ -168,10 +170,10 @@ public class Game : Base
         lockCursor = false;                
         
     }
+    public void RPCGameSettings(string version, int gameMode, int frags, float timelimit) { CallRPC("GameSettings", version, gameMode, frags, timelimit); }
     [RPC]
-    private void RPCGameSettings(string version, int gameMode, int frags, float timelimit)
+    private void GameSettings(string version, int gameMode, int frags, float timelimit)
     {
-        if(CallRPC(version, gameMode, frags, timelimit)) return;
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
         _TeamSelectWindow.tabGameType = (int)mapSettings.gameMode;
@@ -181,30 +183,32 @@ public class Game : Base
     }
     public void OnPlayerConnected(NetworkPlayer np)
     {           
-        sendto = np;
-        networkView.RPC("SetTimeLeft", np, timeleft);
-        if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
-        networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+        //sendto = np;
+        //networkView.RPC("SetTimeLeft", np, timeleft);
+        //if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
+        //networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
 
-        var sorted = GameObject.FindObjectsOfType(typeof(Player))
-        .Union(GameObject.FindObjectsOfType(typeof(Gun)))
-        .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
-        .Union(GameObject.FindObjectsOfType(typeof(Box)))
-        .Union(GameObject.FindObjectsOfType(typeof(Base)));
+        //var sorted = GameObject.FindObjectsOfType(typeof(Player))
+        //.Union(GameObject.FindObjectsOfType(typeof(Gun)))
+        //.Union(GameObject.FindObjectsOfType(typeof(Destroible)))
+        //.Union(GameObject.FindObjectsOfType(typeof(Box)))
+        //.Union(GameObject.FindObjectsOfType(typeof(Base)));
 
-        foreach (Base b in sorted)
-            b.OnPlayerConnected1(np);
-        sendto = null;
+        //foreach (Base b in sorted)
+        //    b.OnPlayerConnected1(np);
+        //sendto = null;
     }
     [RPC]
     void SetTimeLeft(float time)
     {
         timeleft = time;
     }
+
+
+    public void RPCPause() { CallRPC("Pause"); }
     [RPC]
-    public void RPCPause()
+    public void Pause()
     {
-        if(CallRPC()) return;
         Debug.Break();
     }
 
@@ -237,22 +241,18 @@ public class Game : Base
         }
     }
     
+    public void RPCWriteMessage(string s) { CallRPC("WriteMessage",s); }
+    [RPC]
     public void WriteMessage(string s)
     {
-        _GameWindow.AppendSystemMessage(s);        
+        _GameWindow.AppendSystemMessage(s);
     }
-    [RPC]
-    public void RPCWriteMessage(string s)
-    {
-        if(CallRPC(s)) return;
-        WriteMessage(s);
-    }
-    
-    
+
+
+    public void RPCPingFps(int id, int ping, int fps) { CallRPC("PingFps", id, ping, fps); }
     [RPC]    
-    void RPCPingFps(int id, int ping, int fps)
+    void PingFps(int id, int ping, int fps)
     {
-        if(CallRPC(id, ping, fps)) return;
         players[id].fps = fps;
         players[id].ping = ping;        
     }
@@ -266,10 +266,10 @@ public class Game : Base
     }
     [LoadPath("nextLevel")]
     public AudioClip[] stageSound;
+    public void RPCNextStage(int stage) { CallRPC("NextStage",stage); }
     [RPC]
-    private void RPCNextStage(int stage)
+    private void NextStage(int stage)
     {
-        if(CallRPC(stage)) return;
         Debug.Log("Next Stage"+stage);
         PlayRandSound(stageSound);
         this.stage = stage;
@@ -291,7 +291,7 @@ public class Game : Base
     //    if (_localPlayer != null && _localPlayer.car == null)
     //    {                        
     //        _localPlayer.RPCSetTeam((int)Team.None);
-    //        _localPlayer.RPCAlive(false);
+    //        _localPlayer.RPCSetAlive(false);
     //    }
     //}
     void OnDisconnectedFromServer(NetworkDisconnection nd)
@@ -309,17 +309,18 @@ public class Game : Base
                     box.RPCResetOwner();
                 
                 foreach (NetworkView nw in box.GetComponents<NetworkView>())
-                    if (nw.owner.GetHashCode() == playerid) Destroy(nw.viewID);
+                    if (nw.owner.GetHashCode() == playerid) RPCDestroy(nw.viewID);
             }
         
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);
     }
-        
+
+    public void RPCDestroy(NetworkViewID v) { CallRPC("Destroy", v); }
     [RPC]
     private void Destroy(NetworkViewID v)
     {
-        if(CallRPC(v)) return;
+        
         NetworkView nw = NetworkView.Find(v);
         nw.enabled = false;
         Component.Destroy(nw);
@@ -421,4 +422,4 @@ public class Game : Base
     }
     
 }
-public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Gun }
+public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Tower }

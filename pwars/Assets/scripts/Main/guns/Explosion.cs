@@ -7,12 +7,14 @@ public class Explosion : Base
     public int damage;
     public float exp = 500;
     public float radius = 4;
-    void Start()
+
+    
+    protected override void Start()
     {
         foreach (Destroible ip in GameObject.FindObjectsOfType(typeof(Destroible)))
         {            
             float dist = Vector3.Distance(ip.transform.position, transform.position);
-            if (ip != self && dist < radius && ip.isController && !ip.dead)
+            if (ip != self && dist < radius && ip.isController && ip.Alive)
             {                
                 if (ip.isOwner)
                     _Cam.exp = 1;                

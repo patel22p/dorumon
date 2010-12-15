@@ -30,7 +30,7 @@ public partial class VK : Base
         if (!enabled) return;
     }
 
-    void Start()
+    protected override void Start()
     {
         print("vk start");        
     }

@@ -37,17 +37,21 @@ public class InspectorSearch : EditorWindow
             if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
             {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
-                if(Selection.activeGameObject!=null) array = array.Union(Selection.activeGameObject.GetComponents<Component>());
+                if(Selection.activeGameObject!=null) 
+                {array = array.Union(Selection.activeGameObject.GetComponents<Component>());
+                if (Selection.activeGameObject.renderer != null)
+                    array = array.Union(new[] { Selection.activeGameObject.renderer.sharedMaterial });
+                }
                 foreach (var m in array)
                 {
                     SerializedObject so = new SerializedObject(m);
                     SerializedProperty pr = so.GetIterator();
                     pr.NextVisible(true);
                     do
-                    {
+                    {                        
                         if (pr.propertyPath.ToLower().Contains(search.ToLower()) && pr.editable)
                             EditorGUILayout.PropertyField(pr);
-                        if (so.ApplyModifiedProperties() && Selection.objects.Length > 1)
+                        if (so.ApplyModifiedProperties())
                         {                            
                             SetMultiSelect(m, pr);
                         }
@@ -59,26 +63,84 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawObjects()
     {
+        foreach (var a in mostUsed.OrderByDescending(a => a.times).Take(5))
+        {
+            GUI.BeginHorizontal();
+            if (GUI.Button(a.o.name + ":" + a.times))
+            {
+                Selection.activeObject = a.o;
+                a.lastTimeUsed = DateTime.Now;
+                a.times++;
+            }
+            if (GUI.Button("X", GUI.ExpandWidth(false)))
+            {
+                mostUsed.Remove(a);
+            }
+            GUI.EndHorizontal();
+            if ((DateTime.Now - a.lastTimeUsed).TotalMinutes > 1)
+            {
+                mostUsed.Remove(a);
+            }
+            
+        }
+
         if (GUI.Button("Add"))
             if (!instances.Contains(Selection.activeGameObject.name))
                 instances.Add(Selection.activeGameObject.name);
         List<string> toremove = new List<string>();
-        foreach (var inst in instances)
+        try
         {
-            GUI.BeginHorizontal();
-            if (GUI.Button(inst))
+            foreach (var inst in instances)
             {
-                GameObject o = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);                
-                Selection.activeGameObject = o;
-                SaveParams();
+                GUI.BeginHorizontal();
+                if (GUI.Button(inst))
+                {
+                    GameObject o = GameObject.Find(inst) ?? (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
+                    Selection.activeGameObject = o;
+                    //var c = SceneView.lastActiveSceneView.camera;
+                    //Debug.Log(c.transform.position);
+                    //c.transform.localPosition = o.transform.position;
+                    SaveParams();
+                }
+                if (GUI.Button("X", GUI.ExpandWidth(false)))
+                    toremove.Add(inst);
+                GUI.EndHorizontal();
             }
-            if (GUI.Button("X", GUI.ExpandWidth(false)))
-                toremove.Add(inst);
-            GUI.EndHorizontal();
+            foreach (var inst in toremove)
+                instances.Remove(inst);
         }
-        foreach (var inst in toremove)
-            instances.Remove(inst);
+        catch { }
 
+    }
+    private void OnSceneUpdate(SceneView s)
+    {
+            var last = mostUsed.Count > 0 ? mostUsed[mostUsed.Count - 1] : null;
+            if (Selection.activeObject != null && (last == null || last.o != Selection.activeObject))
+            {
+                var so = Selection.activeObject;
+                var m = mostUsed.FirstOrDefault(a => a.o == so);
+                if (m != null)
+                {
+                    mostUsed.Remove(m);
+                    m.times++;
+                    m.lastTimeUsed = DateTime.Now;
+                    mostUsed.Add(m);
+                }
+                else
+                    mostUsed.Add(new MostUsed { o = Selection.activeObject, lastTimeUsed = DateTime.Now });
+            }
+
+            var c = s.camera;
+            var e = Event.current;
+            var p = e.mousePosition;
+            if (e.keyCode == KeyCode.G && e.type == EventType.KeyUp)
+            {
+                Ray r = HandleUtility.GUIPointToWorldRay(new Vector2(p.x, p.y));
+                RaycastHit h;
+                if (Physics.Raycast(r, out h))
+                    s.LookAt(h.point - 5 * r.direction, c.transform.rotation, 5);
+
+            }
     }
     private void SetMultiSelect(Object m, SerializedProperty pr)
     {
@@ -103,7 +165,13 @@ public class InspectorSearch : EditorWindow
     }
     void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
     {
-        foreach (var nc in Selection.gameObjects.Select(a=>a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a =>!(a is GameObject)))) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
+        var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
+        if (Selection.activeGameObject.renderer != null && c is Material)
+        {            
+            array = array.Union(Selection.activeGameObject.renderer.sharedMaterials);
+        }
+
+        foreach (var nc in array) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
         {            
             if (nc != null && nc != c)
             {
@@ -158,8 +226,14 @@ public class InspectorSearch : EditorWindow
     }
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
-    {
+    {        
         _TimerA.Update();
+        SceneView.onSceneGUIDelegate = OnSceneUpdate;
+        if (_TimerA.TimeElapsed(60 * 1000) && !EditorApplication.isPlaying && !EditorApplication.isPaused)
+        {
+            EditorApplication.SaveScene(EditorApplication.currentScene);
+        }
+
         if (_TimerA.TimeElapsed(3000))
             ewnd.Repaint();
     }
@@ -172,5 +246,17 @@ public class InspectorSearch : EditorWindow
             return _ewnd;
         }
     }
+
+    List<MostUsed> mostUsed = new List<MostUsed>();
+    [Serializable]
+    public class MostUsed
+    {
+        public DateTime lastTimeUsed;
+        public int times;
+        public Object o;
+
+    }
+    
+
 
 }

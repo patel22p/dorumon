@@ -18,29 +18,40 @@ public abstract class Destroible : Box
         }
     }    
     public bool dead { get { return !Alive; } set { Alive = !value; } }
-    public bool Alive;
+    public bool Alive = true;
     
     
     protected override void Awake()
     {        
         base.Awake();
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+
+    public override void Init()
     {
-        base.OnPlayerConnected1(np);        
+        if (Life == 0) Life = 100;
+        base.Init();
     }
     protected override void Start()
     {
         _Game.destroyables.Add(this);
         base.Start();
     }
-    
-    [RPC]
-    public virtual void RPCSetLife(int NwLife, int killedby)
+    public float isGrounded;
+    protected override void OnCollisionStay(Collision collisionInfo)
+    {
+        isGrounded = 0;
+    }
+    protected override void Update()
+    {
+        isGrounded +=Time.deltaTime;
+        base.Update();
+    }
+    public void RPCSetLife(int NwLife, int killedby) { if (isController)CallRPC("SetLife", NwLife, killedby); }
+
+    [RPC]    
+    public virtual void SetLife(int NwLife, int killedby)
     {
         if (dead) return;        
-        if(isController) if(CallRPC(NwLife,killedby)) return;
-
         if (isEnemy(killedby) || NwLife > Life)
             Life = NwLife;
 
@@ -56,6 +67,8 @@ public abstract class Destroible : Box
         if (killedby != -1 && players[killedby] != null && players[killedby].team != team) return true;        
         return false;    
     }
+    
+    public void RPCDie(int killedby) { if (isController) CallRPC("Die", killedby); }
     [RPC]
-    public abstract void RPCDie(int killedby);
+    public abstract void Die(int killedby);
 }

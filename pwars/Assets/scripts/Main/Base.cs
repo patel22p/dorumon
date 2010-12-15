@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
-
+using Debug = UnityEngine.Debug;
 using doru;
 using System.Xml.Serialization;
 using System;
@@ -30,20 +30,17 @@ public class Base : Base2
         {
             name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
             if (Network.peerType == NetworkPeerType.Disconnected)
-            {
-                oldEnabled = enabled;
+            {                
                 enabled = false;
-
-            }
-            
+            }            
         }
     }
-    bool oldEnabled;
+    protected virtual void Start(){}
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
-    protected virtual void Enable() { if (networkView != null) enabled = oldEnabled; }
-    public virtual void OnPlayerConnected1(NetworkPlayer np) { }
+    protected virtual void Enable() { if (networkView != null) enabled = true; }
 
+    public virtual void OnPlayerConnected1(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
         get
@@ -115,7 +112,6 @@ public class Base : Base2
     
     public void PlaySound(AudioClip au, float volume)
     {
-
         transform.GetComponentInParrent<AudioSource>().PlayOneShot(au, volume);
     }
     public void PlayRandSound(AudioClip[] au) { PlayRandSound(au, 1); }
@@ -125,14 +121,19 @@ public class Base : Base2
             transform.GetComponentInParrent<AudioSource>().audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)], volume);
     }
     public Transform root { get { return this.transform.root; } }
-    public void Hide() { Show(false); }
-    public void Show() { Show(true); }
+    public void LocalHide() { Show(false); }
+    public void LocalShow() { Show(true); }
 
+    public void RPCShow(bool v) { CallRPC("Show",v); }
     [RPC]
-    public void RPCShow(bool value)
+    public void Show(bool value)
     {
-        if(CallRPC(value)) return;
-        Show(value);
+        Show(this.gameObject, value);
+        foreach (Base r in this.GetComponentsInChildren<Base>())
+        {
+            r.enabled = value;
+            r.onShow(value);
+        }
     }
     
     public static void Show(GameObject g, bool value)
@@ -163,37 +164,19 @@ public class Base : Base2
         }
         
     }    
-    public void Show(bool value) 
-    {        
-        Show(this.gameObject, value);
-        foreach (Base r in this.GetComponentsInChildren<Base>())
-        {            
-            r.enabled = value;
-            r.onShow(value);
-        }
-    }
+    
+
     public virtual void onShow(bool enabled)
     {
     }
-    public static NetworkPlayer? sendto; 
-    public bool CallRPC(params object[] obs)
+    public static NetworkPlayer? sendto;
+    public bool CallRPC(string name, params object[] obs)
     {
-        MethodBase rpcmethod = new StackFrame(1, true).GetMethod();        
-        MethodBase mb;
-        for (int i = 2; true; i++)
-        {
-            mb = new StackFrame(i, true).GetMethod();
-            if (mb == null || mb.Name != rpcmethod.Name) break;
-        }
-        if (mb != null)
-        {                        
-            if(sendto==null)
-                networkView.RPC(rpcmethod.Name, RPCMode.All, obs);
-            else
-                networkView.RPC(rpcmethod.Name, sendto.Value, obs);
-            return true;
-        }
+        if (new StackTrace().FrameCount > 20) throw new StackOverflowException();
+        if (sendto == null)
+            networkView.RPC(name, RPCMode.All, obs);
         else
-            return false;
+            networkView.RPC(name, sendto.Value, obs);
+        return true;
     }
 }

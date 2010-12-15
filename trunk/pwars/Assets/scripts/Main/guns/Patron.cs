@@ -21,9 +21,10 @@ public class Patron : Base
     public float tm;
     public DecalTypes decal;    
     protected Vector3 previousPosition;
-    protected virtual void Start()
+    protected override void Start()
     {                
-        previousPosition = transform.position;        
+        previousPosition = transform.position;
+        base.Start();
     }
     public override void Init()
     {
@@ -106,11 +107,11 @@ public class Patron : Base
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
             RaycastHit h;
-            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 3)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1,0)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
             {
                 _Game.AddDecal(
                     DecalTypes.Blood,
-                    h.point - new Vector3(0, -1, 3) * 0.1f,
+                    h.point - new Vector3(0, -1, 0) * 0.1f,
                     h.normal, _Game.decals.transform);
             }
         }

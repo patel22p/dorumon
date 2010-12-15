@@ -28,9 +28,11 @@ public class Box : Base
     }
     public override void Init()
     {
+        
         gameObject.isStatic = false;
         gameObject.AddOrGet<NetworkView>().observed = this;
         gameObject.AddOrGet<Rigidbody>();
+        gameObject.AddOrGet<AudioSource>();
         if (collider is MeshCollider)
         {
             ((MeshCollider)collider).convex = true;
@@ -40,22 +42,21 @@ public class Box : Base
         
         base.Init();
     }
-    protected virtual void Start()
+    protected override void Start()
     {
         spawnpos = transform.position;
         if (shared)
             if (!Network.isServer)
-                networkView.RPC("RPCAddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
+                networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
-    void OnCollisionEnter(Collision coll)
+    protected virtual void OnCollisionEnter(Collision coll)
     {
         if (this.GetType()==typeof(Box) && coll.impactForceSum.magnitude > 10)
             audio.PlayOneShot(soundcollision);
     }
-    void OnCollisionStay(Collision collisionInfo)
+    protected virtual void OnCollisionStay(Collision collisionInfo)
     {
-
         if (this.GetType() == typeof(Box))
             if (collisionInfo.impactForceSum.magnitude > 10 && _TimerA.TimeElapsed(10))
                 foreach (ContactPoint cp in collisionInfo.contacts)                    
@@ -90,19 +91,20 @@ public class Box : Base
             }
 
         if (nearp != null && nearp.OwnerID != -1 && selected != nearp.OwnerID)
-            networkView.RPC("SetController", RPCMode.All, nearp.OwnerID);
+            SetController(nearp.OwnerID);
 
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        if (OwnerID != -1) networkView.RPC("RPCSetOwner", np, OwnerID);
-        if (selected != -1) networkView.RPC("SetController", np, selected);
+        if (OwnerID != -1) RPCSetOwner(OwnerID);
+        if (selected != -1) RPCSetController(selected);
         base.OnPlayerConnected1(np);        
     }
+
+    public void RPCSetOwner(int owner) { CallRPC("SetOwner",owner); }
     [RPC]
-    void RPCSetOwner(int owner)
-    {
-        if(CallRPC(owner)) return;
+    void SetOwner(int owner)
+    {        
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
@@ -110,6 +112,8 @@ public class Box : Base
             bas.OnSetOwner();
         }
     }
+
+    public void RPCSetController(int owner) { CallRPC("SetController",owner); }
     [RPC]
     public void SetController(int owner)
     {
@@ -117,10 +121,10 @@ public class Box : Base
             ((Box)this).selected = owner;
 
     }
+    public void RPCResetOwner() { CallRPC("ResetOwner"); }
     [RPC]
-    public void RPCResetOwner()
-    {
-        if(CallRPC()) return;
+    public void ResetOwner()
+    {        
         Debug.Log("_ResetOwner");
         ((Box)this).selected = -1;
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
@@ -128,7 +132,7 @@ public class Box : Base
 
     }
     [RPC]
-    public void RPCAddNetworkView(NetworkViewID id)
+    public void AddNetworkView(NetworkViewID id)
     {
         var ss = networkView.stateSynchronization;
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();

@@ -58,7 +58,7 @@ public class Cam : Base
         }
     }
 
-    void Start()
+    protected override void Start()
     {
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
@@ -102,7 +102,7 @@ public class Cam : Base
         else
         {
             Quaternion rotation = Quaternion.Euler(y, x, 0);
-            Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset);
+            Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
             pos2.y += yoffset;
             transform.position = pos2;
             transform.rotation = rotation;

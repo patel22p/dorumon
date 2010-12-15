@@ -36,9 +36,12 @@ public class GunBase : Base
         base.OnPlayerConnected1(np);
     }
 
-    public void RPCSetLaser(bool value)
+
+
+    public void RPCSetLaser(bool value) { CallRPC("SetLaser", value); }
+    [RPC]
+    public void SetLaser(bool value)
     {
-        CallRPC(value);
         laser = value;
     }
 
@@ -53,11 +56,13 @@ public class GunBase : Base
     }
     protected virtual void Update()
     {
-        player.UpdateAim();
+        if(player!=null)
+            player.UpdateAim();
     }
     protected virtual void FixedUpdate()
     {
-        player.UpdateAim();
+        if (player != null)
+            player.UpdateAim();
     }
     public override string ToString()
     {

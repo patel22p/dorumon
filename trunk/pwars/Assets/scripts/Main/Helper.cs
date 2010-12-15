@@ -9,12 +9,12 @@ namespace doru
 {
     [Serializable]
     public class TimerA
-    {                
-        int _Ticks = Environment.TickCount;
-        int oldtime;
+    {
+        public int _Ticks = Environment.TickCount;
+        public int oldtime;
 
-        int fpstimes;
-        double totalfps;
+        public int fpstimes;
+        public double totalfps;
         public double GetFps()
         {
             if (fpstimes > 0)
@@ -27,7 +27,7 @@ namespace doru
             }
             else return 0;
         }
-        int miliseconds;
+        public int miliseconds;
         public void Update()
         {
             miliseconds = Environment.TickCount - _Ticks;
@@ -40,20 +40,24 @@ namespace doru
                 UpdateAction2s();
             }
         }
-
+        
         private void UpdateAction2s()
         {
-            lock ("timer")
-                for (int i = _List.Count - 1; i >= 0; i--)
+            CA select = null;    
+            foreach (var _CA in _List)
+            {
+                _CA._Miliseconds -= _MilisecondsElapsed;
+                if (_CA._Miliseconds < 0 && select == null)
                 {
-                    CA _CA = _List[i];
-                    _CA._Miliseconds -= _MilisecondsElapsed;
-                    if (_CA._Miliseconds < 0)
-                    {
-                        _List.Remove(_CA);
-                        _CA._Action2();
-                    }
+                    select = _CA;                                        
                 }
+            }
+            if (select != null)
+            {
+                select._Action2();
+                _List.Remove(select);
+            }
+                        
         }
 
         public int _MilisecondsElapsed = 0;

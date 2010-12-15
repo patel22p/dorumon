@@ -15,7 +15,7 @@ public class Music : Base
     {
         base.Awake();
     }
-    void Start()
+    protected override void Start()
     {
         
     }

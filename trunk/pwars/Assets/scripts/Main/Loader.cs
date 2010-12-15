@@ -49,7 +49,7 @@ public class Loader : Base
     }
     
     string curdir { get { return Directory.GetCurrentDirectory(); } }
-    void Start()
+    protected override void Start()
     {
         
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
@@ -118,7 +118,7 @@ public class Loader : Base
     }
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.C))
             _Console.enabled = !_Console.enabled;
 
         //if (Input.GetKeyDown(KeyCode.G))
@@ -137,9 +137,8 @@ public class Loader : Base
         WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if(!isWebPlayer && Input.GetKeyDown(KeyCode.F))
-            Application.CaptureScreenshot(curdir +"/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
-
+        if(!isWebPlayer && Input.GetKeyDown(KeyCode.E))
+            Application.CaptureScreenshot(curdir +"/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");        
 
         _TimerA.Update();
     }

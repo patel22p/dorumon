@@ -2,40 +2,27 @@
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(Camera))]
-public class ShadowToTexture : MonoBehaviour
+public class ShadowToTexture : Base
 {
-    public GameObject g;
-    public Renderer[] rl;
-    public List<Texture> tl = new List<Texture>();
-    void Awake()
-    {
-        g = GameObject.Find("Level");
-    }
-    void Start()
-    {
-        rl = g.GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in rl)
-            foreach (Material m in r.materials)
-                tl.Add(m.mainTexture);
-    }
-    void OnPreRender()
+    public Projector p;
+    public RenderTexture t;
+    public override void Init()
     {
 
-        foreach (Renderer r in rl)
-            foreach (Material m in r.materials)
-                m.mainTexture = null;
+        var c = camera;
+        
+        c.farClipPlane = p.farClipPlane;
+        //c.fieldOfView = p.fieldOfView;
+        
+        c.orthographic = p.orthographic;
+        c.orthographicSize = p.orthographicSize;
     }
-    void OnPostRender()
+    protected override void Start()
     {
-        int i = 0;
-        foreach (Renderer r in rl)
-            foreach (Material m in r.materials)
-            {
-                m.mainTexture = tl[i];
-                i++;
-            }
-
-    }
-
+        t = new RenderTexture(256, 256, 100);
+        camera.targetTexture = t;
+        p.material.SetTexture("_ShadowTex", t);
+        //t = new RenderTexture(256, 256, 0);
+        Destroy(camera, 1);
+    }    
 }

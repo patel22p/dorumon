@@ -19,7 +19,7 @@ public class MapItem : Base
     public float distance=10;
     public int itemsLeft = 1;
     public bool endless;
-    public MapItemType itemType = MapItemType.door;
+    public MapItemType itemType;
     public GunType gunIndex;
     public int bullets = 1000;
     public string text = "";
@@ -27,7 +27,7 @@ public class MapItem : Base
     public int respawnTm;
     public float tmJumper;
     public string[] param { get { return name.Split(','); } }
-    public float tmCollEnter;
+    public float tmCheckOut;
     [LoadPath("wave")]
     public GameObject wavePrefab;
     [LoadPath("superphys_launch3")]
@@ -60,6 +60,14 @@ public class MapItem : Base
             score = 2;
 
         }
+        if (itemType == MapItemType.spotlight)
+        {
+            endless = true; score = 1; text = "Чтобы взять фанарик нажми F";
+        }
+        if (itemType == MapItemType.laser)
+        {
+            endless = true; score = 5; text = "Чтобы купить лазерный прицел нажми F";
+        }
 
         if (itemType == MapItemType.trap)
         {
@@ -69,14 +77,18 @@ public class MapItem : Base
         {
             text = "Чтобы использовать лифт нажми F";
             payonce = true;
+            distance = 0;
         }
 
         if (itemType == MapItemType.shop)
         {            
-            text = "Нажми F чтобы купить " + (GunType)gunIndex;            
-            Parse(ref score, 1);
-            Parse(ref autoTake, 2);
+            text = "Нажми F чтобы купить " + (GunType)gunIndex;
+            Parse(ref score, 2);
+            Parse(ref autoTake, 3);
             endless = !autoTake;
+            hide = autoTake;
+            if (autoTake)
+                distance = 1;
         }
         if (itemType == MapItemType.door)
         {
@@ -134,13 +146,13 @@ public class MapItem : Base
     }
     protected override void Awake()
     {
-        
-        if (itemType == MapItemType.shop)
+
+        if (itemType == MapItemType.shop || itemType == MapItemType.laser || itemType == MapItemType.health || itemType == MapItemType.spotlight)
             foreach (var r in GetComponentsInChildren<Renderer>())
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
         base.Awake();
     }
-    void Start()
+    protected override void Start()
     {
         if(animation!=null)
             animation.Stop();
@@ -148,38 +160,30 @@ public class MapItem : Base
     void Update()
     {
 
-        if (transform.Cast<Transform>().Union(new[] { transform }).Any(a => Vector3.Distance(a.position, _localPlayer.pos) < distance))
-            TmOn = 1;        
+        if (transform.GetComponentsInChildren<Transform>().Any(a => Vector3.Distance(a.position, _localPlayer.pos) < distance))
+            TmOn = 1;
 
-        tmCollEnter -= Time.deltaTime;
+        tmCheckOut -= Time.deltaTime;
         tmJumper -= Time.deltaTime;
         if (TmOn > 0)
             TmOn -= Time.deltaTime;
 
-        
 
-        if (TmOn > 0 && (animation == null || !animation.isPlaying))
+
+        if (TmOn > 0 && (animation == null || !animation.isPlaying) && _localPlayer.Alive)
         {
             JumperUpdate();
-            bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[(int)gunIndex].patronsLeft != -1);
+            bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[(int)gunIndex].patronsLeft == -1);
             int Score = (donthavegun ? this.score * 3 : this.score);
-            
+
             if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug))
             {
-                if (itemType == MapItemType.speed && tmCollEnter < 0)
-                {
-                    _localPlayer.rigidbody.AddTorque(Speed.y, 0, Speed.x);
-                    tmCollEnter = 1;
-                }
-
-                CheckOut();
+                LocalCheckOut();
             }
             if ((endless || itemsLeft > 0) && text != "")
                 _GameWindow.CenterText.text = text + (Score > 0 ? (", нужно заплатить " + Score + " очков") : "");
-            
         }
-        if (TmOn < 0)
-        {
+        else{
             _GameWindow.CenterText.text = "";
             TmOn = 0;
         }
@@ -203,7 +207,7 @@ public class MapItem : Base
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        networkView.RPC("RPCCheckOut", np, itemsLeft);
+        RPCCheckOut(itemsLeft);
         base.OnPlayerConnected1(np);
     }
     void OnCollisionStay(Collision c)
@@ -218,11 +222,15 @@ public class MapItem : Base
         if (c.gameObject == _localPlayer.gameObject)
             TmOn = 1;
     }
-    [RPC]
-    public void CheckOut()
+    public void LocalCheckOut()
     {
-        if (itemsLeft > 0 || endless)
+        if ((itemsLeft > 0 || endless) && tmCheckOut < 0)
         {
+            if (itemType == MapItemType.speed)
+            {
+                _localPlayer.rigidbody.AddTorque(Speed.y, 0, Speed.x);
+            }
+            tmCheckOut = 4;
             _localPlayer.score -= score;
             itemsLeft--;
             if (itemType == MapItemType.shop)
@@ -241,18 +249,20 @@ public class MapItem : Base
                 }
             }
             if (itemType == MapItemType.laser)
-                _localPlayer.guns[_localPlayer.guni].RPCSetLaser(true);
+            {
+                _localPlayer.gun.RPCSetLaser(true);
+            }
             if (itemType == MapItemType.spotlight)
                 _localPlayer.RPCSetFanarik(true);
             RPCCheckOut(itemsLeft);
         }
     }
+    public void RPCCheckOut(int i) { CallRPC("CheckOut",i); }
     [RPC]
-    public void RPCCheckOut(int i)
+    void CheckOut(int i)
     {
-        if(CallRPC(i)) return;
+        Debug.Log("checkOut+" + itemType);
         itemsLeft = i;
-
         if (animation != null && animation.clip != null)
             animation.Play();
 
@@ -273,7 +283,6 @@ public class MapItem : Base
         if (animation != null && animation.clip != null)
             animation["Take 001"].enabled = false;
     }
-
     private void Parse(ref float t, int id)
     {
         try
@@ -304,7 +313,7 @@ public class MapItem : Base
     {
         try
         {
-            itemType = (MapItemType)System.Enum.Parse(typeof(MapItemType), param[0].ToLower());
+            itemType = (MapItemType)System.Enum.Parse(typeof(MapItemType), param[0].ToLower().Substring(1));
         }
         catch { }
     }

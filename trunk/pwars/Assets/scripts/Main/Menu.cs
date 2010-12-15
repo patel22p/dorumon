@@ -20,7 +20,7 @@ public class Menu : Base
     {
         base.Awake();
     }
-    void Start()
+    protected override void Start()
     {
         lockCursor = false;
         if (_Loader.dedicated)

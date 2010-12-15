@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Random = UnityEngine.Random;
 public class Zombie : Destroible
 {
     public float zombieBite;
@@ -20,7 +21,6 @@ public class Zombie : Destroible
     public GameObject AliveZombie;
     [PathFind("zombieDead")]
     public GameObject DeadZombie;
-
     public Seeker seeker;
     public float zombieBiteDist = 3;
     Vector3[] pathPoints;
@@ -44,10 +44,10 @@ public class Zombie : Destroible
         base.Start();
         
     }
+    public void RPCSetup(float zombiespeed, float zombieLife) { CallRPC("Setup",zombiespeed,zombieLife); }
     [RPC]
-    public void RPCSetup(float zombiespeed, float zombieLife)
+    void Setup(float zombiespeed, float zombieLife)
     {
-        if(CallRPC(zombiespeed, zombieLife)) return;
         Alive = true;
         Sync = true;
         transform.position = SpawnPoint();
@@ -60,13 +60,12 @@ public class Zombie : Destroible
         Life = (int)zombieLife;
     }
     [RPC]
-    public override void RPCDie(int killedby)
+    public override void Die(int killedby)
     {
         if (!Alive) { return; }        
         Sync = false;
         Alive = false;
-        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        if (isController) if(CallRPC(killedby)) return;
+        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");        
         PlayRandSound(gibSound);
         AliveZombie.renderer.enabled = false;
         DeadZombie.renderer.enabled = true;
@@ -75,10 +74,11 @@ public class Zombie : Destroible
         {
             foreach (Player p in players)
                 if (p != null && p.OwnerID == killedby)
-                    p.SetFrags(+1, 1);
+                    p.AddFrags(+1, 1);
         }
     }
-    float tiltTm;
+    public float tiltTm;
+    public float spawninTM = 5;
     protected override void Update()
     {
         base.Update();
@@ -97,11 +97,11 @@ public class Zombie : Destroible
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
                 move = true;
                 tiltTm += Time.deltaTime;
-                if (tiltTm > 10 && isController)
+                if (tiltTm > spawninTM && isController)
                 {
                     tiltTm = 0;
-                    if (Vector3.Distance(oldpos, pos) < 1)
-                        pos = SpawnPoint();
+                    if (Vector3.Distance(oldpos, pos) / spawninTM < .5f)
+                        pos = SpawnPoint();                        
                     oldpos = pos;
                 }
             }
@@ -171,8 +171,8 @@ public class Zombie : Destroible
             {
                 ni++;
                 if (ni >= points.Count) break;
-                //if (Vector3.Distance(points[ni], pos) > 2)
-                return points[ni] - pos;
+                if (Vector3.Distance(points[ni], pos) > 2)
+                    return points[ni] - pos;
             }
 
         return null;
@@ -193,7 +193,6 @@ public class Zombie : Destroible
     {
         pathPoints = points;
     }
-    
     private void PlayRandom()
     {
         if (this != null && Alive)
@@ -205,23 +204,16 @@ public class Zombie : Destroible
     }
     public override Vector3 SpawnPoint()
     {
+        spawninTM = Random.Range(1, 10); 
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         Player pl = Nearest(); 
         if (pl == null) return gs.First().transform.position;
-        var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 50 && Math.Abs(a.transform.position.y - pl.pos.y) < 3);
-        Debug.Log(neargs.Count());
-        return (neargs.Random() ??
-            gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos)).First()
-            ).transform.position;        
+        //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
+        var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
+        return (o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()).transform.position;        
     }
-    [RPC]
-    public override void RPCSetLife(int NwLife, int killedby)
-    {
-        base.RPCSetLife(NwLife, killedby);
-    }
-    void OnCollisionEnter(Collision collisionInfo)
-    {
-        
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {        
         if (dead) return;
         Base b = collisionInfo.gameObject.GetComponent<Base>();
         if (b != null && b is Box && !(b is Zombie) && Alive && isController &&
@@ -235,7 +227,7 @@ public class Zombie : Destroible
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
-        networkView.RPC("RPCSetup", np, (float)speed, (float)Life);
-        if(!Alive) networkView.RPC("RPCDie", np, -1);
+        RPCSetup((float)speed, (float)Life);
+        if(!Alive) RPCDie(-1);
     }
 }

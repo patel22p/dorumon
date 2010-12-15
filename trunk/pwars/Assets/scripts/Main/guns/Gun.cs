@@ -8,6 +8,7 @@ public class Gun : GunBase
     public float tm;
     public int howmuch = 1;
     public GameObject patronPrefab;
+    public GameObject towerPrefab;
     public Vector3 random;
     public Texture2D GunPicture;    
     public Vector3 Force;
@@ -20,7 +21,7 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
-    
+    public float soundVolume = 1;
     Vector3 defPos,defPos2;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
@@ -37,25 +38,25 @@ public class Gun : GunBase
     }
     protected override void Awake()
     {
-        defPos2 = defPos = transform.localPosition;        
         base.Awake();
+    }
+    protected override void Start()
+    {
+
+        defPos2 = defPos = transform.localPosition;        
     }
     public override void onShow(bool enabled)
     {
-        if (enabled)
+        if (enabled && player !=null)
             player.rigidbody.mass = player.defmass + ves * player.defmass;
         base.onShow(enabled);
     }
-
-    
-    
 
 
     protected override void Update()
     {
         base.Update();
-        if (GunPicture != null && isOwner)
-            _GameWindow.gunTexture.texture = GunPicture;
+        
         
 
         if (barrel != null)
@@ -74,6 +75,9 @@ public class Gun : GunBase
     }    
     protected virtual void LocalUpdate()
     {
+        if (GunPicture != null && player !=null && isOwner)
+            _GameWindow.gunTexture.texture = GunPicture;
+
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
@@ -87,11 +91,14 @@ public class Gun : GunBase
         }
     }
     [RPC]
-    protected virtual void RPCShoot()
+    public void RPCShoot()
     {
         if (sound != null)
-            root.audio.PlayOneShot(sound);
-        player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));
+            root.audio.PlayOneShot(sound,soundVolume);
+        if (player != null)
+            player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));
+
+
         for (int i = 0; i < howmuch; i++)
         {
             Vector3 r;
@@ -113,13 +120,20 @@ public class Gun : GunBase
             }
             if (barrel != null) barrelVell += 10;
 
-            Patron patron = ((GameObject)Instantiate(patronPrefab, cursor[cursorid].position , rot * Quaternion.Euler(r))).GetComponent<Patron>();
-            patron.OwnerID = OwnerID;
-            patron.damage = this.damage;
-            if (exp != 0) patron.ExpForce = exp;
-            if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
-            patron.probivaemost = this.probivaemost;
-            if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
+            var p2 = cursor[cursorid].position;
+            var r2 = rot * Quaternion.Euler(r);
+            if (towerPrefab != null)
+                Network.Instantiate(towerPrefab, p2, cursor[0].rotation, (int)GroupNetwork.Tower);
+            else
+            {
+                Patron patron = ((GameObject)(Instantiate(patronPrefab, p2, r2))).GetComponent<Patron>();
+                patron.OwnerID = OwnerID;
+                patron.damage = this.damage;
+                if (exp != 0) patron.ExpForce = exp;
+                if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
+                patron.probivaemost = this.probivaemost;
+                if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
+            }
         }
         this.pos -= rot * new Vector3(0, 0, vibration);
         

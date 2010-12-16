@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public enum MapItemType { door, lift, jumper, shop, money, speed, laser, health, trap , spotlight }
+public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base
 {
@@ -21,6 +21,7 @@ public class MapItem : Base
     public bool endless;
     public MapItemType itemType;
     public GunType gunIndex;
+    public string gunIndexStr;
     public int bullets = 1000;
     public string text = "";
     public float TmOn;
@@ -34,8 +35,12 @@ public class MapItem : Base
     public AudioClip superphys_launch3;
     public override void Init()
     {
-        foreach(Transform t in GetComponentsInChildren<Transform>())
+        
+        //gunIndex = (GunType)Enum.Parse(typeof(GunType), gunIndexStr);
+        foreach (Transform t in GetComponentsInChildren<Transform>())
             t.gameObject.isStatic = false;
+
+        gunIndexStr = gunIndex.ToString();        
         ParseItemType();
         var g = gameObject;
         if (!inited)
@@ -144,9 +149,12 @@ public class MapItem : Base
 
         base.Init();
     }
+    public Transform[] trs;
     protected override void Awake()
-    {
-
+    {        
+        DisableLightmap();
+        
+        trs = GetComponentsInChildren<Transform>().Union(GetComponents<Transform>()).ToArray();
         if (itemType == MapItemType.shop || itemType == MapItemType.laser || itemType == MapItemType.health || itemType == MapItemType.spotlight)
             foreach (var r in GetComponentsInChildren<Renderer>())
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
@@ -154,24 +162,25 @@ public class MapItem : Base
     }
     protected override void Start()
     {
+        UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
         if(animation!=null)
             animation.Stop();
     }
+    bool canEnable { get { return (animation == null || !animation.isPlaying) && _localPlayer.Alive; } }
     void Update()
     {
-
-        if (transform.GetComponentsInChildren<Transform>().Any(a => Vector3.Distance(a.position, _localPlayer.pos) < distance))
-            TmOn = 1;
-
+        foreach (var a in trs)
+        {
+            if (Vector3.Distance(a.position, _localPlayer.pos) < distance && canEnable)
+                TmOn = 1;
+        }
         tmCheckOut -= Time.deltaTime;
         tmJumper -= Time.deltaTime;
         if (TmOn > 0)
             TmOn -= Time.deltaTime;
-
-
-
-        if (TmOn > 0 && (animation == null || !animation.isPlaying) && _localPlayer.Alive)
+        if (TmOn > 0)
         {
+
             JumperUpdate();
             bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[(int)gunIndex].patronsLeft == -1);
             int Score = (donthavegun ? this.score * 3 : this.score);
@@ -180,10 +189,15 @@ public class MapItem : Base
             {
                 LocalCheckOut();
             }
+
             if ((endless || itemsLeft > 0) && text != "")
+            {
                 _GameWindow.CenterText.text = text + (Score > 0 ? (", нужно заплатить " + Score + " очков") : "");
+
+            }
         }
-        else{
+        else if (TmOn < 0)
+        {
             _GameWindow.CenterText.text = "";
             TmOn = 0;
         }
@@ -219,7 +233,7 @@ public class MapItem : Base
                 ipl.RPCSetLife(ipl.Life - bullets, -1);
         }
             
-        if (c.gameObject == _localPlayer.gameObject)
+        if (c.gameObject == _localPlayer.gameObject && canEnable)
             TmOn = 1;
     }
     public void LocalCheckOut()

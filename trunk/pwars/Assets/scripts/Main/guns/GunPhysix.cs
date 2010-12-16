@@ -12,7 +12,7 @@ public class GunPhysix : GunBase
     public float expradius = 40;
     public float gravitaty = 1;
     public float scalefactor = 10;
-    public float energy;
+    public float holdtm;
     public bool power;
     protected override void Awake()
     {
@@ -23,25 +23,35 @@ public class GunPhysix : GunBase
     {
         if (power)
         {
-            patronsLeft-=Time.fixedDeltaTime;
-
-            if (energy < exp) energy += 80;            
-            foreach (Base b in _Game.boxDerived)
+            patronsLeft -= Time.fixedDeltaTime;
+            holdtm += Time.fixedDeltaTime;
             {
-                if (!(b is Destroible))
+                var p2 = cursor[0].position;
+                var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
+                if (b2 != null)
                 {
-                    b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor[0].position, radius);
-                    b.rigidbody.angularDrag = 30;
-                    b.rigidbody.velocity *= .97f;
-                    b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                    AudioSource a = audio;
-                    a.pitch = 0.1f + (energy / exp / 20);
-                    if (!a.isPlaying) a.Play();
+
+                    b2.rigidbody.velocity = (p2 - b2.pos) * 5;
+                    b2.rot = rot;
+                    b2.rigidbody.angularVelocity = Vector3.zero;
                 }
+            }
+            foreach (Base b in _Game.boxes.Where(b => b != null))
+            {
+                b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor[0].position, radius);
+                b.rigidbody.angularDrag = 30;
+                b.rigidbody.velocity *= .97f;
+                b.OwnerID = this.root.GetComponent<Player>().OwnerID;
+                AudioSource a = audio;
+                a.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
+                if (!a.isPlaying) a.Play();
             }
         }
         else
+        {
             audio.Stop();
+            holdtm = 0;
+        }
 
     }
 
@@ -66,30 +76,25 @@ public class GunPhysix : GunBase
     public AudioClip superphys_launch3;
     public void RPCSetPower(bool e) { CallRPC("SetPower",e); }
     [RPC]
-    void SetPower(bool e)
-    {        
-        power = e;
-        if (!e)
-        {
-            bool any = false;
-            foreach (Base b in _Game.boxDerived)
-                if (!(b is Destroible) && Vector3.Distance(b.transform.position, cursor[0].position) < expradius)
-                {
-                    b.rigidbody.angularDrag = 2;
-                    b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, energy * scalefactor * b.rigidbody.mass));                    
-                    any = true;
-                }
-            if (energy > 300 && any)
-            {
-                root.audio.PlayOneShot(superphys_launch3);
-                Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);                
-            }
-
-            energy = 0;
-
-        }
+    void SetPower(bool power)
+    {
+        this.power = power;
     }
+    public void RPCShoot() { CallRPC("Shoot"); }
+    [RPC]
+    void Shoot()
+    {
+        patronsLeft -= 10;
+        foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
+            if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
+            {
+                b.rigidbody.angularDrag = 2;
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass));                
+            }
+        root.audio.PlayOneShot(superphys_launch3);
+        Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
 
+    }
     protected override void Update()
     {
         if (isOwner && enabled)
@@ -97,7 +102,10 @@ public class GunPhysix : GunBase
             if (Input.GetMouseButtonDown(0) && (patronsLeft > 0 || debug))
                 RPCSetPower(true);
             else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
+            {
+                if (holdtm < .2f && (patronsLeft > 10 || debug)) RPCShoot();
                 RPCSetPower(false);
+            }
         }
         base.Update();
 

@@ -45,9 +45,11 @@ public class Fragment : Base
         {
             foreach (Transform t in child)
             {
+                t.gameObject.active = true;
+                //t.renderer.material.color = renderer.material.color;
                 t.parent = _Game.effects.transform;
                 Destroy(t.gameObject, 5);
-                t.gameObject.active = true;
+                
                 Rigidbody r = t.gameObject.AddComponent<Rigidbody>();
                 if (rigidbody != null)
                 {

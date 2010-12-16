@@ -16,10 +16,11 @@ public class Game : Base
     new public Player[] players = new Player[10];
     public List<Destroible> destroyables = new List<Destroible>();
     public List<Zombie> zombies = new List<Zombie>();
+    public List<Tower> towers = new List<Tower>();
+    public List<Box> boxes = new List<Box>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
     public GameObject bounds;
-    public List<Box> boxDerived = new List<Box>();
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }    
     public new Player _localPlayer;
     [PathFind("GameEffects",true)]
@@ -43,6 +44,7 @@ public class Game : Base
     public bool wait;
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
+    
     public int maxzombies = 0;
     [GenerateEnums("ParticleTypes")]
     public List<Particles> particles = new List<Particles>();
@@ -50,8 +52,6 @@ public class Game : Base
     public List<Decal> decalPresets = new List<Decal>();
     public int zombiespawnindex = 0;
     public GameObject MapCamera;
-    [PathFind("Sphere")]
-    public GameObject model;
 
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [LoadPath("player")]

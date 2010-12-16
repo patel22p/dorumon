@@ -63,14 +63,10 @@ public class Patron : Base
 
     private void Magnet()
     {
-        foreach (var b in _Game.boxDerived.Union(_Game.zombies.Cast<Box>()))
+        foreach (var b in _Game.boxes.Union(_Game.zombies.Cast<Box>()).Where(b => b != null))
         {
-            if (b != null)
-                if (b.GetType() == typeof(Box) || b is Zombie)
-                {
-                    b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
-                    b.rigidbody.velocity *= .97f;
-                }
+            b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
+            b.rigidbody.velocity *= .97f;
         }
 
     }

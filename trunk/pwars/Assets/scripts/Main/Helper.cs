@@ -53,9 +53,9 @@ namespace doru
                 }
             }
             if (select != null)
-            {
-                select._Action2();
+            {                
                 _List.Remove(select);
+                select._Action2();
             }
                         
         }

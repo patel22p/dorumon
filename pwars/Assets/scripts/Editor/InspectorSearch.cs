@@ -24,6 +24,7 @@ public class InspectorSearch : EditorWindow
         if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
         DrawObjects();
         DrawSearch();
+        CopyComponent();
     }
     protected virtual void Awake()
     {
@@ -40,7 +41,7 @@ public class InspectorSearch : EditorWindow
         if (search.Length > 0)
         {
             if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
-            {
+            {                
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
                 if (Selection.activeGameObject != null)
                 {
@@ -69,13 +70,13 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawObjects()
     {
-        int i=0;
-        foreach (var a in lastUsed.Where(a => a != null).Take(3))
-        {
-            i++;
-            if (GUI.Button(a.name))
-                Selection.activeObject = a;
-        }
+        //int i=0;
+        //foreach (var a in lastUsed.Where(a => a != null).Take(3))
+        //{
+        //    i++;
+        //    if (GUI.Button(a.name))
+        //        Selection.activeObject = a;
+        //}
         
         if (GUI.Button("Add"))
             if (!instances.Contains(Selection.activeGameObject.name))
@@ -86,11 +87,8 @@ public class InspectorSearch : EditorWindow
                 GUI.BeginHorizontal();
                 if (GUI.Button(inst))
                 {
-                    GameObject o = GameObject.Find(inst) ?? (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
+                    GameObject o = GameObject.Find(inst) != null ? GameObject.Find(inst) : (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
                     Selection.activeGameObject = o;
-                    //var c = SceneView.lastActiveSceneView.camera;
-                    //Debug.Log(c.transform.position);
-                    //c.transform.localPosition = o.transform.position;
                     SaveParams();
                 }
                 if (GUI.Button("X", GUI.ExpandWidth(false)))
@@ -100,6 +98,32 @@ public class InspectorSearch : EditorWindow
             foreach (var inst in toremove)
                 instances.Remove(inst);
 
+    }
+    public GameObject selectedGameObject;
+    private void CopyComponent()
+    {
+        if (GUI.Button("Select"))
+        {
+            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
+        }
+        if (selectedGameObject != null)
+        {
+            foreach (var c in selectedGameObject.GetComponents<Component>())
+                if (GUI.Button(c.GetType().Name))
+                {
+                    foreach (GameObject g in Selection.gameObjects)
+                    {
+                        var c2 = g.AddComponent(c.GetType());
+                        foreach (FieldInfo f in c.GetType().GetFields())
+                            f.SetValue(c2, f.GetValue(c));
+                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                        //    if(p.CanRead && p.CanWrite)
+                        //        p.SetValue(c2, p.GetValue(c,null),null);
+                        //Debug.Log(c.GetType().GetProperties().Length+"+");
+                    }
+                }
+            GUI.Space(10);
+        }
     }
     private void OnSceneUpdate(SceneView s)
     {

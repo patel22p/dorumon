@@ -41,6 +41,16 @@ public abstract class Destroible : Box
     {
         isGrounded = 0;
     }
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {
+        if (!Alive || !isController) return;
+        Box b = collisionInfo.gameObject.GetComponent<Box>();
+        if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > rigidbody.velocity.magnitude && collisionInfo.rigidbody.velocity.magnitude > 20)
+        {
+            RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 2, b.OwnerID);
+        }
+
+    }
     protected override void Update()
     {
         isGrounded +=Time.deltaTime;

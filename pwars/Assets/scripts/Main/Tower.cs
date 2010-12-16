@@ -7,17 +7,21 @@ public class Tower : Destroible
     [LoadPath("Detonator-Base")]
     public Detonator dt;
     public Gun gun;
-    [PathFind("cursor")]
+    //[PathFind("cursor")]
     public GameObject cursor;
     public int guni=-1;
-
     public override void Init()
     {
+        model = GetComponentInChildren(typeof(Renderer)).gameObject;
         range = 90;
         base.Init();
-    }       
+    }
+    public GameObject model;
+
     protected override void Start()
     {
+
+        _Game.towers.Add(this);
         _TimerA.AddMethod(delegate{
             if (guni != -1)
             {                
@@ -37,6 +41,7 @@ public class Tower : Destroible
     
     protected override void Update()
     {
+        //UpdateLightmap(model.renderer.materials);
         if (gun != null && _TimerA.TimeElapsed((int)(gun.interval * 1000f)))
         {
             var b = _Game.zombies.Where(a => a != null && a.Alive && Quaternion.Angle(rot, Quaternion.LookRotation(a.pos - pos)) < range);            
@@ -48,12 +53,19 @@ public class Tower : Destroible
                 if (!Physics.Raycast(r, Vector3.Distance(z.pos, gun.pos), 1 << LayerMask.NameToLayer("Level")))
                     gun.RPCShoot();
             }
+            else
+                gun.rot = rot;
+
         }
         base.Update();
     }
     public override bool isEnemy(int killedby)
     {
         return true;
+    }
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {
+        
     }
     
     public override void OnPlayerConnected1(NetworkPlayer np)
@@ -76,5 +88,3 @@ public class Tower : Destroible
 
     }
 }
-
-public enum TowerType {  } 

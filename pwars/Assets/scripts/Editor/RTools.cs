@@ -15,13 +15,11 @@ public partial class RTools : InspectorSearch
 {
     string file;
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-    public GameObject selectedGameObject;
+    
     public bool bake;
     protected override void Awake()
     {
-        base.Awake();
-        
-        
+        base.Awake();                
     }
     protected override void OnGUI()
     {
@@ -30,25 +28,37 @@ public partial class RTools : InspectorSearch
         bake = GUI.Toggle(bake, "Bake");
         if (GUI.Button("SetupLevel"))
         {
-            
             DestroyImmediate(GameObject.Find("level"));
             string path = EditorApplication.currentScene.Split('.')[0] + "/";
             path = path.Substring("Assets/".Length);
             Debug.Log(path);
             Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
             Selection.activeObject.name = "level";
-            SetupLevel();
+
+            foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+            {
+                if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
+                    DestroyImmediate(t.gameObject.animation);
+                t.gameObject.isStatic = true;
+            }
+            
+            SetupLevel();            
             Inits(cspath);
             if (bake)
             {
                 var old = RenderSettings.ambientLight;
-                RenderSettings.ambientLight = Color.white * .3f;
-                Lightmapping.BakeAsync();                
+                RenderSettings.ambientLight = Color.white * .05f;
+                Lightmapping.BakeAsync();
                 RenderSettings.ambientLight = old;
             }
+
+            
+        }
+        if (GUI.Button("Materials"))
+        {
+            SetupMaterials();
         }
         
-
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
@@ -59,6 +69,25 @@ public partial class RTools : InspectorSearch
         GUI.EndHorizontal();
         base.OnGUI();
         BuildGUI();
+    }
+
+    private static void SetupMaterials()
+    {
+        var ago = Selection.activeGameObject;
+        if (ago != null)
+            foreach (var m in ago.GetComponentsInChildren<Renderer>().Where(a => a != null).SelectMany(a => a.sharedMaterials).Where(a => a != null).Distinct())
+            {
+                var norm = .8f;
+                var spec = .8f;
+                var n = m.shader.name;
+                bool isSpec = (n == "Specular" || n == "Parallax Specular");
+                if (n == "Diffuse" || isSpec)
+                {
+                    m.color = new Color(norm, norm, norm, .2f);
+                    if (isSpec)
+                        m.SetColor("_SpecColor", new Color(spec, spec, spec, .3f));
+                }
+            }
     }
     private void Inits(string cspath)
     {
@@ -90,15 +119,10 @@ public partial class RTools : InspectorSearch
     }
     private void SetupLevel()
     {
-        List<GameObject> destroy = new List<GameObject>();
-        
-        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
-        {
-            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
-                DestroyImmediate(t.gameObject.animation);
-            t.gameObject.isStatic = true;
-        }
 
+        
+
+        List<GameObject> destroy = new List<GameObject>();
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
             t.gameObject.layer = LayerMask.NameToLayer("Level");
         foreach (Transform t in Selection.activeGameObject.transform)
@@ -127,7 +151,7 @@ public partial class RTools : InspectorSearch
             }
             if (param[0] == ("coll"))
             {
-                g.AddOrGet<Box>().Init();
+                g.AddOrGet<Box>();
             }
             var items = GetAssets<GameObject>("/Items/", "*.Prefab");
             foreach (var itemPrefab in items)
@@ -156,7 +180,7 @@ public partial class RTools : InspectorSearch
             {
                 if (param[0].ToLower() == "i" + s.ToLower() && g.GetComponent<MapItem>() == null)
                 {
-                    g.AddComponent<MapItem>().Init();
+                    g.AddComponent<MapItem>();
                 }
             }
             
@@ -175,8 +199,7 @@ public partial class RTools : InspectorSearch
     }
     private void AddFragment(Transform cur, Transform root, bool first)
     {
-        GameObject g = cur.gameObject;
-        g.isStatic = true;
+        GameObject g = cur.gameObject;        
         Fragment f = g.AddComponent<Fragment>();
         f.first = first;
         ((MeshCollider)cur.collider).convex = true;
@@ -201,12 +224,15 @@ public partial class RTools : InspectorSearch
         PathFind atr = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
         if (atr != null)
         {
-            GameObject g = atr.scene ? GameObject.Find(atr.name) : scr.transform.Find(atr.name).gameObject;
-            if (g == null) Debug.Log("cound not find path " + atr.name);
-            else if (pf.FieldType == typeof(GameObject))
-                pf.SetValue(scr, g);
-            else
-                pf.SetValue(scr, g.GetComponent(pf.FieldType));
+            try
+            {
+                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.Find(atr.name).gameObject;
+                if (pf.FieldType == typeof(GameObject))
+                    pf.SetValue(scr, g);
+                else
+                    pf.SetValue(scr, g.GetComponent(pf.FieldType));
+            }
+            catch { Debug.Log("cound not find path " + scr.name + "+" + atr.name); }
         }
     }
     private static void SetupTextures()
@@ -231,7 +257,6 @@ public partial class RTools : InspectorSearch
     }
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
-
         LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
         if (ap != null)
         {
@@ -251,8 +276,6 @@ public partial class RTools : InspectorSearch
     }
     private void BuildGUI()
     {
-        CopyComponent();
-
         GUI.Space(10);
         if (Application.isPlaying && Application.loadedLevelName.Contains("Game"))
         {
@@ -309,7 +332,7 @@ public partial class RTools : InspectorSearch
         {
             string cs = "";
             Debug.Log("Found!" + ge.name);
-            cs += "public enum " + ge.name + ":int{";
+            cs += "public enum " + ge.name + ":int{none = -1,";
             var ie = (IEnumerable)f.GetValue(g);
             foreach (object o in ie)
                 cs += o+ ",";
@@ -394,30 +417,6 @@ public partial class RTools : InspectorSearch
                 yield return a;
         }
     }
-    private void CopyComponent()
-    {
-        if (GUI.Button("Select"))
-        {
-            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
-        }
-        if (selectedGameObject != null)
-        {
-            foreach (var c in selectedGameObject.GetComponents<Component>())
-                if (GUI.Button(c.GetType().Name))
-                {
-                    foreach (GameObject g in Selection.gameObjects)
-                    {
-                        var c2 = g.AddComponent(c.GetType());
-                        foreach (FieldInfo f in c.GetType().GetFields())
-                            f.SetValue(c2, f.GetValue(c));
-                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                        //    if(p.CanRead && p.CanWrite)
-                        //        p.SetValue(c2, p.GetValue(c,null),null);
-                        //Debug.Log(c.GetType().GetProperties().Length+"+");
-                    }
-                }
-            GUI.Space(10);
-        }
-    }
+    
 }
 

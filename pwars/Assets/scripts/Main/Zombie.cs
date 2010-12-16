@@ -81,6 +81,7 @@ public class Zombie : Destroible
     public float spawninTM = 5;
     protected override void Update()
     {
+        
         base.Update();
         if (!Alive || selected == -1) return;
         zombieBite += Time.deltaTime;
@@ -122,7 +123,8 @@ public class Zombie : Destroible
         {
             move = false;
             tiltTm = 0;
-        }
+        }        
+        //UpdateLightmap(AliveZombie.renderer.materials.Union(DeadZombie.renderer.materials));
     }
     private Player Nearest()
     {
@@ -212,22 +214,18 @@ public class Zombie : Destroible
         var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
         return (o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()).transform.position;        
     }
-    protected override void OnCollisionEnter(Collision collisionInfo)
-    {        
-        if (dead) return;
-        Base b = collisionInfo.gameObject.GetComponent<Base>();
-        if (b != null && b is Box && !(b is Zombie) && Alive && isController &&
-            collisionInfo.impactForceSum.magnitude > 20)
-        {            
-            RPCSetLife(Life - Math.Max((int)collisionInfo.impactForceSum.sqrMagnitude * 5, 200), b.OwnerID);
-            if(_SettingsWindow.Blood)
-                _Game.particles[1].Emit(transform.position, Quaternion.identity, rigidbody.velocity);
-        }
-    }
+    
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
         RPCSetup((float)speed, (float)Life);
         if(!Alive) RPCDie(-1);
+    }
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {
+        //if (_SettingsWindow.Blood)
+        //    _Game.particles[1].Emit(pos, Quaternion.identity, rigidbody.velocity);
+        base.OnCollisionEnter(collisionInfo);
+
     }
 }

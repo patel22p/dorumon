@@ -39,7 +39,32 @@ public class Base : Base2
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
     protected virtual void Enable() { if (networkView != null) enabled = true; }
+    public void UpdateLightmap(IEnumerable<Material> materials)
+    {
 
+        var r = new Ray(pos + Vector3.up , Vector3.down);
+        RaycastHit h;
+        if (Physics.Raycast(r, out h, 20, 1 << LayerMask.NameToLayer("Level")))
+        {
+            var i = h.collider.gameObject.renderer.lightmapIndex;
+            if (i != -1)
+            {
+                var t = LightmapSettings.lightmaps[i].lightmapFar;
+                if (t != null)
+                {
+                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 3 + .1f;
+                    foreach (var m in materials)
+                        if (m != null)
+                            m.color = new Color(a, a, a, .2f);
+                }
+            }
+        }
+    }
+    public void DisableLightmap()
+    {
+        foreach (var r in this.GetComponentsInChildren<Renderer>())
+            r.lightmapIndex = -1;
+    }
     public virtual void OnPlayerConnected1(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {

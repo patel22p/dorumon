@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using doru;
 using System.Text.RegularExpressions;
-
+using System.Linq;
 
 public class Box : Base
 {
@@ -19,13 +19,17 @@ public class Box : Base
     public int selected = -1;
     public float tsendpackets;
     public bool shared=true;
+    public Renderer[] renderers;
     [LoadPath("Collision1")]
     public AudioClip soundcollision;
     protected override void Awake()
-    {        
-        base.Awake();
-        _Game.boxDerived.Add(this);
+    {
+        DisableLightmap();
+        renderers = this.GetComponentsInChildren<Renderer>().Distinct().ToArray();     
+        base.Awake();        
     }
+
+    
     public override void Init()
     {
         
@@ -38,18 +42,19 @@ public class Box : Base
             ((MeshCollider)collider).convex = true;
             rigidbody.centerOfMass = transform.worldToLocalMatrix.MultiplyPoint(collider.bounds.center);
         }
-        
-        
         base.Init();
     }
     protected override void Start()
-    {
+    {        
+        if (this.GetType() == typeof(Box)) _Game.boxes.Add(this);
         spawnpos = transform.position;
         if (shared)
             if (!Network.isServer)
                 networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
 
     }
+    
+    
     protected virtual void OnCollisionEnter(Collision coll)
     {
         if (this.GetType()==typeof(Box) && coll.impactForceSum.magnitude > 10)
@@ -64,6 +69,9 @@ public class Box : Base
     }
     protected virtual void Update()
     {
+        if(_TimerA.TimeElapsed(100))
+            UpdateLightmap(renderers.SelectMany(a => a.materials));
+        
         tsendpackets-=Time.deltaTime;
         if (_Game.bounds != null && !_Game.bounds.collider.bounds.Contains(this.transform.position) && enabled)
         {

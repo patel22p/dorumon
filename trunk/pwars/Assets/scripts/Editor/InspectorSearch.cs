@@ -25,6 +25,7 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
         CopyComponent();
+        
     }
     protected virtual void Awake()
     {

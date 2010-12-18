@@ -6,7 +6,7 @@ using System.Collections;
 
 
 [Serializable]
-public abstract class Destroible : Box
+public abstract class Destroible : Shared
 {
     public int Life;
     public Team? team
@@ -37,15 +37,12 @@ public abstract class Destroible : Box
         base.Start();
     }
     public float isGrounded;
-    protected override void OnCollisionStay(Collision collisionInfo)
-    {
-        isGrounded = 0;
-    }
-    protected override void OnCollisionEnter(Collision collisionInfo)
+    
+    void OnCollisionEnter(Collision collisionInfo)
     {
         if (!Alive || !isController) return;
         Box b = collisionInfo.gameObject.GetComponent<Box>();
-        if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > rigidbody.velocity.magnitude && collisionInfo.rigidbody.velocity.magnitude > 20)
+        if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 10)
         {
             RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 2, b.OwnerID);
         }

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Explosion : Base
 {
-    public Box self;
+    public Shared self;
     public int damage;
     public float exp = 500;
     public float radius = 4;
@@ -21,11 +21,14 @@ public class Explosion : Base
                 ip.RPCSetLife(ip.Life - damage,OwnerID);
             }
         }
-        foreach (Box b in GameObject.FindObjectsOfType(typeof(Box)))
-            if (b != self)
-            {
-                b.rigidbody.AddExplosionForce(exp*b.rigidbody.mass, transform.position, radius);
-            }
+        _TimerA.AddMethod(delegate
+        {
+            foreach (Box b in GameObject.FindObjectsOfType(typeof(Shared)))
+                if (b != self)
+                {
+                    b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass, transform.position, radius);
+                }
+        });
         foreach (Fragment f in FindObjectsOfType(typeof(Fragment)))
         {
 

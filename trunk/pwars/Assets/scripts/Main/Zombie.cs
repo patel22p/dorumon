@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Random = UnityEngine.Random;
+public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
+    public ZombieType[] priority = new ZombieType[] { ZombieType.Normal, ZombieType.Normal, ZombieType.Normal, ZombieType.Life, ZombieType.Speed };
+    public ZombieType zombieType;
     public float zombieBite;
     public float speed = .3f;
     public float up = 1f;
@@ -25,8 +28,11 @@ public class Zombie : Destroible
     public float zombieBiteDist = 3;
     Vector3[] pathPoints;
     public Vector3 oldpos;
+    public AnimationCurve zombieSpeedCurve;
+    public AnimationCurve zombieLifeCurve;
+
     public override void Init()
-    {
+    {        
         base.Init();
         seeker = this.GetComponent<Seeker>();
         if (seeker == null) Debug.Log("Could not find seeker");
@@ -36,28 +42,42 @@ public class Zombie : Destroible
     protected override void Awake()
     {
         base.Awake();
+        
     }
     protected override void Start()
     {
-        if(!_Loader.disablePathFinding) seeker.enabled = true;
+
+        if (!_Loader.disablePathFinding) seeker.enabled = true;
         _Game.zombies.Add(this);
         base.Start();
-        
+
     }
-    public void RPCSetup(float zombiespeed, float zombieLife) { CallRPC("Setup",zombiespeed,zombieLife); }
+
+    public void CreateZombie(int stage)
+    {
+        var speed = Random.Range(zombieSpeedCurve.Evaluate(stage), zombieSpeedCurve.Evaluate(stage + 3));
+        var life = Random.Range(zombieLifeCurve.Evaluate(stage), zombieLifeCurve.Evaluate(stage + 10));
+        if (zombieType == ZombieType.Life) life *= 2;
+        if (zombieType == ZombieType.Speed) speed *= 2;
+        RPCSetup(speed, life, (int)priority.Random());
+    }
+
+    public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
     [RPC]
-    void Setup(float zombiespeed, float zombieLife)
+    void Setup(float zombiespeed, float zombieLife, int priority)
     {
         Alive = true;
         Sync = true;
         transform.position = SpawnPoint();
         gameObject.layer = LayerMask.NameToLayer("Default");
-        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);        
+        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
+        zombieType = (ZombieType)priority;
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
         Life = (int)zombieLife;
+        
     }
     [RPC]
     public override void Die(int killedby)
@@ -124,7 +144,6 @@ public class Zombie : Destroible
             move = false;
             tiltTm = 0;
         }        
-        //UpdateLightmap(AliveZombie.renderer.materials.Union(DeadZombie.renderer.materials));
     }
     private Player Nearest()
     {
@@ -218,14 +237,7 @@ public class Zombie : Destroible
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);
-        RPCSetup((float)speed, (float)Life);
+        RPCSetup((float)speed, (float)Life, (int)zombieType);
         if(!Alive) RPCDie(-1);
-    }
-    protected override void OnCollisionEnter(Collision collisionInfo)
-    {
-        //if (_SettingsWindow.Blood)
-        //    _Game.particles[1].Emit(pos, Quaternion.identity, rigidbody.velocity);
-        base.OnCollisionEnter(collisionInfo);
-
     }
 }

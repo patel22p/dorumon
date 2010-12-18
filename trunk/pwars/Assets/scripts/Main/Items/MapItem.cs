@@ -29,17 +29,15 @@ public class MapItem : Base
     public float tmJumper;
     public string[] param { get { return name.Split(','); } }
     public float tmCheckOut;
-    [LoadPath("wave")]
-    public GameObject wavePrefab;
-    [LoadPath("superphys_launch3")]
-    public AudioClip superphys_launch3;
+    
     public override void Init()
     {
-        
         //gunIndex = (GunType)Enum.Parse(typeof(GunType), gunIndexStr);
         foreach (Transform t in GetComponentsInChildren<Transform>())
+        {
             t.gameObject.isStatic = false;
-
+            t.gameObject.layer = LayerMask.NameToLayer("MapItem");
+        }
         gunIndexStr = gunIndex.ToString();        
         ParseItemType();
         var g = gameObject;
@@ -151,24 +149,26 @@ public class MapItem : Base
     }
     public Transform[] trs;
     protected override void Awake()
-    {        
-        DisableLightmap();
-        
+    {
         trs = GetComponentsInChildren<Transform>().Union(GetComponents<Transform>()).ToArray();
         if (itemType == MapItemType.shop || itemType == MapItemType.laser || itemType == MapItemType.health || itemType == MapItemType.spotlight)
+        {
             foreach (var r in GetComponentsInChildren<Renderer>())
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
+        }
+
+        UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
         base.Awake();
     }
     protected override void Start()
-    {
-        UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
+    {                
         if(animation!=null)
             animation.Stop();
     }
     bool canEnable { get { return (animation == null || !animation.isPlaying) && _localPlayer.Alive; } }
     void Update()
     {
+
         foreach (var a in trs)
         {
             if (Vector3.Distance(a.position, _localPlayer.pos) < distance && canEnable)
@@ -211,10 +211,7 @@ public class MapItem : Base
             {
                 tmJumper = 1;
                 _localPlayer.gun.patronsLeft -= 10;
-                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass);
-                PlaySound(superphys_launch3);
-                GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
-                Destroy(g, 1.6f);
+                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass);                                                
             }
             
         }

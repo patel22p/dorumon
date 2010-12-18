@@ -44,16 +44,35 @@ public partial class RTools : InspectorSearch
             
             SetupLevel();            
             Inits(cspath);
-            if (bake)
+            _TimerA.AddMethod(delegate
             {
-                var old = RenderSettings.ambientLight;
-                RenderSettings.ambientLight = Color.white * .05f;
-                Lightmapping.BakeAsync();
-                RenderSettings.ambientLight = old;
-            }
-
-            
+                if (bake)
+                {
+                    var old = RenderSettings.ambientLight;
+                    RenderSettings.ambientLight = Color.white * .05f;
+                    Lightmapping.BakeAsync();
+                    //_TimerA.AddMethod(() => (!Lightmapping.isRunning), delegate
+                    //{
+                    //    foreach (var a in LightmapSettings.lightmaps)
+                    //    {
+                    //        var t = a.lightmapFar;
+                    //        for (int x = 0; x < t.width; x++)
+                    //        {
+                    //            for (int y = 0; y < t.height; y++)
+                    //            {
+                    //                var c = t.GetPixel(x, y);
+                    //                var alf = Math.Min(.1999f, c.a);
+                    //                t.SetPixel(x, y, new Color(c.r, c.g, c.b, alf));
+                    //            }
+                    //        }
+                    //        t.Apply();
+                    //    }                        
+                    //});                    
+                    RenderSettings.ambientLight = old;
+                }
+            });
         }
+        
         if (GUI.Button("Materials"))
         {
             SetupMaterials();
@@ -73,6 +92,7 @@ public partial class RTools : InspectorSearch
 
     private static void SetupMaterials()
     {
+        
         var ago = Selection.activeGameObject;
         if (ago != null)
             foreach (var m in ago.GetComponentsInChildren<Renderer>().Where(a => a != null).SelectMany(a => a.sharedMaterials).Where(a => a != null).Distinct())
@@ -119,8 +139,6 @@ public partial class RTools : InspectorSearch
     }
     private void SetupLevel()
     {
-
-        
 
         List<GameObject> destroy = new List<GameObject>();
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())

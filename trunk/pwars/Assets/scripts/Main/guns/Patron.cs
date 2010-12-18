@@ -103,7 +103,7 @@ public class Patron : Base
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
             RaycastHit h;
-            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1,0)), out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            if (Physics.Raycast(new Ray(pos, new Vector3(0, -1, 0)), out h, 10, 1 << LayerMask.NameToLayer("Level") | LayerMask.NameToLayer("MapItem")))
             {
                 _Game.AddDecal(
                     DecalTypes.Blood,

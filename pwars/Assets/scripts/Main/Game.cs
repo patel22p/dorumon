@@ -13,6 +13,7 @@ public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMat
 
 public class Game : Base
 {
+
     new public Player[] players = new Player[10];
     public List<Destroible> destroyables = new List<Destroible>();
     public List<Zombie> zombies = new List<Zombie>();
@@ -27,18 +28,7 @@ public class Game : Base
     public GameObject effects;
     [PathFind("GameEffects/decals", true)]
     public GameObject decals;
-    public void AddDecal(DecalTypes t, Vector3 pos, Vector3 normal,Transform addto)
-    {
-        if (_SettingsWindow.Decals)
-        {
-            Decal d = decalPresets[(int)t];
-            d.mesh.renderer.material = d.mat;
-            d.mesh.transform.localScale = Vector3.one * d.scale;
-            var g = ((GameObject)Instantiate(d.mesh, pos, Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), normal) * Quaternion.LookRotation(normal)));
-            Destroy(g, 10);
-            g.transform.parent = addto;            
-        }
-    }
+    
     public int stage;
     public float timeleft = 20;
     public bool wait;
@@ -182,21 +172,20 @@ public class Game : Base
         _TeamSelectWindow.Show(this);
     }
     public void OnPlayerConnected(NetworkPlayer np)
-    {           
-        //sendto = np;
-        //networkView.RPC("SetTimeLeft", np, timeleft);
-        //if (mapSettings.zombi && stage != 0) networkView.RPC("RPCNextStage", np, stage);
-        //networkView.RPC("RPCGameSettings", np, version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+    {
+        sendto = np;
+        networkView.RPC("SetTimeLeft", np, timeleft);
+        if (mapSettings.zombi && stage != 0) RPCNextStage(stage);        
+        RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+        var sorted = GameObject.FindObjectsOfType(typeof(Player))
+        .Union(GameObject.FindObjectsOfType(typeof(Gun)))
+        .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
+        .Union(GameObject.FindObjectsOfType(typeof(Box)))
+        .Union(GameObject.FindObjectsOfType(typeof(Base)));
 
-        //var sorted = GameObject.FindObjectsOfType(typeof(Player))
-        //.Union(GameObject.FindObjectsOfType(typeof(Gun)))
-        //.Union(GameObject.FindObjectsOfType(typeof(Destroible)))
-        //.Union(GameObject.FindObjectsOfType(typeof(Box)))
-        //.Union(GameObject.FindObjectsOfType(typeof(Base)));
-
-        //foreach (Base b in sorted)
-        //    b.OnPlayerConnected1(np);
-        //sendto = null;
+        foreach (Base b in sorted)
+            b.OnPlayerConnected1(np);
+        sendto = null;
     }
     [RPC]
     void SetTimeLeft(float time)
@@ -218,23 +207,27 @@ public class Game : Base
     public GameObject ZombiePrefab;
     private void ZUpdate()
     {
-
         if (_TimerA.TimeElapsed(500) && HasAny() && Network.isServer)
         {
             if (zombiespawnindex < maxzombies)
             {
+
                 if (zombiespawnindex < zombies.Count)
-                    CreateZombie(zombies[zombiespawnindex]);
+                {
+                    zombies[zombiespawnindex].CreateZombie(stage);
+                }
                 else
                 {
                     GameObject t = (GameObject)Network.Instantiate(ZombiePrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Zombie);
                     Zombie z = (t).GetComponent<Zombie>();
-                    CreateZombie(z);
+                    z.CreateZombie(stage);
                 }
+                wait = false;
                 zombiespawnindex++;
             }
             if (AliveZombies.Count() == 0 && zombiespawnindex == maxzombies && !wait)
             {
+
                 wait = true;
                 _TimerA.AddMethod(2000, delegate { RPCNextStage(stage + 1); });
             }
@@ -257,13 +250,7 @@ public class Game : Base
         players[id].ping = ping;        
     }
     
-    private void CreateZombie(Zombie zombie)
-    {   
-     
-        zombie.RPCSetup(3 + UnityEngine.Random.Range(.3f * stage, .3f * (stage + 3)),
-            UnityEngine.Random.Range(5 * stage, 5 * (stage + 20)));
-        wait = false;
-    }
+    
     [LoadPath("nextLevel")]
     public AudioClip[] stageSound;
     public void RPCNextStage(int stage) { CallRPC("NextStage",stage); }
@@ -302,7 +289,7 @@ public class Game : Base
     {        
         int playerid = player.GetHashCode();
         RPCWriteMessage(players[playerid].nick + " Вышел из игры" + player);
-        foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
+        foreach (Shared box in GameObject.FindObjectsOfType(typeof(Shared)))
             if (!(box is Player))
             {
                 if (box.selected == playerid)
@@ -419,6 +406,18 @@ public class Game : Base
         print(pr);
         Debug.Break();
         Network.Disconnect();
+    }
+    public void AddDecal(DecalTypes t, Vector3 pos, Vector3 normal, Transform addto)
+    {
+        if (_SettingsWindow.Decals)
+        {
+            Decal d = decalPresets[(int)t];
+            d.mesh.renderer.material = d.mat;
+            d.mesh.transform.localScale = Vector3.one * d.scale;
+            var g = ((GameObject)Instantiate(d.mesh, pos, Quaternion.AngleAxis(UnityEngine.Random.Range(0, 360), normal) * Quaternion.LookRotation(normal)));
+            Destroy(g, 10);
+            g.transform.parent = addto;
+        }
     }
     
 }

@@ -63,10 +63,6 @@ public class Tower : Destroible
     {
         return true;
     }
-    protected override void OnCollisionEnter(Collision collisionInfo)
-    {
-        
-    }
     
     public override void OnPlayerConnected1(NetworkPlayer np)
     {

@@ -83,8 +83,7 @@ public class GunPhysix : GunBase
     public void RPCShoot() { CallRPC("Shoot"); }
     [RPC]
     void Shoot()
-    {
-        patronsLeft -= 10;
+    {        
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
             if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
             {
@@ -103,7 +102,11 @@ public class GunPhysix : GunBase
                 RPCSetPower(true);
             else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
             {
-                if (holdtm < .2f && (patronsLeft > 10 || debug)) RPCShoot();
+                if (holdtm < .2f && (patronsLeft > 5 || debug))
+                {
+                    patronsLeft -= 5;
+                    RPCShoot();
+                }
                 RPCSetPower(false);
             }
         }

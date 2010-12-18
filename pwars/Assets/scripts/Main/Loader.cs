@@ -137,8 +137,8 @@ public class Loader : Base
         WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if(!isWebPlayer && Input.GetKeyDown(KeyCode.E))
-            Application.CaptureScreenshot(curdir +"/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");        
+        if (!isWebPlayer && Input.GetKeyDown(KeyCode.E))
+            Application.CaptureScreenshot(curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
 
         _TimerA.Update();
     }

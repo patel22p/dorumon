@@ -42,7 +42,7 @@ public class AstarPathEditor : Editor {
 	
 	public string version {
 		get {
-			return "2.91";
+			return "2.92";
 		}
 	}
 	private string updateVersion = "";
@@ -355,7 +355,7 @@ public class AstarPathEditor : Editor {
 		if (!EditorPrefs.GetBool ("AstarInitialized")) {
 			return;
 		}
-		
+        
 		
 		
 		//First the editor will do a series of checks to see if any assets are damaged or if there is a new version of the pathfinding system available 

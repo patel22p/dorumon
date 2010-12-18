@@ -859,8 +859,9 @@ public class AstarPath : MonoBehaviour {
 		Node current = startNode;
 		int c = 0;
 		int counter = 0;
-		while (current.walkable != walkable || (area != -1 && current.area != area)) {
-			
+        
+
+		while (current.walkable != walkable || (area != -1 && current.area != area)) {			
 			counter++;
 			if (counter >= limit) {
 				return null;
@@ -885,6 +886,7 @@ public class AstarPath : MonoBehaviour {
 				current = open[c];
 				c++;
 			}
+            if (current == null) return null;
 			//Debug.DrawRay (current.vectorPos,Vector3.up*5,Color.yellow);
 		}
 		

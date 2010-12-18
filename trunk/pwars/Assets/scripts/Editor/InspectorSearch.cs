@@ -29,11 +29,11 @@ public class InspectorSearch : EditorWindow
     }
     protected virtual void Awake()
     {
-        instances = EditorPrefs.GetString("Favs").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
     }
     protected virtual void SaveParams()
     {
-        EditorPrefs.SetString("Favs", string.Join(",", instances.ToArray()));
+        EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
     }
     private void DrawSearch()
     {
@@ -238,7 +238,7 @@ public class InspectorSearch : EditorWindow
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
-        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
+        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<InspectorSearch>();
     }
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
@@ -257,11 +257,11 @@ public class InspectorSearch : EditorWindow
             ewnd.Repaint();
     }
     static EditorWindow _ewnd;
-    static EditorWindow ewnd
+    EditorWindow ewnd
     {
         get
         {
-            if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
+            if (_ewnd == null) _ewnd = EditorWindow.GetWindow(this.GetType());
             return _ewnd;
         }
     }

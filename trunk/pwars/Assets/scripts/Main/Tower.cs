@@ -7,6 +7,7 @@ public class Tower : Destroible
     [LoadPath("Detonator-Base")]
     public Detonator dt;
     public Gun gun;
+    public bool disableZombieAtack;
     //[PathFind("cursor")]
     public GameObject cursor;
     public int guni=-1;
@@ -20,7 +21,6 @@ public class Tower : Destroible
 
     protected override void Start()
     {
-
         _Game.towers.Add(this);
         _TimerA.AddMethod(delegate{
             if (guni != -1)

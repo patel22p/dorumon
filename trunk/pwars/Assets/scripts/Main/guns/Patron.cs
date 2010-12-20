@@ -10,15 +10,18 @@ public class Patron : Base
     public bool DestroyOnHit;
     public bool explodeOnDestroy;
     public int detonatorsize = 8;        
-    public float ExpForce = 500;
+    internal float ExpForce = 2000;
     internal int damage = 60;
     internal int probivaemost = 0;
     public float magnet;
+    public float radius = 6;
     public float samonavod;
     public bool breakwall;
     public float timeToDestroy =5; 
     public float freezetime;    
     public float tm;
+    [LoadPath("rocklx1a")]
+    public AudioClip expSound;
     public DecalTypes decal;    
     protected Vector3 previousPosition;
     protected override void Start()
@@ -74,12 +77,12 @@ public class Patron : Base
     {
         transform.position = hit.point + transform.rotation * Vector3.forward;
 
-        if (breakwall)
-        {
-            Fragment f = hit.collider.GetComponent<Fragment>();
-            if (f != null)
-                f.BreakAndDestroy();
-        }
+        //if (breakwall)
+        //{
+        //    Fragment f = hit.collider.GetComponent<Fragment>();
+        //    if (f != null)
+        //        f.BreakAndDestroy();
+        //}
 
         if (hit.collider.gameObject.isStatic)
             _Game.AddDecal(hit.collider.gameObject.name.Contains("glass") && decal == DecalTypes.Hole ? DecalTypes.glass : decal,
@@ -131,10 +134,13 @@ public class Patron : Base
         GameObject o;
         Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), 10);
         o.GetComponent<Detonator>().size = detonatorsize;
-        Explosion e = o.AddComponent<Explosion>();
+        Explosion e = o.AddComponent<Explosion>();        
         e.exp = ExpForce;
-        e.damage = damage;
+        e.radius = radius;
+        e.damage = damage;        
         e.OwnerID = OwnerID;
         Destroy(gameObject);
+        if(e.audio!=null)
+            e.audio.PlayOneShot(expSound,4);
     }
 }

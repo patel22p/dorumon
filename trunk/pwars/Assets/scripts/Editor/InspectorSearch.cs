@@ -21,11 +21,11 @@ public class InspectorSearch : EditorWindow
     protected virtual void OnGUI()
     {
         SetPivot = (GUI.Toggle(SetPivot, "Set Pivot") && Selection.activeGameObject != null);
-        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
+        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;        
         DrawObjects();
         DrawSearch();
         CopyComponent();
-        
+
     }
     protected virtual void Awake()
     {
@@ -42,7 +42,7 @@ public class InspectorSearch : EditorWindow
         if (search.Length > 0)
         {
             if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
-            {                
+            {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
                 if (Selection.activeGameObject != null)
                 {
@@ -78,31 +78,30 @@ public class InspectorSearch : EditorWindow
         //    if (GUI.Button(a.name))
         //        Selection.activeObject = a;
         //}
-        
+
         if (GUI.Button("Add"))
             if (!instances.Contains(Selection.activeGameObject.name))
                 instances.Add(Selection.activeGameObject.name);
         List<string> toremove = new List<string>();
-            foreach (var inst in instances)
+        foreach (var inst in instances)
+        {
+            GUI.BeginHorizontal();
+            if (GUI.Button(inst))
             {
-                GUI.BeginHorizontal();
-                if (GUI.Button(inst))
-                {
-                    GameObject o = GameObject.Find(inst) != null ? GameObject.Find(inst) : (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
-                    Selection.activeGameObject = o;
-                    SaveParams();
-                }
-                if (GUI.Button("X", GUI.ExpandWidth(false)))
-                    toremove.Add(inst);
-                GUI.EndHorizontal();
+                GameObject o = GameObject.Find(inst) != null ? GameObject.Find(inst) : (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
+                Selection.activeGameObject = o;
+                SaveParams();
             }
-            foreach (var inst in toremove)
-                instances.Remove(inst);
+            if (GUI.Button("X", GUI.ExpandWidth(false)))
+                toremove.Add(inst);
+            GUI.EndHorizontal();
+        }
+        foreach (var inst in toremove)
+            instances.Remove(inst);
 
     }
     protected virtual void SetupLevel()
     {
-
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
@@ -114,7 +113,7 @@ public class InspectorSearch : EditorWindow
                     if (!cur.name.Contains("_"))
                     {
                         if (cur.GetComponent<Fragment>() == null)
-                            AddFragment(cur, t, true);
+                            AddFragment(cur, t, 0);
                     }
                 }
             }
@@ -129,15 +128,16 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    private void AddFragment(Transform cur, Transform root, bool first)
+    private void AddFragment(Transform cur, Transform root, int level)
     {
         GameObject g = cur.gameObject;
         Fragment f = g.AddComponent<Fragment>();
-        f.first = first;
+        f.partcl = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == "particle_concrete2");
+        f.level = level;
         ((MeshCollider)cur.collider).convex = true;
-        if (!first)
+        if (level > 0)
         {
-            g.layer = LayerMask.NameToLayer("HitLevelOnly");
+            g.layer = LayerMask.NameToLayer("HitLevelOnly");            
             g.active = false;
         }
         int i = 1;
@@ -148,7 +148,7 @@ public class InspectorSearch : EditorWindow
             if (nw == null) break;
             f.child.Add(nw);
             nw.parent = cur;
-            AddFragment(nw, root, false);
+            AddFragment(nw, root, level + 1);
         }
     }
 
@@ -180,9 +180,9 @@ public class InspectorSearch : EditorWindow
     }
     private void OnSceneUpdate(SceneView s)
     {
-        
+
         var ago = Selection.activeGameObject;
-        
+
 
         if (SetPivot)
         {
@@ -192,7 +192,7 @@ public class InspectorSearch : EditorWindow
                 t.position += move;
             }
         }
-        
+
         if (ago != null)
             oldpos = ago.transform.position;
 
@@ -217,7 +217,7 @@ public class InspectorSearch : EditorWindow
             case SerializedPropertyType.Float:
                 MySetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
                 break;
-            case SerializedPropertyType.Boolean: 
+            case SerializedPropertyType.Boolean:
                 MySetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
                 break;
             case SerializedPropertyType.Integer:
@@ -235,12 +235,12 @@ public class InspectorSearch : EditorWindow
     {
         var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
         if (Selection.activeGameObject.renderer != null && c is Material)
-        {            
+        {
             array = array.Union(Selection.activeGameObject.renderer.sharedMaterials);
         }
 
         foreach (var nc in array) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
-        {            
+        {
             if (nc != null && nc != c)
             {
                 SerializedObject so = new SerializedObject(nc);
@@ -294,7 +294,7 @@ public class InspectorSearch : EditorWindow
     }
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
-    {        
+    {
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
         if (_TimerA.TimeElapsed(60 * 1000) && !EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".scene"))
@@ -303,7 +303,7 @@ public class InspectorSearch : EditorWindow
         }
         var ao = Selection.activeObject;
         if (ao != null && !lastUsed.Contains(ao))
-            lastUsed.Insert(0,ao);
+            lastUsed.Insert(0, ao);
 
         if (_TimerA.TimeElapsed(3000))
             ewnd.Repaint();

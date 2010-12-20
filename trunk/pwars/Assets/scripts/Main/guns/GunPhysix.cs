@@ -23,8 +23,8 @@ public class GunPhysix : GunBase
     {
         if (power)
         {
-            patronsLeft -= Time.fixedDeltaTime;
-            holdtm += Time.fixedDeltaTime;
+            patronsLeft -= _Game.fixedDeltaTime;
+            holdtm += _Game.fixedDeltaTime;
             {
                 var p2 = cursor[0].position;
                 var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
@@ -83,15 +83,15 @@ public class GunPhysix : GunBase
     public void RPCShoot() { CallRPC("Shoot"); }
     [RPC]
     void Shoot()
-    {        
+    {
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
             if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
             {
                 b.rigidbody.angularDrag = 2;
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass));                
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass));
             }
-        root.audio.PlayOneShot(superphys_launch3);
-        Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
+            root.audio.PlayOneShot(superphys_launch3);
+            Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
 
     }
     protected override void Update()

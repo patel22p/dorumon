@@ -117,7 +117,7 @@ public partial class Base2 : MonoBehaviour
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { if (!Application.isPlaying) throw new Exception("access from editor"); return _Loader._TimerA; } }
     public static VK _vk;
-    public static bool lockCursor { get { return Screen.lockCursor && !_Game.MapCamera.active; } set { Screen.lockCursor = value; } }
+    public static bool lockCursor { get { return Screen.lockCursor; } set { Screen.lockCursor = value; } }
     public static Rect CenterRect(float w, float h)
     {
         

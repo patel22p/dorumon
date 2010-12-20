@@ -49,9 +49,7 @@ public class Game : Base
     protected override void Awake()
     {
         base.Awake();
-        clearObjects("SpawnNone");
-        clearObjects("SpawnZombie");
-        
+               
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
         

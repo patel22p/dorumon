@@ -15,7 +15,6 @@ public partial class RTools : InspectorSearch
 {
     string file;
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-    
     public bool bake;
     protected override void Awake()
     {
@@ -23,7 +22,8 @@ public partial class RTools : InspectorSearch
     }
     protected override void OnGUI()
     {
-        
+        base.OnGUI();
+
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
         if (GUI.Button("SetupLevel"))
@@ -35,12 +35,7 @@ public partial class RTools : InspectorSearch
             Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
             Selection.activeObject.name = "level";
 
-            foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
-            {
-                if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
-                    DestroyImmediate(t.gameObject.animation);
-                t.gameObject.isStatic = true;
-            }
+            
             
             SetupLevel();            
             Inits(cspath);
@@ -50,24 +45,24 @@ public partial class RTools : InspectorSearch
                 {
                     var old = RenderSettings.ambientLight;
                     RenderSettings.ambientLight = Color.white * .05f;
-                    Lightmapping.BakeAsync();
+                    Lightmapping.Bake();
                     //_TimerA.AddMethod(() => (!Lightmapping.isRunning), delegate
-                    //{
-                    //    foreach (var a in LightmapSettings.lightmaps)
-                    //    {
-                    //        var t = a.lightmapFar;
-                    //        for (int x = 0; x < t.width; x++)
-                    //        {
-                    //            for (int y = 0; y < t.height; y++)
-                    //            {
-                    //                var c = t.GetPixel(x, y);
-                    //                var alf = Math.Min(.1999f, c.a);
-                    //                t.SetPixel(x, y, new Color(c.r, c.g, c.b, alf));
-                    //            }
-                    //        }
-                    //        t.Apply();
-                    //    }                        
-                    //});                    
+                    {
+                        foreach (var a in LightmapSettings.lightmaps)
+                        {
+                            var t = a.lightmapFar;
+                            for (int x = 0; x < t.width; x++)
+                            {
+                                for (int y = 0; y < t.height; y++)
+                                {
+                                    var c = t.GetPixel(x, y);
+                                    var alf = Math.Min(.1999f, c.a);
+                                    t.SetPixel(x, y, new Color(c.r, c.g, c.b, alf));
+                                }
+                            }
+                            t.Apply();
+                        }
+                    }//);
                     RenderSettings.ambientLight = old;
                 }
             });
@@ -86,10 +81,9 @@ public partial class RTools : InspectorSearch
         }
             
         GUI.EndHorizontal();
-        base.OnGUI();
+        
         BuildGUI();
     }
-
     private static void SetupMaterials()
     {
         
@@ -111,13 +105,14 @@ public partial class RTools : InspectorSearch
     }
     private void Inits(string cspath)
     {
+        
         _TimerA.AddMethod(delegate()
         {
             foreach (var go in Selection.gameObjects)
             {
                 foreach (var scr in go.GetComponentsInChildren<Base2>())
                 {
-                    scr.Init();
+                    scr.Init(); 
                     foreach (var pf in scr.GetType().GetFields())
                     {
                         InitLoadPath(scr, pf);
@@ -135,38 +130,51 @@ public partial class RTools : InspectorSearch
             foreach (var au in Selection.activeGameObject.GetComponentsInChildren<AudioSource>())
                 au.minDistance = 10;
         });
-        
-    }
-    private void SetupLevel()
-    {
 
+
+
+        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+        {
+            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
+            {
+                DestroyImmediate(t.gameObject.animation);
+            }
+            else
+            {
+            }
+            t.gameObject.isStatic = true;
+        }
+
+        var ago = Selection.activeGameObject;
+        if (ago.animation != null)
+        {            
+            AnimationUtility.StartAnimationMode(new[] { Selection.activeObject });
+            _TimerA.AddMethod(500, delegate
+            {
+                var p = ago.transform.position;
+                Debug.Log("getpos" + p);
+                AnimationUtility.StopAnimationMode();
+                _TimerA.AddMethod(500, delegate
+                {
+                    ago.transform.position = p;
+                });
+            });
+        }
+
+    }
+
+    
+    protected override void SetupLevel()
+    {
         List<GameObject> destroy = new List<GameObject>();
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
             t.gameObject.layer = LayerMask.NameToLayer("Level");
+        base.SetupLevel();
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
             string[] param = g.name.Split(',');
-            if (param[0] == ("fragmentation"))
-            {
-                foreach (Transform cur in t)
-                {
-                    if (!cur.name.Contains("_"))
-                    {
-                        if (cur.GetComponent<Fragment>() == null)
-                            AddFragment(cur, t, true);
-                    }
-                }
-            }
-            if (t.name.Contains("glass") || t.name.Contains("dontcast"))
-            {
-                foreach (var t2 in t.GetComponentsInChildren<Transform>())
-                {
-                    if (t2.GetComponent<Renderer>() != null)
-                        t2.renderer.castShadows = false;
-                    if (t.name.Contains("glass")) t2.name += ",glass";
-                }
-            }
+            
             if (param[0] == ("coll"))
             {
                 g.AddOrGet<Box>();
@@ -187,6 +195,12 @@ public partial class RTools : InspectorSearch
                         destroy.Add(t.gameObject);
 
                 }
+            }
+            if (param[0].ToLower() == "zombiespawn")
+            {
+                g.renderer.enabled = false;
+                g.collider.isTrigger = true;
+                g.tag = "SpawnZombie";
             }
             if (g.name == "path")
             {
@@ -214,28 +228,6 @@ public partial class RTools : InspectorSearch
                     DestroyImmediate(t.gameObject);
                 }
         });
-    }
-    private void AddFragment(Transform cur, Transform root, bool first)
-    {
-        GameObject g = cur.gameObject;        
-        Fragment f = g.AddComponent<Fragment>();
-        f.first = first;
-        ((MeshCollider)cur.collider).convex = true;
-        if (!first)
-        {
-            g.layer = LayerMask.NameToLayer("HitLevelOnly");
-            g.active = false;
-        }
-        int i = 1;
-        for (; ; i++)
-        {
-            string nwpath = cur.name + "_frag_" + string.Format("{0:D2}", i);
-            Transform nw = root.Find(nwpath);            
-            if (nw == null) break;
-            f.child.Add(nw);
-            nw.parent = cur;
-            AddFragment(nw, root, false);
-        }
     }
     private static void PathFind(Base2 scr, FieldInfo pf)
     {

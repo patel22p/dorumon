@@ -57,8 +57,8 @@ public class Zombie : Destroible
     {
         var speed = Random.Range(zombieSpeedCurve.Evaluate(stage), zombieSpeedCurve.Evaluate(stage + 3));
         var life = Random.Range(zombieLifeCurve.Evaluate(stage), zombieLifeCurve.Evaluate(stage + 10));
-        if (zombieType == ZombieType.Life) life *= 2;
-        if (zombieType == ZombieType.Speed) speed *= 2;
+        if (zombieType == ZombieType.Life) life *= 3;
+        if (zombieType == ZombieType.Speed) { speed *= .15f; life *= .7f; }
         RPCSetup(speed, life, (int)priority.Random());
     }
 
@@ -112,7 +112,7 @@ public class Zombie : Destroible
             Vector3 zToPlDir = ipl.transform.position - pos;
             if (zToPlDir.magnitude > zombieBiteDist)
             {
-                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
+                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetRay(ipl)?? GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
                 Debug.DrawLine(pos, pos + pathPointDir);
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
@@ -133,9 +133,8 @@ public class Zombie : Destroible
                 if (zombieBite > 1)
                 {
                     zombieBite = 0;
-                    if (ipl is Player)
-                        PlayRandSound(screamSounds);
-                    if (build && isController) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
+                    PlayRandSound(screamSounds);
+                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
                 }
             }
         }
@@ -145,9 +144,20 @@ public class Zombie : Destroible
             tiltTm = 0;
         }        
     }
-    private Player Nearest()
+
+    private Vector3? GetRay(Destroible ipl)
     {
-        Player pl = players.Where(b => b != null && b.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        var r = new Ray(pos, ipl.pos - pos);
+        if (Math.Abs(ipl.posy - posy) > 2) return null;
+        if (Physics.Raycast(r, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
+            return null;
+        return ipl.pos - pos;
+    }
+    private Destroible Nearest()
+    {
+
+        Destroible pl =
+            _Game.towers.Cast<Destroible>().Union(players).Where(a => a != null && a.Alive && (a is Player || Vector3.Distance(a.pos, pos) < 10)).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return pl;
     }
     void FixedUpdate()
@@ -164,10 +174,14 @@ public class Zombie : Destroible
         }
         
     }
-    private Vector3? GetPlayerPathPoint(Player ipl)
+    private Vector3? GetPlayerPathPoint(Destroible ipl)
     {
-        var pathPoints = ipl.plPathPoints;
-        return FindNextPoint(pathPoints);
+        if (ipl is Player)
+        {
+            var pathPoints = ((Player)ipl).plPathPoints;
+            return FindNextPoint(pathPoints);
+        }
+        return null;
     }
     private Vector3? FindNextPoint(IList<Vector3> points)
     {
@@ -183,7 +197,7 @@ public class Zombie : Destroible
             {
                 nearest = newp;
                 ni = i;
-                if (nearest.magnitude < 8)
+                if (nearest.magnitude < 6)
                     found = true;
             }
         }
@@ -192,7 +206,7 @@ public class Zombie : Destroible
             {
                 ni++;
                 if (ni >= points.Count) break;
-                if (Vector3.Distance(points[ni], pos) > 2)
+                if (Vector3.Distance(points[ni], pos) > 3)
                     return points[ni] - pos;
             }
 
@@ -227,11 +241,14 @@ public class Zombie : Destroible
     {
         spawninTM = Random.Range(1, 10); 
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
-        Player pl = Nearest(); 
+        
+        Destroible pl = Nearest(); 
         if (pl == null) return gs.First().transform.position;
         //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
+        var b = gs.Where(a => a.GetComponent<MeshFilter>().collider.bounds.Contains(pl.pos)).Random();
         var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
-        return (o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()).transform.position;        
+        return (b ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
+            ).transform.position;        
     }
     
     public override void OnPlayerConnected1(NetworkPlayer np)

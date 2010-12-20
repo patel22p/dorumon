@@ -100,6 +100,58 @@ public class InspectorSearch : EditorWindow
                 instances.Remove(inst);
 
     }
+    protected virtual void SetupLevel()
+    {
+
+        foreach (Transform t in Selection.activeGameObject.transform)
+        {
+            GameObject g = t.gameObject;
+            string[] param = g.name.Split(',');
+            if (param[0] == ("fragmentation"))
+            {
+                foreach (Transform cur in t)
+                {
+                    if (!cur.name.Contains("_"))
+                    {
+                        if (cur.GetComponent<Fragment>() == null)
+                            AddFragment(cur, t, true);
+                    }
+                }
+            }
+            if (t.name.Contains("glass") || t.name.Contains("dontcast"))
+            {
+                foreach (var t2 in t.GetComponentsInChildren<Transform>())
+                {
+                    if (t2.GetComponent<Renderer>() != null)
+                        t2.renderer.castShadows = false;
+                    if (t.name.Contains("glass")) t2.name += ",glass";
+                }
+            }
+        }
+    }
+    private void AddFragment(Transform cur, Transform root, bool first)
+    {
+        GameObject g = cur.gameObject;
+        Fragment f = g.AddComponent<Fragment>();
+        f.first = first;
+        ((MeshCollider)cur.collider).convex = true;
+        if (!first)
+        {
+            g.layer = LayerMask.NameToLayer("HitLevelOnly");
+            g.active = false;
+        }
+        int i = 1;
+        for (; ; i++)
+        {
+            string nwpath = cur.name + "_frag_" + string.Format("{0:D2}", i);
+            Transform nw = root.Find(nwpath);
+            if (nw == null) break;
+            f.child.Add(nw);
+            nw.parent = cur;
+            AddFragment(nw, root, false);
+        }
+    }
+
     public GameObject selectedGameObject;
     private void CopyComponent()
     {
@@ -238,7 +290,7 @@ public class InspectorSearch : EditorWindow
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
-        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<InspectorSearch>();
+        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
     }
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
@@ -256,8 +308,8 @@ public class InspectorSearch : EditorWindow
         if (_TimerA.TimeElapsed(3000))
             ewnd.Repaint();
     }
-    static EditorWindow _ewnd;
-    EditorWindow ewnd
+    public static EditorWindow _ewnd;
+    protected virtual EditorWindow ewnd
     {
         get
         {

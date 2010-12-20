@@ -23,7 +23,7 @@ public class Explosion : Base
         }
         _TimerA.AddMethod(delegate
         {
-            foreach (Box b in GameObject.FindObjectsOfType(typeof(Shared)))
+            foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
                 if (b != self)
                 {
                     b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass, transform.position, radius);

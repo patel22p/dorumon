@@ -17,6 +17,7 @@ public class Game : Base
     new public Player[] players = new Player[10];
     public List<Destroible> destroyables = new List<Destroible>();
     public List<Zombie> zombies = new List<Zombie>();
+    public float fixedDeltaTime;
     public List<Tower> towers = new List<Tower>();
     public List<Box> boxes = new List<Box>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
@@ -41,13 +42,13 @@ public class Game : Base
     [GenerateEnums("DecalTypes")]
     public List<Decal> decalPresets = new List<Decal>();
     public int zombiespawnindex = 0;
-    public GameObject MapCamera;
 
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [LoadPath("player")]
-    public GameObject playerPrefab;
+    public GameObject playerPrefab;    
     protected override void Awake()
     {
+        fixedDeltaTime = Time.fixedDeltaTime;
         base.Awake();
                
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
@@ -78,7 +79,6 @@ public class Game : Base
     {
         particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());        
         bounds = GameObject.Find("bounds");
-        MapCamera = GameObject.Find("MapCamera");
         if (bounds == null) Debug.Log("warning no bounds founded");
     }
 
@@ -108,9 +108,6 @@ public class Game : Base
         
         if (Input.GetKeyDown(KeyCode.P)) RPCPause();
     
-        if (Input.GetKeyDown(KeyCode.M))
-            onShowMap();
-
         if (Input.GetKeyDown(KeyCode.Tab))
             _GameStatsWindow.Show(this);
         if (Input.GetKeyUp(KeyCode.Tab))
@@ -151,13 +148,6 @@ public class Game : Base
     void onDisconnect() { Network.Disconnect(); }
     void onTeamSelectButton() { _TeamSelectWindow.Show(this); }
     void onScoreBoard() { _GameStatsWindow.Show(this); }
-    void onShowMap()
-    {        
-        MapCamera.active = !MapCamera.active;
-        _Cam.camera.gameObject.active = !MapCamera.active; 
-        lockCursor = false;                
-        
-    }
     public void RPCGameSettings(string version, int gameMode, int frags, float timelimit) { CallRPC("GameSettings", version, gameMode, frags, timelimit); }
     [RPC]
     private void GameSettings(string version, int gameMode, int frags, float timelimit)
@@ -190,8 +180,21 @@ public class Game : Base
     {
         timeleft = time;
     }
+    public void RPCSetTimeBomb(float timescale) { CallRPC("SetTimeBomb",timescale); }
+    [RPC]
+    void SetTimeBomb(float timescale)
+    {
+        
+        Time.timeScale = timescale;
+        Time.fixedDeltaTime = fixedDeltaTime * timescale;
+        foreach (AudioSource a in FindObjectsOfTypeIncludingAssets(typeof(AudioSource)))
+            a.pitch = Time.timeScale;
+        if (Time.timeScale == 1)
+            _Cam.Vingetting.enabled = false;
+        else
+            _Cam.Vingetting.enabled = true;
 
-
+    }
     public void RPCPause() { CallRPC("Pause"); }
     [RPC]
     public void Pause()

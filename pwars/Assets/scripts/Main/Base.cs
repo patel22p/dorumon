@@ -39,8 +39,10 @@ public class Base : Base2
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
     protected virtual void Enable() { if (networkView != null) enabled = true; }
-    public void UpdateLightmap(IEnumerable<Material> materials)
+    public void UpdateLightmap(IEnumerable<Material> materials) { UpdateLightmap(materials, pos); }
+    public static void UpdateLightmap(IEnumerable<Material> materials, Vector3 pos)
     {
+
         var r = new Ray(pos + Vector3.up , Vector3.down);
         RaycastHit h;
         if (Physics.Raycast(r, out h, 10, 1 << LayerMask.NameToLayer("Level")))
@@ -62,6 +64,7 @@ public class Base : Base2
             }
         }
     }
+
     public virtual void OnPlayerConnected1(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {

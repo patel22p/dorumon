@@ -18,7 +18,7 @@ public partial class RTools : InspectorSearch
     public bool bake;
     protected override void Awake()
     {
-        base.Awake();                
+        base.Awake();
     }
     protected override void OnGUI()
     {
@@ -35,9 +35,7 @@ public partial class RTools : InspectorSearch
             Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
             Selection.activeObject.name = "level";
 
-            
-            
-            SetupLevel();            
+            SetupLevel();
             Inits(cspath);
             _TimerA.AddMethod(delegate
             {
@@ -67,26 +65,26 @@ public partial class RTools : InspectorSearch
                 }
             });
         }
-        
+
         if (GUI.Button("Materials"))
         {
             SetupMaterials();
         }
-        
+
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
             if (Selection.activeGameObject != null)
-                Inits(cspath);            
+                Inits(cspath);
         }
-            
+
         GUI.EndHorizontal();
-        
+
         BuildGUI();
     }
     private static void SetupMaterials()
     {
-        
+
         var ago = Selection.activeGameObject;
         if (ago != null)
             foreach (var m in ago.GetComponentsInChildren<Renderer>().Where(a => a != null).SelectMany(a => a.sharedMaterials).Where(a => a != null).Distinct())
@@ -105,14 +103,14 @@ public partial class RTools : InspectorSearch
     }
     private void Inits(string cspath)
     {
-        
+
         _TimerA.AddMethod(delegate()
         {
             foreach (var go in Selection.gameObjects)
             {
                 foreach (var scr in go.GetComponentsInChildren<Base2>())
                 {
-                    scr.Init(); 
+                    scr.Init();
                     foreach (var pf in scr.GetType().GetFields())
                     {
                         InitLoadPath(scr, pf);
@@ -145,25 +143,25 @@ public partial class RTools : InspectorSearch
             t.gameObject.isStatic = true;
         }
 
-        var ago = Selection.activeGameObject;
-        if (ago.animation != null)
-        {            
-            AnimationUtility.StartAnimationMode(new[] { Selection.activeObject });
-            _TimerA.AddMethod(500, delegate
-            {
-                var p = ago.transform.position;
-                Debug.Log("getpos" + p);
-                AnimationUtility.StopAnimationMode();
-                _TimerA.AddMethod(500, delegate
-                {
-                    ago.transform.position = p;
-                });
-            });
-        }
+        //var ago = Selection.activeGameObject;
+        //if (ago.animation != null)
+        //{            
+        //    AnimationUtility.StartAnimationMode(new[] { Selection.activeObject });
+        //    _TimerA.AddMethod(500, delegate
+        //    {
+        //        var p = ago.transform.position;
+        //        Debug.Log("getpos" + p);
+        //        AnimationUtility.StopAnimationMode();
+        //        _TimerA.AddMethod(500, delegate
+        //        {
+        //            ago.transform.position = p;
+        //        });
+        //    });
+        //}
 
     }
 
-    
+
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
@@ -174,7 +172,7 @@ public partial class RTools : InspectorSearch
         {
             GameObject g = t.gameObject;
             string[] param = g.name.Split(',');
-            
+
             if (param[0] == ("coll"))
             {
                 g.AddOrGet<Box>();
@@ -215,9 +213,9 @@ public partial class RTools : InspectorSearch
                     g.AddComponent<MapItem>();
                 }
             }
-            
+
         }
-        
+
         foreach (var a in destroy)
             DestroyImmediate(a);
         _TimerA.AddMethod(delegate
@@ -273,15 +271,15 @@ public partial class RTools : InspectorSearch
             object value = pf.GetValue(scr);
             if (value is Array)
             {
-                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();                
+                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();
                 pf.SetValue(scr, o);
             }
             else
-            if ((value == null || value.Equals(null)))
-            {
-                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
-                pf.SetValue(scr, o);
-            }
+                if ((value == null || value.Equals(null)))
+                {
+                    object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
+                    pf.SetValue(scr, o);
+                }
         }
     }
     private void BuildGUI()
@@ -333,23 +331,33 @@ public partial class RTools : InspectorSearch
             _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
             _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
         }
-        
+
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
         GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
         if (ge != null)
         {
+            string pth = cspath + ge.name + ".cs";
+            List<string> items = new List<string>();
+            if (File.Exists(pth))
+            {
+                items = Regex.Match(File.ReadAllText(pth), "-1,(.*)}").Groups[1].Value.Split(',').ToList();
+                Debug.Log("Found!" + ge.name + " " + items.Count);
+            }
             string cs = "";
-            Debug.Log("Found!" + ge.name);
+
             cs += "public enum " + ge.name + ":int{none = -1,";
             var ie = (IEnumerable)f.GetValue(g);
             foreach (object o in ie)
-                cs += o+ ",";
-            cs = cs.Trim(new[] { ',' });
+            {
+                if (!items.Contains(o + ""))
+                    items.Add(o + "");
+            }
+            cs += string.Join(",", items.ToArray());            
             cs += "}";
             Debug.Log("geneerated:" + cs);
-            File.WriteAllText(cspath + ge.name + ".cs", cs);
+            File.WriteAllText(pth, cs);
         }
     }
     private void Build()

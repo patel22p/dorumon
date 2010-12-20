@@ -13,7 +13,7 @@ public class Gun : GunBase
     public Texture2D GunPicture;    
     public Vector3 Force;
     public Transform barrel;
-    public float exp;
+    public float exp = 500;
     public float vibration=0;
     public AudioClip sound;
     public int damage = 60;
@@ -36,6 +36,23 @@ public class Gun : GunBase
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point); 
         
     }
+
+    private void Bind(string name)
+    {
+        var p = this.GetComponentsInChildren<Transform>().FirstOrDefault(a => a.name == name);
+        if (p != null)
+        {
+            var po = p.position;
+            var ro = p.rotation;
+            var s = p.localScale;
+            var p2 = GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).Cast<GameObject>().FirstOrDefault(a => a.name == name);
+            var t = ((GameObject)Instantiate(p2, po, ro)).transform;
+            t.localScale = s;
+            t.parent = p.parent;
+            t.name = p2.name;
+            DestroyImmediate(p.gameObject);
+        }
+    }
     protected override void Awake()
     {
         base.Awake();
@@ -56,8 +73,8 @@ public class Gun : GunBase
     protected override void Update()
     {
         base.Update();
-        
-        
+
+        RandomFactorTm = Mathf.Max(0, RandomFactorTm - Time.deltaTime);
 
         if (barrel != null)
         {            
@@ -90,11 +107,14 @@ public class Gun : GunBase
                 PlaySound(noammoSound);                    
         }
     }
+    public float RandomFactorTm = 0;
     [RPC]
     public void RPCShoot()
     {
+        
+
         if (sound != null)
-            root.audio.PlayOneShot(sound,soundVolume);
+            root.audio.PlayOneShot(sound, soundVolume);
         if (player != null)
             player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie));
 
@@ -106,10 +126,12 @@ public class Gun : GunBase
             r.y = Random.Range(-random.y, random.y);
             r.z = Random.Range(-random.z, random.z);
             cursorid++;
-            if (cursorid >= cursor.Count) cursorid = 0;
-            foreach (var p in cursor[cursorid].GetComponentsInChildren<ParticleEmitter>())
-                p.Emit();
-            
+            if (cursorid >= cursor.Count) cursorid = 0;            
+            var t = cursor[cursorid].transform;
+            _Game.particles[(int)ParticleTypes.fire].Emit(t.position, t.rotation);
+            _Game.particles[(int)ParticleTypes.fire1].Emit(t.position, t.rotation);
+            _Game.particles[(int)ParticleTypes.patrons].Emit(t.position, t.rotation);
+
             if (fireLight != null && !fireLight.enabled)
             {
                 fireLight.enabled = true;
@@ -121,7 +143,7 @@ public class Gun : GunBase
             if (barrel != null) barrelVell += 10;
 
             var p2 = cursor[cursorid].position;
-            var r2 = rot * Quaternion.Euler(r);
+            Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm*2);
             if (towerPrefab != null)
                 Network.Instantiate(towerPrefab, p2, cursor[0].rotation, (int)GroupNetwork.Tower);
             else
@@ -129,12 +151,13 @@ public class Gun : GunBase
                 Patron patron = ((GameObject)(Instantiate(patronPrefab, p2, r2))).GetComponent<Patron>();
                 patron.OwnerID = OwnerID;
                 patron.damage = this.damage;
-                if (exp != 0) patron.ExpForce = exp;
+                patron.ExpForce = exp;
                 if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
                 patron.probivaemost = this.probivaemost;
                 if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force);
             }
         }
+        RandomFactorTm = Mathf.Min(RandomFactorTm + .2f, 1);
         this.pos -= rot * new Vector3(0, 0, vibration);
         
     }

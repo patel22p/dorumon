@@ -111,7 +111,7 @@ using doru;
 using System.Linq;
 namespace doru
 {
-    [Serializable]
+    //[Serializable]
     public class TimerA
     {
         public int _Ticks = Environment.TickCount;

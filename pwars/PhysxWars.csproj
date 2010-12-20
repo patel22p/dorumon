@@ -161,8 +161,6 @@
      <Compile Include="Assets\scripts\Main\guns\GunBase.cs" />
      <Compile Include="Assets\scripts\Main\guns\GunPhysix.cs" />
      <Compile Include="Assets\scripts\Main\guns\Patron.cs" />
-     <Compile Include="Assets\scripts\Main\Items\Fragment.cs" />
-     <Compile Include="Assets\scripts\Main\Items\MapItem.cs" />
      <Compile Include="Assets\scripts\Main\Base.cs" />
      <Compile Include="Assets\scripts\Main\Base2.cs" />
      <Compile Include="Assets\scripts\Main\Box.cs" />
@@ -170,11 +168,12 @@
      <Compile Include="Assets\scripts\Main\Car.cs" />
      <Compile Include="Assets\scripts\Main\Console.cs" />
      <Compile Include="Assets\scripts\Main\Destroible.cs" />
+     <Compile Include="Assets\scripts\Main\Fragment.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
-     <Compile Include="Assets\scripts\Main\Helper.cs" />
      <Compile Include="Assets\scripts\Main\Irc.cs" />
      <Compile Include="Assets\scripts\Main\Loader.cs" />
+     <Compile Include="Assets\scripts\Main\MapItem.cs" />
      <Compile Include="Assets\scripts\Main\Menu.cs" />
      <Compile Include="Assets\scripts\Main\Music.cs" />
      <Compile Include="Assets\scripts\Main\Particles.cs" />
@@ -183,6 +182,7 @@
      <Compile Include="Assets\scripts\Main\Shared.cs" />
      <Compile Include="Assets\scripts\Main\Skidmarks.cs" />
      <Compile Include="Assets\scripts\Main\Text3D.cs" />
+     <Compile Include="Assets\scripts\Main\Timer.cs" />
      <Compile Include="Assets\scripts\Main\Tower.cs" />
      <Compile Include="Assets\scripts\Main\UserView.cs" />
      <Compile Include="Assets\scripts\Main\Vk.cs" />

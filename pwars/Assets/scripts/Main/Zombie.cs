@@ -58,7 +58,7 @@ public class Zombie : Destroible
         var speed = Random.Range(zombieSpeedCurve.Evaluate(stage), zombieSpeedCurve.Evaluate(stage + 3));
         var life = Random.Range(zombieLifeCurve.Evaluate(stage), zombieLifeCurve.Evaluate(stage + 10));
         if (zombieType == ZombieType.Life) life *= 3;
-        if (zombieType == ZombieType.Speed) { speed *= .15f; life *= .7f; }
+        if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
         RPCSetup(speed, life, (int)priority.Random());
     }
 
@@ -157,7 +157,7 @@ public class Zombie : Destroible
     {
 
         Destroible pl =
-            _Game.towers.Cast<Destroible>().Union(players).Where(a => a != null && a.Alive && (a is Player || Vector3.Distance(a.pos, pos) < 10)).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+            _Game.towers.Where(a => a != null && !a.disableZombieAtack && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return pl;
     }
     void FixedUpdate()
@@ -170,7 +170,7 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
             }
-            pos += rot * new Vector3(0, 0, speed * Time.fixedDeltaTime);
+            pos += rot * new Vector3(0, 0, speed * _Game.fixedDeltaTime * Time.timeScale);
         }
         
     }

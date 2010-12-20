@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,30 +12,27 @@ public class Cam : Base
     float y = 0.0f;
     public TextMesh LevelText;
     public TextMesh ScoreText;
-    protected override void Awake()
+    public override void Init()
     {
-        _Game.MapCamera.camera.enabled = true;
-        _Game.MapCamera.active = false;
-        blur = GetComponentInChildren<MotionBlur>();        
+        camera = GetComponentInChildren<Camera>();
+        blur = GetComponentInChildren<MotionBlur>();
         LevelText = transform.Find("LevelText").GetComponent<TextMesh>();
         ScoreText = transform.Find("ScoreText").GetComponent<TextMesh>();
-        ambientsmoke =transform.Find("ambientsmoke");
+        Vingetting = (MonoBehaviour)camera.GetComponent("Vignetting");
+        ambientsmoke = transform.Find("ambientsmoke");
         ssao = GetComponentInChildren<SSAOEffect>();
         xSpeed = 120;
         ySpeed = 120;
         yMinLimit = -90;
         yMaxLimit = 90;        
-        base.Awake();
-    }
-    public override void Init()
-    {
-        camera = GetComponentInChildren<Camera>();
         base.Init();
     }
     public new Camera camera;
-    Transform ambientsmoke;
-    MotionBlur blur;
-    SSAOEffect ssao;
+    public Transform ambientsmoke;
+    public MotionBlur blur;
+    public MonoBehaviour Vingetting;
+    public SSAOEffect ssao;
+    
     public MonoBehaviour bloomAndFlares;
     
     public void onEffect()
@@ -69,7 +67,7 @@ public class Cam : Base
 
     void FixedUpdate()
     {
-        blurtime += Time.fixedDeltaTime;
+        blurtime += _Game.fixedDeltaTime;
         if (blurtime>.1f)
         {
             blurtime -= .1f;

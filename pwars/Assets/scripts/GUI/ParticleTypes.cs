@@ -1,1 +1,1 @@
-public enum ParticleTypes:int{none = -1,BloodSplatters,particle_metal}
+public enum ParticleTypes:int{none = -1,BloodSplatters,particle_metal,fire,fire1,patrons}

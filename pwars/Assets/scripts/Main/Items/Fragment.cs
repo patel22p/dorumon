@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class Fragment : Base
+public class Fragment : MonoBehaviour
 {
     public bool first;
     public List<Transform> child = new List<Transform>();
@@ -47,7 +47,7 @@ public class Fragment : Base
             {
                 t.gameObject.active = true;
                 //t.renderer.material.color = renderer.material.color;
-                t.parent = _Game.effects.transform;
+                //t.parent = _Game.effects.transform;
                 Destroy(t.gameObject, 5);
                 
                 Rigidbody r = t.gameObject.AddComponent<Rigidbody>();

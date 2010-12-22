@@ -23,8 +23,8 @@ public class GunPhysix : GunBase
     {
         if (power)
         {
-            patronsLeft -= _Game.fixedDeltaTime;
-            holdtm += _Game.fixedDeltaTime;
+            patronsLeft -= Time.fixedDeltaTime;
+            holdtm += Time.fixedDeltaTime;
             {
                 var p2 = cursor[0].position;
                 var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
@@ -76,19 +76,19 @@ public class GunPhysix : GunBase
     public AudioClip superphys_launch3;
     public void RPCSetPower(bool e) { CallRPC("SetPower",e); }
     [RPC]
-    void SetPower(bool power)
+    public void SetPower(bool power)
     {
         this.power = power;
     }
     public void RPCShoot() { CallRPC("Shoot"); }
     [RPC]
-    void Shoot()
+    public void Shoot()
     {
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
             if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
             {
                 b.rigidbody.angularDrag = 2;
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass));
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass) / Time.timeScale);
             }
             root.audio.PlayOneShot(superphys_launch3);
             Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);

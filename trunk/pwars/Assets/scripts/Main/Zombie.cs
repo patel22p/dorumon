@@ -64,12 +64,12 @@ public class Zombie : Destroible
 
     public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
     [RPC]
-    void Setup(float zombiespeed, float zombieLife, int priority)
+    public void Setup(float zombiespeed, float zombieLife, int priority)
     {
         Alive = true;
         Sync = true;
-        transform.position = SpawnPoint();
-        gameObject.layer = LayerMask.NameToLayer("Default");
+        ResetSpawn();
+        gameObject.layer = LayerMask.NameToLayer("Enemy");
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
@@ -122,7 +122,7 @@ public class Zombie : Destroible
                 {
                     tiltTm = 0;
                     if (Vector3.Distance(oldpos, pos) / spawninTM < .5f)
-                        pos = SpawnPoint();                        
+                        ResetSpawn();                        
                     oldpos = pos;
                 }
             }
@@ -170,7 +170,7 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
             }
-            pos += rot * new Vector3(0, 0, speed * _Game.fixedDeltaTime * Time.timeScale);
+            pos += rot * new Vector3(0, 0, speed * Time.fixedDeltaTime * Time.timeScale);
         }
         
     }
@@ -237,18 +237,26 @@ public class Zombie : Destroible
             
         }
     }
-    public override Vector3 SpawnPoint()
+    public override void ResetSpawn()
     {
         spawninTM = Random.Range(1, 10); 
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         
-        Destroible pl = Nearest(); 
-        if (pl == null) return gs.First().transform.position;
-        //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
-        var b = gs.Where(a => a.GetComponent<MeshFilter>().collider.bounds.Contains(pl.pos)).Random();
-        var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
-        return (b ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
-            ).transform.position;        
+        Destroible pl = Nearest();
+        if (pl == null)
+        {
+            pos = gs.First().transform.position;
+        }
+        else
+        {
+            //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
+            var b = gs.Where(a => a.GetComponent<MeshFilter>().collider.bounds.Contains(pl.pos)).Random();
+            var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
+            pos = (b ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
+                ).transform.position;
+        }
+        rot = Quaternion.identity;
+        rigidbody.velocity = Vector3.zero;
     }
     
     public override void OnPlayerConnected1(NetworkPlayer np)

@@ -7,7 +7,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
-
+using Object = UnityEngine.Object;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
 
@@ -15,9 +15,11 @@ public class Game : Base
 {
 
     new public Player[] players = new Player[10];
-    public List<Destroible> destroyables = new List<Destroible>();
+    public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
-    public float fixedDeltaTime;
+    public IEnumerable<Patron> patrons { get { return GameObject.FindObjectsOfType(typeof(Patron)).Cast<Patron>(); } }
+    private float fixedDeltaTime;
+    public LayerMask PatronCollMask;
     public List<Tower> towers = new List<Tower>();
     public List<Box> boxes = new List<Box>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
@@ -48,7 +50,8 @@ public class Game : Base
     public GameObject playerPrefab;    
     protected override void Awake()
     {
-        fixedDeltaTime = Time.fixedDeltaTime;
+
+        fixedDeltaTime = Time.fixedDeltaTime;        
         base.Awake();
                
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
@@ -58,7 +61,7 @@ public class Game : Base
         print("mapSettings.host " + mapSettings.host);
         
         if (Network.peerType == NetworkPeerType.Disconnected)
-            if ((mapSettings.host && Application.isEditor) || !_Loader.cmd.Contains("client"))
+            if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
                 Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);
             else
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
@@ -91,8 +94,6 @@ public class Game : Base
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Игрок законектился " + nick);
         _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
-        foreach (MeshRenderer r in _localPlayer.GetComponentsInChildren<MeshRenderer>())
-            r.castShadows = false;
     }
     public void onTeamSelect()
     {
@@ -134,7 +135,7 @@ public class Game : Base
             _GameMenuWindow.Toggle(this);
         }
 
-        if (_TimerA.TimeElapsed(1000))
+        if (_TimerA.TimeElapsed(10000))
             RPCPingFps(Network.player.GetHashCode(),
                 (Network.connections.Length > 0 && Network.isClient ? Network.GetLastPing(Network.connections[0]) : 0),
                 _GameWindow.fps);
@@ -150,7 +151,7 @@ public class Game : Base
     void onScoreBoard() { _GameStatsWindow.Show(this); }
     public void RPCGameSettings(string version, int gameMode, int frags, float timelimit) { CallRPC("GameSettings", version, gameMode, frags, timelimit); }
     [RPC]
-    private void GameSettings(string version, int gameMode, int frags, float timelimit)
+    public void GameSettings(string version, int gameMode, int frags, float timelimit)
     {
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
@@ -176,13 +177,13 @@ public class Game : Base
         sendto = null;
     }
     [RPC]
-    void SetTimeLeft(float time)
+    public void SetTimeLeft(float time)
     {
         timeleft = time;
     }
     public void RPCSetTimeBomb(float timescale) { CallRPC("SetTimeBomb",timescale); }
     [RPC]
-    void SetTimeBomb(float timescale)
+    public void SetTimeBomb(float timescale)
     {
         
         Time.timeScale = timescale;
@@ -245,7 +246,7 @@ public class Game : Base
 
     public void RPCPingFps(int id, int ping, int fps) { CallRPC("PingFps", id, ping, fps); }
     [RPC]    
-    void PingFps(int id, int ping, int fps)
+    public void PingFps(int id, int ping, int fps)
     {
         players[id].fps = fps;
         players[id].ping = ping;        
@@ -256,7 +257,7 @@ public class Game : Base
     public AudioClip[] stageSound;
     public void RPCNextStage(int stage) { CallRPC("NextStage",stage); }
     [RPC]
-    private void NextStage(int stage)
+    public void NextStage(int stage)
     {
         Debug.Log("Next Stage"+stage);
         PlayRandSound(stageSound);
@@ -306,7 +307,7 @@ public class Game : Base
 
     public void RPCDestroy(NetworkViewID v) { CallRPC("Destroy", v); }
     [RPC]
-    private void Destroy(NetworkViewID v)
+    public void Destroy(NetworkViewID v)
     {
         
         NetworkView nw = NetworkView.Find(v);
@@ -422,4 +423,4 @@ public class Game : Base
     }
     
 }
-public enum GroupNetwork { PlView, RPCSetID, Default, RPCAssignID, Life, Spawn, Nick, SetOwner, SetMovement, Player, Zombie,Tower }
+public enum GroupNetwork { PlView, RPCSetID, Default, Shared, staticfield, Spawn, Nick, Gun, SetMovement, Player, Zombie,Tower }

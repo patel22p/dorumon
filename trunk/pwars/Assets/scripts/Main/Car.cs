@@ -110,7 +110,7 @@ public abstract class Car : Destroible
 
         foreach (WheelData w in wheels)
         {
-            w.rotation += wheelRPM / 60.0f * -rev * 360.0f * _Game.fixedDeltaTime;
+            w.rotation += wheelRPM / 60.0f * -rev * 360.0f * Time.fixedDeltaTime;
             w.rotation = Mathf.Repeat(w.rotation, 360.0f);
             w.graphic.localRotation = Quaternion.Euler(w.rotation, w.maxSteerAngle * steer, 0.0f) * w.originalRotation;
             if (w.coll.isGrounded)
@@ -216,21 +216,21 @@ public abstract class Car : Destroible
         float steerGrip = (1 - handlingTendency * cornerSlip);
         if (rev * steer * steerVelo < 0)
             steerGrip = 1;
-        float maxRotSteer = 2 * _Game.fixedDeltaTime * handbrakeFactor * steerGrip;
+        float maxRotSteer = 2 * Time.fixedDeltaTime * handbrakeFactor * steerGrip;
         float fVelo = velo.magnitude;
         float veloFactor = fVelo < 1.0 ? fVelo : Mathf.Pow(velo.magnitude, 0.3f);
-        float steerVeloInput = rev * steer * veloFactor * 0.5f * _Game.fixedDeltaTime * handbrakeFactor;
+        float steerVeloInput = rev * steer * veloFactor * 0.5f * Time.fixedDeltaTime * handbrakeFactor;
         if (velo.magnitude < 0.1)
             steerVeloInput = 0f;
         if (steerVeloInput > steerVelo)
         {
-            steerVelo += 0.02f * _Game.fixedDeltaTime * veloSteer;
+            steerVelo += 0.02f * Time.fixedDeltaTime * veloSteer;
             if (steerVeloInput < steerVelo)
                 steerVelo = steerVeloInput;
         }
         else
         {
-            steerVelo -= 0.02f * _Game.fixedDeltaTime * veloSteer;
+            steerVelo -= 0.02f * Time.fixedDeltaTime * veloSteer;
             if (steerVeloInput > steerVelo)
                 steerVelo = steerVeloInput;
         }

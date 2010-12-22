@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Object = UnityEngine.Object;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Reflection;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using doru;
 using System;
-
+using System.IO;
 public static class Ext { 
     public static T Random<T>(this IEnumerable<T> source)
     {
@@ -89,7 +90,22 @@ public partial class Base2 : MonoBehaviour
     public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
     static Irc __Irc;
     public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
-    
+    public T FindAsset<T>(string name) where T : UnityEngine.Object
+    {
+#if(UNITY_EDITOR)
+        
+        var paths =Directory.GetFiles("./", "*.*", SearchOption.AllDirectories).Where(a => Path.GetFileNameWithoutExtension(a) == name);
+        
+        foreach (var item in paths)
+        {
+            var path = item.Replace("\\", "/").Substring(2);
+            var t = UnityEditor.AssetDatabase.LoadAssetAtPath(path,typeof(T));
+            if (t != null)
+                return (T)t;
+        }
+#endif
+        return null;
+    }
     static Game __Game;
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;

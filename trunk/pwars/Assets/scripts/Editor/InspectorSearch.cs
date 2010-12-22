@@ -297,10 +297,11 @@ public class InspectorSearch : EditorWindow
     {
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
-        if (_TimerA.TimeElapsed(60 * 1000) && !EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".scene"))
-        {
-            EditorApplication.SaveScene(EditorApplication.currentScene);
-        }
+        //if (_TimerA.TimeElapsed(60 * 1000) && !EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".scene"))
+        //{
+        //    Debug.Log("autosave");
+        //    EditorApplication.SaveScene(EditorApplication.currentScene);
+        //}
         var ao = Selection.activeObject;
         if (ao != null && !lastUsed.Contains(ao))
             lastUsed.Insert(0, ao);

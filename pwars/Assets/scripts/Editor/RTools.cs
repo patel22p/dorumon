@@ -22,19 +22,22 @@ public partial class RTools : InspectorSearch
     }
     protected override void OnGUI()
     {
-        base.OnGUI();
-
+        BuildButtons();
+             
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
         if (GUI.Button("SetupLevel"))
         {
-            DestroyImmediate(GameObject.Find("level"));
+            var l = GameObject.Find("level");
+            var p = l.transform.parent;
+            DestroyImmediate(l);
             string path = EditorApplication.currentScene.Split('.')[0] + "/";
             path = path.Substring("Assets/".Length);
-            Debug.Log(path);
-            Selection.activeObject = Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
-            Selection.activeObject.name = "level";
-
+            Debug.Log("setup level: " + path);
+            l = (GameObject)Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
+            l.transform.parent = p;            
+            l.name = "level";
+            Selection.activeGameObject = l;
             SetupLevel();
             Inits(cspath);
             _TimerA.AddMethod(delegate
@@ -66,10 +69,6 @@ public partial class RTools : InspectorSearch
             });
         }
 
-        if (GUI.Button("Materials"))
-        {
-            SetupMaterials();
-        }
 
         if (GUI.Button("Init"))
         {
@@ -81,10 +80,46 @@ public partial class RTools : InspectorSearch
         GUI.EndHorizontal();
 
         BuildGUI();
+        base.OnGUI();   
     }
+
+    private void BuildButtons()
+    {
+        if (GUILayout.Button("Build"))
+        {
+            Build();
+            return;
+        }
+
+        GUI.BeginHorizontal();
+        if (GUILayout.Button("Server Editor"))
+        {
+            _Loader.mapSettings.host = true;
+            new SerializedObject(_Loader).ApplyModifiedProperties();
+            EditorApplication.isPlaying = true;
+        }
+        if (GUILayout.Button("Server App"))
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
+        GUI.EndHorizontal();
+        GUI.BeginHorizontal();
+        if (GUILayout.Button("Client App"))
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
+        if (GUILayout.Button("Client Editor"))
+        {
+            _Loader.mapSettings.host = false;
+            new SerializedObject(_Loader).ApplyModifiedProperties();
+            EditorApplication.isPlaying = true;
+        }
+        GUI.EndHorizontal();
+        if (GUILayout.Button("Open Project Folder"))
+        {
+            System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
+        }
+    }
+
+    //[MenuItem("RTools/Materials")]
     private static void SetupMaterials()
     {
-
         var ago = Selection.activeGameObject;
         if (ago != null)
             foreach (var m in ago.GetComponentsInChildren<Renderer>().Where(a => a != null).SelectMany(a => a.sharedMaterials).Where(a => a != null).Distinct())
@@ -169,8 +204,13 @@ public partial class RTools : InspectorSearch
             t.gameObject.layer = LayerMask.NameToLayer("Level");
         base.SetupLevel();
         foreach (Transform t in Selection.activeGameObject.transform)
-        {
+        {            
             GameObject g = t.gameObject;
+            if (Selection.activeGameObject.transform.parent.Find(t.name) != null)
+            {
+                DestroyImmediate(g);
+                continue;
+            }
             string[] param = g.name.Split(',');
 
             if (param[0] == ("coll"))
@@ -190,7 +230,18 @@ public partial class RTools : InspectorSearch
                     t.parent = item.transform;
                     item.name = g.name;
                     if (!item.name.StartsWith("lamp"))
+                    {
                         destroy.Add(t.gameObject);
+                    }
+                    else
+                    {
+                        RaycastHit h;
+                        Ray r = new Ray(item.transform.position + item.transform.rotation * Vector3.forward, item.transform.rotation * Vector3.forward);
+                        Debug.DrawRay(r.origin, r.direction*1000, Color.red);
+                        Debug.Log(r);
+                        if (Physics.Raycast(r, out h, 1000, 1 << LayerMask.NameToLayer("Level")))
+                            item.light.range = h.distance * 2;
+                    }
 
                 }
             }
@@ -243,6 +294,27 @@ public partial class RTools : InspectorSearch
             catch { Debug.Log("cound not find path " + scr.name + "+" + atr.name); }
         }
     }
+    private static void InitLoadPath(Base2 scr, FieldInfo pf)
+    {
+        LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
+        if (ap != null)
+        {
+            object value = pf.GetValue(scr);
+            if (value is Array)
+            {
+                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();
+                pf.SetValue(scr, o);
+            }
+            else
+                if ((value == null || value.Equals(null)))
+                {
+                    object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
+                    if (o == null) Debug.Log("prefab not found" + ap.name);
+                    pf.SetValue(scr, o);
+                }
+        }
+    }
+    //[MenuItem("RTools/SetupTextures")]
     private static void SetupTextures()
     {
         foreach (var o in Selection.objects)
@@ -263,25 +335,7 @@ public partial class RTools : InspectorSearch
             }
         }
     }
-    private static void InitLoadPath(Base2 scr, FieldInfo pf)
-    {
-        LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
-        if (ap != null)
-        {
-            object value = pf.GetValue(scr);
-            if (value is Array)
-            {
-                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();
-                pf.SetValue(scr, o);
-            }
-            else
-                if ((value == null || value.Equals(null)))
-                {
-                    object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
-                    pf.SetValue(scr, o);
-                }
-        }
-    }
+    
     private void BuildGUI()
     {
         GUI.Space(10);
@@ -291,42 +345,11 @@ public partial class RTools : InspectorSearch
                 if (p != null)
                     if (GUI.Button(p.name + ":" + p.OwnerID))
                         Selection.activeObject = p;
-        }
-
-        GUI.BeginHorizontal();
-        if (GUILayout.Button("Build"))
-        {
-            Build();
-            return;
-        }
-        GUI.EndHorizontal();
-        GUI.BeginHorizontal();
+        }        
+       
         if (_Loader != null)
         {
-            if (GUILayout.Button("Server Editor"))
-            {
-                _Loader.mapSettings.host = true;
-                new SerializedObject(_Loader).ApplyModifiedProperties();
-                EditorApplication.isPlaying = true;
-            }
-            if (GUILayout.Button("Server App"))
-                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
-            GUI.EndHorizontal();
-            GUI.BeginHorizontal();
-            if (GUILayout.Button("Client App"))
-                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
-            if (GUILayout.Button("Client Editor"))
-            {
-                _Loader.mapSettings.host = false;
-                new SerializedObject(_Loader).ApplyModifiedProperties();
-                EditorApplication.isPlaying = true;
-            }
-
-            GUI.EndHorizontal();
-            if (GUILayout.Button("Open Project Folder"))
-            {
-                System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
-            }
+            
             _Loader.build = GUI.Toggle(_Loader.build, "build");
             _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
             _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
@@ -338,33 +361,23 @@ public partial class RTools : InspectorSearch
         GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
         if (ge != null)
         {
-            string pth = cspath + ge.name + ".cs";
-            List<string> items = new List<string>();
-            if (File.Exists(pth))
-            {
-                items = Regex.Match(File.ReadAllText(pth), "-1,(.*)}").Groups[1].Value.Split(',').ToList();
-                Debug.Log("Found!" + ge.name + " " + items.Count);
-            }
             string cs = "";
-
+            Debug.Log("Found!" + ge.name);
             cs += "public enum " + ge.name + ":int{none = -1,";
             var ie = (IEnumerable)f.GetValue(g);
             foreach (object o in ie)
-            {
-                if (!items.Contains(o + ""))
-                    items.Add(o + "");
-            }
-            cs += string.Join(",", items.ToArray());            
+                cs += o + ",";
+            cs = cs.Trim(new[] { ',' });
             cs += "}";
             Debug.Log("geneerated:" + cs);
-            File.WriteAllText(pth, cs);
+            File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
     private void Build()
     {
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
-        BuildPipeline.BuildPlayer(new[] { "Assets/scenes/Game.unity" }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
+        BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
     protected override void Update()
     {        

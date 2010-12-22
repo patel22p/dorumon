@@ -32,8 +32,7 @@ public abstract class Destroible : Shared
         base.Init();
     }
     protected override void Start()
-    {
-        _Game.destroyables.Add(this);
+    {        
         base.Start();
     }
     public float isGrounded;

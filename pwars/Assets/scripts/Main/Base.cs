@@ -195,13 +195,17 @@ public class Base : Base2
     {
     }
     public static NetworkPlayer? sendto;
-    public bool CallRPC(string name, params object[] obs)
-    {
-        if (new StackTrace().FrameCount > 20) throw new StackOverflowException();
+    public void CallRPC(string name, params object[] obs)
+    {        
+        if (new StackTrace().FrameCount > 30) throw new StackOverflowException();
         if (sendto == null)
-            networkView.RPC(name, RPCMode.All, obs);
+        {
+            networkView.RPC(name, RPCMode.Others, obs);
+            this.GetType().GetMethod(name).Invoke(this, obs);
+        }
         else
             networkView.RPC(name, sendto.Value, obs);
-        return true;
+        
     }
+
 }

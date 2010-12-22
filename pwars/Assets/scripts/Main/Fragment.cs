@@ -46,11 +46,8 @@ public class Fragment : MonoBehaviour
             Destroy(this.gameObject);
     }
     public int level;
-    bool broken;
     private void Break()
     {
-        if (broken) Debug.Log("already broken" + level + "+" + name);
-        broken = true;
         transform.DetachChildren();
         foreach (Transform t in child)
         {

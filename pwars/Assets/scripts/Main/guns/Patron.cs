@@ -5,11 +5,12 @@ using System.Collections.Generic;
 
 public class Patron : Base
 {
-    public Vector3 Force = new Vector3(0,0,80);    
+    public Vector3 Force = new Vector3(0, 0, 80);
     public GameObject detonator;
+    public float detonatorDestroyTime = 4;
     public bool DestroyOnHit;
     public bool explodeOnDestroy;
-    public int detonatorsize = 8;        
+    public int detonatorsize = 8;
     internal float ExpForce = 2000;
     internal int damage = 60;
     internal int probivaemost = 0;
@@ -17,15 +18,14 @@ public class Patron : Base
     public float radius = 6;
     public float samonavod;
     public bool breakwall;
-    public float timeToDestroy =5; 
-    public float freezetime;    
+    public float timeToDestroy = 5;
+    
     public float tm;
-    [LoadPath("rocklx1a")]
-    public AudioClip expSound;
-    public DecalTypes decal;    
+    public DecalTypes decal;
     protected Vector3 previousPosition;
     protected override void Start()
-    {                
+    {
+        Force = transform.rotation * Force;
         previousPosition = transform.position;
         base.Start();
     }
@@ -43,10 +43,7 @@ public class Patron : Base
                 Explode(this.transform.position);
             else
                 Destroy(gameObject);
-        }
-        
-        if (Force != default(Vector3)) 
-            this.transform.position += transform.rotation * Force * Time.deltaTime;
+        }        
 
         if (DestroyOnHit)
         {
@@ -54,22 +51,38 @@ public class Patron : Base
             RaycastHit hitInfo;
             Ray ray = new Ray(previousPosition, movementThisStep);
 
-            if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1))
+            if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, _Game.PatronCollMask))
             {
                 ExplodeOnHit(hitInfo);
             }
         }
         previousPosition = transform.position;
+    }
+
+    private void FixedUpdate()
+    {
+        if (Force != default(Vector3))
+            this.transform.position += Force * Time.fixedDeltaTime;
+
         if (magnet > 0)
             Magnet();
     }
 
     private void Magnet()
     {
-        foreach (var b in _Game.boxes.Union(_Game.zombies.Cast<Box>()).Where(b => b != null))
+        foreach (Patron p in _Game.patrons)
         {
-            b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
-            b.rigidbody.velocity *= .97f;
+            if (p.Force.magnitude != 0 && p != this)
+                p.Force += (pos - p.pos).normalized * magnet * Time.fixedDeltaTime * p.Force.sqrMagnitude / Vector3.Distance(p.pos, pos) / 2000;
+        }
+
+        foreach (var b in _Game.boxes.Cast<MonoBehaviour>().Union(_Game.patrons.Where(a=>a.rigidbody!=null).Cast<MonoBehaviour>()).Union(_Game.zombies.Cast<MonoBehaviour>()).Where(b => b != null))
+        {
+            if (b != this)
+            {
+                b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
+                b.rigidbody.velocity *= .97f;
+            }
         }
 
     }
@@ -96,7 +109,7 @@ public class Patron : Base
         {
             Transform b = hit.collider.gameObject.transform.root;
             if (b.rigidbody != null)
-                b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce), hit.point);
+                b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) / Time.timeScale, hit.point);
         }
 
         Destroible iplayer = hit.collider.gameObject.transform.GetRoot<Destroible>();
@@ -118,9 +131,7 @@ public class Patron : Base
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
 
         if (iplayer != null && iplayer.isController && !iplayer.dead)
-        {
-            if (iplayer is Player)
-                ((Player)iplayer).freezedt = freezetime;
+        {            
             iplayer.RPCSetLife(iplayer.Life - damage, OwnerID);
         }
         probivaemost--;
@@ -132,15 +143,13 @@ public class Patron : Base
     {
         Vector3 vector3 = pos - this.transform.rotation * new Vector3(0, 0, 2);
         GameObject o;
-        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), 10);
-        o.GetComponent<Detonator>().size = detonatorsize;
+        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), detonatorDestroyTime);
+        if (detonator.GetComponent<Detonator>() != null) o.GetComponent<Detonator>().size = detonatorsize;
         Explosion e = o.AddComponent<Explosion>();        
         e.exp = ExpForce;
         e.radius = radius;
         e.damage = damage;        
         e.OwnerID = OwnerID;
         Destroy(gameObject);
-        if(e.audio!=null)
-            e.audio.PlayOneShot(expSound,4);
     }
 }

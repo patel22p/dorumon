@@ -67,7 +67,7 @@ public class Cam : Base
 
     void FixedUpdate()
     {
-        blurtime += _Game.fixedDeltaTime;
+        blurtime += Time.fixedDeltaTime;
         if (blurtime>.1f)
         {
             blurtime -= .1f;

@@ -14,13 +14,14 @@ public class Shared : Base
     public Quaternion syncRot;
     public Vector3 syncVelocity;
     public Vector3 syncAngularVelocity;
-    protected Vector3 spawnpos;
+    public Vector3 spawnpos;
+    public Quaternion spawnrot;
     public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
     public float tsendpackets;
     public bool shared = true;
     public Renderer[] renderers;
-    [LoadPath("Collision1")]
+    [LoadPath("collision1")]
     public AudioClip soundcollision;
     protected override void Awake()
     {
@@ -41,26 +42,23 @@ public class Shared : Base
         base.Init();
     }
     protected override void Start()
-    {
-        
+    {        
         spawnpos = transform.position;
+        spawnrot = transform.rotation;
         if (shared)
             if (!Network.isServer)
                 networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         base.Start();
     }
-    
-    
     protected virtual void Update()
     {
         if (_TimerA.TimeElapsed(100))
             UpdateLightmap(renderers.SelectMany(a => a.materials));
 
         tsendpackets -= Time.deltaTime;
-        if (_Game.bounds != null && !_Game.bounds.collider.bounds.Contains(this.transform.position) && enabled)
+        if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
         {
-            transform.position = SpawnPoint();
-            rigidbody.velocity = Vector3.zero;
+            ResetSpawn();            
         }
 
         if (shared && Network.isServer)
@@ -68,9 +66,10 @@ public class Shared : Base
     }
     void ControllerUpdate()
     {
+        
         float min = float.MaxValue;
         Destroible nearp = null;
-        foreach (Destroible p in _Game.destroyables)
+        foreach (Player p in _Game.players)
             if (p != null)
             {
                 if (p.Alive && p.OwnerID != -1)
@@ -83,7 +82,7 @@ public class Shared : Base
             }
 
         if (nearp != null && nearp.OwnerID != -1 && selected != nearp.OwnerID)
-            SetController(nearp.OwnerID);
+            RPCSetController(nearp.OwnerID);
 
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
@@ -95,7 +94,7 @@ public class Shared : Base
 
     public void RPCSetOwner(int owner) { CallRPC("SetOwner", owner); }
     [RPC]
-    void SetOwner(int owner)
+    public void SetOwner(int owner)
     {
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
@@ -126,7 +125,7 @@ public class Shared : Base
     {
         var ss = networkView.stateSynchronization;
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
-        nw.group = (int)GroupNetwork.RPCAssignID;
+        nw.group = (int)GroupNetwork.Shared;
         nw.observed = this;
         nw.stateSynchronization = ss;
         nw.viewID = id;
@@ -136,14 +135,16 @@ public class Shared : Base
     {
         RPCSetOwner(Network.player.GetHashCode());
     }
-    public virtual Vector3 SpawnPoint()
+    public virtual void ResetSpawn()
     {
-        return spawnpos;
+        transform.position = spawnpos;
+        transform.rotation = spawnrot;
+        rigidbody.velocity = Vector3.zero;
     }
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled || !Sync) return;
-        if (selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
+        if ((selected == -1 && Network.isServer) || selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
             if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets < 0)
                 lock ("ser")

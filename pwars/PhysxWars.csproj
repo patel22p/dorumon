@@ -304,6 +304,8 @@
      <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\EdgeDetectEffectNormalsEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\SunShaftsEditor.js" />
+     <Compile Include="Assets\Standard Assets\Gem Rendering\Example\GemSpawner.cs" />
+     <None Include="Assets\Standard Assets\Gem Rendering\diamond shader.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Adaptation.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Luminance.shader" />

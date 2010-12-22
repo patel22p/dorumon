@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight }
+public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight, clock }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base
 {
@@ -22,6 +22,7 @@ public class MapItem : Base
     public MapItemType itemType;
     public GunType gunIndex;
     public string gunIndexStr;
+    public bool isCheckOutCalled;
     public int bullets = 1000;
     public string text = "";
     public float TmOn;
@@ -41,6 +42,7 @@ public class MapItem : Base
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
+        //renderer.castShadows = renderer.receiveShadows = false;
         gunIndexStr = gunIndex.ToString();        
         ParseItemType();
         var g = gameObject;
@@ -65,6 +67,14 @@ public class MapItem : Base
             endless = true;
             score = 2;
 
+        }
+        if (itemType == MapItemType.clock)
+        {
+            text = "Замедление времени, нажми Т чтобы использовать";
+            endless = true;
+            hide = true;
+            score = 5;
+            respawnTm = 1000;
         }
         if (itemType == MapItemType.spotlight)
         {
@@ -164,11 +174,11 @@ public class MapItem : Base
         base.Awake();
     }
     protected override void Start()
-    {                
-        if(animation!=null)
+    {
+        if (animation != null && animation.clip.name == "Take 001")
             animation.Stop();
     }
-    bool canEnable { get { return (animation == null || !animation.isPlaying) && _localPlayer.Alive; } }
+    bool canEnable { get { return (animation == null || animation.clip.name != "Take 001" || !animation.isPlaying) && _localPlayer.Alive; } }
     void Update()
     {
 
@@ -214,7 +224,7 @@ public class MapItem : Base
             {
                 tmJumper = 1;
                 _localPlayer.gun.patronsLeft -= 10;
-                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass);
+                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass/Time.timeScale);
                 GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
                 Destroy(g, 1.6f);
             }
@@ -223,7 +233,8 @@ public class MapItem : Base
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        RPCCheckOut(itemsLeft);
+        if(isCheckOutCalled)
+            RPCCheckOut(itemsLeft);
         base.OnPlayerConnected1(np);
     }
     void OnCollisionStay(Collision c)
@@ -244,7 +255,7 @@ public class MapItem : Base
         {
             if (itemType == MapItemType.speed)
             {
-                _localPlayer.rigidbody.AddTorque(Speed.y, 0, Speed.x);
+                _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x)/Time.timeScale);
             }
             tmCheckOut = 4;
             _localPlayer.score -= score;
@@ -275,15 +286,14 @@ public class MapItem : Base
     }
     public void RPCCheckOut(int i) { CallRPC("CheckOut",i); }
     [RPC]
-    void CheckOut(int i)
+    public void CheckOut(int i)
     {
-        Debug.Log("checkOut+" + itemType);
-        itemsLeft = i;
+        isCheckOutCalled = true;
         if (animation != null && animation.clip != null)
             animation.Play();
 
-
         if (payonce) { score = 0; endless = true; payonce = false; }
+
         if (opendoor != null)
             audio.PlayOneShot(opendoor, 10);
 

@@ -30,7 +30,6 @@ public class GunPhysix : GunBase
                 var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
                 if (b2 != null)
                 {
-
                     b2.rigidbody.velocity = (p2 - b2.pos) * 5;
                     b2.rot = rot;
                     b2.rigidbody.angularVelocity = Vector3.zero;
@@ -65,11 +64,13 @@ public class GunPhysix : GunBase
         j.gameObject.layer = 0;
         return hit;
     }
+#if(UNITY_EDITOR)
     public override void Init()
     {
         base.Init();
-        audio.clip = (AudioClip)FindObjectsOfTypeIncludingAssets(typeof(AudioClip)).FirstOrDefault(a => a.name == "PowerGun");
+        audio.clip = Base2.FindAsset<AudioClip>("PowerGun");
     }
+#endif
     [LoadPath("wave")]
     public GameObject wavePrefab;
     [LoadPath("superphys_launch3")]

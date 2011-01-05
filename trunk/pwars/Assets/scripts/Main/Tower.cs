@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -8,41 +9,37 @@ public class Tower : Destroible
     [LoadPath("Detonator-Base")]
     public Detonator dt;
     public Gun gun;
-    public bool disableZombieAtack;
+    public bool barrel;
     //[PathFind("cursor")]
     public GameObject cursor;
-    public int guni=-1;
+    public string gunType = "";
     public override void Init()
     {
+        if (gunType == "") barrel = true;
         model = GetComponentInChildren(typeof(Renderer)).gameObject;
-        range = 90;
         base.Init();
     }
     public GameObject model;
-
     protected override void Start()
     {
         base.Start();
-        
-        _Game.towers.Add(this);
-        
-
+        if (!barrel) _Game.towers.Add(this);
         if (isController)
         {
             _TimerA.AddMethod(delegate
             {
-                if (guni != -1)
+                if (gunType != "")
                 {
                     networkView.RPC("InstanciateGun", RPCMode.AllBuffered, Network.AllocateViewID());                    
                 }
             });
         }
     }
+    
     [RPC]
-    private void InstanciateGun(NetworkViewID id)
+    public void InstanciateGun(NetworkViewID id)
     {
-        Debug.Log("instgun " + id);
-        var o = Instantiate(_Game.playerPrefab.GetComponent<Player>().guns[guni], cursor.transform.position, Quaternion.identity);
+        var o = Instantiate(_Game.playerPrefab.GetComponent<Player>().guns[(int)gunType.Parse<GunType>()], cursor.transform.position, Quaternion.identity);
         gun = (Gun)o;
         gun.networkView.viewID = id;
         gun.player = null;
@@ -59,7 +56,9 @@ public class Tower : Destroible
         //UpdateLightmap(model.renderer.materials);
         if (gun != null && _TimerA.TimeElapsed((int)(gun.interval * 1000f)))
         {
-            var b = _Game.zombies.Where(a => a != null && a.Alive && clamp(rot.eulerAngles.y - Quaternion.LookRotation(a.pos - pos).eulerAngles.y) < range);            
+            var b = _Game.players.Union(_Game.zombies.Cast<Destroible>())
+                .Where(a => a != null && a.isEnemy(OwnerID) && a.Alive 
+                    && Math.Abs(clamp(rot.eulerAngles.y - Quaternion.LookRotation(a.pos - pos).eulerAngles.y)) < range);            
             var z = b.OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
             if (z != null)
             {
@@ -79,9 +78,9 @@ public class Tower : Destroible
     }
     public override bool isEnemy(int killedby)
     {
+        if (this.barrel && killedby == -1) return false;
         return true;
     }
-    
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         RPCShow(enabled);
@@ -90,6 +89,7 @@ public class Tower : Destroible
     [RPC]
     public override void Die(int killedby)
     {
+        _Game.towers.Remove(this);
         Alive = false;
         dt.autoCreateForce = false;
         GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);

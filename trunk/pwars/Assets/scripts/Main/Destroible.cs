@@ -8,6 +8,7 @@ using System.Collections;
 [Serializable]
 public abstract class Destroible : Shared
 {
+    public int maxLife = 100;
     public int Life;
     public Team? team
     {
@@ -37,15 +38,16 @@ public abstract class Destroible : Shared
     }
     public float isGrounded;
     
-    void OnCollisionEnter(Collision collisionInfo)
+    protected virtual void OnCollisionEnter(Collision collisionInfo)
     {
-        if (!Alive || !isController) return;
-        Box b = collisionInfo.gameObject.GetComponent<Box>();
-        if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 10)
+        if (Alive && isController)
         {
-            RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 2, b.OwnerID);
+            Box b = collisionInfo.gameObject.GetComponent<Box>();
+            if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 10)
+            {
+                RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 2, b.OwnerID);
+            }
         }
-
     }
     protected override void Update()
     {
@@ -59,18 +61,18 @@ public abstract class Destroible : Shared
     {
         if (dead) return;        
         if (isEnemy(killedby) || NwLife > Life)
-            Life = NwLife;
+            Life = Math.Min(maxLife, NwLife);
 
         if (Life <= 0 && isController)
             RPCDie(killedby);
     }
-    public virtual bool isEnemy(int killedby)
+    public virtual bool isEnemy(int id)
     {
-        if (this is Zombie) return true;
-        if (killedby == OwnerID) return true;
-        if (killedby == -1) return true;
+        if (this is Zombie) return true;        
+        if (id == -1) return true;        
+        if (id == OwnerID) return false;
         if (mapSettings.DM) return true;
-        if (killedby != -1 && players[killedby] != null && players[killedby].team != team) return true;        
+        if (id != -1 && players[id] != null && players[id].team != team) return true;        
         return false;    
     }
     

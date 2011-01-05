@@ -21,7 +21,7 @@ public class Game : Base
     private float fixedDeltaTime;
     public LayerMask PatronCollMask;
     public List<Tower> towers = new List<Tower>();
-    public List<Box> boxes = new List<Box>();
+    public List<Shared> boxes = new List<Shared>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
     public GameObject bounds;
@@ -104,6 +104,7 @@ public class Game : Base
     }
     void Update()
     {
+        
         if (sendto != null) Debug.Log("warning,sendto is not null");
         timeleft -= Time.deltaTime / 60;
         
@@ -170,6 +171,7 @@ public class Game : Base
         .Union(GameObject.FindObjectsOfType(typeof(Gun)))
         .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
         .Union(GameObject.FindObjectsOfType(typeof(Box)))
+        .Union(GameObject.FindObjectsOfType(typeof(MapItem)))
         .Union(GameObject.FindObjectsOfType(typeof(Base)));
 
         foreach (Base b in sorted)
@@ -288,18 +290,17 @@ public class Game : Base
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
     }
     void OnPlayerDisconnected(NetworkPlayer player)
-    {        
+    {
         int playerid = player.GetHashCode();
         RPCWriteMessage(players[playerid].nick + " Вышел из игры" + player);
-        foreach (Shared box in GameObject.FindObjectsOfType(typeof(Shared)))
-            if (!(box is Player))
-            {
-                if (box.selected == playerid)
-                    box.RPCResetOwner();
-                
-                foreach (NetworkView nw in box.GetComponents<NetworkView>())
-                    if (nw.owner.GetHashCode() == playerid) RPCDestroy(nw.viewID);
-            }
+        foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
+        {
+            if (box.selected == playerid)
+                box.RPCResetOwner();
+
+            foreach (NetworkView nw in box.GetComponents<NetworkView>())
+                if (nw.owner.GetHashCode() == playerid) RPCDestroy(nw.viewID);
+        }
         
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);

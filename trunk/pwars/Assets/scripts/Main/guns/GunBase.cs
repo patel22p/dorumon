@@ -12,9 +12,10 @@ public class GunBase : Base
     public List<Transform> cursor = new List<Transform>();
     public int group { get { return int.Parse(transform.parent.name); } }
     public float patronsLeft = 0;
-    
+    public string Text;
     protected override void Awake()
     {
+        Text = name;
         base.Awake();
     }
     public override void Init()

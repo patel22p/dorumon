@@ -178,23 +178,32 @@ public partial class RTools : InspectorSearch
             t.gameObject.isStatic = true;
         }
 
-        //var ago = Selection.activeGameObject;
-        //if (ago.animation != null)
-        //{            
-        //    AnimationUtility.StartAnimationMode(new[] { Selection.activeObject });
-        //    _TimerA.AddMethod(500, delegate
-        //    {
-        //        var p = ago.transform.position;
-        //        Debug.Log("getpos" + p);
-        //        AnimationUtility.StopAnimationMode();
-        //        _TimerA.AddMethod(500, delegate
-        //        {
-        //            ago.transform.position = p;
-        //        });
-        //    });
-        //}
+        //var agos = Selection.activeGameObject.GetComponentsInChildren<Animation>().Select(a=>a.gameObject);
+        //var ie = agos.GetEnumerator();
+        //ie.MoveNext();
+        //Next(ie);            
+    }
+    void Next(IEnumerator<GameObject> ie)
+    {
+        var ago = ie.Current; 
+        Selection.activeGameObject = ago;
+        AnimationUtility.StartAnimationMode(new[] { ago });
+        _TimerA.AddMethod(500, delegate
+        {
+            var p = ago.transform.position;
+            _TimerA.AddMethod(500, delegate
+            {
+                ago.transform.position = p;
+                var c = ie.Current ;
+                ie.MoveNext();
+                if (c == ie.Current) return;
+                Next(ie);
+            });
+            AnimationUtility.StopAnimationMode();
+        });
 
     }
+    
 
 
     protected override void SetupLevel()
@@ -203,16 +212,23 @@ public partial class RTools : InspectorSearch
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
             t.gameObject.layer = LayerMask.NameToLayer("Level");
         base.SetupLevel();
+
+        
         foreach (Transform t in Selection.activeGameObject.transform)
-        {            
+        {
+
             GameObject g = t.gameObject;
             if (Selection.activeGameObject.transform.parent.Find(t.name) != null)
             {
+                Debug.Log("found parent " + g.name);
                 DestroyImmediate(g);
-                continue;
             }
+        }
+        foreach (Transform t in Selection.activeGameObject.transform)
+        {
+            GameObject g = t.gameObject;
             string[] param = g.name.Split(',');
-
+        
             if (param[0] == ("coll"))
             {
                 g.AddOrGet<Box>();
@@ -238,7 +254,6 @@ public partial class RTools : InspectorSearch
                         RaycastHit h;
                         Ray r = new Ray(item.transform.position + item.transform.rotation * Vector3.forward, item.transform.rotation * Vector3.forward);
                         Debug.DrawRay(r.origin, r.direction*1000, Color.red);
-                        Debug.Log(r);
                         if (Physics.Raycast(r, out h, 1000, 1 << LayerMask.NameToLayer("Level")))
                             item.light.range = h.distance * 2;
                     }
@@ -256,7 +271,7 @@ public partial class RTools : InspectorSearch
                 Debug.Log("founded path");
                 destroy.Add(g);
             }
-
+            
             foreach (string s in Enum.GetNames(typeof(MapItemType)))
             {
                 if (param[0].ToLower() == "i" + s.ToLower() && g.GetComponent<MapItem>() == null)
@@ -302,15 +317,18 @@ public partial class RTools : InspectorSearch
             object value = pf.GetValue(scr);
             if (value is Array)
             {
-                object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).Where(a => AssetDatabase.GetAssetPath(a).Contains(ap.name)).Cast<AudioClip>().ToArray();
+                var o = Base2.GetFiles().Where(a => a.Contains(ap.name))
+                                    .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, pf.FieldType))
+                                    .Where(a => a != null).Cast<AudioClip>().ToArray();
+                if (o.Length == 0)
+                    Debug.Log("could not find audioSources " + ap.name);
+
                 pf.SetValue(scr, o);
             }
             else
                 if ((value == null || value.Equals(null)))
-                {
-                    object o = FindObjectsOfTypeIncludingAssets(pf.FieldType).FirstOrDefault(a => a.name == ap.name);
-                    if (o == null) Debug.Log("prefab not found" + ap.name);
-                    pf.SetValue(scr, o);
+                {                                        
+                    pf.SetValue(scr, Base2.FindAsset(ap.name, pf.FieldType));
                 }
         }
     }
@@ -336,10 +354,13 @@ public partial class RTools : InspectorSearch
         }
     }
     
+
+    
+
     private void BuildGUI()
     {
         GUI.Space(10);
-        if (Application.isPlaying && Application.loadedLevelName.Contains("Game"))
+        if (Application.isPlaying && Base2._Game!=null)
         {
             foreach (Player p in Base2._Game.players)
                 if (p != null)
@@ -391,21 +412,7 @@ public partial class RTools : InspectorSearch
             Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).FirstOrDefault();
             return l;
         }
-    }
-    public static AudioClip[] LoadAudioClips(string path)
-    {
-        path = "Assets/sounds/" + path + "/";
-        List<AudioClip> aus = new List<AudioClip>();
-        foreach (string s in Directory.GetFiles(path))
-        {
-            var au = (AudioClip)AssetDatabase.LoadAssetAtPath(s, typeof(AudioClip));
-            if (au != null)
-                aus.Add(au);
-            else
-                Debug.Log("not found audio+" + s);
-        }
-        return aus.ToArray();
-    }
+    }    
     public static Vector3 ParseRotation(string name)
     {
         Match m;

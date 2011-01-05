@@ -82,7 +82,7 @@ public class GameWindow : Base2 {
         if (_localPlayer != null)
         {
             _GameWindow.life = _localPlayer.Life;
-            _GameWindow.gunPatrons.text = _localPlayer.gun.name + ":" + _localPlayer.gun.patronsLeft;
+            _GameWindow.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
 
             _GameWindow.energy = (int)_localPlayer.nitro;
             if (mapSettings.zombi)

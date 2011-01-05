@@ -9,55 +9,7 @@ using System.Text.RegularExpressions;
 using doru;
 using System;
 using System.IO;
-public static class Ext { 
-    public static T Random<T>(this IEnumerable<T> source)
-    {
-        return source.Skip(UnityEngine.Random.Range(0, source.Count())).FirstOrDefault();
-    }
-    public static T AddOrGet<T>(this GameObject g)where T : Component
-    {
-         var c =g.GetComponent<T>();
-         if (c == null) return g.AddComponent<T>();
-         else
-             return c;
-    }
-    public static T GetRoot<T>(this Transform t) where T:Component
-    {
-        for (int i = 0;; i++)
-        {
-            if (t == null || i > 2) return null;
-            var c = t.GetComponent<MonoBehaviour>();            
-            if (c != null) return t.GetComponent<T>();
-            t = t.parent;
-        }
-    }
 
-    public static T GetComponentInParrent<T>(this Transform t) where T : Component
-    {
-        for (int i = 0; ; i++)
-        {
-            if (t == null || i > 4) return null;
-            var c = t.GetComponent<T>();
-            if (c != null) return c;
-            t = t.parent;
-        }
-
-    }
-
-    //public static IEnumerable<T> ShuffleIterator<T>(
-    //   this IEnumerable<T> source, Random rng)
-    //{
-    //    T[] buffer = source.ToArray();
-    //    for (int n = 0; n < buffer.Length; n++)
-    //    {
-    //        int k = rng.Next(n, buffer.Length);
-    //        yield return buffer[k];
-
-    //        buffer[k] = buffer[n];
-    //    }
-    //}
-
-}
 
 public partial class Base2 : MonoBehaviour
 {    
@@ -90,22 +42,7 @@ public partial class Base2 : MonoBehaviour
     public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
     static Irc __Irc;
     public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
-    public T FindAsset<T>(string name) where T : UnityEngine.Object
-    {
-#if(UNITY_EDITOR)
-        
-        var paths =Directory.GetFiles("./", "*.*", SearchOption.AllDirectories).Where(a => Path.GetFileNameWithoutExtension(a) == name);
-        
-        foreach (var item in paths)
-        {
-            var path = item.Replace("\\", "/").Substring(2);
-            var t = UnityEditor.AssetDatabase.LoadAssetAtPath(path,typeof(T));
-            if (t != null)
-                return (T)t;
-        }
-#endif
-        return null;
-    }
+    
     static Game __Game;
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
@@ -217,61 +154,23 @@ public partial class Base2 : MonoBehaviour
         inited = true;
     }
     public bool inited;
-    
-    
-
-}
-public class LoadPath : Attribute
-{
-    public string name;
-    public LoadPath(string from)
+#if (UNITY_EDITOR)
+    public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
+    public static string[] files;
+    public static IEnumerable<string> GetFiles()
     {
-        name = from;
+        if(files==null)
+            files = Directory.GetFiles("./", "*.*", SearchOption.AllDirectories);
+        return files.Select(a => a.Replace("\\", "/").Substring(2));
     }
-}
-
-public class PathFind : Attribute
-{
-    public string name;
-    public PathFind(string enumName)
+    public static Object FindAsset(string name, Type t)
     {
-        name = enumName;
+        var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)
+            .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, t))
+            .Where(a => a != null).FirstOrDefault();
+        if (aset == null) Debug.Log("could not find asset " + name);
+        return aset;
     }
-    public bool scene;
-    public PathFind(string enumName,bool FindInScene)
-    {
-        scene = FindInScene;
-        name = enumName;
-    }
-}
+#endif
 
-public class GenerateEnums : Attribute
-{
-    public string name;
-    public GenerateEnums(string enumName)
-    {
-        name = enumName;
-    }
-}
-
-[Serializable]
-public class MapSetting
-{
-    public List<GameMode> supportedModes = new List<GameMode>();
-    public string mapName ="none";
-    public string title = "none";
-    public GameMode gameMode; 
-    public int fragLimit = 20;
-    public string[] ipaddress;
-    public int port=5300;
-    
-    public bool host;
-    public int maxPlayers = 4;
-    public float timeLimit=15;
-    public bool TeamZombiSurvive { get { return gameMode == GameMode.TeamZombieSurvive; } }
-    public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
-    public bool DM { get { return gameMode == GameMode.DeathMatch; } }
-    public bool ZombiSurvive { get { return gameMode == GameMode.ZombieSurive; } }
-    public bool Team { get { return TeamZombiSurvive || TDM; } }
-    public bool zombi { get { return ZombiSurvive || TeamZombiSurvive; } }
 }

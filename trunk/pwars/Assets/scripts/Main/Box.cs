@@ -9,16 +9,17 @@ using System.Linq;
 
 public class Box : Shared
 {
-
+#if(UNITY_EDITOR)
     public override void Init()
     {
         base.Init();
         gameObject.layer = LayerMask.NameToLayer("Level");
+
         if (collider.sharedMaterial == null)
-            collider.sharedMaterial = FindAsset<PhysicMaterial>("box");        
-        
-        
+            collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");                        
     }
+#endif
+
     protected override void Start()
     {        
         _Game.boxes.Add(this);

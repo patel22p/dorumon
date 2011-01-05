@@ -23,6 +23,7 @@ public class Gun : GunBase
     public float ves;
     public float bulletForce;
     public float soundVolume = 1;
+    
     Vector3 defPos,defPos2;
     [LoadPath("noammo")]
     public AudioClip noammoSound;
@@ -36,23 +37,6 @@ public class Gun : GunBase
         if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point); 
         
-    }
-
-    private void Bind(string name)
-    {
-        var p = this.GetComponentsInChildren<Transform>().FirstOrDefault(a => a.name == name);
-        if (p != null)
-        {
-            var po = p.position;
-            var ro = p.rotation;
-            var s = p.localScale;
-            var p2 = GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).Cast<GameObject>().FirstOrDefault(a => a.name == name);
-            var t = ((GameObject)Instantiate(p2, po, ro)).transform;
-            t.localScale = s;
-            t.parent = p.parent;
-            t.name = p2.name;
-            DestroyImmediate(p.gameObject);
-        }
     }
     protected override void Awake()
     {
@@ -74,9 +58,7 @@ public class Gun : GunBase
     protected override void Update()
     {
         base.Update();
-
         RandomFactorTm = Mathf.Max(0, RandomFactorTm - Time.deltaTime);
-
         if (barrel != null)
         {            
             if(barrelVell>.1)
@@ -176,7 +158,7 @@ public class Gun : GunBase
     }
     public void RPCCreateField(Vector3 pos ) { CallRPC("CreateField", pos); }
     [RPC]
-    private void CreateField(Vector3 pos)
+    public void CreateField(Vector3 pos)
     {
         GameObject g = (GameObject)Instantiate(staticFieldPrefab, pos, Quaternion.identity);
         _TimerA.AddMethod(9000, delegate { Network.Destroy(g); });

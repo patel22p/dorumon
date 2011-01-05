@@ -20,8 +20,8 @@ public class MapItem : Base
     public int itemsLeft = 1;
     public bool endless;
     public MapItemType itemType;
-    public GunType gunIndex;
-    public string gunIndexStr;
+    public string gunType;
+    public int guni { get { return (int)gunType.Parse<GunType>(); } }    
     public bool isCheckOutCalled;
     public int bullets = 1000;
     public string text = "";
@@ -36,14 +36,11 @@ public class MapItem : Base
     public GameObject wavePrefab;
     public override void Init()
     {
-        //gunIndex = (GunType)Enum.Parse(typeof(GunType), gunIndexStr);
         foreach (Transform t in GetComponentsInChildren<Transform>())
         {
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
-        //renderer.castShadows = renderer.receiveShadows = false;
-        gunIndexStr = gunIndex.ToString();        
         ParseItemType();
         var g = gameObject;
         if (!inited)
@@ -58,8 +55,9 @@ public class MapItem : Base
         
         foreach (var a in g.GetComponentsInChildren<Animation>())
         {
-            a.animation.wrapMode = WrapMode.Once;            
             a.animatePhysics = true;
+            a.playAutomatically = true;
+            a.wrapMode = WrapMode.Once;
         }
         if (itemType == MapItemType.trap)
         {
@@ -98,7 +96,7 @@ public class MapItem : Base
 
         if (itemType == MapItemType.shop)
         {            
-            text = "Нажми F чтобы купить " + (GunType)gunIndex;
+            text = "Нажми F чтобы купить " + gunType;
             Parse(ref score, 2);
             Parse(ref autoTake, 3);
             endless = !autoTake;
@@ -130,6 +128,9 @@ public class MapItem : Base
         if (itemType == MapItemType.money)
         {
             hide = true;
+            autoTake = true;
+            distance = 1;
+            if (score == 0) score = -20;            
             text = "Нажми F чтобы взять деньги";
         }
         if (itemType == MapItemType.laser)
@@ -170,15 +171,18 @@ public class MapItem : Base
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
         }
 
-        UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
+        
         base.Awake();
     }
     protected override void Start()
     {
-        if (animation != null && animation.clip.name == "Take 001")
+        if (animation != null && animation.clip.name == "Take 001" && Network.isServer)
             animation.Stop();
+
+        UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
     }
     bool canEnable { get { return (animation == null || animation.clip.name != "Take 001" || !animation.isPlaying) && _localPlayer.Alive; } }
+    
     void Update()
     {
 
@@ -195,7 +199,7 @@ public class MapItem : Base
         {
 
             JumperUpdate();
-            bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[(int)gunIndex].patronsLeft == -1);
+            bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1);
             int Score = (donthavegun ? this.score * 3 : this.score);
 
             if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug))
@@ -233,10 +237,27 @@ public class MapItem : Base
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
-        if(isCheckOutCalled)
+        if (isCheckOutCalled)
+        {
             RPCCheckOut(itemsLeft);
+            
+            if (animation != null && animation.clip.name == "Take 001")
+            {                
+                animation.Play();
+            }
+        }
+        
+        //if (animation != null && animation["Take 001"] != null)
+        //    RPCSetTime(animation["Take 001"].time);
         base.OnPlayerConnected1(np);
     }
+    //public void RPCSetTime(float time) { CallRPC("SetTime", time); }
+    //[RPC]
+    //private void SetTime(float time)
+    //{
+    //    if (time != 0) Debug.Log(name + " animation" + time);
+    //    animation["Take 001"].time = time;
+    //}
     void OnCollisionStay(Collision c)
     {
         if (itemType == MapItemType.trap)
@@ -253,17 +274,18 @@ public class MapItem : Base
     {
         if ((itemsLeft > 0 || endless) && tmCheckOut < 0)
         {
+            RPCCheckOut(itemsLeft - 1); 
             if (itemType == MapItemType.speed)
             {
                 _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x)/Time.timeScale);
             }
             tmCheckOut = 4;
             _localPlayer.score -= score;
-            itemsLeft--;
+            
             if (itemType == MapItemType.shop)
             {
-                _localPlayer.guns[(int)this.gunIndex].patronsLeft += this.bullets;
-                _localPlayer.RPCSelectGun((int)this.gunIndex);
+                _localPlayer.guns[this.guni].patronsLeft += this.bullets;
+                _localPlayer.RPCSelectGun(this.guni);
             }
             if (itemType == MapItemType.health)
             {
@@ -281,19 +303,29 @@ public class MapItem : Base
             }
             if (itemType == MapItemType.spotlight)
                 _localPlayer.RPCSetFanarik(true);
-            RPCCheckOut(itemsLeft);
+            
+            if (animation != null && animation.clip != null)
+                RPCPlay();
+
+            
         }
     }
+    public void RPCPlay() { CallRPC("Play"); }
+    [RPC]
+    public void Play()
+    {
+        animation.Play();
+    }
+
+
     public void RPCCheckOut(int i) { CallRPC("CheckOut",i); }
     [RPC]
     public void CheckOut(int i)
     {
+        itemsLeft = i;
+        Debug.Log("check out " + name + " " + i);
         isCheckOutCalled = true;
-        if (animation != null && animation.clip != null)
-            animation.Play();
-
         if (payonce) { score = 0; endless = true; payonce = false; }
-
         if (opendoor != null)
             audio.PlayOneShot(opendoor, 10);
 
@@ -304,11 +336,7 @@ public class MapItem : Base
         }
 
     }
-    void Stop()
-    {
-        if (animation != null && animation.clip != null)
-            animation["Take 001"].enabled = false;
-    }
+    
     private void Parse(ref float t, int id)
     {
         try

@@ -43,8 +43,8 @@ public class Loader : Base
         if(!isWebPlayer)
             cmd = joinString(' ', Environment.GetCommandLineArgs());
         mapsets.AddRange(new[]{
-            new MapSetting { mapName = "Game", title = "Демо" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
-            //new MapSetting { mapName = "z5city" , title  = "Город" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
+            new MapSetting { mapName = "Game", title = "Demo" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
+            //new MapSetting { mapName = "z5city" , title  = "City" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
     }
     

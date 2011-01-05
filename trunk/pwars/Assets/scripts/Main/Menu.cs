@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -79,7 +79,7 @@ public class Menu : Base
     void onEnterAsGuest()
     {
         if (_LoginWindow.Nick.Length < 4)
-            ShowPopup("Ваш ник слишком короток");
+            ShowPopup("Your nick is to short");
         else
         {
             nick = _LoginWindow.Nick;
@@ -121,7 +121,7 @@ public class Menu : Base
     }
     void onStartServer()
     {
-        if (_HostWindow.Name.Length < 4) ShowPopup("Название игры слишком короткое");
+        if (_HostWindow.Name.Length < 4) ShowPopup("Game name is to short");
         else
         {
             mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map[_HostWindow.iMap]);

@@ -87,12 +87,12 @@ public class GameWindow : Base2 {
             _GameWindow.energy = (int)_localPlayer.nitro;
             if (mapSettings.zombi)
             {
-                _GameWindow.zombiesLeft.text = "Зомби" + _Game.AliveZombies.Count().ToString();
-                _GameWindow.level.text = "Уровень" + _Game.stage.ToString();
+                _GameWindow.zombiesLeft.text = "Zombie" + _Game.AliveZombies.Count().ToString();
+                _GameWindow.level.text = "Level" + _Game.stage.ToString();
             }
-            _GameWindow.frags.text = "Фраги " + _localPlayer.frags.ToString();
+            _GameWindow.frags.text = "Frags" + _localPlayer.frags.ToString();
 
-            _GameWindow.Score.text = "Очки " + _localPlayer.score.ToString();
+            _GameWindow.Score.text = "Score " + _localPlayer.score.ToString();
         }
 
         foreach (GUITexture a in blood)

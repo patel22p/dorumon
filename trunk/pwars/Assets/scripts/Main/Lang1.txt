@@ -1,0 +1,26 @@
+﻿Игрок законектился |Player Connected
+ Вышел из игры| Player Leaved
+Синяя|Red
+Красная|Blue
+ команда Выграла| Team Win
+Зомби|Zombie
+Уровень|Level
+Фраги |Frags
+Очки |Score 
+Демо|Demo
+Город|City
+Замедление времени, нажми Т чтобы использовать|Time Warp, Press T to use
+Чтобы взять фанарик нажми F|Take SpotLight
+Чтобы купить лазерный прицел нажми F|Take Laser aim
+Чтобы использовать лавушку нажми F|Trap
+Чтобы использовать лифт нажми F|elevator
+Нажми F чтобы купить |Press F to buy
+Ускоряет шар|Speed up
+Нажми F чтобы взять деньги|Take money
+Выбери гравипушку и стреляй по етому предмету|Jumper
+Чтобы купить енергию нажми F|To buy energy press F
+Ваш ник слишком короток|Your nick is to short
+Название игры слишком короткое|Game name is to short
+ Убил себя | Killed self 
+ Убил | kill 
+ Умер | died 

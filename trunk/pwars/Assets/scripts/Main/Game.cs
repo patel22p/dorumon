@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -92,7 +92,7 @@ public class Game : Base
         print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        RPCWriteMessage("Игрок законектился " + nick);
+        RPCWriteMessage("Player Connected" + nick);
         _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
     }
     public void onTeamSelect()
@@ -292,7 +292,7 @@ public class Game : Base
     void OnPlayerDisconnected(NetworkPlayer player)
     {
         int playerid = player.GetHashCode();
-        RPCWriteMessage(players[playerid].nick + " Вышел из игры" + player);
+        RPCWriteMessage(players[playerid].nick + " Player Leaved" + player);
         foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
         {
             if (box.selected == playerid)
@@ -350,7 +350,7 @@ public class Game : Base
             if (p != null && !p.dead) live++;
         if (live == 0 && HasAny() || TimeEnd)
         {
-            RPCWriteMessage(String.Format("Вы умерли дожив до {0} раунда", stage));
+            RPCWriteMessage(String.Format("You survived until {0} level.", stage));
             ShowEndStats();
         }
     }
@@ -373,7 +373,7 @@ public class Game : Base
 
         if ((BlueFrags >= mapSettings.fragLimit || RedFrags >= mapSettings.fragLimit || TimeEnd))
         {                        
-            RPCWriteMessage((BlueFrags > RedFrags ? "Синяя" : "Красная") + " команда Выграла");
+            RPCWriteMessage((BlueFrags > RedFrags ? "Red" : "Blue") + " Team Win");
             ShowEndStats();
         }
     }

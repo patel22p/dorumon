@@ -1,114 +1,114 @@
 ﻿
-//using System;
-//using System.Collections.Generic;
-//using System.Text;
-//using UnityEngine;
-//using System.Collections;
-//using doru;
-//using System.Linq;
-//namespace doru
-//{
-//    [Serializable]
-//    public class TimerA
-//    {
-//        int _Ticks = Environment.TickCount;
-//        int oldtime;
-
-
-//        int fpstimes;
-//        double totalfps;
-//        public double GetFps()
-//        {
-//            if (fpstimes > 0)
-//            {
-//                double fps = (totalfps / fpstimes);
-//                fpstimes = 0;
-//                totalfps = 0;
-//                if (fps == double.PositiveInfinity) return 0;
-//                return fps;
-//            }
-//            else return 0;
-//        }
-//        int miliseconds;
-//        public void Update()
-//        {
-//            miliseconds = Environment.TickCount - _Ticks;
-//            _MilisecondsElapsed = miliseconds - oldtime;
-//            if (_MilisecondsElapsed > 0)
-//            {
-//                oldtime = miliseconds;
-//                fpstimes++;
-//                totalfps += Time.timeScale / Time.deltaTime;
-//                UpdateAction2s();
-//            }
-//        }
-
-
-//        private void UpdateAction2s()
-//        {
-//            lock ("timer")
-//                for (int i = _List.Count - 1; i >= 0; i--)
-//                {
-//                    CA _CA = _List[i];
-//                    _CA._Miliseconds -= _MilisecondsElapsed;
-//                    if (_CA._Miliseconds < 0)
-//                    {
-//                        _List.Remove(_CA);
-//                        _CA._Action2();
-//                    }
-//                }
-//        }
-
-
-//        public int _MilisecondsElapsed = 0;
-//        public double _SecodsElapsed { get { return _MilisecondsElapsed / (double)1000; } }
-//        public int _oldTime { get { return miliseconds - _MilisecondsElapsed; } }
-
-
-//        public bool TimeElapsed(int _Milisecconds)
-//        {
-//            if (_MilisecondsElapsed > _Milisecconds) return true;
-//            if (miliseconds % _Milisecconds < _oldTime % _Milisecconds)
-//                return true;
-//            else
-//                return false;
-//        }
-//        public void AddMethod(Action _Action2)
-//        {
-//            AddMethod(-1, _Action2);
-//        }
-//        public void AddMethod(int _Miliseconds, Action _Action2)
-//        {
-//            CA ca = _List.FirstOrDefault(a => a._Action2 == _Action2);
-//            if (ca == null)
-//            {
-//                ca = new CA();
-//                _List.Add(ca);
-//            }
-//            ca._Action2 = _Action2;
-//            ca._Miliseconds = _Miliseconds;
-//        }
-//        public void Clear()
-//        {
-//            _List.Clear();
-//        }
-//        List<CA> _List = new List<CA>();
-
-//        class CA
-//        {
-//            public int _Miliseconds;
-//            public Action _Action2;
-//        }
-//    }
-//}
-
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using System.Collections;
-using doru;
 using System.Linq;
+
+public static class Ext
+{
+    public static T Random<T>(this IEnumerable<T> source)
+    {
+        return source.Skip(UnityEngine.Random.Range(0, source.Count())).FirstOrDefault();
+    }
+    public static T AddOrGet<T>(this GameObject g) where T : Component
+    {
+        var c = g.GetComponent<T>();
+        if (c == null) return g.AddComponent<T>();
+        else
+            return c;
+    }
+    public static T GetRoot<T>(this Transform t) where T : Component
+    {
+        for (int i = 0; ; i++)
+        {
+            if (t == null || i > 2) return null;
+            var c = t.GetComponent<MonoBehaviour>();
+            if (c != null) return t.GetComponent<T>();
+            t = t.parent;
+        }
+    }
+    public static T Parse<T>(this string s)
+    {
+        return (T)Enum.Parse(typeof(T), s);
+    }
+    public static T GetComponentInParrent<T>(this Transform t) where T : Component
+    {
+        for (int i = 0; ; i++)
+        {
+            if (t == null || i > 4) return null;
+            var c = t.GetComponent<T>();
+            if (c != null) return c;
+            t = t.parent;
+        }
+
+    }
+
+    //public static IEnumerable<T> ShuffleIterator<T>(
+    //   this IEnumerable<T> source, Random rng)
+    //{
+    //    T[] buffer = source.ToArray();
+    //    for (int n = 0; n < buffer.Length; n++)
+    //    {
+    //        int k = rng.Next(n, buffer.Length);
+    //        yield return buffer[k];
+
+    //        buffer[k] = buffer[n];
+    //    }
+    //}
+
+}
+public class LoadPath : Attribute
+{
+    public string name;
+    public LoadPath(string from)
+    {
+        name = from;
+    }
+}
+public class PathFind : Attribute
+{
+    public string name;
+    public PathFind(string enumName)
+    {
+        name = enumName;
+    }
+    public bool scene;
+    public PathFind(string enumName, bool FindInScene)
+    {
+        scene = FindInScene;
+        name = enumName;
+    }
+}
+public class GenerateEnums : Attribute
+{
+    public string name;
+    public GenerateEnums(string enumName)
+    {
+        name = enumName;
+    }
+}
+[Serializable]
+public class MapSetting
+{
+    public List<GameMode> supportedModes = new List<GameMode>();
+    public string mapName = "none";
+    public string title = "none";
+    public GameMode gameMode;
+    public int fragLimit = 20;
+    public string[] ipaddress;
+    public int port = 5300;
+
+    public bool host;
+    public int maxPlayers = 4;
+    public float timeLimit = 15;
+    public bool TeamZombiSurvive { get { return gameMode == GameMode.TeamZombieSurvive; } }
+    public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
+    public bool DM { get { return gameMode == GameMode.DeathMatch; } }
+    public bool ZombiSurvive { get { return gameMode == GameMode.ZombieSurive; } }
+    public bool Team { get { return TeamZombiSurvive || TDM; } }
+    public bool zombi { get { return ZombiSurvive || TeamZombiSurvive; } }
+}
+
 namespace doru
 {
     //[Serializable]
@@ -188,6 +188,7 @@ namespace doru
                 ca = new CA();
                 _List.Add(ca);
             }
+
             ca.stacktrace = UnityEngine.StackTraceUtility.ExtractStackTrace();
             ca._Action2 = _Action2;
             ca._Miliseconds = _Miliseconds;

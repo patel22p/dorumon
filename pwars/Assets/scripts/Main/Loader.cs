@@ -1,4 +1,4 @@
-using System.Linq;
+    using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -63,16 +63,14 @@ public class Loader : Base
         }
     }
 
-    
-
     void onFullScreen()
     {
         Screen.fullScreen = _SettingsWindow.FullScreen;
     }
     void onGraphicQuality()
     {
-        if (_SettingsWindow.iGraphicQuality != -1)
-            QualitySettings.currentLevel = (QualityLevel)_SettingsWindow.iGraphicQuality;
+        if (_Cam != null)
+            _Cam.onEffect();      
     }
     void onScreenSize()
     {
@@ -90,7 +88,6 @@ public class Loader : Base
     }
     void onReset()
     {
-        print(pr);
         PlayerPrefs.DeleteAll();
     }
     void onAtmoSphere()

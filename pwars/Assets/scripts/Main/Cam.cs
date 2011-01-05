@@ -19,6 +19,7 @@ public class Cam : Base
         LevelText = transform.Find("LevelText").GetComponent<TextMesh>();
         ScoreText = transform.Find("ScoreText").GetComponent<TextMesh>();
         Vingetting = (MonoBehaviour)camera.GetComponent("Vignetting");
+        bloomAndFlares = (MonoBehaviour)camera.GetComponent("BloomAndFlares");
         ambientsmoke = transform.Find("ambientsmoke");
         ssao = GetComponentInChildren<SSAOEffect>();
         xSpeed = 120;
@@ -32,26 +33,30 @@ public class Cam : Base
     public MotionBlur blur;
     public MonoBehaviour Vingetting;
     public SSAOEffect ssao;
-    
     public MonoBehaviour bloomAndFlares;
-    
+
     public void onEffect()
     {
-        
+
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
         if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
         if (blur.enabled != _SettingsWindow.MotionBlur) { blur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + blur.enabled); }
-
+        if (bloomAndFlares.enabled != _SettingsWindow.BloomAndFlares) { bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares; Debug.Log("blom and flares" + bloomAndFlares.enabled); }
+        if (_SettingsWindow.iGraphicQuality != -1 && (QualityLevel)_SettingsWindow.iGraphicQuality != QualitySettings.currentLevel)
+        {            
+            QualitySettings.currentLevel = (QualityLevel)_SettingsWindow.iGraphicQuality;
+            print("graphics quality changed" + QualitySettings.currentLevel);
+        }
         if (!_SettingsWindow.Shadows)
         {
             Debug.Log("shadows are dissabled" + _SettingsWindow.Shadows);
-            foreach (Light l in GameObject.FindObjectsOfType(typeof(Light)))
+            foreach (Light l in GameObject.FindObjectsOfTypeIncludingAssets(typeof(Light)))
                 l.shadows = LightShadows.None;
         }
         if (_SettingsWindow.iRenderSettings != -1 && _SettingsWindow.iRenderSettings != 2)
         {
             Debug.Log("render type settings chagned" + (RenderingPath)_SettingsWindow.iRenderSettings);
-            foreach (Camera c in GameObject.FindObjectsOfType(typeof(Camera)))
+            foreach (Camera c in GameObject.FindObjectsOfTypeIncludingAssets(typeof(Camera)))
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
         }
     }
@@ -74,8 +79,13 @@ public class Cam : Base
             blur.blurAmount = Vector3.Distance(oldpos, transform.position) / 15;            
             oldpos = transform.position;
         }
+        CamUpdate();
     }
-    void LateUpdate()
+    void Update()
+    {
+        //CamUpdate();
+    }
+    void CamUpdate()
     {
         
         camera.fieldOfView = _SettingsWindow.Fieldof;
@@ -99,19 +109,18 @@ public class Cam : Base
         }
         else
         {
-            Quaternion rotation = Quaternion.Euler(y, x, 0);
-            Vector3 pos2 = rotation * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
+            Quaternion rot2 = Quaternion.Euler(y, x, 0);
+            Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
             pos2.y += yoffset;
-            transform.position = pos2;
-            transform.rotation = rotation;
 
             RaycastHit h;
-            Vector3 campos = transform.position;
             Vector3 plpos = _localPlayer.transform.position;
-            Ray r = new Ray(campos, plpos - campos);
-            if (Physics.Raycast(r, out h, Vector3.Distance(plpos, campos), 1 << LayerMask.NameToLayer("Level")))
-                transform.position = h.point + r.direction.normalized;
+            Ray r = new Ray(pos2, plpos - pos2);
+            if (Physics.Raycast(r, out h, Vector3.Distance(plpos, pos2), 1 << LayerMask.NameToLayer("Level")))
+                pos2 = h.point + r.direction.normalized;
 
+            pos = ((pos2 * Time.deltaTime * 5) + (pos)) / (Time.deltaTime * 5 + 1);
+            rot = rot2; //Quaternion.Euler(rot.eulerAngles + (rot2.eulerAngles * 10) / 11);
         }
 
         camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));

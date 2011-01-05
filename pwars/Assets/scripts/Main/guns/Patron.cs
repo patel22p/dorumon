@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class Patron : Base
 {
+    public bool decalhole = true;
     public Vector3 Force = new Vector3(0, 0, 80);
     public GameObject detonator;
     public float detonatorDestroyTime = 4;
@@ -19,9 +20,7 @@ public class Patron : Base
     public float samonavod;
     public bool breakwall;
     public float timeToDestroy = 5;
-    
     public float tm;
-    public DecalTypes decal;
     protected Vector3 previousPosition;
     protected override void Start()
     {
@@ -31,7 +30,6 @@ public class Patron : Base
     }
     public override void Init()
     {
-        decal = DecalTypes.Hole;
         base.Init();
     }
     protected virtual void Update()
@@ -98,7 +96,7 @@ public class Patron : Base
         //}
 
         if (hit.collider.gameObject.isStatic)
-            _Game.AddDecal(hit.collider.gameObject.name.Contains("glass") && decal == DecalTypes.Hole ? DecalTypes.glass : decal,
+            _Game.AddDecal(hit.collider.gameObject.name.Contains("glass") ? DecalTypes.glass : (decalhole ? DecalTypes.Hole : DecalTypes.Decal),
                 hit.point - rot * Vector3.forward * 0.12f, hit.normal, hit.collider.transform);            
 
         if (explodeOnDestroy)
@@ -112,10 +110,10 @@ public class Patron : Base
                 b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) / Time.timeScale, hit.point);
         }
 
-        Destroible iplayer = hit.collider.gameObject.transform.GetRoot<Destroible>();
+        Destroible destroible = hit.collider.gameObject.transform.GetRoot<Destroible>();
 
 
-        if ((iplayer as Player != null || iplayer as Zombie != null) && _SettingsWindow.Blood)
+        if ((destroible as Player != null || destroible as Zombie != null) && _SettingsWindow.Blood)
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);
             RaycastHit h;
@@ -130,9 +128,9 @@ public class Patron : Base
         else
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
 
-        if (iplayer != null && iplayer.isController && !iplayer.dead)
+        if (destroible != null && destroible.isController && !destroible.dead)
         {            
-            iplayer.RPCSetLife(iplayer.Life - damage, OwnerID);
+            destroible.RPCSetLife(destroible.Life - damage, OwnerID);
         }
         probivaemost--;
         if(probivaemost<0)

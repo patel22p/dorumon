@@ -76,7 +76,7 @@ public class Zombie : Destroible
         zombieType = (ZombieType)priority;
         speed = zombiespeed;
         transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
-        Life = (int)zombieLife;
+        maxLife = Life = (int)zombieLife;
         
     }
     [RPC]
@@ -157,7 +157,7 @@ public class Zombie : Destroible
     {
 
         Destroible pl =
-            _Game.towers.Where(a => a != null && !a.disableZombieAtack && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+            _Game.towers.Where(a => a != null && !a.barrel && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return pl;
     }
     void FixedUpdate()

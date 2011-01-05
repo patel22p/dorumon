@@ -30,7 +30,9 @@ public class Shared : Base
     }
     public override void Init()
     {
-        gameObject.isStatic = false;
+        foreach (Transform t in GetComponentsInChildren<Transform>())
+            t.gameObject.isStatic = false;
+
         gameObject.AddOrGet<NetworkView>().observed = this;
         gameObject.AddOrGet<Rigidbody>();
         gameObject.AddOrGet<AudioSource>();        
@@ -139,7 +141,7 @@ public class Shared : Base
     {
         transform.position = spawnpos;
         transform.rotation = spawnrot;
-        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = rigidbody.velocity = Vector3.zero;
     }
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {

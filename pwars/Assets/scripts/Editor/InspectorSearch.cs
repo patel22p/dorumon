@@ -37,10 +37,13 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawSearch()
     {
+        var old = search;
         search = EditorGUILayout.TextField(search);
+        if (old != search) _TimerA.AddMethod(5000, delegate { search = ""; });
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
         {
+            
             if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
             {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
@@ -132,7 +135,7 @@ public class InspectorSearch : EditorWindow
     {
         GameObject g = cur.gameObject;
         Fragment f = g.AddComponent<Fragment>();
-        f.partcl = (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == "particle_concrete2");
+        f.partcl = Base2.FindAsset<GameObject>("particle_concrete2");
         f.level = level;
         ((MeshCollider)cur.collider).convex = true;
         if (level > 0)

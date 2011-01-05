@@ -68,7 +68,7 @@ public class MapItem : Base
         }
         if (itemType == MapItemType.clock)
         {
-            text = "Замедление времени, нажми Т чтобы использовать";
+            text = "Time Warp, Press T to use";
             endless = true;
             hide = true;
             score = 5;
@@ -76,27 +76,27 @@ public class MapItem : Base
         }
         if (itemType == MapItemType.spotlight)
         {
-            endless = true; score = 1; text = "Чтобы взять фанарик нажми F";
+            endless = true; score = 1; text = "Take SpotLight";
         }
         if (itemType == MapItemType.laser)
         {
-            endless = true; score = 5; text = "Чтобы купить лазерный прицел нажми F";
+            endless = true; score = 5; text = "Take Laser aim";
         }
 
         if (itemType == MapItemType.trap)
         {
-            text = "Чтобы использовать лавушку нажми F";
+            text = "Trap";
         }
         if (itemType == MapItemType.lift)
         {
-            text = "Чтобы использовать лифт нажми F";
+            text = "elevator";
             payonce = true;
             distance = 0;
         }
 
         if (itemType == MapItemType.shop)
         {            
-            text = "Нажми F чтобы купить " + gunType;
+            text = "Press F to buy" + gunType;
             Parse(ref score, 2);
             Parse(ref autoTake, 3);
             endless = !autoTake;
@@ -116,7 +116,7 @@ public class MapItem : Base
             distance = 0;            
             autoTake = true;
             endless = true;
-            text = "Ускоряет шар";
+            text = "Speed up";
             try
             {
                 Speed.x = float.Parse(param[1]);
@@ -131,13 +131,12 @@ public class MapItem : Base
             autoTake = true;
             distance = 1;
             if (score == 0) score = -20;            
-            text = "Нажми F чтобы взять деньги";
+            text = "Take money";
         }
-        if (itemType == MapItemType.laser)
-            text = "Нажми F чтобы купить для оружия лазерный прицел";
+        
         if (itemType == MapItemType.jumper)
         {
-            text = "Выбери гравипушку и стреляй по етому предмету";
+            text = "Jumper";
             payonce = true;
             distance = 0;
             try
@@ -149,7 +148,7 @@ public class MapItem : Base
             catch { }
         }
         if (itemType == MapItemType.health)
-            text = "Чтобы купить енергию нажми F";
+            text = "To buy energy press F";
 
         
         foreach(var a in g.GetComponentsInChildren<Collider>().Distinct())

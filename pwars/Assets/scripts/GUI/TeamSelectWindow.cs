@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -15,7 +15,7 @@ public class TeamSelectWindow : WindowBase {
 	public bool focusTeamsView;
 	public bool enabledTeamsView = true;
 	public bool focusTeams;
-	public string[] Teams = new string[] {"Красная Команда","Синяя Команда",};
+	public string[] Teams = new string[] {"Red Team","Blue Team",};
 	public int iTeams = 0;
 	public bool focusImages;
 	public int tabImages;
@@ -68,7 +68,7 @@ public class TeamSelectWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Игровое меню");
+		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Game Menu");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");
 		GUI.Box(new Rect(0, 0, 596f, 297f), "");
 		if(focusTeamsView) { focusTeamsView = false; GUI.FocusControl("TeamsView");}
@@ -107,7 +107,7 @@ public class TeamSelectWindow : WindowBase {
 		if(focusTeamSelect) { focusTeamSelect = false; GUI.FocusControl("TeamSelect");}
 		GUI.SetNextControlName("TeamSelect");
 		bool oldTeamSelect = TeamSelect;
-		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Войти",""));
+		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Login",""));
 		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("onTeamSelect");onButtonClick(); }
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();
@@ -115,12 +115,12 @@ public class TeamSelectWindow : WindowBase {
 		if(focusObserver) { focusObserver = false; GUI.FocusControl("Observer");}
 		GUI.SetNextControlName("Observer");
 		bool oldObserver = Observer;
-		Observer = GUI.Button(new Rect(370f, 8f, 75f, 21.96f), new GUIContent("Зритель",""));
+		Observer = GUI.Button(new Rect(370f, 8f, 75f, 21.96f), new GUIContent("Spectator",""));
 		if (Observer != oldObserver && Observer ) {Action("onObserver");onButtonClick(); }
 		onMouseOver = new Rect(370f, 8f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverObserver != onMouseOver && onMouseOver) onOver();
 		oldMouseOverObserver = onMouseOver;
-		GUI.Label(new Rect(133f, 13.95f, 73.38f, 21.96f), @"Фраг лимит");
+		GUI.Label(new Rect(133f, 13.95f, 73.38f, 21.96f), @"Frag Limit");
 		if(focusFraglimit) { focusFraglimit = false; GUI.FocusControl("Fraglimit");}
 		GUI.SetNextControlName("Fraglimit");
 		if(isReadOnlyFraglimit){
@@ -133,20 +133,20 @@ public class TeamSelectWindow : WindowBase {
 		GUI.BeginGroup(new Rect(40f, 155f, 302f, 95f), "");
 		GUI.Box(new Rect(0, 0, 302f, 95f), "");
 		if(tabGameType==0){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Зомби, выживание.
-Убейте максимальное количество зомби.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Zombie survival. 
+ kill the maximum number of zombies.");
 		}
 		if(tabGameType==1){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Командный бой С зомби.
-Выжившая команда выигрывает.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle with zombies. 
+ surviving team wins.");
 		}
 		if(tabGameType==2){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Бой.
-Убейте максимальное количество игроков.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"DeathMatch. 
+ kill the maximum number of players.");
 		}
 		if(tabGameType==3){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Командный бой.
-Убейте максимальное количество игроков.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle.  
+ kill the maximum number of players.");
 		}
 		GUI.EndGroup();
 		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }

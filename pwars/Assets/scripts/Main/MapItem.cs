@@ -30,6 +30,8 @@ public class MapItem : Base
     public float tmJumper;
     public string[] param { get { return name.Split(','); } }
     public float tmCheckOut;
+    [LoadPath("Player")]
+    public GameObject playerPrefab;    
     [LoadPath("superphys_launch3")]
     public AudioClip superphys_launch3;
     [LoadPath("wave")]
@@ -41,6 +43,8 @@ public class MapItem : Base
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
+
+       
         ParseItemType();
         var g = gameObject;
         if (!inited)
@@ -95,7 +99,16 @@ public class MapItem : Base
         }
 
         if (itemType == MapItemType.shop)
-        {            
+        {
+            var gun = playerPrefab.GetComponent<Player>().guns[guni];
+            var cur = transform.Find("cursor");
+            if (cur != null)
+            {
+                var g2 = (GameObject)Instantiate(gun.gunModel, cur.transform.position, cur.transform.rotation);
+                g2.transform.parent = cur;
+            }
+
+            bullets = (int)(20 / ((Gun)gun).interval);
             text = "Press F to buy" + gunType;
             Parse(ref score, 2);
             Parse(ref autoTake, 3);

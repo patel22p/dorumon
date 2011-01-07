@@ -30,7 +30,6 @@ public class Player : Destroible
     public int frags;
     [PathFind("speedparticles")]
     public ParticleEmitter speedparticles;
-    
     [PathFind("Guns")]
     public Transform guntr;
     [GenerateEnums("GunType")]

@@ -46,7 +46,7 @@ public class Game : Base
     public int zombiespawnindex = 0;
 
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
-    [LoadPath("player")]
+    [LoadPath("Player")]
     public GameObject playerPrefab;    
     protected override void Awake()
     {

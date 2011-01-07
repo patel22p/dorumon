@@ -18,7 +18,6 @@ public class UserView : MonoBehaviour
     public string first_name = "";
     public string last_name = "";
     public string nickname = "";
-    public VK.status st = new VK.status();
     public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
     public string photo = "";
     public int vkId;

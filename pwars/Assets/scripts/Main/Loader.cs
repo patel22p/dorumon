@@ -118,26 +118,13 @@ public class Loader : Base
         if (Input.GetKeyDown(KeyCode.C))
             _Console.enabled = !_Console.enabled;
 
-        //if (Input.GetKeyDown(KeyCode.G))
-        //{
-        //    guiEnabled = !guiEnabled;
-        //    if (guiEnabled)
-        //        foreach (Base2 m in FindObjectsOfType(typeof(WindowBase)))
-        //            m.enabled = m._oldGuiEnabled;
-        //    else
-        //        foreach (Base2 m in FindObjectsOfType(typeof(WindowBase)))
-        //        {                    
-        //            m._oldGuiEnabled = m.enabled;
-        //            m.enabled = false;
-        //        }
-        //}
-        WWW2.Update();
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
         if (!isWebPlayer && Input.GetKeyDown(KeyCode.E))
             Application.CaptureScreenshot(curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
 
         _TimerA.Update();
+        //WWW2.Update();
     }
     
 

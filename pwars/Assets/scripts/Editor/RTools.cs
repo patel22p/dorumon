@@ -82,7 +82,6 @@ public partial class RTools : InspectorSearch
         BuildGUI();
         base.OnGUI();   
     }
-
     private void BuildButtons()
     {
         if (GUILayout.Button("Build"))
@@ -116,7 +115,6 @@ public partial class RTools : InspectorSearch
             System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
         }
     }
-
     //[MenuItem("RTools/Materials")]
     private static void SetupMaterials()
     {
@@ -136,16 +134,33 @@ public partial class RTools : InspectorSearch
                 }
             }
     }
+    IEnumerable<Transform> GetTransforms(Transform ts)
+    {
+        foreach (Transform t in ts)
+        {
+            foreach (var t2 in GetTransforms(t))
+                yield return t2;
+            yield return t;
+        }
+
+    }
     private void Inits(string cspath)
     {
+        foreach (var go in Selection.gameObjects)
+        {
+            go.active = true;
+            foreach (Transform t in GetTransforms(go.transform.root))
+            {
+                t.gameObject.active = true;
+            }
+        }
 
         _TimerA.AddMethod(delegate()
         {
             foreach (var go in Selection.gameObjects)
             {
                 foreach (var scr in go.GetComponentsInChildren<Base2>())
-                {
-                    scr.Init();
+                {                    
                     foreach (var pf in scr.GetType().GetFields())
                     {
                         InitLoadPath(scr, pf);
@@ -154,6 +169,7 @@ public partial class RTools : InspectorSearch
                     }
                     if (scr.networkView != null && scr.networkView.observed == null)
                         scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+                    scr.Init();
                 }
             }
         });
@@ -203,9 +219,6 @@ public partial class RTools : InspectorSearch
         });
 
     }
-    
-
-
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
@@ -353,10 +366,6 @@ public partial class RTools : InspectorSearch
             }
         }
     }
-    
-
-    
-
     private void BuildGUI()
     {
         GUI.Space(10);

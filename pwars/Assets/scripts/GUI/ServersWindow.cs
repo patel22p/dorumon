@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -27,7 +27,7 @@ public class ServersWindow : WindowBase {
 	public bool Refresh=false;
 	public bool focusServersTitle;
 	public bool isReadOnlyServersTitle = true;
-	public string ServersTitle = @"  Название_сервера         Карта           Тип_Игры          Игроков        Пинг";
+	public string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
 	private int wndid1;
 	private bool oldMouseOverConnect;
 	private Vector2 sServersTable;
@@ -60,7 +60,7 @@ public class ServersWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
-		GUI.Label(new Rect(21f, 30f, 66.89667f, 21.96f), @"ip аддресс");
+		GUI.Label(new Rect(21f, 30f, 66.89667f, 21.96f), @"ip �������");
 		if(focusIpaddress) { focusIpaddress = false; GUI.FocusControl("Ipaddress");}
 		GUI.SetNextControlName("Ipaddress");
 		if(isReadOnlyIpaddress){
@@ -77,7 +77,7 @@ public class ServersWindow : WindowBase {
 		if(focusConnect) { focusConnect = false; GUI.FocusControl("Connect");}
 		GUI.SetNextControlName("Connect");
 		bool oldConnect = Connect;
-		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent("Соеденить",""));
+		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent("Connect",""));
 		if (Connect != oldConnect && Connect ) {Action("onConnect");onButtonClick(); }
 		onMouseOver = new Rect(244f, 30f, 75f, 32f).Contains(Event.current.mousePosition);
 		if (oldMouseOverConnect != onMouseOver && onMouseOver) onOver();
@@ -93,7 +93,7 @@ public class ServersWindow : WindowBase {
 		iServersTable = GUI.SelectionGrid(new Rect(0,0, 566f, ServersTable.Length* 15f), iServersTable, ServersTable,1,GUI.skin.customStyles[0]);
 		if (iServersTable != oldServersTable) Action("onServersTable",ServersTable[iServersTable]);
 		GUI.EndScrollView();
-		GUI.Label(new Rect(0f, 0f, 114.45f, 14f), @"Список Серверов");
+		GUI.Label(new Rect(0f, 0f, 114.45f, 14f), @"Server List");
 		if(focusRefresh) { focusRefresh = false; GUI.FocusControl("Refresh");}
 		GUI.SetNextControlName("Refresh");
 		bool oldRefresh = Refresh;
@@ -113,7 +113,7 @@ public class ServersWindow : WindowBase {
 		GUI.Box(new Rect(404f, 30f, 1f, 318.511f),"",GUI.skin.customStyles[4]);
 		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);
 		GUI.EndGroup();
-		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Сервера");
+		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Server");
 		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
 	}
 

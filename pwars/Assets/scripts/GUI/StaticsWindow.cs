@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -14,10 +14,10 @@ public class StaticsWindow : WindowBase {
 		
 	public int tabTabControl2;
 	public bool focusYourRank;
-	[LoadPath("Skin/Images/1_ефрейтор.jpg")]
+	[LoadPath("Skin/Images/1_��������.jpg")]
 	public Texture2D ImageYourRank;
 	public bool focusNextRank;
-	[LoadPath("Skin/Images/2_мл сержант.jpg")]
+	[LoadPath("Skin/Images/2_�� �������.jpg")]
 	public Texture2D ImageNextRank;
 	public bool focusUserRank;
 	public float UserRank = 100;
@@ -43,7 +43,7 @@ public class StaticsWindow : WindowBase {
 	public string[] Top = new string[] {};
 	public int iTop = -1;
 	public bool focusSortTops;
-	public string[] SortTops = new string[] {"Убил Игроков","Убил Зомби",};
+	public string[] SortTops = new string[] {"Players killed","Zombies killed",};
 	public int iSortTops = -1;
 	private int wndid1;
 	private Rect YourRank;
@@ -84,21 +84,21 @@ public class StaticsWindow : WindowBase {
 		GUI.BeginGroup(new Rect(42f, 30f, 534f, 341f), "");
 		GUI.Box(new Rect(0, 0, 534f, 341f), "");
 		GUILayout.BeginArea(new Rect(0f, 0, 534, 18));
-		tabTabControl2 = GUILayout.Toolbar(tabTabControl2, new string[] { "Ранг","Друзья","Чат","Рейтинг", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
+		tabTabControl2 = GUILayout.Toolbar(tabTabControl2, new string[] { "Rang","Friends","Chat","Rating", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
 		GUILayout.EndArea();
 		GUI.BeginGroup(new Rect(0, 18, 534, 323), "");
 		GUI.Box(new Rect(0, 0, 534, 323), "");
 		if(tabTabControl2==0){
 		GUI.BeginGroup(new Rect(8f, 31f, 136f, 189f), "");
 		GUI.Box(new Rect(0, 0, 136f, 189f), "");
-		GUI.Label(new Rect(12.32f, 18f, 111.72f, 21.96f), @"Ваш текуший ранк");
+		GUI.Label(new Rect(12.32f, 18f, 111.72f, 21.96f), @"Your current rank");
 		if(focusYourRank) { focusYourRank = false; GUI.FocusControl("YourRank");}
 		GUI.SetNextControlName("YourRank");
 		GUI.DrawTexture(YourRank,ImageYourRank, ScaleMode.ScaleToFit);
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(380f, 31f, 136f, 189f), "");
 		GUI.Box(new Rect(0, 0, 136f, 189f), "");
-		GUI.Label(new Rect(8f, 18f, 119.2633f, 21.96f), @"Ваш следуйши ранк");
+		GUI.Label(new Rect(8f, 18f, 119.2633f, 21.96f), @"Your next rank");
 		if(focusNextRank) { focusNextRank = false; GUI.FocusControl("NextRank");}
 		GUI.SetNextControlName("NextRank");
 		GUI.DrawTexture(NextRank,ImageNextRank, ScaleMode.ScaleToFit);
@@ -109,19 +109,19 @@ public class StaticsWindow : WindowBase {
 		GUI.SetNextControlName("UserRank");
 		GUI.HorizontalScrollbar(new Rect(18f, 33f, 202f, 17f), 0, Mathf.Min(Mathf.Max(0, UserRank),1600), 0, 1600);
 		GUI.Label(new Rect(68.5f,33f,100,15),UserRank+"/"+1600 );
-		GUI.Label(new Rect(53f, 15f, 75.55f, 21.96f), @"Очки опыта");
-		GUI.Label(new Rect(18f, 73f, 189f, 91f), @"Очки опыта выдаются за убийства других игроков и спиритов, за получение различных наград.
+		GUI.Label(new Rect(53f, 15f, 75.55f, 21.96f), @"Score");
+		GUI.Label(new Rect(18f, 73f, 189f, 91f), @"Experience points are awarded for killing other players and the spiritualists, for receiving various awards. 
 ");
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(8f, 230f, 508f, 75f), "");
 		GUI.Box(new Rect(0, 0, 508f, 75f), "");
 		bool oldButton11 = Button11;
-		Button11 = GUI.Button(new Rect(28f, 8f, 64f, 59f), new GUIContent(Image,"+100 очков. Медаль за установку плеера unity."));
+		Button11 = GUI.Button(new Rect(28f, 8f, 64f, 59f), new GUIContent(Image,"+100 �����. ������ �� ��������� ������ unity."));
 		if (Button11 != oldButton11 && Button11 ) {Action("onButton11");onButtonClick(); }
 		onMouseOver = new Rect(28f, 8f, 64f, 59f).Contains(Event.current.mousePosition);
 		if (oldMouseOverButton11 != onMouseOver && onMouseOver) onOver();
 		oldMouseOverButton11 = onMouseOver;
-		GUI.Label(new Rect(207f, 0f, 56.61f, 14f), @"Награды");
+		GUI.Label(new Rect(207f, 0f, 56.61f, 14f), @"Awards");
 		GUI.EndGroup();
 		if(focusPlayer) { focusPlayer = false; GUI.FocusControl("Player");}
 		GUI.SetNextControlName("Player");
@@ -175,7 +175,7 @@ public class StaticsWindow : WindowBase {
 		iTop = GUI.SelectionGrid(new Rect(0,0, 454f, Top.Length* 15f), iTop, Top,1,GUI.skin.customStyles[0]);
 		if (iTop != oldTop) Action("onTop",Top[iTop]);
 		GUI.EndScrollView();
-		GUI.Label(new Rect(41f, 24f, 107.22f, 14f), @"Упорядочить по");
+		GUI.Label(new Rect(41f, 24f, 107.22f, 14f), @"Sort by");
 		if(focusSortTops) { focusSortTops = false; GUI.FocusControl("SortTops");}
 		GUI.SetNextControlName("SortTops");
 		GUI.Box(new Rect(151f, 22f, 117f, 31f), "");

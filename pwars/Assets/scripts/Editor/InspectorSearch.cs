@@ -20,12 +20,71 @@ public class InspectorSearch : EditorWindow
     Vector3 oldpos;
     protected virtual void OnGUI()
     {
+
         SetPivot = (GUI.Toggle(SetPivot, "Set Pivot") && Selection.activeGameObject != null);
-        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;        
+        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
+
+        GUI.BeginHorizontal();
+        if (GUI.Button("ApplyAll"))
+            foreach (var go in Selection.gameObjects)
+            {
+                EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
+                EditorUtility.ResetGameObjectToPrefabState(go);
+                AssetDatabase.SaveAssets();
+            }
+        CopyComponent();
+        CapturePrefabs();        
+        if (GUI.Button("AddToList"))
+            if (!instances.Contains(Selection.activeGameObject.name))
+                instances.Add(Selection.activeGameObject.name);
+        GUI.EndHorizontal();
         DrawObjects();
         DrawSearch();
-        CopyComponent();
+    }
+    private static void CapturePrefabs()
+    {
+        if (GUI.Button("Cap"))
+        {
+            int size = 256;
+            GameObject co = GameObject.Find("SnapShotCamera");
+            Camera c = co.GetComponentInChildren<Camera>();
+            RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
+            c.targetTexture = rt;
+            var output = new Texture2D(size, size, TextureFormat.ARGB32, false);
+            RenderTexture.active = rt;
+            foreach (GameObject g in Selection.gameObjects)
+            {
+                var g2 = (GameObject)Instantiate(g, Vector3.zero, Quaternion.identity);
+                var r = g2.GetComponentInChildren<Renderer>();
+                if (r == null) { Debug.Log("Render is null " + r.name); return; }
+                c.transform.LookAt(r.transform.position);// 
+                g2.active = true;
+                c.Render();
+                output.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+                output.Apply();
+                Color? bk = null;
+                for (int x = 0; x < output.width; x++)
+                    for (int y = 0; y < output.height; y++)
+                    {
+                        var px = output.GetPixel(x, y);
+                        if (bk == null) bk = px;
+                        px.a = px == bk.Value ? 0 : .6f;
+                        output.SetPixel(x, y, px);
+                    }
+                var p = AssetDatabase.GetAssetPath(g);
+                
 
+                p = (p == "" ? Application.dataPath + "materials/Icons/" : Path.GetDirectoryName(p)) + "/" + g.name + ".png";
+
+                File.WriteAllBytes(p, output.EncodeToPNG());
+                DestroyImmediate(g2);
+                Debug.Log("Saved: " + p);
+            }
+            RenderTexture.ReleaseTemporary(rt);
+            RenderTexture.active = null;
+            c.targetTexture = null;
+
+        }
     }
     protected virtual void Awake()
     {
@@ -39,7 +98,7 @@ public class InspectorSearch : EditorWindow
     {
         var old = search;
         search = EditorGUILayout.TextField(search);
-        if (old != search) _TimerA.AddMethod(5000, delegate { search = ""; });
+        if (old != search) _TimerA.AddMethod(25000, delegate { search = ""; });
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
         {
@@ -73,18 +132,7 @@ public class InspectorSearch : EditorWindow
         }
     }
     private void DrawObjects()
-    {
-        //int i=0;
-        //foreach (var a in lastUsed.Where(a => a != null).Take(3))
-        //{
-        //    i++;
-        //    if (GUI.Button(a.name))
-        //        Selection.activeObject = a;
-        //}
-
-        if (GUI.Button("Add"))
-            if (!instances.Contains(Selection.activeGameObject.name))
-                instances.Add(Selection.activeGameObject.name);
+    {        
         List<string> toremove = new List<string>();
         foreach (var inst in instances)
         {
@@ -154,11 +202,10 @@ public class InspectorSearch : EditorWindow
             AddFragment(nw, root, level + 1);
         }
     }
-
     public GameObject selectedGameObject;
     private void CopyComponent()
     {
-        if (GUI.Button("Select"))
+        if (GUI.Button("CloneComp"))
         {
             selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
         }

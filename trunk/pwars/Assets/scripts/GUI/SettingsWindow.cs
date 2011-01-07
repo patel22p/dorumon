@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -42,7 +42,7 @@ public class SettingsWindow : WindowBase {
 	public bool focusBloomAndFlares;
 	public bool BloomAndFlares { get { return PlayerPrefs.GetInt("BloomAndFlares", 1) == 1; } set { PlayerPrefs.SetInt("BloomAndFlares", value?1:0); } }
 	public bool focusRenderSettings;
-	public string[] RenderSettings = new string[] {"Самый Быстрый","Forward","Deffered",};
+	public string[] RenderSettings = new string[] {"Vertex Lit","Forward","Deffered",};
 	public int iRenderSettings = -1;
 	public bool focusCamx;
 	public bool focusCamy;
@@ -110,13 +110,13 @@ public class SettingsWindow : WindowBase {
 		iScreenSize = GUI.SelectionGrid(new Rect(0,0, 94.667f, ScreenSize.Length* 15f), iScreenSize, ScreenSize,1,GUI.skin.customStyles[0]);
 		if (iScreenSize != oldScreenSize) Action("onScreenSize",ScreenSize[iScreenSize]);
 		GUI.EndScrollView();
-		GUI.Label(new Rect(184.59f, 24.833f, 137.577f, 21.96f), @"Разрешение екрана");
-		GUI.Label(new Rect(8f, 8f, 89.5f, 12.833f), @"Графика");
-		GUI.Label(new Rect(38.833f, 24.833f, 109.16f, 21.96f), @"Качество графики");
+		GUI.Label(new Rect(184.59f, 24.833f, 137.577f, 21.96f), @"Screen Resolution");
+		GUI.Label(new Rect(8f, 8f, 89.5f, 12.833f), @"Graphics");
+		GUI.Label(new Rect(38.833f, 24.833f, 109.16f, 21.96f), @"Graphics Quality");
 		if(focusFullScreen) { focusFullScreen = false; GUI.FocusControl("FullScreen");}
 		GUI.SetNextControlName("FullScreen");
 		bool oldFullScreen = FullScreen;
-		FullScreen = GUI.Toggle(new Rect(341.5f, 37f, 105f, 17f),FullScreen, new GUIContent("Полный Екран",""));
+		FullScreen = GUI.Toggle(new Rect(341.5f, 37f, 105f, 17f),FullScreen, new GUIContent("Full Screen",""));
 		if (FullScreen != oldFullScreen ) {Action("onFullScreen");onButtonClick(); }
 		onMouseOver = new Rect(341.5f, 37f, 105f, 17f).Contains(Event.current.mousePosition);
 		if (oldMouseOverFullScreen != onMouseOver && onMouseOver) onOver();
@@ -124,7 +124,7 @@ public class SettingsWindow : WindowBase {
 		if(focusBlood) { focusBlood = false; GUI.FocusControl("Blood");}
 		GUI.SetNextControlName("Blood");
 		bool oldBlood = Blood;
-		Blood = GUI.Toggle(new Rect(30.5f, 180f, 50.44667f, 15.96f),Blood, new GUIContent("Кровь",""));
+		Blood = GUI.Toggle(new Rect(30.5f, 180f, 50.44667f, 15.96f),Blood, new GUIContent("Blood",""));
 		if (Blood != oldBlood ) {Action("onBlood");onButtonClick(); }
 		onMouseOver = new Rect(30.5f, 180f, 50.44667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverBlood != onMouseOver && onMouseOver) onOver();
@@ -140,7 +140,7 @@ public class SettingsWindow : WindowBase {
 		if(focusAtmoSphere) { focusAtmoSphere = false; GUI.FocusControl("AtmoSphere");}
 		GUI.SetNextControlName("AtmoSphere");
 		bool oldAtmoSphere = AtmoSphere;
-		AtmoSphere = GUI.Toggle(new Rect(261.63f, 184f, 78.33334f, 15.96f),AtmoSphere, new GUIContent("Атмосфера",""));
+		AtmoSphere = GUI.Toggle(new Rect(261.63f, 184f, 78.33334f, 15.96f),AtmoSphere, new GUIContent("Atmosphere",""));
 		if (AtmoSphere != oldAtmoSphere ) {Action("onAtmoSphere");onButtonClick(); }
 		onMouseOver = new Rect(261.63f, 184f, 78.33334f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAtmoSphere != onMouseOver && onMouseOver) onOver();
@@ -156,7 +156,7 @@ public class SettingsWindow : WindowBase {
 		if(focusShadows) { focusShadows = false; GUI.FocusControl("Shadows");}
 		GUI.SetNextControlName("Shadows");
 		bool oldShadows = Shadows;
-		Shadows = GUI.Toggle(new Rect(359.5f, 184f, 43.46333f, 15.96f),Shadows, new GUIContent("Тени",""));
+		Shadows = GUI.Toggle(new Rect(359.5f, 184f, 43.46333f, 15.96f),Shadows, new GUIContent("Shadows",""));
 		if (Shadows != oldShadows ) {Action("onShadows");onButtonClick(); }
 		onMouseOver = new Rect(359.5f, 184f, 43.46333f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverShadows != onMouseOver && onMouseOver) onOver();
@@ -164,7 +164,7 @@ public class SettingsWindow : WindowBase {
 		if(focusMotionBlur) { focusMotionBlur = false; GUI.FocusControl("MotionBlur");}
 		GUI.SetNextControlName("MotionBlur");
 		bool oldMotionBlur = MotionBlur;
-		MotionBlur = GUI.Toggle(new Rect(130.5f, 180f, 84.20667f, 15.96f),MotionBlur, new GUIContent("моушн блур",""));
+		MotionBlur = GUI.Toggle(new Rect(130.5f, 180f, 84.20667f, 15.96f),MotionBlur, new GUIContent("����� ����",""));
 		if (MotionBlur != oldMotionBlur ) {Action("onMotionBlur");onButtonClick(); }
 		onMouseOver = new Rect(130.5f, 180f, 84.20667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverMotionBlur != onMouseOver && onMouseOver) onOver();
@@ -185,12 +185,12 @@ public class SettingsWindow : WindowBase {
 		iRenderSettings = GUI.SelectionGrid(new Rect(0,0, 109f, RenderSettings.Length* 15.960000038147f), iRenderSettings, RenderSettings,1,GUI.skin.customStyles[0]);
 		if (iRenderSettings != oldRenderSettings) Action("onRenderSettings",RenderSettings[iRenderSettings]);
 		GUI.EndScrollView();
-		GUI.Label(new Rect(330.5f, 72f, 49.81667f, 21.96f), @"Рендер");
-		GUI.Label(new Rect(8f, 162f, 49.98f, 21.96f), @"Ефекты");
+		GUI.Label(new Rect(330.5f, 72f, 49.81667f, 21.96f), @"Render");
+		GUI.Label(new Rect(8f, 162f, 49.98f, 21.96f), @"Effects");
 		GUI.BeginGroup(new Rect(8f, 228.92f, 447.5f, 134.667f), "");
 		GUI.Box(new Rect(0, 0, 447.5f, 134.667f), "");
-		GUI.Label(new Rect(14.667f, 8f, 50.93f, 21.96f), @"Камера");
-		GUI.Label(new Rect(43.334f, 35.334f, 170f, 14.666f), @"Положение камеры Ось X");
+		GUI.Label(new Rect(14.667f, 8f, 50.93f, 21.96f), @"Camera");
+		GUI.Label(new Rect(43.334f, 35.334f, 170f, 14.666f), @"Camera X");
 		if(focusCamx) { focusCamx = false; GUI.FocusControl("Camx");}
 		GUI.SetNextControlName("Camx");
 		Camx = GUI.HorizontalSlider(new Rect(213.334f, 35.334f, 179.333f, 14f), Camx, 0f, 10f);
@@ -199,13 +199,13 @@ public class SettingsWindow : WindowBase {
 		GUI.SetNextControlName("Camy");
 		Camy = GUI.HorizontalSlider(new Rect(213.334f, 62.667f, 179.333f, 14f), Camy, 0f, 10f);
 		GUI.Label(new Rect(392.666992553711f,62.667f,40,15),System.Math.Round(Camy,1).ToString());
-		GUI.Label(new Rect(43.334f, 62.001f, 170f, 14.666f), @"Положение камеры Ось Y");
-		GUI.Label(new Rect(103.334f, 103.667f, 106f, 14.666f), @"Обзор камеры");
+		GUI.Label(new Rect(43.334f, 62.001f, 170f, 14.666f), @"Camera Y");
+		GUI.Label(new Rect(103.334f, 103.667f, 106f, 14.666f), @"Field of view");
 		if(focusFieldof) { focusFieldof = false; GUI.FocusControl("Fieldof");}
 		GUI.SetNextControlName("Fieldof");
 		Fieldof = GUI.HorizontalSlider(new Rect(213.334f, 103.667f, 179.333f, 14f), Fieldof, 40f, 100f);
 		GUI.Label(new Rect(392.666992553711f,103.667f,40,15),System.Math.Round(Fieldof,1).ToString());
-		GUI.Label(new Rect(103.334f, 80.667f, 106f, 14.666f), @"Скрывать стены");
+		GUI.Label(new Rect(103.334f, 80.667f, 106f, 14.666f), @"Near");
 		if(focusCam_near) { focusCam_near = false; GUI.FocusControl("Cam_near");}
 		GUI.SetNextControlName("Cam_near");
 		Cam_near = GUI.HorizontalSlider(new Rect(213.334f, 80.667f, 179.333f, 14f), Cam_near, 0.001f, 10f);
@@ -214,23 +214,23 @@ public class SettingsWindow : WindowBase {
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(511.5f, 138f, 194.167f, 169f), "");
 		GUI.Box(new Rect(0, 0, 194.167f, 169f), "");
-		GUI.Label(new Rect(8f, 8f, 34f, 14f), @"Звук");
-		GUI.Label(new Rect(64.667f, 34.001f, 126.667f, 14.666f), @"Громкость музыки");
+		GUI.Label(new Rect(8f, 8f, 34f, 14f), @"Sound");
+		GUI.Label(new Rect(64.667f, 34.001f, 126.667f, 14.666f), @"Music volume");
 		if(focusMusicVolume) { focusMusicVolume = false; GUI.FocusControl("MusicVolume");}
 		GUI.SetNextControlName("MusicVolume");
 		MusicVolume = GUI.HorizontalSlider(new Rect(12.001f, 52.667f, 179.333f, 14f), MusicVolume, 0f, 1f);
 		GUI.Label(new Rect(191.333992553711f,52.667f,40,15),System.Math.Round(MusicVolume,1).ToString());
-		GUI.Label(new Rect(67.5f, 102.668f, 126.667f, 14.666f), @"Громкость звука");
+		GUI.Label(new Rect(67.5f, 102.668f, 126.667f, 14.666f), @"Sound volume");
 		if(focusSoundVolume) { focusSoundVolume = false; GUI.FocusControl("SoundVolume");}
 		GUI.SetNextControlName("SoundVolume");
 		SoundVolume = GUI.HorizontalSlider(new Rect(12.001f, 121.334f, 179.333f, 14f), SoundVolume, 0f, 1f);
 		GUI.Label(new Rect(191.333992553711f,121.334f,40,15),System.Math.Round(SoundVolume,1).ToString());
 		GUI.EndGroup();
-		GUI.Label(new Rect(8f, 8f, 82f, 16f), @"Настройки");
+		GUI.Label(new Rect(8f, 8f, 82f, 16f), @"Settings");
 		if(focusReset) { focusReset = false; GUI.FocusControl("Reset");}
 		GUI.SetNextControlName("Reset");
 		bool oldReset = Reset;
-		Reset = GUI.Button(new Rect(94f, 8f, 100f, 24f), new GUIContent("Ресет",""));
+		Reset = GUI.Button(new Rect(94f, 8f, 100f, 24f), new GUIContent("Reset",""));
 		if (Reset != oldReset && Reset ) {Action("onReset");onButtonClick(); }
 		onMouseOver = new Rect(94f, 8f, 100f, 24f).Contains(Event.current.mousePosition);
 		if (oldMouseOverReset != onMouseOver && onMouseOver) onOver();

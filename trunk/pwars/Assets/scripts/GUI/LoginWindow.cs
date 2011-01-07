@@ -1,4 +1,4 @@
-п»ї
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -55,24 +55,24 @@ public class LoginWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(19f, 21f, 574f, 88f), "");
 		GUI.Box(new Rect(0, 0, 574f, 88f), "");
-		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"РџСЂРµР¶РґРµ С‡РµРј РїРѕРїР°СЃС‚СЊ РІ РѕСЃРЅРѕРІРЅРѕРµ РјРµРЅСЋ РёРіСЂС‹ Рё РЅР°С‡Р°С‚СЊ РёРіСЂР°С‚СЊ, РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹РїРѕР»РЅРёС‚СЊ РІС…РѕРґ (Р°РІС‚РѕСЂРёР·Р°С†РёСЋ РІ СЃРёСЃС‚РµРјРµ).");
+		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"Прежде чем попасть в основное меню игры и начать играть, необходимо выполнить вход (авторизацию в системе).");
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(19f, 130f, 562f, 199f), "");
 		GUI.Box(new Rect(0, 0, 562f, 199f), "");
 		GUILayout.BeginArea(new Rect(0f, 0, 562, 18));
-		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Р’РѕР№С‚Рё РєР°Рє РіРѕСЃС‚СЊ","Р’С…РѕРґ Р’РєРѕРЅС‚Р°РєС‚Рµ", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
+		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Join as Guest","Vkontakte Join", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
 		GUILayout.EndArea();
 		GUI.BeginGroup(new Rect(0, 18, 562, 181), "");
 		GUI.Box(new Rect(0, 0, 562, 181), "");
 		if(tabTabControl4==0){
-		GUI.Label(new Rect(21f, 21.04f, 513f, 76f), @"Р’РЅРёРјР°РЅРёРµ: РІС…РѕРґ РІ СЂРµР¶РёРјРµ ""Р“РѕСЃС‚СЏ"" Р»РёС€Р°РµС‚ РІР°СЃ РјРЅРѕРіРёС… РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№ РёРіСЂС‹,С‚Р°РєРёС… РєР°Рє СѓС‡Р°СЃС‚РёСЏ РІ СЂРµР№С‚РµРЅРіРµ РёРіСЂРѕРєРѕРІ Рё РїРѕР»СѓС‡РµРЅРёРµ Р·РІР°РЅРёР№.
+		GUI.Label(new Rect(21f, 21.04f, 513f, 76f), @"Внимание: вход в режиме ""Гостя"" лишает вас многих возможностей игры,таких как участия в рейтенге игроков и получение званий.
 
-Р”Р»СЏ РІС…РѕРґР° РІРІРµРґРёС‚Рµ СЃРІРѕРµ РРјСЏ(РќРёРє) РІ С‚РµРєСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ ""РРјСЏ"" Рё РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ ""Р’С…РѕРґ"".");
-		GUI.Label(new Rect(60f, 114.04f, 33f, 19f), @"РРјСЏ");
+Для входа введите свое Имя(Ник) в текстовую строку ""Name"" и нажмите кнопку ""Login"".");
+		GUI.Label(new Rect(60f, 114.04f, 33f, 19f), @"Name");
 		if(focusEnterAsGuest) { focusEnterAsGuest = false; GUI.FocusControl("EnterAsGuest");}
 		GUI.SetNextControlName("EnterAsGuest");
 		bool oldEnterAsGuest = EnterAsGuest;
-		EnterAsGuest = GUI.Button(new Rect(376f, 114.04f, 107f, 19f), new GUIContent("Р’С…РѕРґ",""));
+		EnterAsGuest = GUI.Button(new Rect(376f, 114.04f, 107f, 19f), new GUIContent("Login",""));
 		if (EnterAsGuest != oldEnterAsGuest && EnterAsGuest ) {Action("onEnterAsGuest");onButtonClick(); }
 		onMouseOver = new Rect(376f, 114.04f, 107f, 19f).Contains(Event.current.mousePosition);
 		if (oldMouseOverEnterAsGuest != onMouseOver && onMouseOver) onOver();
@@ -85,26 +85,26 @@ public class LoginWindow : WindowBase {
 		Nick = GUI.TextField(new Rect(97f, 114.04f, 260f, 19f), Nick,10);
 		}
 		if(tabTabControl4==1){
-		GUI.Label(new Rect(58f, 113f, 59f, 19f), @"РђРґСЂРµСЃ:");
+		GUI.Label(new Rect(58f, 113f, 59f, 19f), @"Адрес:");
 		if(focusAddress) { focusAddress = false; GUI.FocusControl("Address");}
 		GUI.SetNextControlName("Address");
 		if(isReadOnlyAddress){
 		GUI.Label(new Rect(112f, 109.04f, 344f, 17.96f), Address.ToString());
 		} else
 		Address = GUI.TextField(new Rect(112f, 109.04f, 344f, 17.96f), Address);
-		GUI.Label(new Rect(28f, 19f, 517f, 85f), @"1. РќР°Р¶РјРёС‚Рµ РЅР° РєРЅРѕРїРєСѓ: 
+		GUI.Label(new Rect(28f, 19f, 517f, 85f), @"1. Нажмите на кнопку: 
 
-2. РЎРєРѕРїРёСЂСѓР№С‚Рµ РєРѕРґ РёР· Р°РґСЂРµСЃРЅРѕР№ СЃС‚СЂРѕРєРё РѕС‚РєСЂС‹РІС€РµРіРѕСЃСЏ РѕРєРЅР° ""Login sucess""
+2. Скопируйте код из адресной строки открывшегося окна ""Login sucess""
 
-3. Р’СЃС‚Р°РІСЊС‚Рµ СЃРєРѕРїРёСЂРѕРІР°РЅРЅС‹Р№ С‚РµРєСЃС‚ СЃСЋРґР° РІ СЃС‚СЂРѕРєСѓ ""Р°РґСЂРµСЃ"" Рё РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ ""Р’С…РѕРґ"".");
+3. Вставьте скопированный текст сюда в строку ""адрес"" и нажмите кнопку ""Login"".");
 		bool oldButton9 = Button9;
-		Button9 = GUI.Button(new Rect(189f, 17f, 101f, 18f), new GUIContent("РђРІС‚РѕСЂРёР·Р°С†РёСЏ",""));
+		Button9 = GUI.Button(new Rect(189f, 17f, 101f, 18f), new GUIContent("Authorization",""));
 		if (Button9 != oldButton9 && Button9 ) {Action("onButton9");onButtonClick(); }
 		onMouseOver = new Rect(189f, 17f, 101f, 18f).Contains(Event.current.mousePosition);
 		if (oldMouseOverButton9 != onMouseOver && onMouseOver) onOver();
 		oldMouseOverButton9 = onMouseOver;
 		bool oldButton10 = Button10;
-		Button10 = GUI.Button(new Rect(464f, 110f, 44f, 18f), new GUIContent("Р’С…РѕРґ",""));
+		Button10 = GUI.Button(new Rect(464f, 110f, 44f, 18f), new GUIContent("Login",""));
 		if (Button10 != oldButton10 && Button10 ) {Action("onButton10");onButtonClick(); }
 		onMouseOver = new Rect(464f, 110f, 44f, 18f).Contains(Event.current.mousePosition);
 		if (oldMouseOverButton10 != onMouseOver && onMouseOver) onOver();

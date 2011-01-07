@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -14,7 +14,7 @@ public class GameStatsWindow : WindowBase {
 		
 	public bool focusPlayerStatsTitle;
 	public bool isReadOnlyPlayerStatsTitle = true;
-	public string PlayerStatsTitle = @"       Имя_Игрока               Команда   Очки   Фраги Смерти  Фпс   Пинг";
+	public string PlayerStatsTitle = @"       Player Name              Team      Score  Frags Deaths  FPS   Ping";
 	public bool focusPlayerStats;
 	public bool isReadOnlyPlayerStats = true;
 	public string PlayerStats = @"";
@@ -45,7 +45,7 @@ public class GameStatsWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.Label(new Rect(0f, 0f, 99.99f, 14f), @"Таблиьа очков");
+		GUI.Label(new Rect(0f, 0f, 99.99f, 14f), @"Scores");
 		GUI.BeginGroup(new Rect(22f, 18f, 564f, 345f), "");
 		GUI.Box(new Rect(0, 0, 564f, 345f), "");
 		if(focusPlayerStatsTitle) { focusPlayerStatsTitle = false; GUI.FocusControl("PlayerStatsTitle");}

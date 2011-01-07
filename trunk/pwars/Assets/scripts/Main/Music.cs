@@ -22,13 +22,13 @@ public class Music : Base
     public void Start(string file)
     {
         if (!enableMusic) return;
-        new WWW2(hosting+ file).done += delegate(WWW2 w)
-        {
+        //new WWW2(hosting+ file).done += delegate(WWW2 w)
+        //{
             
-            s = H.ToStr(w.www.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);            
-            if (s.Length > 0)
-                Next();
-        };
+        //    s = H.ToStr(w.www.bytes).Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);            
+        //    if (s.Length > 0)
+        //        Next();
+        //};
     }
     private void Next()
     {

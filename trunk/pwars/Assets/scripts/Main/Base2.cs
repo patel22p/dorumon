@@ -69,7 +69,6 @@ public partial class Base2 : MonoBehaviour
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { if (!Application.isPlaying) throw new Exception("access from editor"); return _Loader._TimerA; } }
-    public static VK _vk;
     public static bool lockCursor { get { return Screen.lockCursor; } set { Screen.lockCursor = value; } }
     public static Rect CenterRect(float w, float h)
     {
@@ -155,7 +154,7 @@ public partial class Base2 : MonoBehaviour
     }
     public bool inited;
 #if (UNITY_EDITOR)
-    public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
+    
     public static string[] files;
     public static IEnumerable<string> GetFiles()
     {
@@ -163,6 +162,7 @@ public partial class Base2 : MonoBehaviour
             files = Directory.GetFiles("./", "*.*", SearchOption.AllDirectories);
         return files.Select(a => a.Replace("\\", "/").Substring(2));
     }
+    public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
     public static Object FindAsset(string name, Type t)
     {
         var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)

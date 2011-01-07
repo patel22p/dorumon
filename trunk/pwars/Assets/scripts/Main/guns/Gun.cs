@@ -11,7 +11,7 @@ public class Gun : GunBase
     public GameObject towerPrefab;
     public GameObject staticFieldPrefab;
     public Vector3 random;
-    public Texture2D GunPicture;    
+    
     public Vector3 Force;
     public Transform barrel;
     public float exp = 500;
@@ -33,11 +33,11 @@ public class Gun : GunBase
     public Light fireLight;
     public override void Init()
     {
-        base.Init();
+        base.Init();        
         if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
-        fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point); 
-        
+        fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);         
     }
+    
     protected override void Awake()
     {
         base.Awake();
@@ -74,9 +74,7 @@ public class Gun : GunBase
 
     }    
     protected virtual void LocalUpdate()
-    {
-        if (GunPicture != null && player !=null && isOwner)
-            _GameWindow.gunTexture.texture = GunPicture;
+    {        
 
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {

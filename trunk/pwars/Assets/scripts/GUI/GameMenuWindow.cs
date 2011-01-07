@@ -1,4 +1,4 @@
-﻿
+
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -59,7 +59,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusTeamSelectButton) { focusTeamSelectButton = false; GUI.FocusControl("TeamSelectButton");}
 		GUI.SetNextControlName("TeamSelectButton");
 		bool oldTeamSelectButton = TeamSelectButton;
-		TeamSelectButton = GUI.Button(new Rect(110f, 156f, 313f, 54f), new GUIContent("Выбрать команду",""));
+		TeamSelectButton = GUI.Button(new Rect(110f, 156f, 313f, 54f), new GUIContent("Select Team",""));
 		if (TeamSelectButton != oldTeamSelectButton && TeamSelectButton ) {Action("onTeamSelectButton");onButtonClick(); }
 		onMouseOver = new Rect(110f, 156f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelectButton != onMouseOver && onMouseOver) onOver();
@@ -67,7 +67,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusIrcChatButton) { focusIrcChatButton = false; GUI.FocusControl("IrcChatButton");}
 		GUI.SetNextControlName("IrcChatButton");
 		bool oldIrcChatButton = IrcChatButton;
-		IrcChatButton = GUI.Button(new Rect(110f, 214f, 313f, 54f), new GUIContent("Ирк Чат",""));
+		IrcChatButton = GUI.Button(new Rect(110f, 214f, 313f, 54f), new GUIContent("Irc Chat",""));
 		if (IrcChatButton != oldIrcChatButton && IrcChatButton ) {Action("onIrcChatButton");onButtonClick(); }
 		onMouseOver = new Rect(110f, 214f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverIrcChatButton != onMouseOver && onMouseOver) onOver();
@@ -75,7 +75,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusOptions) { focusOptions = false; GUI.FocusControl("Options");}
 		GUI.SetNextControlName("Options");
 		bool oldOptions = Options;
-		Options = GUI.Button(new Rect(110f, 272f, 313f, 54f), new GUIContent("Опции",""));
+		Options = GUI.Button(new Rect(110f, 272f, 313f, 54f), new GUIContent("Options",""));
 		if (Options != oldOptions && Options ) {Action("onOptions");onButtonClick(); }
 		onMouseOver = new Rect(110f, 272f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverOptions != onMouseOver && onMouseOver) onOver();
@@ -83,7 +83,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusDisconnect) { focusDisconnect = false; GUI.FocusControl("Disconnect");}
 		GUI.SetNextControlName("Disconnect");
 		bool oldDisconnect = Disconnect;
-		Disconnect = GUI.Button(new Rect(110f, 330f, 313f, 54f), new GUIContent("Выйти",""));
+		Disconnect = GUI.Button(new Rect(110f, 330f, 313f, 54f), new GUIContent("Exit",""));
 		if (Disconnect != oldDisconnect && Disconnect ) {Action("onDisconnect");onButtonClick(); }
 		onMouseOver = new Rect(110f, 330f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDisconnect != onMouseOver && onMouseOver) onOver();

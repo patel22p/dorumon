@@ -19,7 +19,7 @@ public class GunPhysix : GunBase
     [FindAsset("superphys_launch3")]
     public AudioClip superphys_launch3;
 
-#if(UNITY_STANDALONE_WIN)
+#if(UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public override void Init()
     {
         base.Init();

@@ -70,6 +70,7 @@ public class FindAsset : Attribute
 {
     public string name;
     public bool overide;
+    public FindAsset() { }
     public FindAsset(string from)
     {
         name = from;
@@ -78,6 +79,7 @@ public class FindAsset : Attribute
 public class FindTransform : Attribute
 {
     public string name;
+    public FindTransform() { }
     public FindTransform(string enumName)
     {
         name = enumName;

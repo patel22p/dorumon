@@ -1,4 +1,4 @@
-#if UNITY_STANDALONE_WIN
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
 using UnityEditor;
 using System;
 using UnityEngine;
@@ -32,7 +32,24 @@ public class InspectorSearch : EditorWindow
                 EditorUtility.ResetGameObjectToPrefabState(go);
                 AssetDatabase.SaveAssets();
             }
-        CopyComponent();
+        if (GUI.Button("Replace"))
+        {
+            Undo.RegisterSceneUndo("Replace");
+            var asset = Selection.gameObjects.FirstOrDefault(a => AssetDatabase.IsMainAsset(a));
+            if (asset != null)
+            {
+                foreach (var a in Selection.gameObjects)
+                    if (!AssetDatabase.IsMainAsset(a))
+                    {
+                        var nw = (GameObject)Instantiate(asset, a.transform.position, a.transform.rotation);
+                        nw.transform.parent = a.transform.root;
+                        nw.name = a.name;
+                        DestroyImmediate(a);
+                    }
+            }
+            
+        }
+        //CopyComponent();
         CapturePrefabs();        
         if (GUI.Button("AddToList"))
             if (!instances.Contains(Selection.activeGameObject.name))
@@ -41,7 +58,7 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
-    private static void CapturePrefabs()
+    private void CapturePrefabs()
     {
         if (GUI.Button("Cap") && Selection.activeGameObject != null)
         {
@@ -55,6 +72,7 @@ public class InspectorSearch : EditorWindow
             RenderTexture.active = rt;
             var g = Selection.activeGameObject;
             var g2 = (GameObject)Instantiate(g, g.transform.position, g.transform.rotation);
+            c.cullingMask = 1 << co.layer;
             foreach (var a in g2.GetComponentsInChildren<Transform>())
                 a.gameObject.layer = co.layer;
             var r = g2.GetComponentInChildren<Renderer>();
@@ -97,7 +115,6 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawSearch()
     {
-        var old = search;
         search = EditorGUILayout.TextField(search);        
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
@@ -158,8 +175,6 @@ public class InspectorSearch : EditorWindow
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
-            string[] param = g.name.Split(',');
-
             bool glow = t.name.Contains("glow");
             if (t.name.Contains("glass") || glow)
             {

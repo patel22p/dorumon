@@ -51,7 +51,7 @@ public class Gun : GunBase
     public override void onShow(bool enabled)
     {
         if (enabled && player !=null)
-            player.rigidbody.mass = player.defmass + ves * player.defmass;
+            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * -.10f);
         base.onShow(enabled);
     }
 

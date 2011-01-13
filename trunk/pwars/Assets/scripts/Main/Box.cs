@@ -9,7 +9,7 @@ using System.Linq;
 
 public class Box : Shared
 {
-#if(UNITY_STANDALONE_WIN)
+#if(UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public override void Init()
     {
         base.Init();

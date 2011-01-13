@@ -55,14 +55,15 @@ public class Zombie : Destroible
     }
 
     public void CreateZombie(int stage)
-    {                
+    {   
+        zombieType = priority.Random();        
         var speed = zombieSpeedCurve.Evaluate(stage);
         speed = Random.Range(speed, speed / 3 * 2);
         var life = zombieLifeCurve.Evaluate(stage);
         life = Random.Range(life, life / 3 * 2);
         if (zombieType == ZombieType.Life) life *= 3;
         if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
-        RPCSetup(speed, life, (int)priority.Random());
+        RPCSetup(speed, life, (int)zombieType);
     }
 
     public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
@@ -80,7 +81,7 @@ public class Zombie : Destroible
         zombieType = (ZombieType)priority;
         speed = zombiespeed;        
         maxLife =Life = zombieLife;
-        transform.localScale = Vector3.one * Mathf.Max(zombieLife / 300f, 1f);        
+        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 300f, 1f), 3);        
     }
     [RPC]
     public override void Die(int killedby)

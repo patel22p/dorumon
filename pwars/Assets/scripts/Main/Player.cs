@@ -30,6 +30,7 @@ public class Player : Destroible,IAim
     new public string nick;
     public bool spawned;
     public int frags;
+    public float defMaxLife;
     [FindTransform("speedparticles")]
     public ParticleEmitter speedparticles;
     [FindTransform("Guns")]
@@ -61,6 +62,7 @@ public class Player : Destroible,IAim
         AliveMaterial = model.renderer.sharedMaterial;        
         Debug.Log("player awake");
         defmass = rigidbody.mass;
+        defMaxLife = maxLife;
         this.rigidbody.maxAngularVelocity = 3000;
         if (networkView.isMine)
         {
@@ -88,8 +90,6 @@ public class Player : Destroible,IAim
         RPCSelectGun( selectedgun);
         RPCSetLifeUpgrate(lifeUpgrate);
         RPCSetSpeedUpgrate(speedUpgrate);
-        RPCSetHaveAntiGrav(haveAntiGravitation);
-        RPCSetHaveTimeWarp(haveTimeBomb);
         //if (spawned && dead) networkView.RPC("RPCDie", np, -1);
     }
     public override void OnSetOwner()
@@ -159,7 +159,7 @@ public class Player : Destroible,IAim
     }
     protected override void Update()
     {
-      
+        maxLife = defMaxLife + (lifeUpgrate * 100);
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
         if (isOwner)
@@ -271,7 +271,6 @@ public class Player : Destroible,IAim
     [RPC]
     public void SetFanarik(bool value)
     {
-        if(value) haveLight = true;
         fanarik.enabled = value;
     }
     public Light fanarik;
@@ -546,19 +545,6 @@ public class Player : Destroible,IAim
         frags = i;
         score = sc;
     }
-    
-    public void RPCSetHaveAntiGrav(bool value) { CallRPC("SetHaveAntiGrav", value); }
-    [RPC]
-    public void SetHaveAntiGrav(bool value)
-    {
-        haveAntiGravitation = value;
-    }
-    public void RPCSetHaveTimeWarp(bool value) { CallRPC("SetHaveTimeWarp",value); }
-    [RPC]
-    public void SetHaveTimeWarp(bool value)
-    {
-        haveTimeBomb = value;
-    }
 
     public void RPCSetSpeedUpgrate(int value) { CallRPC("SetSpeedUpgrate", value); }
     [RPC]
@@ -566,6 +552,7 @@ public class Player : Destroible,IAim
     {
         speedUpgrate = value;
     }
+
     public void RPCSetLifeUpgrate(int value) { CallRPC("SetLifeUpgrate", value); }
     [RPC]
     public void SetLifeUpgrate(int value)

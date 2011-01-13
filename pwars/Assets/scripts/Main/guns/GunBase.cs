@@ -24,7 +24,7 @@ public class GunBase : Base
     {
         return new Ray(cursor[0].position, rot * new Vector3(0, 0, 1));
     }
-#if UNITY_STANDALONE_WIN
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void Init()
     {
         if (GunPicture == null)

@@ -21,37 +21,27 @@ public class GameWindow : Base2 {
     [FindTransform("antigrav")]
     public GUITexture antigrav;
     [FindTransform("light")]
-    public GUITexture light;
+    public GUITexture spotLight;
     [FindTransform("clock")]
     public GUITexture clock;
-    public GUITexture BlueBar;
+    
     public GUIText Score;
-    public GUITexture RedBar;
+
+    [FindTransform]
+    public GUITexture energy;
+    [FindTransform]
+    public GUITexture energyoff;
+    [FindTransform]
+    public GUITexture life;
+    [FindTransform]
+    public GUITexture lifeoff;
+
     public GUIText time;
     public GUIText systemMessages;
     public GUIText level;
     public GUIText zombiesLeft;
     public GUIText frags;    
-    public float energy
-    {
-        get { return BlueBar.pixelInset.width / 2; }
-        set
-        {
-            Rect r = BlueBar.pixelInset;
-            r.width = Mathf.Min(value * 2, 200); ;
-            BlueBar.pixelInset = r;
-        }
-    }
-    public float life
-    {
-        get { return RedBar.pixelInset.width / 2; }
-        set
-        {
-            Rect r = RedBar.pixelInset;
-            r.width = Mathf.Min(value * 2, 200);
-            RedBar.pixelInset = r;
-        }
-    }
+    
     public List<GUITexture> blood;
     public float uron = 255f;
     public float repair = .4f;        
@@ -74,6 +64,16 @@ public class GameWindow : Base2 {
     }
 
     public int fps;
+    public void SetWidth(GUITexture t, int value)
+    {
+        var p = t.pixelInset;
+        if (p.width != value)
+        {
+            p.width = value;
+            t.pixelInset = p;
+        }
+    }
+
     void Update()
     {
         
@@ -88,16 +88,17 @@ public class GameWindow : Base2 {
         
         this.speedupgrate.text  = "Speed upgrate: "+_localPlayer.speedUpgrate;
         this.lifeupgrate.text = "Life upgrate: " + _localPlayer.lifeUpgrate;
-        this.light.enabled = _localPlayer.haveLight;
+        this.spotLight.enabled = _localPlayer.haveLight;
         this.clock.enabled = _localPlayer.haveTimeBomb;
         this.antigrav.enabled = _localPlayer.haveAntiGravitation;
 
         if (_localPlayer != null)
-        {
-            this.life = _localPlayer.Life;
+        {                        
+            SetWidth(life, (int)Mathf.Min(_localPlayer.Life, _localPlayer.maxLife));
+            SetWidth(lifeoff, (int)_localPlayer.maxLife);
+            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energy.pixelInset.width));            
+            
             this.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
-
-            this.energy = (int)_localPlayer.nitro;
             if (mapSettings.zombi)
             {
                 this.zombiesLeft.text = "Zombies : " + _Game.AliveZombies.Count().ToString();
@@ -106,7 +107,7 @@ public class GameWindow : Base2 {
             
             this.frags.text = "Frags: " + _localPlayer.frags.ToString();
 
-            this.Score.text = "Score: " + _localPlayer.score.ToString();
+            this.Score.text = "Score: " + ((int)_localPlayer.score).ToString();
         }
 
         foreach (GUITexture a in blood)

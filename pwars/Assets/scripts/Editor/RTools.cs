@@ -1,4 +1,4 @@
-#if UNITY_STANDALONE_WIN
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
 
 using UnityEditor;
 using System;
@@ -182,9 +182,11 @@ public partial class RTools : InspectorSearch
         {
 
             GameObject g = t.gameObject;
-            if (Selection.activeGameObject.transform.parent.Find(t.name) != null)
+            var p = Selection.activeGameObject.transform.parent.Find(t.name);
+            if ( p!= null)
             {
                 Debug.Log("found parent " + g.name);
+                p.transform.position = g.transform.position;
                 DestroyImmediate(g);
             }
         }
@@ -217,33 +219,7 @@ public partial class RTools : InspectorSearch
                 foreach (var a in g.GetComponentsInChildren<Collider>())
                     a.gameObject.AddOrGet<Box>();
             }
-            var items = GetAssets<GameObject>("/Items/", "*.Prefab");
-            foreach (var itemPrefab in items)
-            {
-                if (param[0].ToLower() == itemPrefab.name.ToLower() && g.GetComponent<MonoBehaviour>() == null)
-                {
-                    GameObject item = ((GameObject)Instantiate(itemPrefab));
-                    if (ParseRotation(g.name) != Vector3.zero)
-                        item.transform.rotation = Quaternion.LookRotation(ParseRotation(g.name));
-                    item.transform.position = t.position;
-                    item.transform.parent = t.parent;
-                    t.parent = item.transform;
-                    item.name = g.name;
-                    if (!item.name.StartsWith("lamp"))
-                    {
-                        destroy.Add(t.gameObject);
-                    }
-                    else
-                    {
-                        RaycastHit h;
-                        Ray r = new Ray(item.transform.position + item.transform.rotation * Vector3.forward, item.transform.rotation * Vector3.forward);
-                        Debug.DrawRay(r.origin, r.direction*1000, Color.red);
-                        if (Physics.Raycast(r, out h, 1000, 1 << LayerMask.NameToLayer("Level")))
-                            item.light.range = h.distance * 2;
-                    }
 
-                }
-            }
             if (param[0].ToLower() == "zombiespawn")
             {
                 g.renderer.enabled = false;
@@ -284,30 +260,32 @@ public partial class RTools : InspectorSearch
         FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
         if (atr != null)
         {
+            string name = (atr.name == null) ? pf.Name : atr.name;
             try
             {
-                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == atr.name).gameObject;
+                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == name).gameObject;
                 if (pf.FieldType == typeof(GameObject))
                     pf.SetValue(scr, g);
                 else
                     pf.SetValue(scr, g.GetComponent(pf.FieldType));
             }
-            catch { Debug.Log("cound not find path " + scr.name + "+" + atr.name); }
+            catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
         }
     }
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
-        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
+        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);        
         if (ap != null)
         {
+            string name = (ap.name == null) ? pf.Name : ap.name;
             object value = pf.GetValue(scr);
             if (value is Array)
             {
-                var o = Base2.GetFiles().Where(a => a.Contains(ap.name))
+                var o = Base2.GetFiles().Where(a => a.Contains(name))
                                     .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, pf.FieldType))
                                     .Where(a => a != null).Cast<AudioClip>().ToArray();
                 if (o.Length == 0)
-                    Debug.Log("could not find audioSources " + ap.name);
+                    Debug.Log("could not find audioSources " + name);
 
                 pf.SetValue(scr, o);
             }
@@ -398,38 +376,7 @@ public partial class RTools : InspectorSearch
             return l;
         }
     }    
-    public static Vector3 ParseRotation(string name)
-    {
-        Match m;
-        if ((m = Regex.Match(name, ",(-?(?:y|x|z))(?:$|,)")).Success)
-        {
-            string s = m.Groups[1].Value;
-            Vector3 v = new Vector3();
-            switch (s)
-            {
-                case "x":
-                    v = (new Vector3(-1, 0, 0));
-                    break;
-                case "-x":
-                    v = (new Vector3(1, 0, 0));
-                    break;
-                case "-z":
-                    v = (new Vector3(0, -1, 0));
-                    break;
-                case "z":
-                    v = (new Vector3(0, 1, 0));
-                    break;
-                case "y":
-                    v = (new Vector3(0, 0, -1));
-                    break;
-                case "-y":
-                    v = (new Vector3(0, 0, 1));
-                    break;
-            };
-            return v;
-        }
-        return new Vector3();
-    }
+    
     IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
     {
         foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))

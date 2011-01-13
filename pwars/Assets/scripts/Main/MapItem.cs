@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Random = UnityEngine.Random;
-public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight, clock, teleport, speedupgrate, lifeupgrate, timebomb, antigravitation }
+public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight, clock, teleport, speedupgrate, lifeupgrate, antigravitation }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class MapItem : Base,IAim
 {
@@ -94,7 +94,7 @@ public class MapItem : Base,IAim
             score = 100;
             text = "Take Antigravitation";
         }
-        if (itemType == MapItemType.timebomb)
+        if (itemType == MapItemType.clock)
         {
             endless = true;
             score = 50;
@@ -130,8 +130,8 @@ public class MapItem : Base,IAim
         {
             var gun = playerPrefab.GetComponent<Player>().guns[guni];
             var cur = transform.Find("cursor");
-            if (cur != null)
-            {
+            if (cur != null && cur.childCount==0)
+            {                
                 var g2 = (GameObject)Instantiate(gun.gunModel, cur.transform.position, cur.transform.rotation);
                 g2.transform.parent = cur;
             }
@@ -368,10 +368,10 @@ public class MapItem : Base,IAim
                 _localPlayer.RPCSetLifeUpgrate(_localPlayer.lifeUpgrate + 1);
             if (itemType == MapItemType.speedupgrate)
                 _localPlayer.RPCSetSpeedUpgrate(_localPlayer.speedUpgrate + 1);
-            if (itemType == MapItemType.timebomb)
-                _localPlayer.RPCSetHaveTimeWarp(true);
+            if (itemType == MapItemType.clock)
+                _localPlayer.haveTimeBomb = true;
             if (itemType == MapItemType.antigravitation)
-                _localPlayer.RPCSetHaveAntiGrav(true);
+                _localPlayer.haveAntiGravitation = true;
 
             if (animation != null && animation.clip != null)
                 RPCPlay();

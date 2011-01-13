@@ -1,14 +1,13 @@
 using System.Linq;
 using UnityEngine;
-
-
 using System.Collections;
 using doru;
 using System.Collections.Generic;
 using System;
 public enum Team : int { Red, Blue, None }
+interface IAim { void Aim(); }
 [Serializable]
-public class Player : Destroible
+public class Player : Destroible,IAim 
 {
     float shownicktime;
     public List<Vector3> plPathPoints = new List<Vector3>();
@@ -16,10 +15,13 @@ public class Player : Destroible
     public float nitro;
     public new bool dead { get { return !Alive && spawned; } }
     public new Team team = Team.None;
-    public float force;
-    public int score;
+    public float speed;
+    public float score;
     public bool haveLight;
     public bool haveTimeBomb;
+    public int speedUpgrate;
+    public int lifeUpgrate;
+    public bool haveAntiGravitation;
     public float freezedt;
     public int guni;
     public int fps;
@@ -28,16 +30,16 @@ public class Player : Destroible
     new public string nick;
     public bool spawned;
     public int frags;
-    [PathFind("speedparticles")]
+    [FindTransform("speedparticles")]
     public ParticleEmitter speedparticles;
-    [PathFind("Guns")]
+    [FindTransform("Guns")]
     public Transform guntr;
     [GenerateEnums("GunType")]
     public List<GunBase> guns = new List<GunBase>();
     public int selectedgun;
     public GunBase gun { get { return guns[selectedgun]; } }
     public float defmass;
-    [PathFind("Sphere")]
+    [FindTransform("Sphere")]
     public GameObject model;
     public override void Init()
     {        
@@ -54,10 +56,8 @@ public class Player : Destroible
     {
         isGrounded = 0;
     }
-
     protected override void Awake()
     {
-        
         AliveMaterial = model.renderer.sharedMaterial;        
         Debug.Log("player awake");
         defmass = rigidbody.mass;
@@ -69,7 +69,6 @@ public class Player : Destroible
             RPCSpawn();
         }
         //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
-
         base.Awake();
     }
     protected override void Start()
@@ -86,7 +85,11 @@ public class Player : Destroible
         RPCSpawn();        
         RPCSetAlive( Alive);
         RPCSetFanarik(fanarik.enabled);
-        RPCSelectGun( selectedgun);        
+        RPCSelectGun( selectedgun);
+        RPCSetLifeUpgrate(lifeUpgrate);
+        RPCSetSpeedUpgrate(speedUpgrate);
+        RPCSetHaveAntiGrav(haveAntiGravitation);
+        RPCSetHaveTimeWarp(haveTimeBomb);
         //if (spawned && dead) networkView.RPC("RPCDie", np, -1);
     }
     public override void OnSetOwner()
@@ -139,16 +142,8 @@ public class Player : Destroible
         
         RPCSelectGun(selectedgun);
     }
-    [LoadPath("change")]
+    [FindAsset("change")]
     public AudioClip changeSound;
-    public static Transform Root(string tag,Transform t2)
-    {
-        Transform t = t2;
-        while(t.parent != null && t.parent.tag != tag)
-            t = t.parent;
-
-        return t;
-    }
     public void RPCSelectGun(int i) { CallRPC("SelectGun", i); }
     [RPC]
     public void SelectGun(int i)
@@ -162,7 +157,6 @@ public class Player : Destroible
         if (Alive)
             guns[selectedgun].EnableGun();
     }
-
     protected override void Update()
     {
       
@@ -199,9 +193,6 @@ public class Player : Destroible
         base.Update();
         //UpdateLightmap(model.renderer.materials);
     }
-
-
-
     private void LocalUpdate()
     {
         if (isOwner && lockCursor && Alive)
@@ -231,9 +222,17 @@ public class Player : Destroible
             SelectGun();
             if (Input.GetKey(KeyCode.LeftShift))
                 this.transform.rotation = Quaternion.identity;
+
+            if (Input.GetKeyDown(KeyCode.Y) && (haveAntiGravitation || debug))
+            {
+                haveAntiGravitation = false;
+                _TimerA.AddMethod(15000, delegate { _Game.RPCSetGravityBomb(false); });
+                _Game.RPCSetGravityBomb(true);
+            }
             if (Input.GetKeyDown(KeyCode.T) && (haveTimeBomb || debug))
             {
-                _TimerA.AddMethod(5000, delegate { _Game.RPCSetTimeBomb(1); });
+                haveTimeBomb = false;
+                _TimerA.AddMethod(10000, delegate { _Game.RPCSetTimeBomb(1); });
                 _Game.RPCSetTimeBomb(Time.timeScale * 0.5f);
             }
             if (Input.GetKeyDown(KeyCode.Space))
@@ -256,6 +255,7 @@ public class Player : Destroible
             title.renderer.material.color = team == Team.Red ? Color.red : Color.blue;
         else
             title.renderer.material.color = Color.white;
+
         if (shownicktime > 0)
             title.text = nick + ":" + Life;
         else
@@ -263,7 +263,10 @@ public class Player : Destroible
 
         shownicktime -= Time.deltaTime;
     }
-
+    public void Aim()
+    {
+        shownicktime = 3;
+    }
     public void RPCSetFanarik(bool v) { CallRPC("SetFanarik",v); }
     [RPC]
     public void SetFanarik(bool value)
@@ -294,29 +297,31 @@ public class Player : Destroible
             LocalSelectGun(9);
     }
     public LineRenderer laserRender;
-
     public void UpdateAim()
     {
         if (isOwner) syncRot = _Cam.transform.rotation;
         guntr.rotation = syncRot;
 
-        Ray r = new Ray(gun.cursor[0].position, gun.rot * new Vector3(0, 0, 1));
-        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
-        Physics.Raycast(r, out h, 100);        
-        if ((gun.laser || debug) && Alive && selectedgun != (int)GunType.physxgun)
+        Ray r = gun.GetRay();
+        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };        
+        if (Physics.Raycast(r, out h, 100))
         {
+            var aim = h.collider.gameObject.transform.GetMonoBehaviorInParrent() as IAim;
+            if (aim != null)
+                aim.Aim();
+        }
+
+        if ((gun.laser || debug) && Alive && selectedgun != (int)GunType.physxgun)
+        {            
             laserRender.enabled = true;
             laserRender.SetPosition(0, r.origin);
             laserRender.SetPosition(1, h.point);
         }
         else
             laserRender.enabled = false;
-
-
     }
-    
     protected virtual void FixedUpdate()
-    {
+    {                
         if (isOwner) FixedLocalMove();
         //UpdateAim();
     }
@@ -326,24 +331,25 @@ public class Player : Destroible
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
-            moveDirection.y = 0;
+            if(Physics.gravity == _Game.gravity)
+                moveDirection.y = 0;
             moveDirection.Normalize();
-
-
             Vector3 v = this.rigidbody.velocity;
-            float slw = freezedt > 0 ? .5f : 1f;
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
-                this.rigidbody.AddForce(moveDirection * 0.02f / Time.timeScale * force * 7*slw);
-                v.x *= .65f;
-                v.z *= .65f;
+                this.rigidbody.AddForce(moveDirection / Time.timeScale * speed * 200);
+                v.x *= .35f;                
+                v.z *= .35f;
+                if (Physics.gravity != _Game.gravity)
+                    v.y *= .35f;
                 this.rigidbody.velocity = v;
             }
             else
             {
-                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * 0.02f / Time.timeScale * 300 * slw);
+                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed / Time.timeScale*5);
             }
+            if (freezedt > 0) this.rigidbody.velocity *= .95f;
         }
     }
     public void RPCJump() { CallRPC("Jump"); }
@@ -354,7 +360,7 @@ public class Player : Destroible
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) / Time.timeScale);
         PlaySound(nitrojumpSound);
     }
-    [LoadPath("nitrojump")]
+    [FindAsset("nitrojump")]
     public AudioClip nitrojumpSound;
     public void NextGun(float a)
     {
@@ -369,7 +375,6 @@ public class Player : Destroible
             RPCSelectGun(guni);
         }
     }
-
     public void RPCSetTeam(int t) { CallRPC("SetTeam",t); }
     [RPC]
     public void SetTeam(int t)
@@ -379,9 +384,6 @@ public class Player : Destroible
     }
     [RPC]
     public void RPCSetDeaths(int d) { deaths = d; }
-    
-    
-    
     protected override void OnCollisionEnter(Collision collisionInfo)
     {        
         if (!Alive) return;
@@ -390,11 +392,11 @@ public class Player : Destroible
             RPCPowerExp(this.transform.position);
         base.OnCollisionEnter(collisionInfo);
     }
-    [LoadPath("powerexp")]
+    [FindAsset("powerexp")]
     public AudioClip powerexpSound;
-    [LoadPath("wave")]
+    [FindAsset("wave")]
     public GameObject WavePrefab;
-    [LoadPath("bowling")]
+    [FindAsset("bowling")]
     public AudioClip bowling;
     public void RPCPowerExp(Vector3 v) { CallRPC("PowerExp",v); }        
     [RPC]
@@ -406,18 +408,16 @@ public class Player : Destroible
         Explosion e = g.AddComponent<Explosion>();
         e.OwnerID = OwnerID;
         e.self = this;
-        e.exp = 3000;
-        e.radius = 8;
+        e.exp = 5000;
+        e.radius = 10;
         e.damage = 200;
         if(isOwner)
             _Cam.exp = 2;
         
         Destroy(g, 1.6f);
     }
-
-
     [RPC]
-    public override void SetLife(int NwLife, int killedby)
+    public override void SetLife(float NwLife, int killedby)
     {
         if (!Alive) return;
         if (isOwner)
@@ -432,17 +432,14 @@ public class Player : Destroible
             RPCDie(killedby);
 
     }
-
-
     public void RPCSetUserInfo(string nick) { CallRPC("SetUserInfo", nick); }
     [RPC]
     public void SetUserInfo(string nick)
     {        
         this.nick = nick;
     }
-    [LoadPath("Detonator-Base")]
+    [FindAsset("Detonator-Base")]
     public GameObject detonator;
-
     [RPC]
     public override void Die(int killedby)
     {
@@ -455,45 +452,39 @@ public class Player : Destroible
         Instantiate(dt, transform.position, Quaternion.identity);
         var exp = dt.gameObject.AddComponent<Explosion>();
         exp.self = this;
-
         deaths++;
+        
+        if (killedby == _localPlayer.OwnerID)
+        {
+            if (OwnerID == _localPlayer.OwnerID)
+            {
+                _Game.RPCWriteMessage(_localPlayer.nick + " Killed self ");
+                _localPlayer.AddFrags(-1, -.5f);
+            }
+            else if (team != _localPlayer.team || mapSettings.DM)
+            {
+                _Game.RPCWriteMessage(_localPlayer.nick + " kill " + nick);
+                _localPlayer.AddFrags(+1, 2);
+            }
+            else
+            {
+                _Game.RPCWriteMessage(_localPlayer.nick + " kill " + nick);
+                _localPlayer.AddFrags(-1, -1);
+            }
+        }
+        if (killedby == -1)
+        {
+            _Game.RPCWriteMessage(nick + " died ");
+        }
+
         if (isOwner)
         {
             if (!mapSettings.zombi) _TimerA.AddMethod(10000, delegate { RPCSetAlive(true); });
-            foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
-            {
-                if (p.OwnerID == killedby)
-                {
-                    if (p.isOwner)
-                    {
-                        _Game.RPCWriteMessage(_localPlayer.nick + " Killed self ");
-                        _localPlayer.AddFrags(-1, -5);
-                    }
-                    else if (p.team != _localPlayer.team || mapSettings.DM)
-                    {
-                        _Game.RPCWriteMessage(p.nick + " kill " + _localPlayer.nick);
-                        p.AddFrags(+1, 20);
-                    }
-                    else
-                    {
-                        _Game.RPCWriteMessage(p.nick + " kill " + _localPlayer.nick);
-                        p.AddFrags(-1, -10);
-                    }
-                }
-            }
-            if (killedby == -1)
-            {
-                _Game.RPCWriteMessage(_localPlayer.nick + " died ");
-                _localPlayer.AddFrags(-1, -5);
-            }
-            lockCursor = false;
             RPCSetAlive(false);
         }
     }
     public Material AliveMaterial;
     public Material deadMaterial;
-
-
     public void RPCSetAlive(bool v) { CallRPC("SetAlive", v); }
     [RPC]
     public void SetAlive(bool value)
@@ -515,46 +506,71 @@ public class Player : Destroible
         freezedt = 0;
 
     }
-
     float multikilltime;
     int multikill;
-    public void AddFrags(int i, int sc)
+    public void AddFrags(int i,float sc)
     {
-        RPCSetFrags(frags + i, score + sc);
-    }
-    [LoadPath("toasty")]
-    public AudioClip[] multikillSounds;
+        if (multikilltime > 0)
+            multikill += i;
+        else
+            multikill = 0;
+        multikilltime = 1;
 
-    public void RPCSetFrags(int i, int sc) { CallRPC("SetFrags",i, sc); }
-    [RPC]
-    public void SetFrags(int i, int sc)
-    {
-        if (isOwner)
+        if (multikill >= 1)
         {
-            if (multikilltime > 0)
-                multikill += (i - frags);
-            else
-                multikill = 0;
-            multikilltime = 1;
-
-
-            if (multikill >= 1)
+            if (gun is GunPhysix)
             {
-                if (gun is GunPhysix && multikill > 3)
-                    PlaySound(bowling, 3);
-                else
-                    PlayRandSound(multikillSounds, 5);
-                
-                if (isOwner)
+                if (!audio.isPlaying)
                 {
-                    _Cam.ScoreText.text = "x" + (multikill + 1);
-                    _Cam.ScoreText.animation.Play();
+                    audio.clip = bowling;
+                    audio.volume = 3;
+                    audio.Play();                    
                 }
             }
+            else
+                PlayRandSound(multikillSounds, 5);
+
+            _Cam.ScoreText.text = "x" + (multikill + 1);
+            _Cam.ScoreText.animation.Play();
         }
+        frags += i;
+        score += sc;
+        RPCSetFrags(frags, score);
+    }
+    [FindAsset("toasty")]
+    public AudioClip[] multikillSounds;
+    public void RPCSetFrags(int i, float score) { CallRPC("SetFrags", i, score); }
+    [RPC]
+    public void SetFrags(int i, float sc)
+    {        
         frags = i;
         score = sc;
+    }
     
+    public void RPCSetHaveAntiGrav(bool value) { CallRPC("SetHaveAntiGrav", value); }
+    [RPC]
+    public void SetHaveAntiGrav(bool value)
+    {
+        haveAntiGravitation = value;
+    }
+    public void RPCSetHaveTimeWarp(bool value) { CallRPC("SetHaveTimeWarp",value); }
+    [RPC]
+    public void SetHaveTimeWarp(bool value)
+    {
+        haveTimeBomb = value;
+    }
+
+    public void RPCSetSpeedUpgrate(int value) { CallRPC("SetSpeedUpgrate", value); }
+    [RPC]
+    public void SetSpeedUpgrate(int value)
+    {
+        speedUpgrate = value;
+    }
+    public void RPCSetLifeUpgrate(int value) { CallRPC("SetLifeUpgrate", value); }
+    [RPC]
+    public void SetLifeUpgrate(int value)
+    {
+        lifeUpgrate = value;
     }
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {
@@ -565,8 +581,6 @@ public class Player : Destroible
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);
         return velocityChange;
     }
-
-    
     public override Quaternion rot
     {
         get
@@ -578,5 +592,4 @@ public class Player : Destroible
             guntr.rotation = value;
         }
     }
-
 }

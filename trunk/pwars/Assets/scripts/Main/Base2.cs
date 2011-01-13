@@ -153,8 +153,8 @@ public partial class Base2 : MonoBehaviour
         inited = true;
     }
     public bool inited;
-#if (UNITY_EDITOR)
-    
+#if (UNITY_STANDALONE_WIN)
+
     public static string[] files;
     public static IEnumerable<string> GetFiles()
     {

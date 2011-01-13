@@ -30,7 +30,7 @@ public class Loader : Base
     public List<MapSetting> mapsets = new List<MapSetting>();
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     new public MapSetting mapSettings = new MapSetting();
-    [LoadPath("Skin/Skin.guiskin")]
+    [FindAsset("Skin/Skin.guiskin")]
     public GUISkin Skin;
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     protected override void Awake()

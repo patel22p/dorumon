@@ -1,1 +1,1 @@
-public enum GunType:int{none = -1,ak,minigun,pistol,shotgun,sniper,uzi,bazoka,granate,gravitygranate,staticField,physxgun,barrel,tower}
+public enum GunType:int{none = -1,pistol,uzi,ak,minigun,shotgun,sniper,bazoka,granate,gravitygranate,staticField,physxgun,tower}

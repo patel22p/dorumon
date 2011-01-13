@@ -6,15 +6,6 @@ public class UserView : MonoBehaviour
 {
     [XmlIgnoreAttribute]
     public Texture2D texture;
-    //public override int GetHashCode()
-    //{
-    //    return nwid.GetHashCode();
-    //}
-
-    //public override bool Equals(object obj)
-    //{
-    //    return ((user)obj).nwid == this.nwid;
-    //}        
     public string first_name = "";
     public string last_name = "";
     public string nickname = "";

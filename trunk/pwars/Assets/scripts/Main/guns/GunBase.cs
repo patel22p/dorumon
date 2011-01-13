@@ -20,6 +20,11 @@ public class GunBase : Base
         Text = name;
         base.Awake();
     }
+    public Ray GetRay()
+    {
+        return new Ray(cursor[0].position, rot * new Vector3(0, 0, 1));
+    }
+#if UNITY_STANDALONE_WIN
     public override void Init()
     {
         if (GunPicture == null)
@@ -31,6 +36,7 @@ public class GunBase : Base
         if (gunModel == null && this.GetComponentInChildren<Renderer>() != null) gunModel = this.GetComponentInChildren<Renderer>().gameObject;
         base.Init();
     }
+#endif
     public virtual void DisableGun()
     {
         Show(false);

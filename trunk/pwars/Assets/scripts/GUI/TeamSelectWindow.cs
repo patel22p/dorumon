@@ -20,10 +20,10 @@ public class TeamSelectWindow : WindowBase {
 	public bool focusImages;
 	public int tabImages;
 	public bool focusRed;
-	[LoadPath("Skin/Images/Image2.png")]
+	[FindAsset("Skin/Images/Image2.png")]
 	public Texture2D ImageRed;
 	public bool focusBlue;
-	[LoadPath("Skin/Images/Image1.png")]
+	[FindAsset("Skin/Images/Image1.png")]
 	public Texture2D ImageBlue;
 	public bool focusTeamSelect;
 	public bool TeamSelect=false;

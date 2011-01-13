@@ -14,15 +14,15 @@ public class StaticsWindow : WindowBase {
 		
 	public int tabTabControl2;
 	public bool focusYourRank;
-	[LoadPath("Skin/Images/1_ефрейтор.jpg")]
+	[FindAsset("Skin/Images/1_ефрейтор.jpg")]
 	public Texture2D ImageYourRank;
 	public bool focusNextRank;
-	[LoadPath("Skin/Images/2_мл сержант.jpg")]
+	[FindAsset("Skin/Images/2_мл сержант.jpg")]
 	public Texture2D ImageNextRank;
 	public bool focusUserRank;
 	public float UserRank = 100;
 	public bool Button11=false;
-	[LoadPath("Skin/Images/unity.jpg")]
+	[FindAsset("Skin/Images/unity.jpg")]
 	public Texture2D Image;
 	public bool focusPlayer;
 	public bool isReadOnlyPlayer = true;

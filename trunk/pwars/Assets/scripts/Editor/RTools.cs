@@ -1,3 +1,5 @@
+#if UNITY_STANDALONE_WIN
+
 using UnityEditor;
 using System;
 using UnityEngine;
@@ -22,12 +24,12 @@ public partial class RTools : InspectorSearch
     }
     protected override void OnGUI()
     {
-        BuildButtons();
-             
+        BuildButtons();        
         GUI.BeginHorizontal();
-        bake = GUI.Toggle(bake, "Bake");
+        bake = GUI.Toggle(bake, "Bake"); 
         if (GUI.Button("SetupLevel"))
         {
+            
             var l = GameObject.Find("level");
             var p = l.transform.parent;
             DestroyImmediate(l);
@@ -45,25 +47,8 @@ public partial class RTools : InspectorSearch
                 if (bake)
                 {
                     var old = RenderSettings.ambientLight;
-                    RenderSettings.ambientLight = Color.white * .05f;
-                    Lightmapping.Bake();
-                    //_TimerA.AddMethod(() => (!Lightmapping.isRunning), delegate
-                    {
-                        foreach (var a in LightmapSettings.lightmaps)
-                        {
-                            var t = a.lightmapFar;
-                            for (int x = 0; x < t.width; x++)
-                            {
-                                for (int y = 0; y < t.height; y++)
-                                {
-                                    var c = t.GetPixel(x, y);
-                                    var alf = Math.Min(.1999f, c.a);
-                                    t.SetPixel(x, y, new Color(c.r, c.g, c.b, alf));
-                                }
-                            }
-                            t.Apply();
-                        }
-                    }//);
+                    RenderSettings.ambientLight = Color.white * .05f; 
+                    Lightmapping.BakeAsync();
                     RenderSettings.ambientLight = old;
                 }
             });
@@ -73,6 +58,9 @@ public partial class RTools : InspectorSearch
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
+            SetupMaterials();
+            
+
             if (Selection.activeGameObject != null)
                 Inits(cspath);
         }
@@ -80,7 +68,7 @@ public partial class RTools : InspectorSearch
         GUI.EndHorizontal();
 
         BuildGUI();
-        base.OnGUI();   
+        base.OnGUI();
     }
     private void BuildButtons()
     {
@@ -115,118 +103,81 @@ public partial class RTools : InspectorSearch
             System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
         }
     }
-    //[MenuItem("RTools/Materials")]
+
+    static Color NormalizeColor(Color c, float procent, float a)
+    {
+        //var n = 1f / Math.Max(Math.Max(c.r, c.b), c.g);
+        var c2 = c;//new Color(c.r * n, c.b * n, c.g * n) * procent;
+        c2.a = a;
+        return c2;
+    }
     private static void SetupMaterials()
     {
-        var ago = Selection.activeGameObject;
-        if (ago != null)
-            foreach (var m in ago.GetComponentsInChildren<Renderer>().Where(a => a != null).SelectMany(a => a.sharedMaterials).Where(a => a != null).Distinct())
-            {
-                var norm = .8f;
-                var spec = .8f;
-                var n = m.shader.name;
-                bool isSpec = (n == "Specular" || n == "Parallax Specular");
-                if (n == "Diffuse" || isSpec)
-                {
-                    m.color = new Color(norm, norm, norm, .2f);
-                    if (isSpec)
-                        m.SetColor("_SpecColor", new Color(spec, spec, spec, .3f));
-                }
-            }
-    }
-    IEnumerable<Transform> GetTransforms(Transform ts)
-    {
-        foreach (Transform t in ts)
+        if (Selection.activeObject is Cubemap)
         {
-            foreach (var t2 in GetTransforms(t))
-                yield return t2;
-            yield return t;
+            Cubemap cb = (Cubemap)Selection.activeObject;
+            var pos = SceneView.lastActiveSceneView.camera.transform.position;
+            var c =new GameObject("cam", typeof(Camera)).GetComponent<Camera>();
+            c.transform.position = pos;
+            c.RenderToCubemap(cb);
+            DestroyImmediate(c);
+            Debug.Log("rendered to cubemap");
         }
 
+        foreach (Material m in Selection.objects.Where(a => a is Material))
+        {
+            Debug.Log("Material " + m.name);
+            var n = m.shader.name;
+            bool isSpec = (n == "Specular" || n == "Parallax Specular");
+            if (n == "Diffuse" || isSpec)
+            {
+                m.color = NormalizeColor(m.color, .8f, .2f);
+                if (isSpec)
+                    m.SetColor("_SpecColor", NormalizeColor(m.color, .3f, .2f));
+            }
+        }
     }
+
     private void Inits(string cspath)
     {
+        //_TimerA.AddMethod(delegate()
+        // {
+        
+        
         foreach (var go in Selection.gameObjects)
         {
-            go.active = true;
-            foreach (Transform t in GetTransforms(go.transform.root))
+            foreach (var scr in go.GetComponentsInChildren<Base2>())
             {
-                t.gameObject.active = true;
-            }
-        }
-
-        _TimerA.AddMethod(delegate()
-        {
-            foreach (var go in Selection.gameObjects)
-            {
-                foreach (var scr in go.GetComponentsInChildren<Base2>())
-                {                    
-                    foreach (var pf in scr.GetType().GetFields())
-                    {
-                        InitLoadPath(scr, pf);
-                        CreateEnum(cspath, scr, pf);
-                        PathFind(scr, pf);
-                    }
-                    if (scr.networkView != null && scr.networkView.observed == null)
-                        scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+                
+                foreach (var pf in scr.GetType().GetFields())
+                {
+                    InitLoadPath(scr, pf);
+                    CreateEnum(cspath, scr, pf);
+                    PathFind(scr, pf);
+                }
+                if (scr.networkView != null && scr.networkView.observed == null)
+                    scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+                try
+                {
                     scr.Init();
                 }
+                catch (Exception e) { Debug.LogError(e); }
             }
-        });
+        }
+        //});
 
         _TimerA.AddMethod(delegate()
         {
             foreach (var au in Selection.activeGameObject.GetComponentsInChildren<AudioSource>())
                 au.minDistance = 10;
         });
-
-
-
-        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
-        {
-            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
-            {
-                DestroyImmediate(t.gameObject.animation);
-            }
-            else
-            {
-            }
-            t.gameObject.isStatic = true;
-        }
-
-        //var agos = Selection.activeGameObject.GetComponentsInChildren<Animation>().Select(a=>a.gameObject);
-        //var ie = agos.GetEnumerator();
-        //ie.MoveNext();
-        //Next(ie);            
+                 
     }
-    void Next(IEnumerator<GameObject> ie)
-    {
-        var ago = ie.Current; 
-        Selection.activeGameObject = ago;
-        AnimationUtility.StartAnimationMode(new[] { ago });
-        _TimerA.AddMethod(500, delegate
-        {
-            var p = ago.transform.position;
-            _TimerA.AddMethod(500, delegate
-            {
-                ago.transform.position = p;
-                var c = ie.Current ;
-                ie.MoveNext();
-                if (c == ie.Current) return;
-                Next(ie);
-            });
-            AnimationUtility.StopAnimationMode();
-        });
 
-    }
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
-        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
-            t.gameObject.layer = LayerMask.NameToLayer("Level");
         base.SetupLevel();
-
-        
         foreach (Transform t in Selection.activeGameObject.transform)
         {
 
@@ -237,6 +188,25 @@ public partial class RTools : InspectorSearch
                 DestroyImmediate(g);
             }
         }
+        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+        {
+            t.gameObject.layer = LayerMask.NameToLayer("Level");
+            t.gameObject.isStatic = true;
+            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
+                DestroyImmediate(t.gameObject.animation);
+        }
+
+        foreach (Animation t in Selection.activeGameObject.GetComponentsInChildren<Animation>())
+        {
+            foreach (var f in t.transform.GetComponentsInChildren<Transform>())
+            {
+                f.gameObject.isStatic = false;
+                f.gameObject.layer = LayerMask.NameToLayer("Default");
+                var c =  f.gameObject.GetComponent<Collider>();
+                if(c!=null)
+                    DestroyImmediate(c);
+            }            
+        }
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
@@ -244,7 +214,8 @@ public partial class RTools : InspectorSearch
         
             if (param[0] == ("coll"))
             {
-                g.AddOrGet<Box>();
+                foreach (var a in g.GetComponentsInChildren<Collider>())
+                    a.gameObject.AddOrGet<Box>();
             }
             var items = GetAssets<GameObject>("/Items/", "*.Prefab");
             foreach (var itemPrefab in items)
@@ -281,6 +252,8 @@ public partial class RTools : InspectorSearch
             }
             if (g.name == "path")
             {
+                g.active = false;
+                DestroyImmediate(g.GetComponent<MeshCollider>());                
                 Debug.Log("founded path");
                 destroy.Add(g);
             }
@@ -308,12 +281,12 @@ public partial class RTools : InspectorSearch
     }
     private static void PathFind(Base2 scr, FieldInfo pf)
     {
-        PathFind atr = (PathFind)pf.GetCustomAttributes(true).FirstOrDefault(a => a is PathFind);
+        FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
         if (atr != null)
         {
             try
             {
-                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.Find(atr.name).gameObject;
+                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == atr.name).gameObject;
                 if (pf.FieldType == typeof(GameObject))
                     pf.SetValue(scr, g);
                 else
@@ -324,7 +297,7 @@ public partial class RTools : InspectorSearch
     }
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
-        LoadPath ap = (LoadPath)pf.GetCustomAttributes(true).FirstOrDefault(a => a is LoadPath);
+        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
         if (ap != null)
         {
             object value = pf.GetValue(scr);
@@ -339,7 +312,7 @@ public partial class RTools : InspectorSearch
                 pf.SetValue(scr, o);
             }
             else
-                if ((value == null || value.Equals(null)))
+                if ((value == null || value.Equals(null)) || ap.overide)
                 {                                        
                     pf.SetValue(scr, Base2.FindAsset(ap.name, pf.FieldType));
                 }
@@ -396,7 +369,10 @@ public partial class RTools : InspectorSearch
             cs += "public enum " + ge.name + ":int{none = -1,";
             var ie = (IEnumerable)f.GetValue(g);
             foreach (object o in ie)
-                cs += o + ",";
+            {
+                if (o != null)
+                    cs += o + ",";
+            }
             cs = cs.Trim(new[] { ',' });
             cs += "}";
             Debug.Log("geneerated:" + cs);
@@ -467,3 +443,4 @@ public partial class RTools : InspectorSearch
     
 }
 
+#endif

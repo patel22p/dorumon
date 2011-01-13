@@ -4,21 +4,24 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight, clock }
+using Random = UnityEngine.Random;
+public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, health, trap, spotlight, clock, teleport, speedupgrate, lifeupgrate, timebomb, antigravitation }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
-public class MapItem : Base
+public class MapItem : Base,IAim
 {
-    public int score;
-    //[LoadPath("Swish grainy")]
+    public float score;
+    [FindAsset("checkout", overide = true)]
     public AudioClip opendoor;
     public bool payonce;
     public bool hide;
+    public bool lookat;
     public bool autoTake;
     public Vector3 Jumper = new Vector3(0, 1000, 0);
     public Vector2 Speed;
     public float distance=10;
     public int itemsLeft = 1;
     public bool endless;
+    public Transform teleport;
     public MapItemType itemType;
     public string gunType;
     public int guni { get { return (int)gunType.Parse<GunType>(); } }    
@@ -27,24 +30,21 @@ public class MapItem : Base
     public string text = "";
     public float TmOn;
     public int respawnTm;
-    public float tmJumper;
     public string[] param { get { return name.Split(','); } }
     public float tmCheckOut;
-    [LoadPath("Player")]
+    [FindAsset("Player")]
     public GameObject playerPrefab;    
-    [LoadPath("superphys_launch3")]
+    [FindAsset("superphys_launch3")]
     public AudioClip superphys_launch3;
-    [LoadPath("wave")]
+    [FindAsset("wave")]
     public GameObject wavePrefab;
     public override void Init()
     {
         foreach (Transform t in GetComponentsInChildren<Transform>())
         {
-            t.gameObject.isStatic = false;
+            t.gameObject.isStatic = false;            
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
-
-       
         ParseItemType();
         var g = gameObject;
         if (!inited)
@@ -60,15 +60,17 @@ public class MapItem : Base
         foreach (var a in g.GetComponentsInChildren<Animation>())
         {
             a.animatePhysics = true;
-            a.playAutomatically = true;
-            a.wrapMode = WrapMode.Once;
+            a.playAutomatically = true;            
+            //a.clip.wrapMode = WrapMode.Loop;
+            //foreach (AnimationState b in a)
+            //    b.wrapMode = WrapMode.Loop;            
         }
         if (itemType == MapItemType.trap)
         {
-            bullets = 20;
+            lookat = true;
+            bullets = 1000;
             endless = true;
             score = 2;
-
         }
         if (itemType == MapItemType.clock)
         {
@@ -85,6 +87,32 @@ public class MapItem : Base
         if (itemType == MapItemType.laser)
         {
             endless = true; score = 5; text = "Take Laser aim";
+        }
+        if (itemType == MapItemType.antigravitation)
+        {
+            endless = true;
+            score = 100;
+            text = "Take Antigravitation";
+        }
+        if (itemType == MapItemType.timebomb)
+        {
+            endless = true;
+            score = 50;
+            text = "Take TimeBomb";
+        }
+        if (itemType == MapItemType.speedupgrate)
+        {
+            itemsLeft = 3;
+            hide = true;
+            score = 200;
+            text = "Upgrate speed";
+        }
+        if (itemType == MapItemType.lifeupgrate)
+        {
+            itemsLeft = 3;
+            hide = true;
+            score = 150;
+            text = "Upgrate life";
         }
 
         if (itemType == MapItemType.trap)
@@ -107,8 +135,10 @@ public class MapItem : Base
                 var g2 = (GameObject)Instantiate(gun.gunModel, cur.transform.position, cur.transform.rotation);
                 g2.transform.parent = cur;
             }
-
-            bullets = (int)(20 / ((Gun)gun).interval);
+            if (bullets == 1000 && gun is Gun)
+            {
+                bullets = (int)(20 / ((Gun)gun).interval);
+            }
             text = "Press F to buy" + gunType;
             Parse(ref score, 2);
             Parse(ref autoTake, 3);
@@ -117,17 +147,25 @@ public class MapItem : Base
             if (autoTake)
                 distance = 1;
         }
+        if (itemType == MapItemType.teleport)
+        {
+            endless = true;
+            text = "Teleport";
+            foreach (var a in this.GetComponentsInChildren<Collider>())
+                a.isTrigger = true;
+            score = 10;
+        }
         if (itemType == MapItemType.door)
         {
             endless = false;
-            text = "чтобы открыть дверь нажми F";
+            text = "Door";
             Parse(ref score, 1);
         }
         
         if (itemType == MapItemType.speed)
         {
             distance = 0;            
-            autoTake = true;
+            autoTake = false;
             endless = true;
             text = "Speed up";
             try
@@ -150,7 +188,7 @@ public class MapItem : Base
         if (itemType == MapItemType.jumper)
         {
             text = "Jumper";
-            payonce = true;
+            endless = true;
             distance = 0;
             try
             {
@@ -164,26 +202,26 @@ public class MapItem : Base
             text = "To buy energy press F";
 
         
-        foreach(var a in g.GetComponentsInChildren<Collider>().Distinct())
+        foreach(var a in g.GetComponentsInChildren<Renderer>().Distinct())
         {
             var go = a.gameObject;
-            DestroyImmediate(a);
+            if(a.collider!=null)
+                DestroyImmediate(a.collider);
             go.AddComponent<BoxCollider>();
         }
 
         base.Init();
     }
-    public Transform[] trs;
     protected override void Awake()
     {
-        trs = GetComponentsInChildren<Transform>().Union(GetComponents<Transform>()).ToArray();
+        foreach (var a in gameObject.GetComponentsInChildren<Animation>())
+            a.wrapMode = WrapMode.Once;
+
         if (itemType == MapItemType.shop || itemType == MapItemType.laser || itemType == MapItemType.health || itemType == MapItemType.spotlight)
         {
             foreach (var r in GetComponentsInChildren<Renderer>())
                 r.material.shader = Shader.Find("Self-Illumin/Diffuse");
         }
-
-        
         base.Awake();
     }
     protected override void Start()
@@ -194,25 +232,31 @@ public class MapItem : Base
         UpdateLightmap(this.GetComponentsInChildren<Renderer>().SelectMany(a => a.materials));
     }
     bool canEnable { get { return (animation == null || animation.clip.name != "Take 001" || !animation.isPlaying) && _localPlayer.Alive; } }
-    
+
+
+    public void Aim()
+    {
+        if (lookat)
+        {
+            TmOn = 1;            
+        }
+    }
     void Update()
     {
-
-        foreach (var a in trs)
-        {
-            if (Vector3.Distance(a.position, _localPlayer.pos) < distance && canEnable)
+        foreach (var t in transform.GetTransforms())
+            if (Vector3.Distance(t.position, _localPlayer.pos) < distance && canEnable)
+            {
                 TmOn = 1;
-        }
+                teleport = t;
+            }        
+
         tmCheckOut -= Time.deltaTime;
-        tmJumper -= Time.deltaTime;
         if (TmOn > 0)
             TmOn -= Time.deltaTime;
         if (TmOn > 0)
         {
-
-            JumperUpdate();
             bool donthavegun = (itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1);
-            int Score = (donthavegun ? this.score * 3 : this.score);
+            float Score = (donthavegun ? this.score * 3 : this.score);
 
             if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug))
             {
@@ -221,7 +265,7 @@ public class MapItem : Base
 
             if ((endless || itemsLeft > 0) && text != "")
             {
-                _GameWindow.CenterText.text = text + (Score > 0 ? (", нужно заплатить " + Score + " очков") : "");
+                _GameWindow.CenterText.text = text + (Score > 0 ? (", costs " + Score + " Money") : "");
 
             }
         }
@@ -231,22 +275,8 @@ public class MapItem : Base
             TmOn = 0;
         }
     }
-    private void JumperUpdate()
-    {
-        tmJumper -= Time.deltaTime;
-        if (itemType == MapItemType.jumper && _localPlayer.selectedgun == (int)GunType.physxgun && score == 0)
-        {
-            if (Input.GetMouseButtonUp(0) && tmJumper < 0 && (_localPlayer.gun.patronsLeft > 10 || debug))
-            {
-                tmJumper = 1;
-                _localPlayer.gun.patronsLeft -= 10;
-                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass/Time.timeScale);
-                GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
-                Destroy(g, 1.6f);
-            }
-            
-        }
-    }
+    bool isbought { get { return score == 0; } }
+    
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         if (isCheckOutCalled)
@@ -286,11 +316,30 @@ public class MapItem : Base
     {
         if ((itemsLeft > 0 || endless) && tmCheckOut < 0)
         {
-            RPCCheckOut(itemsLeft - 1); 
-            if (itemType == MapItemType.speed)
+            RPCCheckOut(itemsLeft - 1);
+            if (itemType == MapItemType.speed && isbought)
+                _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x) / Time.timeScale);
+
+            if (itemType == MapItemType.teleport)
             {
-                _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x)/Time.timeScale);
+
+                foreach (var a in transform.Cast<Transform>().OrderBy(a => Random.Range(-1, 1)))
+                {
+                    if (a != teleport)
+                    {
+                        _localPlayer.transform.position = a.position;
+                    }
+                }
             }
+            if (itemType == MapItemType.jumper && isbought)
+            {
+                _localPlayer.gun.patronsLeft -= 10;
+                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass / Time.timeScale);
+                GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
+                PlaySound(superphys_launch3);
+                Destroy(g, 1.6f);
+            }
+
             tmCheckOut = 4;
             _localPlayer.score -= score;
             
@@ -315,13 +364,20 @@ public class MapItem : Base
             }
             if (itemType == MapItemType.spotlight)
                 _localPlayer.RPCSetFanarik(true);
-            
+            if (itemType == MapItemType.lifeupgrate)
+                _localPlayer.RPCSetLifeUpgrate(_localPlayer.lifeUpgrate + 1);
+            if (itemType == MapItemType.speedupgrate)
+                _localPlayer.RPCSetSpeedUpgrate(_localPlayer.speedUpgrate + 1);
+            if (itemType == MapItemType.timebomb)
+                _localPlayer.RPCSetHaveTimeWarp(true);
+            if (itemType == MapItemType.antigravitation)
+                _localPlayer.RPCSetHaveAntiGrav(true);
+
             if (animation != null && animation.clip != null)
                 RPCPlay();
-
-            
         }
     }
+
     public void RPCPlay() { CallRPC("Play"); }
     [RPC]
     public void Play()

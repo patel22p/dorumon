@@ -11,6 +11,9 @@ public class Console : Base
     {
         base.Awake();
         Application.RegisterLogCallback(onLog);
+        #if UNITY_STANDALONE_WIN
+        Debug.Log("app version" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+        #endif
     }
     public int errorcount;
     string old;

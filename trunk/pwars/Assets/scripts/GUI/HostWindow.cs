@@ -34,7 +34,7 @@ public class HostWindow : WindowBase {
 	public string[] Map = new string[] {"none",};
 	public int iMap = 0;
 	public int tabTabControl15;
-	[LoadPath("Skin/Images/Image3.png")]
+	[FindAsset("Skin/Images/Image3.png")]
 	public Texture2D ImageImage16;
 	public bool focusStartServer;
 	public bool StartServer=false;

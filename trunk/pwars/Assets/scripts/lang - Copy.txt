@@ -1,4 +1,4 @@
-Игрок законектился |Player Connected|Player Connected!
+Игрок законектился |Player Connected
  Вышел из игры| Player Leaved
 Синяя|Red
 Красная|Blue
@@ -101,6 +101,3 @@ Copyright PhysxWars Team\r\n\r\n\r\n:Programming:\r\nIgor Levochkin\r\n\r\n\r\n:
 Командный бой С зомби.\r\nВыжившая команда выигрывает.|Team battle with zombies. \r\n surviving team wins.
 Бой.\r\nУбейте максимальное количество игроков.|DeathMatch. \r\n kill the maximum number of players.
 Командный бой.\r\nУбейте максимальное количество игроков.|Team battle. \r \n kill the maximum number of players.
-чтобы открыть дверь нажми F|Door
-, нужно заплатить |, costs 
- очков| Money

@@ -48,9 +48,9 @@ public class WindowBase : Base2
         this.controller = controller;
     }
 
-    [LoadPath("mouseover")]
+    [FindAsset("mouseover")]
     public AudioClip mouseOver;
-    [LoadPath("click")]
+    [FindAsset("click")]
     public AudioClip mouseclick;
     public void onOver()
     {

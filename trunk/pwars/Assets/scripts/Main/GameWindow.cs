@@ -12,11 +12,21 @@ public class GameWindow : Base2 {
     public GUIText CenterText;
     public GUITexture gunTexture;
     public GUIText gunPatrons;
+    [FindTransform("teamscore")]
+    public GUIText teamscore;
+    [FindTransform("lifeupgrate")]
+    public GUIText lifeupgrate;
+    [FindTransform("speedupgrate")]
+    public GUIText speedupgrate;
+    [FindTransform("antigrav")]
+    public GUITexture antigrav;
+    [FindTransform("light")]
+    public GUITexture light;
+    [FindTransform("clock")]
+    public GUITexture clock;
     public GUITexture BlueBar;
     public GUIText Score;
     public GUITexture RedBar;
-    public GUIText blueTeam;
-    public GUIText redTeam;
     public GUIText time;
     public GUIText systemMessages;
     public GUIText level;
@@ -72,34 +82,38 @@ public class GameWindow : Base2 {
         fpstext.text = "Fps: " + fps + " Errors:" + _Console.errorcount;
 
         var ts = System.TimeSpan.FromMinutes(_Game.timeleft);
-        _GameWindow.time.text = ts.Minutes + ":" + ts.Seconds;
+        this.time.text = ts.Minutes + ":" + ts.Seconds;
         if (mapSettings.Team)
-        {
-            _GameWindow.blueTeam.text = _Game.BlueFrags.ToString();
-            _GameWindow.redTeam.text = _Game.RedFrags.ToString();
-        }
+            this.teamscore.text = _Game.BlueFrags+":"+_Game.RedFrags;
+        
+        this.speedupgrate.text  = "Speed upgrate: "+_localPlayer.speedUpgrate;
+        this.lifeupgrate.text = "Life upgrate: " + _localPlayer.lifeUpgrate;
+        this.light.enabled = _localPlayer.haveLight;
+        this.clock.enabled = _localPlayer.haveTimeBomb;
+        this.antigrav.enabled = _localPlayer.haveAntiGravitation;
 
         if (_localPlayer != null)
         {
-            _GameWindow.life = _localPlayer.Life;
-            _GameWindow.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
+            this.life = _localPlayer.Life;
+            this.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
 
-            _GameWindow.energy = (int)_localPlayer.nitro;
+            this.energy = (int)_localPlayer.nitro;
             if (mapSettings.zombi)
             {
-                _GameWindow.zombiesLeft.text = "Zombie" + _Game.AliveZombies.Count().ToString();
-                _GameWindow.level.text = "Level" + _Game.stage.ToString();
+                this.zombiesLeft.text = "Zombies : " + _Game.AliveZombies.Count().ToString();
+                this.level.text = "Level: " + _Game.stage.ToString();
             }
-            _GameWindow.frags.text = "Frags" + _localPlayer.frags.ToString();
+            
+            this.frags.text = "Frags: " + _localPlayer.frags.ToString();
 
-            _GameWindow.Score.text = "Score " + _localPlayer.score.ToString();
+            this.Score.text = "Score: " + _localPlayer.score.ToString();
         }
 
         foreach (GUITexture a in blood)
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);
     }
-    public void Hit(int hit)
+    public void Hit(float hit)
     {
         GUITexture[] gs = this.GetComponentsInChildren<GUITexture>();
         GUITexture g = gs[Random.Range(0, gs.Length - 1)];

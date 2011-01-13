@@ -29,11 +29,5 @@ public class Explosion : Base
                     b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass, transform.position, radius);
                 }
         });
-        foreach (Fragment f in FindObjectsOfType(typeof(Fragment)))
-        {
-
-            if(f!=null)
-                f.Explosion(transform.position, exp, radius);
-        }
     }
 }

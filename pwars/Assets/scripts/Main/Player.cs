@@ -271,6 +271,7 @@ public class Player : Destroible,IAim
     [RPC]
     public void SetFanarik(bool value)
     {
+        haveLight = true;
         fanarik.enabled = value;
     }
     public Light fanarik;

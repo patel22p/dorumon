@@ -180,14 +180,14 @@ public partial class RTools : InspectorSearch
         base.SetupLevel();
         foreach (Transform t in Selection.activeGameObject.transform)
         {
-
+            Debug.Log(t.name);
             GameObject g = t.gameObject;
             var p = Selection.activeGameObject.transform.parent.Find(t.name);
-            if ( p!= null)
+            if (p != null)
             {
                 Debug.Log("found parent " + g.name);
                 p.transform.position = g.transform.position;
-                DestroyImmediate(g);
+                destroy.Add(g);
             }
         }
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())

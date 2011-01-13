@@ -48,6 +48,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Detonator Explosion Framework\System\DetonatorSound.cs" />
      <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderYUV.shader" />

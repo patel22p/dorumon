@@ -54,8 +54,8 @@ public abstract class Destroible : Shared
         isGrounded +=Time.deltaTime;
         base.Update();
     }
+    
     public void RPCSetLife(float NwLife, int killedby) { if (isController)CallRPC("SetLife", NwLife, killedby); }
-
     [RPC]    
     public virtual void SetLife(float NwLife, int killedby)
     {

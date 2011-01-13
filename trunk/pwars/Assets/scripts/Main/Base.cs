@@ -89,7 +89,6 @@ public class Base : Base2
             if (b.owner == pl) return b;
         return null;
     }
-    public static string version { get { return isWebPlayer ? "" : System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
     public const string hosting = "http://physxwars.rh10.ru/";
     public static bool build { get { return _Loader.build; } }
     public static bool debug { get { return !_Loader.build; } }

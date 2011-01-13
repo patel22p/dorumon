@@ -17,6 +17,7 @@ public class Player : Destroible,IAim
     public new Team team = Team.None;
     public float speed;
     public float score;
+    public float defscore;
     public bool haveLight;
     public bool haveTimeBomb;
     public int speedUpgrate;
@@ -112,6 +113,7 @@ public class Player : Destroible,IAim
         {
             RPCSetTeam((int)team);
             RPCSetAlive(Alive);
+            RPCSetFrags(frags, defscore);
             ResetSpawn();
         }        
     }
@@ -271,7 +273,6 @@ public class Player : Destroible,IAim
     [RPC]
     public void SetFanarik(bool value)
     {
-        haveLight = true;
         fanarik.enabled = value;
     }
     public Light fanarik;
@@ -335,7 +336,7 @@ public class Player : Destroible,IAim
                 moveDirection.y = 0;
             moveDirection.Normalize();
             Vector3 v = this.rigidbody.velocity;
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift) && freezedt > 0)
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
                 this.rigidbody.AddForce(moveDirection / Time.timeScale * speed * 200);
@@ -349,7 +350,7 @@ public class Player : Destroible,IAim
             {
                 this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed / Time.timeScale*5);
             }
-            if (freezedt > 0) this.rigidbody.velocity *= .95f;
+            if (freezedt > 0) this.rigidbody.velocity *= .85f;
         }
     }
     public void RPCJump() { CallRPC("Jump"); }
@@ -360,8 +361,7 @@ public class Player : Destroible,IAim
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) / Time.timeScale);
         PlaySound(nitrojumpSound);
     }
-    [FindAsset("nitrojump")]
-    public AudioClip nitrojumpSound;
+    
     public void NextGun(float a)
     {
         if (a != 0)
@@ -398,6 +398,13 @@ public class Player : Destroible,IAim
     public GameObject WavePrefab;
     [FindAsset("bowling")]
     public AudioClip bowling;
+    [FindAsset("nitrojump")]
+    public AudioClip nitrojumpSound;
+    [FindAsset]
+    public AudioClip heal;
+    [FindAsset]
+    public AudioClip givemoney;
+
     public void RPCPowerExp(Vector3 v) { CallRPC("PowerExp",v); }        
     [RPC]
     public void PowerExp(Vector3 v)
@@ -423,10 +430,13 @@ public class Player : Destroible,IAim
         if (isOwner)
             _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
 
-        freezedt = (Life - NwLife) / 20;
+
 
         if (isEnemy(killedby) || NwLife > Life)
+        {
             Life = Math.Min(NwLife, 100);
+            freezedt = (Life - NwLife) / 20;
+        }
 
         if (Life <= 0 && isOwner)
             RPCDie(killedby);
@@ -492,6 +502,7 @@ public class Player : Destroible,IAim
         Debug.Log(name + " Alive " + value);
         foreach (var t in GetComponentsInChildren<Transform>())
             t.gameObject.layer = value ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("DeadPlayer");
+
 
         Alive = value;
         RPCSetFanarik(false);
@@ -560,6 +571,24 @@ public class Player : Destroible,IAim
     {
         lifeUpgrate = value;
     }
+
+    public void RPCHeal(float life) { CallRPC("Heal", life); }
+    [RPC]
+    public void Heal(float life)
+    {
+        PlaySound(heal);
+        if(isOwner)
+            RPCSetLife(Life + 10, -1);
+    }
+    public void RPCGiveMoney(int money) { CallRPC("GiveMoney",money); }
+    [RPC]
+    public void GiveMoney(int money)
+    {
+        PlaySound(givemoney);
+        if (isOwner)
+            RPCSetFrags(frags, score + 10);
+    }
+
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {
 

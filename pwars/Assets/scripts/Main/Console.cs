@@ -11,12 +11,19 @@ public class Console : Base
     {
         base.Awake();
         Application.RegisterLogCallback(onLog);
-        #if UNITY_EDITOR && UNITY_STANDALONE_WIN
-        Debug.Log("app version" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-        #endif
+        Debug.Log("app version" + version);
+        
     }
     public int errorcount;
     string old;
+    public string version;
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
+    public override void Init()
+    {
+        version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        base.Init();
+    }
+#endif
     void onLog(string condition, string stackTrace, LogType type)
     {
         try

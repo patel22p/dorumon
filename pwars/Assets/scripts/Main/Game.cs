@@ -88,7 +88,7 @@ public class Game : Base
         Debug.Log("game Start1");
         print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
-            RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+            RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         RPCWriteMessage("Player Connected!" + nick);
         _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
     }
@@ -163,7 +163,7 @@ public class Game : Base
         sendto = np;
         networkView.RPC("SetTimeLeft", np, timeleft);
         if (mapSettings.zombi && stage != 0) RPCNextStage(stage);        
-        RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+        RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         var sorted = GameObject.FindObjectsOfType(typeof(Player))
         .Union(GameObject.FindObjectsOfType(typeof(Gun)))
         .Union(GameObject.FindObjectsOfType(typeof(Destroible)))

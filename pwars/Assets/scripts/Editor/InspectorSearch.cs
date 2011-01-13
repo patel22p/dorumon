@@ -32,22 +32,6 @@ public class InspectorSearch : EditorWindow
                 EditorUtility.ResetGameObjectToPrefabState(go);
                 AssetDatabase.SaveAssets();
             }
-        if (GUI.Button("Replace"))
-        {
-            Undo.RegisterSceneUndo("Replace");
-            var asset = Selection.gameObjects.FirstOrDefault(a => AssetDatabase.IsMainAsset(a));
-            if (asset != null)
-            {
-                foreach (var a in Selection.gameObjects)
-                    if (!AssetDatabase.IsMainAsset(a))
-                    {
-                        var nw = (GameObject)Instantiate(asset, a.transform.position, a.transform.rotation);
-                        nw.transform.parent = a.transform.root;
-                        nw.name = a.name;
-                        DestroyImmediate(a);
-                    }
-            }
-        }
         //CopyComponent();
         CapturePrefabs();        
         if (GUI.Button("AddToList"))
@@ -173,7 +157,6 @@ public class InspectorSearch : EditorWindow
     {
         foreach (Transform t in Selection.activeGameObject.transform)
         {
-            GameObject g = t.gameObject;
             bool glow = t.name.Contains("glow");
             if (t.name.Contains("glass") || glow)
             {
@@ -336,6 +319,35 @@ public class InspectorSearch : EditorWindow
     {
         if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
     }
+    [MenuItem("Assets/Add Labels")]
+    static void ApplyLabels()
+    {
+        foreach(var asset in Selection.objects)
+        {
+            if (AssetDatabase.IsMainAsset(asset))
+            {
+                var apath = AssetDatabase.GetAssetPath(asset);
+                var list = AssetDatabase.GetLabels(asset);
+                var nwlist = list.Union(apath.Split('/').Skip(1));
+                AssetDatabase.SetLabels(asset,nwlist.ToArray());
+                EditorUtility.SetDirty(asset);
+            }
+        }
+    }
+    [MenuItem("Assets/Clear Labels")]
+    static void ClearLabels()
+    {
+        foreach (var asset in Selection.objects)
+        {
+            if (AssetDatabase.IsMainAsset(asset))
+            {
+                var apath = AssetDatabase.GetAssetPath(asset);
+                AssetDatabase.SetLabels(asset, new string[] { });
+                EditorUtility.SetDirty(asset);
+            }
+        }
+    }
+
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
     {

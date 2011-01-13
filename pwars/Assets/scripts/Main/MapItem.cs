@@ -30,7 +30,6 @@ public class MapItem : Base,IAim
     public string text = "";
     public float TmOn;
     public int respawnTm;
-    public string[] param { get { return name.Split(','); } }
     public float tmCheckOut;
     [FindAsset("Player")]
     public GameObject playerPrefab;    
@@ -45,7 +44,6 @@ public class MapItem : Base,IAim
             t.gameObject.isStatic = false;            
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
-        ParseItemType();
         var g = gameObject;
         if (!inited)
         {
@@ -140,8 +138,6 @@ public class MapItem : Base,IAim
                 bullets = (int)(20 / ((Gun)gun).interval);
             }
             text = "Press F to buy" + gunType;
-            Parse(ref score, 2);
-            Parse(ref autoTake, 3);
             endless = !autoTake;
             hide = autoTake;
             if (autoTake)
@@ -159,21 +155,13 @@ public class MapItem : Base,IAim
         {
             endless = false;
             text = "Door";
-            Parse(ref score, 1);
         }
-        
         if (itemType == MapItemType.speed)
         {
             distance = 0;            
             autoTake = false;
             endless = true;
             text = "Speed up";
-            try
-            {
-                Speed.x = float.Parse(param[1]);
-                Speed.y = -float.Parse(param[2]);
-            }
-            catch (Exception e) { Debug.Log(e); }            
         }
 
         if (itemType == MapItemType.money)
@@ -190,13 +178,6 @@ public class MapItem : Base,IAim
             text = "Jumper";
             endless = true;
             distance = 0;
-            try
-            {
-                Jumper.x = -float.Parse(param[1]);
-                Jumper.y = float.Parse(param[3]);
-                Jumper.z = -float.Parse(param[2]);
-            }
-            catch { }
         }
         if (itemType == MapItemType.health)
             text = "To buy energy press F";
@@ -363,7 +344,7 @@ public class MapItem : Base,IAim
                 _localPlayer.gun.RPCSetLaser(true);
             }
             if (itemType == MapItemType.spotlight)
-                _localPlayer.RPCSetFanarik(true);
+                _localPlayer.haveLight = true;
             if (itemType == MapItemType.lifeupgrate)
                 _localPlayer.RPCSetLifeUpgrate(_localPlayer.lifeUpgrate + 1);
             if (itemType == MapItemType.speedupgrate)
@@ -403,40 +384,5 @@ public class MapItem : Base,IAim
             if (respawnTm > 0) _TimerA.AddMethod(respawnTm, delegate { this.Show(true); itemsLeft = 1; });
         }
 
-    }
-    
-    private void Parse(ref float t, int id)
-    {
-        try
-        {
-            t = float.Parse(param[id]);
-        }
-        catch (System.Exception) { }
-    }
-
-    private void Parse(ref bool t, int id)
-    {
-        try
-        {
-            t = int.Parse(param[id]) == 1;
-        }
-        catch (System.Exception) { }
-    }
-
-    private void Parse(ref int t, int id)
-    {
-        try
-        {
-            t = int.Parse(param[id]);
-        }
-        catch (System.Exception) { }
-    }
-    private void ParseItemType()
-    {
-        try
-        {
-            itemType = (MapItemType)System.Enum.Parse(typeof(MapItemType), param[0].ToLower().Substring(1));
-        }
-        catch { }
-    }
+    }        
 }

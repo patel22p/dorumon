@@ -103,7 +103,6 @@ public partial class RTools : InspectorSearch
             System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
         }
     }
-
     static Color NormalizeColor(Color c, float procent, float a)
     {
         //var n = 1f / Math.Max(Math.Max(c.r, c.b), c.g);
@@ -134,16 +133,13 @@ public partial class RTools : InspectorSearch
                 m.color = NormalizeColor(m.color, .8f, .2f);
                 if (isSpec)
                     m.SetColor("_SpecColor", NormalizeColor(m.color, .3f, .2f));
-            }
+            }            
         }
     }
-
     private void Inits(string cspath)
     {
         //_TimerA.AddMethod(delegate()
         // {
-        
-        
         foreach (var go in Selection.gameObjects)
         {
             foreach (var scr in go.GetComponentsInChildren<Base2>())
@@ -173,20 +169,18 @@ public partial class RTools : InspectorSearch
         });
                  
     }
-
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
         base.SetupLevel();
         foreach (Transform t in Selection.activeGameObject.transform)
         {
-            Debug.Log(t.name);
             GameObject g = t.gameObject;
             var p = Selection.activeGameObject.transform.parent.Find(t.name);
             if (p != null)
             {
                 Debug.Log("found parent " + g.name);
-                p.transform.position = g.transform.position;
+                //p.transform.position = g.transform.position;
                 destroy.Add(g);
             }
         }
@@ -232,16 +226,7 @@ public partial class RTools : InspectorSearch
                 DestroyImmediate(g.GetComponent<MeshCollider>());                
                 Debug.Log("founded path");
                 destroy.Add(g);
-            }
-            
-            foreach (string s in Enum.GetNames(typeof(MapItemType)))
-            {
-                if (param[0].ToLower() == "i" + s.ToLower() && g.GetComponent<MapItem>() == null)
-                {
-                    g.AddComponent<MapItem>();
-                }
-            }
-
+            }                      
         }
 
         foreach (var a in destroy)
@@ -292,7 +277,7 @@ public partial class RTools : InspectorSearch
             else
                 if ((value == null || value.Equals(null)) || ap.overide)
                 {                                        
-                    pf.SetValue(scr, Base2.FindAsset(ap.name, pf.FieldType));
+                    pf.SetValue(scr, Base2.FindAsset(name, pf.FieldType));
                 }
         }
     }
@@ -376,7 +361,6 @@ public partial class RTools : InspectorSearch
             return l;
         }
     }    
-    
     IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
     {
         foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
@@ -387,7 +371,6 @@ public partial class RTools : InspectorSearch
                 yield return a;
         }
     }
-    
 }
 
 #endif

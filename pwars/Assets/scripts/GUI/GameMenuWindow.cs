@@ -12,7 +12,7 @@ public partial class Base2:MonoBehaviour
 
 public class GameMenuWindow : WindowBase {
 		
-	[LoadPath("Skin/Images/physx_wars_title.png")]
+	[FindAsset("Skin/Images/physx_wars_title.png")]
 	public Texture2D ImageImage2;
 	public bool focusTeamSelectButton;
 	public bool TeamSelectButton=false;

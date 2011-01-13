@@ -12,7 +12,7 @@ public partial class Base2:MonoBehaviour
 
 public class MenuWindow : WindowBase {
 		
-	[LoadPath("Skin/Images/1.png")]
+	[FindAsset("Skin/Images/1.png")]
 	public Texture2D ImageImage2;
 	public bool focusServers;
 	public bool Servers=false;

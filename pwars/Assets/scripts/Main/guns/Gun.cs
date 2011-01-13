@@ -22,18 +22,19 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float ves;
     public float bulletForce;
-    public float soundVolume = 1;
+    public float soundVolume;
     
     Vector3 defPos,defPos2;
-    [LoadPath("noammo")]
+    [FindAsset("noammo")]
     public AudioClip noammoSound;
     int cursorid;
     public float barrelVell;
     
     public Light fireLight;
     public override void Init()
-    {
-        base.Init();        
+    {        
+        base.Init();
+        if (soundVolume == 1) soundVolume = .5f;
         if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);         
     }
@@ -159,9 +160,7 @@ public class Gun : GunBase
     public void CreateField(Vector3 pos)
     {
         GameObject g = (GameObject)Instantiate(staticFieldPrefab, pos, Quaternion.identity);
-        _TimerA.AddMethod(9000, delegate { Network.Destroy(g); });
-    }
-    
-    
+        _TimerA.AddMethod(25000, delegate { Destroy(g); });
+    }        
     
 }

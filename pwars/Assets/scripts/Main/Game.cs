@@ -8,12 +8,12 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
 
 public class Game : Base
 {
-
     new public Player[] players = new Player[10];
     public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
@@ -27,9 +27,9 @@ public class Game : Base
     public GameObject bounds;
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }    
     public new Player _localPlayer;
-    [PathFind("GameEffects",true)]
+    [FindTransform("GameEffects",true)]
     public GameObject effects;
-    [PathFind("GameEffects/decals", true)]
+    [FindTransform("GameEffects/decals", true)]
     public GameObject decals;
     
     public int stage;
@@ -37,7 +37,7 @@ public class Game : Base
     public bool wait;
     public bool win;
     public int RedFrags = 0, BlueFrags = 0;
-    
+    public Vector3 gravity;
     public int maxzombies = 0;
     [GenerateEnums("ParticleTypes")]
     public List<Particles> particles = new List<Particles>();
@@ -46,11 +46,11 @@ public class Game : Base
     public int zombiespawnindex = 0;
 
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
-    [LoadPath("Player")]
+    [FindAsset("Player")]
     public GameObject playerPrefab;    
     protected override void Awake()
     {
-
+        gravity = Physics.gravity;
         fixedDeltaTime = Time.fixedDeltaTime;        
         base.Awake();
                
@@ -77,22 +77,19 @@ public class Game : Base
                     DestroyImmediate(a);
 
     }
-    
     public override void Init()
     {
         particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());        
         bounds = GameObject.Find("bounds");
         if (bounds == null) Debug.Log("warning no bounds founded");
     }
-
-    
     protected override void Start()
-    {
-        Debug.Log("game Start");
+    {        
+        Debug.Log("game Start1");
         print("timelimit"+mapSettings.timeLimit);
         if (Network.isServer)
             RPCGameSettings(version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        RPCWriteMessage("Player Connected" + nick);
+        RPCWriteMessage("Player Connected!" + nick);
         _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
     }
     public void onTeamSelect()
@@ -183,6 +180,24 @@ public class Game : Base
     {
         timeleft = time;
     }
+    public void RPCSetGravityBomb(bool enable) { CallRPC("SetGravityBomb",enable); }
+    [RPC]
+    public void SetGravityBomb(bool enable)
+    {
+        Physics.gravity = enable ? new Vector3(0, 0.1f, 0) : gravity;
+        if (enable)
+        {
+            foreach (Rigidbody a in FindObjectsOfType(typeof(Rigidbody)))
+                if (!a.isKinematic)
+                {
+                    a.AddForce(Vector3.up * 100 * Random.value);
+                    a.angularVelocity = Random.insideUnitSphere * 100;
+                }
+            _Cam.Vingetting.enabled = true;
+        }
+        else
+            _Cam.Vingetting.enabled = false;
+    }
     public void RPCSetTimeBomb(float timescale) { CallRPC("SetTimeBomb",timescale); }
     [RPC]
     public void SetTimeBomb(float timescale)
@@ -207,7 +222,7 @@ public class Game : Base
 
     
     bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
-    [LoadPath("Zombie")]
+    [FindAsset("Zombie")]
     public GameObject ZombiePrefab;
     private void ZUpdate()
     {
@@ -255,7 +270,7 @@ public class Game : Base
     }
     
     
-    [LoadPath("nextLevel")]
+    [FindAsset("nextLevel")]
     public AudioClip[] stageSound;
     public void RPCNextStage(int stage) { CallRPC("NextStage",stage); }
     [RPC]

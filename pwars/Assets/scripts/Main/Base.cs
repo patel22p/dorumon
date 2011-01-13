@@ -39,32 +39,42 @@ public class Base : Base2
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
     protected virtual void Enable() { if (networkView != null) enabled = true; }
-    public void UpdateLightmap(IEnumerable<Material> materials) { UpdateLightmap(materials, pos); }
-    public static void UpdateLightmap(IEnumerable<Material> materials, Vector3 pos)
+    public bool UpdateLightmap(IEnumerable<Material> materials) { return UpdateLightmap(materials, pos); }
+    public static bool UpdateLightmap(IEnumerable<Material> materials, Vector3 pos)
     {
-
+        
+        bool success = false;
         var r = new Ray(pos + Vector3.up , Vector3.down);
         RaycastHit h;
         if (Physics.Raycast(r, out h, 10, 1 << LayerMask.NameToLayer("Level")))
         {
+            
             var i = h.collider.gameObject.renderer.lightmapIndex;
+
             if (i != -1)
             {
-                var t = LightmapSettings.lightmaps[i].lightmapFar;
+                var t = LightmapSettings.lightmaps[i].lightmapFar;                                    
                 if (t != null)
                 {
-                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 3 + .1f;
+                    success = true;
+                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 10 + .1f;
                     foreach (var m in materials)
                         if (m != null)
                         {
-                            if(!m.shader.name.ToLower().Contains("illu"))
-                                m.color = new Color(a, a, a, .2f);
+                            if (!m.shader.name.ToLower().Contains("illu") && m.HasProperty("_Color"))
+                            {                                
+                                if (m.name.Contains("Ins"))
+                                    m.name = m.color.r + "-" + m.color.b + "-" + m.color.g + "-";
+                                var cs = m.name.ToString().Split('-');
+                                m.color = new Color(float.Parse(cs[0]), float.Parse(cs[1]), float.Parse(cs[2]), .2f) * a;
+                            }
                         }
+
                 }
             }
         }
+        return success;
     }
-
     public virtual void OnPlayerConnected1(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
@@ -134,7 +144,6 @@ public class Base : Base2
     {
         PlaySound(au, 1);
     }
-    
     public void PlaySound(AudioClip au, float volume)
     {
         transform.GetComponentInParrent<AudioSource>().PlayOneShot(au, volume);
@@ -148,7 +157,6 @@ public class Base : Base2
     public Transform root { get { return this.transform.root; } }
     public void LocalHide() { Show(false); }
     public void LocalShow() { Show(true); }
-
     public void RPCShow(bool v) { CallRPC("Show",v); }
     [RPC]
     public void Show(bool value)
@@ -160,7 +168,6 @@ public class Base : Base2
             r.onShow(value);
         }
     }
-    
     public static void Show(GameObject g, bool value)
     {
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
@@ -188,9 +195,8 @@ public class Base : Base2
                 if (r.playOnAwake) r.Play();
         }
         
-    }    
+    }
     
-
     public virtual void onShow(bool enabled)
     {
     }
@@ -207,5 +213,4 @@ public class Base : Base2
             networkView.RPC(name, sendto.Value, obs);
         
     }
-
 }

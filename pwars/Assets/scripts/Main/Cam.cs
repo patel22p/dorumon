@@ -12,6 +12,8 @@ public class Cam : Base
     float y = 0.0f;
     public TextMesh LevelText;
     public TextMesh ScoreText;
+    [FindAsset("timewarp")]
+    public AudioClip timewarp;    
     public override void Init()
     {
         camera = GetComponentInChildren<Camera>();
@@ -34,7 +36,6 @@ public class Cam : Base
     public MonoBehaviour Vingetting;
     public SSAOEffect ssao;
     public MonoBehaviour bloomAndFlares;
-
     public void onEffect()
     {
 
@@ -60,7 +61,6 @@ public class Cam : Base
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
         }
     }
-
     protected override void Start()
     {
         Vector3 angles = transform.eulerAngles;
@@ -69,10 +69,9 @@ public class Cam : Base
         onEffect();
     }
     float blurtime;
-
     void FixedUpdate()
     {
-        blurtime += Time.fixedDeltaTime;
+        blurtime += Time.deltaTime;
         if (blurtime>.1f)
         {
             blurtime -= .1f;
@@ -83,21 +82,25 @@ public class Cam : Base
     }
     void Update()
     {
+        if (_Cam.Vingetting.enabled)
+        {
+            root.audio.clip = timewarp;
+            if (!root.audio.isPlaying)            
+                root.audio.Play();
+        }
+        else if (root.audio.clip == timewarp) root.audio.Stop();
         //CamUpdate();
     }
     void CamUpdate()
     {
-        
         camera.fieldOfView = _SettingsWindow.Fieldof;
         xoffset = _SettingsWindow.Camx+0.01f;
         yoffset = _SettingsWindow.Camy + 0.01f;
-
         if (lockCursor)
         {
             x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;
             y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
         }
-
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
         if (_localPlayer == null)
         {

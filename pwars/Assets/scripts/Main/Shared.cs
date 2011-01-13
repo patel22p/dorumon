@@ -21,7 +21,7 @@ public class Shared : Base
     public float tsendpackets;
     public bool shared = true;
     public Renderer[] renderers;
-    [LoadPath("collision1")]
+    [FindAsset("collision1")]
     public AudioClip soundcollision;
     protected override void Awake()
     {
@@ -30,17 +30,22 @@ public class Shared : Base
     }
     public override void Init()
     {
-        foreach (Transform t in GetComponentsInChildren<Transform>())
+        foreach (Transform t in transform.GetTransforms())
+        {
             t.gameObject.isStatic = false;
-
+            t.gameObject.layer = LayerMask.NameToLayer("Default");
+        }
         gameObject.AddOrGet<NetworkView>().observed = this;
         gameObject.AddOrGet<Rigidbody>();
-        gameObject.AddOrGet<AudioSource>();        
+        gameObject.AddOrGet<AudioSource>();
+        
         if (collider is MeshCollider)
         {
             ((MeshCollider)collider).convex = true;
             rigidbody.centerOfMass = transform.worldToLocalMatrix.MultiplyPoint(collider.bounds.center);
         }
+        rigidbody.drag = .2f;
+        rigidbody.angularDrag = .5f;
         base.Init();
     }
     protected override void Start()
@@ -52,19 +57,23 @@ public class Shared : Base
                 networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         base.Start();
     }
+    public int updateLightmapInterval = 100;
     protected virtual void Update()
     {
-        if (_TimerA.TimeElapsed(100))
-            UpdateLightmap(renderers.SelectMany(a => a.materials));
-
         tsendpackets -= Time.deltaTime;
-        if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
-        {
-            ResetSpawn();            
-        }
+        
 
-        if (shared && Network.isServer)
-            ControllerUpdate();
+        
+        if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
+            _TimerA.AddMethod(2000, delegate { ResetSpawn(); });
+
+        if (_TimerA.TimeElapsed(updateLightmapInterval))
+            UpdateLightmap(renderers.SelectMany(a => a.materials));
+        if (_TimerA.TimeElapsed(100))
+        {
+            if (shared && Network.isServer)
+                ControllerUpdate();            
+        }
     }
     void ControllerUpdate()
     {
@@ -133,6 +142,7 @@ public class Shared : Base
         nw.viewID = id;
         name += "+" + Regex.Match(nw.viewID.ToString(), @"\d+").Value;
     }
+
     public void RPCSetOwner()
     {
         RPCSetOwner(Network.player.GetHashCode());
@@ -143,6 +153,7 @@ public class Shared : Base
         transform.rotation = spawnrot;
         rigidbody.angularVelocity = rigidbody.velocity = Vector3.zero;
     }
+    
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (!enabled || !Sync) return;

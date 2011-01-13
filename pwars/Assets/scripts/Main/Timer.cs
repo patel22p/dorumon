@@ -6,6 +6,15 @@ using System.Linq;
 
 public static class Ext
 {
+    public static IEnumerable<Transform> GetTransforms(this Transform ts)
+    {
+        yield return ts;
+        foreach (Transform t in ts)
+        {
+            foreach (var t2 in GetTransforms(t))
+                yield return t2;
+        }
+    }
     public static T Random<T>(this IEnumerable<T> source)
     {
         return source.Skip(UnityEngine.Random.Range(0, source.Count())).FirstOrDefault();
@@ -17,16 +26,7 @@ public static class Ext
         else
             return c;
     }
-    public static T GetRoot<T>(this Transform t) where T : Component
-    {
-        for (int i = 0; ; i++)
-        {
-            if (t == null || i > 2) return null;
-            var c = t.GetComponent<MonoBehaviour>();
-            if (c != null) return t.GetComponent<T>();
-            t = t.parent;
-        }
-    }
+    
     public static T Parse<T>(this string s)
     {
         return (T)Enum.Parse(typeof(T), s);
@@ -40,9 +40,18 @@ public static class Ext
             if (c != null) return c;
             t = t.parent;
         }
-
+        
     }
-
+    public static MonoBehaviour GetMonoBehaviorInParrent(this Transform t)
+    {
+        for (int i = 0; ; i++)
+        {
+            if (t == null || i > 2) return null;
+            var c = t.GetComponent<MonoBehaviour>();
+            if (c != null) return c;
+            t = t.parent;
+        }
+    }
     //public static IEnumerable<T> ShuffleIterator<T>(
     //   this IEnumerable<T> source, Random rng)
     //{
@@ -57,23 +66,24 @@ public static class Ext
     //}
 
 }
-public class LoadPath : Attribute
+public class FindAsset : Attribute
 {
     public string name;
-    public LoadPath(string from)
+    public bool overide;
+    public FindAsset(string from)
     {
         name = from;
     }
-}
-public class PathFind : Attribute
+} 
+public class FindTransform : Attribute
 {
     public string name;
-    public PathFind(string enumName)
+    public FindTransform(string enumName)
     {
         name = enumName;
     }
     public bool scene;
-    public PathFind(string enumName, bool FindInScene)
+    public FindTransform(string enumName, bool FindInScene)
     {
         scene = FindInScene;
         name = enumName;
@@ -157,10 +167,13 @@ namespace doru
             if (select != null)
             {
                 _List.Remove(select);
-                lastStackTrace = select.stacktrace;
-                select._Action2();
+                
+                try
+                {
+                    select._Action2();
+                }
+                catch (Exception e) { Debug.LogError("Timer:" + e.Message + "\r\n\r\n" + select.stacktrace + "\r\n\r\n"); }
             }
-
         }
         public int _MilisecondsElapsed = 0;
         public double _SecodsElapsed { get { return _MilisecondsElapsed / (double)1000; } }
@@ -173,7 +186,6 @@ namespace doru
             else
                 return false;
         }
-        public string lastStackTrace;
         public void AddMethod(Action _Action2)
         {
             AddMethod(-1, _Action2, null);

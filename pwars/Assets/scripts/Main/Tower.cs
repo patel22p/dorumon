@@ -6,16 +6,15 @@ using System;
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 public class Tower : Destroible
 {
-    [LoadPath("Detonator-Base")]
+    [FindAsset("Detonator-Base")]
     public Detonator dt;
     public Gun gun;
-    public bool barrel;
     //[PathFind("cursor")]
     public GameObject cursor;
     public string gunType = "";
     public override void Init()
     {
-        if (gunType == "") barrel = true;
+        if (Life == 0) Life = 100;
         model = GetComponentInChildren(typeof(Renderer)).gameObject;
         base.Init();
     }
@@ -23,7 +22,7 @@ public class Tower : Destroible
     protected override void Start()
     {
         base.Start();
-        if (!barrel) _Game.towers.Add(this);
+        _Game.towers.Add(this);
         if (isController)
         {
             _TimerA.AddMethod(delegate
@@ -54,8 +53,12 @@ public class Tower : Destroible
     protected override void Update()
     {
         //UpdateLightmap(model.renderer.materials);
-        if (gun != null && _TimerA.TimeElapsed((int)(gun.interval * 1000f)))
+        gun.tm -= Time.deltaTime;
+
+        if (gun.tm < 0)
         {
+            gun.tm = gun.interval;
+
             var b = _Game.players.Union(_Game.zombies.Cast<Destroible>())
                 .Where(a => a != null && a.isEnemy(OwnerID) && a.Alive 
                     && Math.Abs(clamp(rot.eulerAngles.y - Quaternion.LookRotation(a.pos - pos).eulerAngles.y)) < range);            
@@ -78,7 +81,6 @@ public class Tower : Destroible
     }
     public override bool isEnemy(int killedby)
     {
-        if (this.barrel && killedby == -1) return false;
         return true;
     }
     public override void OnPlayerConnected1(NetworkPlayer np)

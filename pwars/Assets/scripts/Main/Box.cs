@@ -9,11 +9,11 @@ using System.Linq;
 
 public class Box : Shared
 {
-#if(UNITY_EDITOR)
+#if(UNITY_STANDALONE_WIN)
     public override void Init()
     {
         base.Init();
-        gameObject.layer = LayerMask.NameToLayer("Level");
+        rigidbody.mass = 5;
 
         if (collider.sharedMaterial == null)
             collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");                        
@@ -34,7 +34,7 @@ public class Box : Shared
     protected virtual void OnCollisionEnter(Collision coll)
     {
         if (coll.impactForceSum.magnitude > 10)
-            audio.PlayOneShot(soundcollision);
+            audio.PlayOneShot(soundcollision, .5f);
     }
 
 }

@@ -8,8 +8,8 @@ using System.Collections;
 [Serializable]
 public abstract class Destroible : Shared
 {
-    public int maxLife = 100;
-    public int Life;
+    public float maxLife = 100;
+    public float Life;
     public Team? team
     {
         get
@@ -54,15 +54,17 @@ public abstract class Destroible : Shared
         isGrounded +=Time.deltaTime;
         base.Update();
     }
-    public void RPCSetLife(int NwLife, int killedby) { if (isController)CallRPC("SetLife", NwLife, killedby); }
+    public void RPCSetLife(float NwLife, int killedby) { if (isController)CallRPC("SetLife", NwLife, killedby); }
 
     [RPC]    
-    public virtual void SetLife(int NwLife, int killedby)
+    public virtual void SetLife(float NwLife, int killedby)
     {
-        if (dead) return;        
+        if (dead) return;
         if (isEnemy(killedby) || NwLife > Life)
-            Life = Math.Min(maxLife, NwLife);
-
+        {
+            if (killedby == _localPlayer.OwnerID && NwLife < Life) _localPlayer.score += Math.Abs(Life - NwLife)/100;
+            Life = Math.Min(maxLife, NwLife);                        
+        }
         if (Life <= 0 && isController)
             RPCDie(killedby);
     }

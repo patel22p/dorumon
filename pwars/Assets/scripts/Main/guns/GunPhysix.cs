@@ -14,6 +14,19 @@ public class GunPhysix : GunBase
     public float scalefactor = 10;
     public float holdtm;
     public bool power;
+    [FindAsset("wave")]
+    public GameObject wavePrefab;
+    [FindAsset("superphys_launch3")]
+    public AudioClip superphys_launch3;
+
+#if(UNITY_STANDALONE_WIN)
+    public override void Init()
+    {
+        base.Init();
+        audio.clip = Base2.FindAsset<AudioClip>("PowerGun");
+    }
+#endif
+
     protected override void Awake()
     {
         base.Awake();
@@ -23,8 +36,8 @@ public class GunPhysix : GunBase
     {
         if (power)
         {
-            patronsLeft -= Time.fixedDeltaTime;
-            holdtm += Time.fixedDeltaTime;
+            patronsLeft -= Time.deltaTime;
+            holdtm += Time.deltaTime;
             {
                 var p2 = cursor[0].position;
                 var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
@@ -35,16 +48,19 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            foreach (Base b in _Game.boxes.Where(b => b != null))
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position)<20);
+            var count = boxes.Count();
+            var mpos = cursor[0].position  + (cursor[0].position - pos).normalized * count;
+            foreach (Base b in boxes)
             {
-                b.rigidbody.AddExplosionForce(-gravitaty * scalefactor * b.rigidbody.mass, cursor[0].position, radius);
-                b.rigidbody.angularDrag = 30;
+                b.rigidbody.AddExplosionForce(-gravitaty * .2f * scalefactor * b.rigidbody.mass, mpos, radius);
+                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty);
+                b.rigidbody.angularVelocity *= .6f;
                 b.rigidbody.velocity *= .97f;
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                AudioSource a = audio;
-                a.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
-                if (!a.isPlaying) a.Play();
             }
+            audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
+            if (!audio.isPlaying) audio.Play();
         }
         else
         {
@@ -63,18 +79,7 @@ public class GunPhysix : GunBase
         bool hit = (Physics.CheckCapsule(pos, dir + pos, 1, 1 << LayerMask.NameToLayer("HitTest")));
         j.gameObject.layer = 0;
         return hit;
-    }
-#if(UNITY_EDITOR)
-    public override void Init()
-    {
-        base.Init();
-        audio.clip = Base2.FindAsset<AudioClip>("PowerGun");
-    }
-#endif
-    [LoadPath("wave")]
-    public GameObject wavePrefab;
-    [LoadPath("superphys_launch3")]
-    public AudioClip superphys_launch3;
+    }    
     public void RPCSetPower(bool e) { CallRPC("SetPower",e); }
     [RPC]
     public void SetPower(bool power)
@@ -87,28 +92,40 @@ public class GunPhysix : GunBase
     {
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
             if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
-            {
-                b.rigidbody.angularDrag = 2;
+            {                
                 b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass) / Time.timeScale);
             }
-            root.audio.PlayOneShot(superphys_launch3);
-            Destroy(Instantiate(wavePrefab, cursor[0].position, transform.rotation), 1.36f);
+        RaycastHit h;
+        var ray = new Ray(pos, rot * new Vector3(0, 0, 1));
+        var v = cursor[0].position;
+        if (Physics.Raycast(ray, out h,10, 1<<LayerMask.NameToLayer("Level")))
+        {
+            var d = 20 - h.distance;
+            if (d > 0)
+            {
+                v = h.point;
+                player.rigidbody.AddForce(ray.direction * -50 * d);
+            }
+        }
+        root.audio.PlayOneShot(superphys_launch3);
+        Destroy(Instantiate(wavePrefab, v, transform.rotation), 1.36f);
+
 
     }
     protected override void Update()
     {
-        if (isOwner && enabled)
+        if (isOwner && enabled && lockCursor)
         {
             if (Input.GetMouseButtonDown(0) && (patronsLeft > 0 || debug))
                 RPCSetPower(true);
             else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
             {
+                RPCSetPower(false);
                 if (holdtm < .2f && (patronsLeft > 5 || debug))
                 {
                     patronsLeft -= 5;
                     RPCShoot();
-                }
-                RPCSetPower(false);
+                }                
             }
         }
         base.Update();

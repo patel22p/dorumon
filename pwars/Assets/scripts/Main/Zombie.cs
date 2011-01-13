@@ -14,15 +14,15 @@ public class Zombie : Destroible
     public float up = 1f;
     float seekPath;
     public bool move;
-    [LoadPath("scream")]
+    [FindAsset("scream")]
     public AudioClip[] screamSounds;
-    [LoadPath("gib")]
+    [FindAsset("gib")]
     public AudioClip[] gibSound;
-    [LoadPath("Zombie")]
+    [FindAsset("Zombie")]
     public AudioClip[] ZombieSound;
-    [PathFind("zombieAlive")]
+    [FindTransform("zombieAlive")]
     public GameObject AliveZombie;
-    [PathFind("zombieDead")]
+    [FindTransform("zombieDead")]
     public GameObject DeadZombie;
     public Seeker seeker;
     public float zombieBiteDist = 3;
@@ -38,11 +38,12 @@ public class Zombie : Destroible
         if (seeker == null) Debug.Log("Could not find seeker");
         velSync = angSync = false;
         posSync = rotSync = true;
+        updateLightmapInterval = 500;
+        
     }
     protected override void Awake()
     {
-        base.Awake();
-        
+        base.Awake();        
     }
     protected override void Start()
     {
@@ -54,9 +55,11 @@ public class Zombie : Destroible
     }
 
     public void CreateZombie(int stage)
-    {
-        var speed = Random.Range(zombieSpeedCurve.Evaluate(stage), zombieSpeedCurve.Evaluate(stage + 3));
-        var life = Random.Range(zombieLifeCurve.Evaluate(stage), zombieLifeCurve.Evaluate(stage + 10));
+    {                
+        var speed = zombieSpeedCurve.Evaluate(stage);
+        speed = Random.Range(speed, speed / 3 * 2);
+        var life = zombieLifeCurve.Evaluate(stage);
+        life = Random.Range(life, life / 3 * 2);
         if (zombieType == ZombieType.Life) life *= 3;
         if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
         RPCSetup(speed, life, (int)priority.Random());
@@ -66,6 +69,7 @@ public class Zombie : Destroible
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
     {
+
         Alive = true;
         Sync = true;
         ResetSpawn();
@@ -74,10 +78,9 @@ public class Zombie : Destroible
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
         zombieType = (ZombieType)priority;
-        speed = zombiespeed;
-        transform.localScale = Vector3.one * Mathf.Max(zombieLife / 100f, 1f);
-        maxLife = Life = (int)zombieLife;
-        
+        speed = zombiespeed;        
+        maxLife =Life = zombieLife;
+        transform.localScale = Vector3.one * Mathf.Max(zombieLife / 300f, 1f);        
     }
     [RPC]
     public override void Die(int killedby)
@@ -85,25 +88,21 @@ public class Zombie : Destroible
         if (!Alive) { return; }        
         Sync = false;
         Alive = false;
-        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");        
+        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
         PlayRandSound(gibSound);
         AliveZombie.renderer.enabled = false;
         DeadZombie.renderer.enabled = true;
 
-        if (isController)
-        {
-            foreach (Player p in players)
-                if (p != null && p.OwnerID == killedby)
-                    p.AddFrags(+1, 1);
-        }
+        if (killedby == _localPlayer.OwnerID)
+            _localPlayer.AddFrags(+1, 1);
     }
     public float tiltTm;
     public float spawninTM = 5;
+    public new Quaternion rot;
     protected override void Update()
     {
-        
         base.Update();
-        if (!Alive || selected == -1) return;
+        if (!Alive || selected == -1 || freeze) return;
         zombieBite += Time.deltaTime;
         var ipl = Nearest();
         if (ipl != null)
@@ -144,7 +143,6 @@ public class Zombie : Destroible
             tiltTm = 0;
         }        
     }
-
     private Vector3? GetRay(Destroible ipl)
     {
         var r = new Ray(pos, ipl.pos - pos);
@@ -157,22 +155,25 @@ public class Zombie : Destroible
     {
 
         Destroible pl =
-            _Game.towers.Where(a => a != null && !a.barrel && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+            _Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return pl;
     }
+    bool freeze { get { return Physics.gravity != _Game.gravity || Time.timeScale != 1; } }
     void FixedUpdate()
     {
-        if (move && Alive)
-        {
-            if (rigidbody.velocity.magnitude < 10)
+        if (move && Alive && !freeze)
+        {            
+            if (rigidbody.velocity.magnitude < 5 && isGrounded < 1)
             {
                 Vector3 v = rigidbody.velocity;
-                v.x = v.z = 0;
+                v.x = v.z = 0;                
                 rigidbody.velocity = v;
-            }
-            pos += rot * new Vector3(0, 0, speed * Time.fixedDeltaTime * Time.timeScale);
-        }
-        
+                rigidbody.angularVelocity = Vector3.zero;
+                transform.rotation = rot;
+                var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);                
+                pos += t;
+            }            
+        }        
     }
     private Vector3? GetPlayerPathPoint(Destroible ipl)
     {
@@ -250,7 +251,7 @@ public class Zombie : Destroible
         else
         {
             //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
-            var b = gs.Where(a => a.GetComponent<MeshFilter>().collider.bounds.Contains(pl.pos)).Random();
+            var b = gs.Where(a => a.collider == null || a.collider.bounds.Contains(pl.pos)).Random();
             var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
             pos = (b ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
                 ).transform.position;
@@ -258,7 +259,10 @@ public class Zombie : Destroible
         rot = Quaternion.identity;
         rigidbody.velocity = Vector3.zero;
     }
-    
+    void OnCollisionStay(Collision collisionInfo)
+    {
+        isGrounded = 0;
+    }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         base.OnPlayerConnected1(np);

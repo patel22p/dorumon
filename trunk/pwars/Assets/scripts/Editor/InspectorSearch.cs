@@ -47,7 +47,6 @@ public class InspectorSearch : EditorWindow
                         DestroyImmediate(a);
                     }
             }
-            
         }
         //CopyComponent();
         CapturePrefabs();        
@@ -308,6 +307,7 @@ public class InspectorSearch : EditorWindow
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
+        Undo.RegisterSceneUndo("rtools");
         var t = Selection.activeTransform;
         var nwt = new GameObject(Selection.activeObject.name + "1").transform;
         nwt.position = t.position;
@@ -317,12 +317,19 @@ public class InspectorSearch : EditorWindow
     [MenuItem("GameObject/Parent")]
     static void CreateParent()
     {
+        Undo.RegisterSceneUndo("rtools");
         var t = Selection.activeTransform;
         var t2 = new GameObject(Selection.activeObject.name + "1").transform;
         t2.position = t.position;
         t2.rotation = t.rotation;
         t2.parent = t.parent;
         t.parent = t2;
+    }
+    [MenuItem("GameObject/UnParent")]
+    static void UnParent()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        Selection.activeTransform.parent = Selection.activeTransform.parent.parent;
     }
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()

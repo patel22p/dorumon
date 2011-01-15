@@ -20,7 +20,7 @@ public class Gun : GunBase
     public int damage = 60;
     public int probivaemost = 0;
     public float otbrasivanie;
-    public float ves;
+    
     public float bulletForce;
     public float soundVolume;
     
@@ -34,8 +34,7 @@ public class Gun : GunBase
     public override void Init()
     {        
         base.Init();
-        if (soundVolume == 1) soundVolume = .5f;
-        if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
+        if (soundVolume == 1) soundVolume = .5f;        
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);         
     }
     
@@ -49,9 +48,7 @@ public class Gun : GunBase
         defPos2 = defPos = transform.localPosition;        
     }
     public override void onShow(bool enabled)
-    {
-        if (enabled && player !=null)
-            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * -.10f);
+    {        
         base.onShow(enabled);
     }
 
@@ -98,7 +95,7 @@ public class Gun : GunBase
         if (sound != null)
             root.audio.PlayOneShot(sound, soundVolume);
         if (player != null)
-            player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie) / Time.timeScale);
+            player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie) * fdt);
 
         var t = cursor[cursorid].transform;
         if (staticFieldPrefab != null)
@@ -147,7 +144,7 @@ public class Gun : GunBase
                     patron.ExpForce = exp;
                     if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
                     patron.probivaemost = this.probivaemost;
-                    if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force / Time.timeScale);
+                    if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force * fdt);
                 }
             }
         }

@@ -7,8 +7,9 @@ public class Patron : Base
 {
     public bool decalhole = true;
     public Vector3 Force = new Vector3(0, 0, 80);
+    [FindAsset("Detonator-Base")]
     public GameObject detonator;
-    public float detonatorDestroyTime = 4;
+    float detonatorDestroyTime = 1;
     public bool DestroyOnHit;
     public bool explodeOnDestroy;
     public int detonatorsize = 8;
@@ -34,6 +35,12 @@ public class Patron : Base
     }
     protected virtual void Update()
     {
+        if (Force != default(Vector3))
+            this.transform.position += Force * Time.deltaTime;
+
+        if (magnet > 0)
+            Magnet();
+
         tm += Time.deltaTime;
         if (tm > timeToDestroy)
         {
@@ -55,15 +62,10 @@ public class Patron : Base
             }
         }
         previousPosition = transform.position;
-    }
-    private void FixedUpdate()
-    {
-        if (Force != default(Vector3))
-            this.transform.position += Force * Time.deltaTime;
 
-        if (magnet > 0)
-            Magnet();
+        
     }
+    
     private void Magnet()
     {
         foreach (Patron p in _Game.patrons)
@@ -76,7 +78,9 @@ public class Patron : Base
         {
             if (b != this)
             {
-                b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass, transform.position, 15);
+                if (b is Zombie)
+                    ((Zombie)b).ResetSpawnTm();
+                b.rigidbody.AddExplosionForce(-magnet * b.rigidbody.mass*fdt, transform.position, 15);
                 b.rigidbody.velocity *= .97f;
             }
         }
@@ -99,8 +103,9 @@ public class Patron : Base
         if (!explodeOnDestroy)
         {
             Transform b = t.root;
+            
             if (b.rigidbody != null)
-                b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) / Time.timeScale, hit.point);
+                b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * fdt , hit.point);
         }
         
         Destroible destroible = t.GetMonoBehaviorInParrent() as Destroible;
@@ -142,13 +147,15 @@ public class Patron : Base
     {
         Vector3 vector3 = pos - this.transform.rotation * new Vector3(0, 0, 2);
         GameObject o;
-        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), detonatorDestroyTime);
-        if (detonator.GetComponent<Detonator>() != null) o.GetComponent<Detonator>().size = detonatorsize;
+        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), detonatorDestroyTime);        
         Explosion e = o.AddComponent<Explosion>();        
         e.exp = ExpForce;
         e.radius = radius;
         e.damage = damage;        
         e.OwnerID = OwnerID;
         Destroy(gameObject);
+        var dt = detonator.GetComponent<Detonator>();
+        dt.size = detonatorsize;
+        dt.autoCreateForce = false;
     }
 }

@@ -26,7 +26,7 @@ public class Explosion : Base
             foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
                 if (b != self)
                 {
-                    b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass, transform.position, radius);
+                    b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * fdt, transform.position, radius);
                 }
         });
     }

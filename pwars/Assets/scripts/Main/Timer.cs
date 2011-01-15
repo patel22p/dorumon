@@ -6,6 +6,8 @@ using System.Linq;
 
 public static class Ext
 {
+    
+
     public static IEnumerable<Transform> GetTransforms(this Transform ts)
     {
         yield return ts;
@@ -15,6 +17,11 @@ public static class Ext
                 yield return t2;
         }
     }
+    public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> coll, int N)
+    {
+        return coll.Reverse().Take(N).Reverse();
+    }
+
     public static T Random<T>(this IEnumerable<T> source)
     {
         return source.Skip(UnityEngine.Random.Range(0, source.Count())).FirstOrDefault();

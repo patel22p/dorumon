@@ -56,7 +56,6 @@ public partial class Base2 : MonoBehaviour
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
     public long memorystart = 0;    
-    
     public static string GenerateTable(string source)
     {
         string table = "";
@@ -65,7 +64,7 @@ public partial class Base2 : MonoBehaviour
             table += "{" + i + ",-" + m[i].Length + "}";
         return table;
     }
-    
+    public float fdt { get { return 0.02f / Time.fixedDeltaTime / Time.timeScale; } }
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { if (!Application.isPlaying) throw new Exception("access from editor"); return _Loader._TimerA; } }

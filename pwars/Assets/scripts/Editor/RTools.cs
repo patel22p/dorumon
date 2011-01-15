@@ -20,8 +20,9 @@ public partial class RTools : InspectorSearch
     public bool bake;
     protected override void Awake()
     {
-        base.Awake();
+        base.Awake();        
     }
+    
     protected override void OnGUI()
     {
         BuildButtons();        
@@ -47,9 +48,19 @@ public partial class RTools : InspectorSearch
                 if (bake)
                 {
                     var old = RenderSettings.ambientLight;
-                    RenderSettings.ambientLight = Color.white * .05f; 
+                    RenderSettings.ambientLight = Color.white * .2f;
+                    var en = new Queue<LightShadows>();
+                    
+                    foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                    {
+                        en.Enqueue(a.shadows);
+                        a.shadows = LightShadows.Soft;
+                    }
                     Lightmapping.BakeAsync();
+                    foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                        a.shadows = en.Dequeue();
                     RenderSettings.ambientLight = old;
+
                 }
             });
         }
@@ -122,7 +133,23 @@ public partial class RTools : InspectorSearch
             DestroyImmediate(c);
             Debug.Log("rendered to cubemap");
         }
+        foreach (var o in Selection.objects)
+        {
+            if (o is Texture2D)
+            {
+                TextureImporter ti = ((TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(o)));
+                int max = 256;
+                if (!ti.lightmap)
+                {
+                    TextureImporterSettings tis = new TextureImporterSettings();
+                    ti.ReadTextureSettings(tis);
+                    tis.maxTextureSize = max;
+                    ti.SetTextureSettings(tis);
 
+                    AssetDatabase.ImportAsset(ti.assetPath, ImportAssetOptions.ForceUpdate);
+                }
+            }
+        }
         foreach (Material m in Selection.objects.Where(a => a is Material))
         {
             Debug.Log("Material " + m.name);
@@ -138,13 +165,12 @@ public partial class RTools : InspectorSearch
     }
     private void Inits(string cspath)
     {
-        //_TimerA.AddMethod(delegate()
-        // {
         foreach (var go in Selection.gameObjects)
         {
+            foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
+                if (anim.clip == null) DestroyImmediate(anim);
             foreach (var scr in go.GetComponentsInChildren<Base2>())
             {
-                
                 foreach (var pf in scr.GetType().GetFields())
                 {
                     InitLoadPath(scr, pf);
@@ -160,7 +186,6 @@ public partial class RTools : InspectorSearch
                 catch (Exception e) { Debug.LogError(e); }
             }
         }
-        //});
 
         _TimerA.AddMethod(delegate()
         {
@@ -186,9 +211,10 @@ public partial class RTools : InspectorSearch
         }
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
         {
+            Debug.Log(t.name);
             t.gameObject.layer = LayerMask.NameToLayer("Level");
             t.gameObject.isStatic = true;
-            if (t.gameObject.animation == null || t.gameObject.animation.clip == null)
+            if (t.gameObject.animation != null && t.gameObject.animation.clip == null)
                 DestroyImmediate(t.gameObject.animation);
         }
 
@@ -281,27 +307,6 @@ public partial class RTools : InspectorSearch
                 }
         }
     }
-    //[MenuItem("RTools/SetupTextures")]
-    private static void SetupTextures()
-    {
-        foreach (var o in Selection.objects)
-        {
-            if (o is Texture2D)
-            {
-                TextureImporter ti = ((TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(o)));
-                int max = 256;
-                if (!ti.lightmap)
-                {
-                    TextureImporterSettings tis = new TextureImporterSettings();
-                    ti.ReadTextureSettings(tis);
-                    tis.maxTextureSize = max;
-                    ti.SetTextureSettings(tis);
-
-                    AssetDatabase.ImportAsset(ti.assetPath, ImportAssetOptions.ForceUpdate);
-                }
-            }
-        }
-    }
     private void BuildGUI()
     {
         GUI.Space(10);
@@ -324,6 +329,7 @@ public partial class RTools : InspectorSearch
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
+        
         GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
         if (ge != null)
         {

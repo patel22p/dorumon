@@ -24,17 +24,10 @@ public class InspectorSearch : EditorWindow
         SetPivot = (GUI.Toggle(SetPivot, "Set Pivot") && Selection.activeGameObject != null);
         if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
 
-        GUI.BeginHorizontal();
-        if (GUI.Button("ApplyAll"))
-            foreach (var go in Selection.gameObjects)
-            {
-                EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
-                EditorUtility.ResetGameObjectToPrefabState(go);
-                AssetDatabase.SaveAssets();
-            }
+        GUI.BeginHorizontal();       
         //CopyComponent();
         CapturePrefabs();        
-        if (GUI.Button("AddToList"))
+        if (GUI.Button("Add"))
             if (!instances.Contains(Selection.activeGameObject.name))
                 instances.Add(Selection.activeGameObject.name);
         GUI.EndHorizontal();
@@ -102,15 +95,11 @@ public class InspectorSearch : EditorWindow
         EditorGUIUtility.LookLikeInspector();
         if (search.Length > 0)
         {
-            if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject is Material)
+            if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject != null)
             {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
                 if (Selection.activeGameObject != null)
-                {
-                    array = array.Union(Selection.activeGameObject.GetComponents<Component>());
-                    if (Selection.activeGameObject.renderer != null)
-                        array = array.Union(new[] { Selection.activeGameObject.renderer.sharedMaterial });
-                }
+                    array = array.Union(Selection.activeGameObject.GetComponents<Component>());                    
                 foreach (var m in array)
                 {
                     SerializedObject so = new SerializedObject(m);
@@ -133,6 +122,61 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
+    private void SetMultiSelect(Object m, SerializedProperty pr)
+    {
+        switch (pr.propertyType)
+        {
+            case SerializedPropertyType.Float:
+                MySetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Boolean:
+                MySetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Integer:
+                MySetValue(m, pr.intValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.String:
+                MySetValue(m, pr.stringValue, pr.propertyPath, pr.propertyType);
+                break;
+            case SerializedPropertyType.Color:
+                MySetValue(m, pr.colorValue, pr.propertyPath, pr.propertyType);
+                break;
+        }
+    }
+    void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
+    {
+        var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
+
+        foreach (var nc in array) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
+        {
+            if (nc != null && nc != c)
+            {
+                SerializedObject so = new SerializedObject(nc);
+                var pr = so.FindProperty(prName);
+                switch (type)
+                {
+                    case SerializedPropertyType.Float:
+                        pr.floatValue = (float)value;
+                        break;
+                    case SerializedPropertyType.Boolean:
+                        pr.boolValue = (bool)value;
+                        break;
+                    case SerializedPropertyType.String:
+                        pr.stringValue = (string)value;
+                        break;
+                    case SerializedPropertyType.Integer:
+                        pr.intValue = (int)value;
+                        break;
+                    case SerializedPropertyType.Color:
+                        pr.colorValue = (Color)value;
+                        break;
+                }
+
+                so.ApplyModifiedProperties();
+            }
+        }
+    }
+
     private void DrawObjects()
     {        
         List<string> toremove = new List<string>();
@@ -165,8 +209,11 @@ public class InspectorSearch : EditorWindow
                     if (glow && t2.collider != null)
                         t2.collider.isTrigger = true;
 
+                    t2.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
                     if (t2.GetComponent<Renderer>() != null)
+                    {
                         t2.renderer.castShadows = false;
+                    }
                 }
             }
         }
@@ -229,64 +276,7 @@ public class InspectorSearch : EditorWindow
 
         }
     }
-    private void SetMultiSelect(Object m, SerializedProperty pr)
-    {
-        switch (pr.propertyType)
-        {
-            case SerializedPropertyType.Float:
-                MySetValue(m, pr.floatValue, pr.propertyPath, pr.propertyType);
-                break;
-            case SerializedPropertyType.Boolean:
-                MySetValue(m, pr.boolValue, pr.propertyPath, pr.propertyType);
-                break;
-            case SerializedPropertyType.Integer:
-                MySetValue(m, pr.intValue, pr.propertyPath, pr.propertyType);
-                break;
-            case SerializedPropertyType.String:
-                MySetValue(m, pr.stringValue, pr.propertyPath, pr.propertyType);
-                break;
-            case SerializedPropertyType.Color:
-                MySetValue(m, pr.colorValue, pr.propertyPath, pr.propertyType);
-                break;
-        }
-    }
-    void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
-    {
-        var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
-        if (Selection.activeGameObject.renderer != null && c is Material)
-        {
-            array = array.Union(Selection.activeGameObject.renderer.sharedMaterials);
-        }
-
-        foreach (var nc in array) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
-        {
-            if (nc != null && nc != c)
-            {
-                SerializedObject so = new SerializedObject(nc);
-                var pr = so.FindProperty(prName);
-                switch (type)
-                {
-                    case SerializedPropertyType.Float:
-                        pr.floatValue = (float)value;
-                        break;
-                    case SerializedPropertyType.Boolean:
-                        pr.boolValue = (bool)value;
-                        break;
-                    case SerializedPropertyType.String:
-                        pr.stringValue = (string)value;
-                        break;
-                    case SerializedPropertyType.Integer:
-                        pr.intValue = (int)value;
-                        break;
-                    case SerializedPropertyType.Color:
-                        pr.colorValue = (Color)value;
-                        break;
-                }
-
-                so.ApplyModifiedProperties();
-            }
-        }
-    }
+    
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
@@ -322,6 +312,7 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Assets/Add Labels")]
     static void ApplyLabels()
     {
+        Undo.RegisterSceneUndo("rtools");
         foreach(var asset in Selection.objects)
         {
             if (AssetDatabase.IsMainAsset(asset))
@@ -337,27 +328,100 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Assets/Clear Labels")]
     static void ClearLabels()
     {
+        Undo.RegisterSceneUndo("rtools");
         foreach (var asset in Selection.objects)
         {
             if (AssetDatabase.IsMainAsset(asset))
             {
-                var apath = AssetDatabase.GetAssetPath(asset);
-                AssetDatabase.SetLabels(asset, new string[] { });
+                AssetDatabase.ClearLabels(asset);
                 EditorUtility.SetDirty(asset);
             }
         }
     }
+    [MenuItem("GameObject/Duplicate Materials")]
+    static void Dup()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var a in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
+        {
+            var ms =a.sharedMaterials;
+            for (int i = 0; i < ms.Count(); i++)
+            {
+                var p = AssetDatabase.GetAssetPath(ms[i]);
+                var nwp = p.Substring(0, p.Length - 4)+"D.mat";
+                AssetDatabase.DeleteAsset(nwp);
+                AssetDatabase.CopyAsset(p, nwp);
+                AssetDatabase.Refresh();
+                ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));                
+            }
+            a.sharedMaterials = ms;
+        }
+    }
+    [MenuItem("GameObject/Create Prefab")]
+    static void CreatePrefabs()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (GameObject g in Selection.gameObjects)
+        {
+            if (!AssetDatabase.IsMainAsset(g))
+            {
+                Directory.CreateDirectory(Application.dataPath + "/" + g.transform.parent.name);
+                var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.transform.parent.name + "/" + g.name + ".prefab");
+                EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
+                EditorUtility.SetDirty(g);
+            } 
+            AssetDatabase.Refresh();
+        }
+    }
 
+    [MenuItem("GameObject/ApplyAll")]
+    static void ApplyAll()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var go in Selection.gameObjects)
+        {
+            EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
+            EditorUtility.ResetGameObjectToPrefabState(go);
+            EditorUtility.ReconnectToLastPrefab(go);
+            AssetDatabase.SaveAssets();
+        }
+    }
+    [MenuItem("GameObject/ReconnectAll")]
+    static void ReconnectAll()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var go in Selection.gameObjects)
+        {
+            EditorUtility.ResetGameObjectToPrefabState(go);            
+            EditorUtility.ReconnectToLastPrefab(go);
+            AssetDatabase.SaveAssets();
+        }
+    }
+
+    [MenuItem("GameObject/Look At")]
+    static void LookAt()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        if (Selection.activeGameObject != null)
+        {
+            Selection.activeGameObject.transform.LookAt(SceneView.lastActiveSceneView.camera.transform.position);
+            //var e = Selection.activeGameObject.transform.rotation.eulerAngles;
+            //e.y += 90;
+            //Selection.activeGameObject.transform.rotation = Quaternion.Euler(e);
+        }
+    }
     public TimerA _TimerA = new TimerA();
     protected virtual void Update()
     {
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
-        //if (_TimerA.TimeElapsed(60 * 1000) && !EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".scene"))
-        //{
-        //    Debug.Log("autosave");
-        //    EditorApplication.SaveScene(EditorApplication.currentScene);
-        //}
+        if (_TimerA.TimeElapsed(320 * 1000))
+        {
+            if (!EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".unity"))
+            {
+                EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
+            }
+        }
         var ao = Selection.activeObject;
         if (ao != null && !lastUsed.Contains(ao))
             lastUsed.Insert(0, ao);

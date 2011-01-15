@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
-    public ZombieType[] priority = new ZombieType[] { ZombieType.Normal, ZombieType.Normal, ZombieType.Normal, ZombieType.Life, ZombieType.Speed };
+    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed, ZombieType.Speed, ZombieType.Speed };
     public ZombieType zombieType;
     public float zombieBite;
     public float speed = .3f;
@@ -30,7 +30,6 @@ public class Zombie : Destroible
     public Vector3 oldpos;
     public AnimationCurve zombieSpeedCurve;
     public AnimationCurve zombieLifeCurve;
-
     public override void Init()
     {        
         base.Init();
@@ -49,11 +48,11 @@ public class Zombie : Destroible
     {
 
         if (!_Loader.disablePathFinding) seeker.enabled = true;
+        ResetSpawnTm();
         _Game.zombies.Add(this);
         base.Start();
 
     }
-
     public void CreateZombie(int stage)
     {   
         zombieType = priority.Random();        
@@ -61,11 +60,10 @@ public class Zombie : Destroible
         speed = Random.Range(speed, speed / 3 * 2);
         var life = zombieLifeCurve.Evaluate(stage);
         life = Random.Range(life, life / 3 * 2);
-        if (zombieType == ZombieType.Life) life *= 3;
+        if (zombieType == ZombieType.Life) life *= 2;
         if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
         RPCSetup(speed, life, (int)zombieType);
     }
-
     public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
@@ -81,7 +79,7 @@ public class Zombie : Destroible
         zombieType = (ZombieType)priority;
         speed = zombiespeed;        
         maxLife =Life = zombieLife;
-        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 500f, 1f), 2);        
+        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 300f, 1f), 3);        
     }
     [RPC]
     public override void Die(int killedby)
@@ -98,7 +96,7 @@ public class Zombie : Destroible
             _localPlayer.AddFrags(+1, 1);
     }
     public float tiltTm;
-    public float spawninTM = 5;
+    public float spawninTM;
     public new Quaternion rot;
     protected override void Update()
     {
@@ -152,19 +150,19 @@ public class Zombie : Destroible
             return null;
         return ipl.pos - pos;
     }
+    Destroible nearest;
     private Destroible Nearest()
     {
-
-        Destroible pl =
-            _Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
-        return pl;
+        if(nearest == null || _TimerA.TimeElapsed(2000))
+            nearest = _Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        return nearest;
     }
     bool freeze { get { return Physics.gravity != _Game.gravity || Time.timeScale != 1; } }
     void FixedUpdate()
     {
         if (move && Alive && !freeze)
-        {            
-            if (rigidbody.velocity.magnitude < 5 && isGrounded < 1)
+        {
+            if (rigidbody.velocity.magnitude < 5 * transform.localScale.x)
             {
                 Vector3 v = rigidbody.velocity;
                 v.x = v.z = 0;                
@@ -241,7 +239,7 @@ public class Zombie : Destroible
     }
     public override void ResetSpawn()
     {
-        spawninTM = Random.Range(1, 10); 
+        ResetSpawnTm(); 
         GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
         
         Destroible pl = Nearest();
@@ -260,9 +258,10 @@ public class Zombie : Destroible
         rot = Quaternion.identity;
         rigidbody.velocity = Vector3.zero;
     }
-    void OnCollisionStay(Collision collisionInfo)
+
+    public void ResetSpawnTm()
     {
-        isGrounded = 0;
+        spawninTM = Random.Range(1f, 10f);
     }
     public override void OnPlayerConnected1(NetworkPlayer np)
     {

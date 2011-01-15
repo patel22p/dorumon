@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
+
 public class Tower : Destroible
 {
     [FindAsset("Detonator-Base")]

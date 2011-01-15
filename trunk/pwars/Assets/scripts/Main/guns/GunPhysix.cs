@@ -53,10 +53,11 @@ public class GunPhysix : GunBase
             var mpos = cursor[0].position  + (cursor[0].position - pos).normalized * count;
             foreach (Base b in boxes)
             {
-                b.rigidbody.AddExplosionForce(-gravitaty * .2f * scalefactor * b.rigidbody.mass, mpos, radius);
-                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty);
+                var f = 600;
+                b.rigidbody.AddExplosionForce(fdt*-gravitaty * f * .3f * scalefactor * b.rigidbody.mass, mpos, radius);
+                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty * f * fdt);
                 b.rigidbody.angularVelocity *= .6f;
-                b.rigidbody.velocity *= .97f;
+                b.rigidbody.velocity *= Math.Min(.15f * Vector3.Distance(b.pos, mpos), 1);
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
@@ -90,21 +91,26 @@ public class GunPhysix : GunBase
     [RPC]
     public void Shoot()
     {
+        bool boxes = false;
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
             if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
-            {                
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass) / Time.timeScale);
-            }
-        RaycastHit h;
-        var ray = new Ray(pos, rot * new Vector3(0, 0, 1));
-        var v = cursor[0].position;
-        if (Physics.Raycast(ray, out h,10, 1<<LayerMask.NameToLayer("Level")))
-        {
-            var d = 20 - h.distance;
-            if (d > 0)
             {
-                v = h.point;
-                player.rigidbody.AddForce(ray.direction * -50 * d);
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass) * fdt);
+                boxes = true;
+            }
+        var v = cursor[0].position;
+        if (!boxes)
+        {
+            RaycastHit h;
+            var ray = new Ray(pos, rot * new Vector3(0, 0, 1));            
+            if (Physics.Raycast(ray, out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            {
+                var d = 20 - h.distance;
+                if (d > 0)
+                {
+                    v = h.point;
+                    player.rigidbody.AddForce(ray.direction * -50 * d * fdt);
+                }
             }
         }
         root.audio.PlayOneShot(superphys_launch3);
@@ -121,9 +127,9 @@ public class GunPhysix : GunBase
             else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
             {
                 RPCSetPower(false);
-                if (holdtm < .2f && (patronsLeft > 5 || debug))
+                if (holdtm < .2f && (patronsLeft > 2 || debug))
                 {
-                    patronsLeft -= 5;
+                    patronsLeft -= 2;
                     RPCShoot();
                 }                
             }

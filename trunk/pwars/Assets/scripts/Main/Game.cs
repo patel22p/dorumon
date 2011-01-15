@@ -11,7 +11,6 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
-
 public class Game : Base
 {
     new public Player[] players = new Player[10];
@@ -67,7 +66,7 @@ public class Game : Base
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
         else
             foreach (Base o in Component.FindObjectsOfType(typeof(Base))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
-    }
+    } 
     private void clearObjects(string name)
     {
 
@@ -99,9 +98,25 @@ public class Game : Base
         if (!_localPlayer.spawned) _localPlayer.RPCSetAlive(true);
         lockCursor = true;
     }
+    bool chatEnabled;
     void Update()
-    {
-        
+    {        
+        if (Input.GetKeyDown(KeyCode.Return))
+        {            
+            chatEnabled = !chatEnabled;
+            Screen.lockCursor = !chatEnabled;
+        }
+        if (chatEnabled)
+        {
+            var a = Input.inputString.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            _GameWindow.chatInput.text += Input.inputString;
+        }
+        else if (_GameWindow.chatInput.text != "")
+        {
+            RPCSendChantMessage(_GameWindow.chatInput.text, _localPlayer.OwnerID);
+            
+            _GameWindow.chatInput.text = "";
+        }
         if (sendto != null) Debug.Log("warning,sendto is not null");
         timeleft -= Time.deltaTime / 60;
         
@@ -190,7 +205,7 @@ public class Game : Base
             foreach (Rigidbody a in FindObjectsOfType(typeof(Rigidbody)))
                 if (!a.isKinematic)
                 {
-                    a.AddForce(Vector3.up * 100 * Random.value);
+                    a.AddForce(Vector3.up * 100 * Random.value*fdt);
                     a.angularVelocity = Random.insideUnitSphere * 100;
                 }
             _Cam.Vingetting.enabled = true;
@@ -288,7 +303,15 @@ public class Game : Base
                 if (p.dead)
                     p.RPCSpawn();
     }
-    
+    public void RPCSendChantMessage(string msg,int userid) { CallRPC("ChantMessage",msg,userid); }
+    List<string> chat = new List<string>();
+    [RPC]
+    public void ChantMessage(string s, int id)
+    {
+        string d= players[id] + ": " + s;
+        chat.Add(s);
+        _GameWindow.chatOutput.text = string.Join("\r\n", chat.TakeLast(7).ToArray());
+    }
     
     //public void Spectator()
     //{

@@ -61,20 +61,54 @@ public class Shared : Base
     protected virtual void Update()
     {
         tsendpackets -= Time.deltaTime;
-        
 
-        
         if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
             _TimerA.AddMethod(2000, delegate { ResetSpawn(); });
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
-            UpdateLightmap(renderers.SelectMany(a => a.materials));
+            UpdateLightmap();
         if (_TimerA.TimeElapsed(100))
         {
             if (shared && Network.isServer)
-                ControllerUpdate();            
+                ControllerUpdate();
         }
     }
+    Dictionary<Material, Color> defcolors = new Dictionary<Material, Color>();
+    public void UpdateLightmap()
+    {
+        var materials = renderers.SelectMany(a => a.materials);
+
+        var r = new Ray(pos + Vector3.up, Vector3.down);
+        RaycastHit h;
+        if (Physics.Raycast(r, out h, 10, 1 << LayerMask.NameToLayer("Level"))) 
+        {
+            var i = h.collider.gameObject.renderer.lightmapIndex;
+            if (i != -1)
+            {
+                var t = LightmapSettings.lightmaps[i].lightmapFar;
+                if (t != null)
+                {
+                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 10 + .1f;
+                    foreach (var m in materials)
+                        if (m != null && !m.shader.name.ToLower().Contains("illu") && m.HasProperty("_Color"))
+                        {
+                            Color c;
+                            if (!defcolors.TryGetValue(m, out c))
+                            {
+                                if (!m.name.Contains("DefColors"))
+                                    m.name = "DefColors" + "-" + m.color.r + "-" + m.color.b + "-" + m.color.g + "-" + m.color.a + "-";
+                                var cs = m.name.ToString().Split('-');
+                                c = new Color(float.Parse(cs[1]), float.Parse(cs[2]), float.Parse(cs[3]), float.Parse(cs[4]));
+                                defcolors.Add(m, c);
+                            }                            
+                            m.color = c * a;
+                        }
+
+                }
+            }
+        }
+    }
+
     void ControllerUpdate()
     {
         
@@ -155,8 +189,8 @@ public class Shared : Base
     }
     
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (!enabled || !Sync) return;
+    {        
+        if (!enabled || !Sync) return;        
         if ((selected == -1 && Network.isServer) || selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
         {
             if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets < 0)

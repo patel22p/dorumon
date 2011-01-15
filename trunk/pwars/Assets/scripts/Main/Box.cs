@@ -33,7 +33,7 @@ public class Box : Shared
     }
     protected virtual void OnCollisionEnter(Collision coll)
     {
-        if (coll.impactForceSum.magnitude > 10)
+        if (coll.impactForceSum.magnitude > 30)
             audio.PlayOneShot(soundcollision, .5f);
     }
 

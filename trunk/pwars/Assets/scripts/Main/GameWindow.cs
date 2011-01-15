@@ -10,7 +10,9 @@ public class GameWindow : Base2 {
     public GUIText chatInput;
     public GUIText chatOutput;
     public GUIText CenterText;
+    [FindTransform]
     public GUITexture gunTexture;
+    [FindTransform]
     public GUIText gunPatrons;
     [FindTransform("teamscore")]
     public GUIText teamscore;
@@ -24,9 +26,7 @@ public class GameWindow : Base2 {
     public GUITexture spotLight;
     [FindTransform("clock")]
     public GUITexture clock;
-    
     public GUIText Score;
-
     [FindTransform]
     public GUITexture energy;
     [FindTransform]
@@ -52,10 +52,7 @@ public class GameWindow : Base2 {
         systemMessage.Insert(0, s);
         systemMessages.text = string.Join("\r\n", systemMessage.Take(5).Reverse().ToArray());
     }
-    void AppendChatMessage(string s)
-    {
-
-    }
+    
 
     void Start()
     {
@@ -96,7 +93,7 @@ public class GameWindow : Base2 {
         {                        
             SetWidth(life, (int)Mathf.Min(_localPlayer.Life, _localPlayer.maxLife));
             SetWidth(lifeoff, (int)_localPlayer.maxLife);
-            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energy.pixelInset.width));            
+            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energyoff.pixelInset.width));            
             
             this.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
             if (mapSettings.zombi)

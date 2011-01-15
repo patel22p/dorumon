@@ -39,42 +39,8 @@ public class Base : Base2
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
     protected virtual void Enable() { if (networkView != null) enabled = true; }
-    public bool UpdateLightmap(IEnumerable<Material> materials) { return UpdateLightmap(materials, pos); }
-    public static bool UpdateLightmap(IEnumerable<Material> materials, Vector3 pos)
-    {
-        
-        bool success = false;
-        var r = new Ray(pos + Vector3.up , Vector3.down);
-        RaycastHit h;
-        if (Physics.Raycast(r, out h, 10, 1 << LayerMask.NameToLayer("Level")))
-        {
-            
-            var i = h.collider.gameObject.renderer.lightmapIndex;
 
-            if (i != -1)
-            {
-                var t = LightmapSettings.lightmaps[i].lightmapFar;                                    
-                if (t != null)
-                {
-                    success = true;
-                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 10 + .1f;
-                    foreach (var m in materials)
-                        if (m != null)
-                        {
-                            if (!m.shader.name.ToLower().Contains("illu") && m.HasProperty("_Color"))
-                            {                                
-                                if (m.name.Contains("Ins"))
-                                    m.name = m.color.r + "-" + m.color.b + "-" + m.color.g + "-";
-                                var cs = m.name.ToString().Split('-');
-                                m.color = new Color(float.Parse(cs[0]), float.Parse(cs[1]), float.Parse(cs[2]), .2f) * a;
-                            }
-                        }
-
-                }
-            }
-        }
-        return success;
-    }
+    
     public virtual void OnPlayerConnected1(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
@@ -185,14 +151,14 @@ public class Base : Base2
         foreach (var r in g.GetComponentsInChildren<Camera>())
             r.enabled = value;
 
-        foreach (var r in g.GetComponentsInChildren<AudioSource>())
-        {
-            r.enabled = value;
-            if (!value)
-                r.Stop();
-            else
-                if (r.playOnAwake) r.Play();
-        }
+        //foreach (var r in g.GetComponentsInChildren<AudioSource>())
+        //{
+        //    r.enabled = value;
+        //    if (!value)
+        //        r.Stop();
+        //    else
+        //        if (r.playOnAwake) r.Play();
+        //}
         
     }
     

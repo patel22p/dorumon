@@ -7,6 +7,7 @@ using UnityEngine;
 public class GunBase : Base
 {
     public bool laser;
+    public float ves;
     public float patronsDefaultCount;
     public Texture2D GunPicture;    
     public Player player;
@@ -27,13 +28,16 @@ public class GunBase : Base
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void Init()
     {
+        if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         if (GunPicture == null)
             GunPicture = Base2.FindAsset<Texture2D>(name);
         patronsDefaultCount = patronsLeft;
         player = root.GetComponent<Player>();
         //if (transform.Find("cursor") != null && cursor.Count == 0)
         //    cursor.Add(transform.Find("cursor"));
-        if (gunModel == null && this.GetComponentInChildren<Renderer>() != null) gunModel = this.GetComponentInChildren<Renderer>().gameObject;
+        var t = this.transform.GetTransforms().Skip(1).FirstOrDefault(a=>a.name != "cursor");        
+        if (t != null)
+            gunModel = t.gameObject;
         base.Init();
     }
 #endif
@@ -41,22 +45,17 @@ public class GunBase : Base
     {
         Show(false);
     }
-
     public override void OnPlayerConnected1(NetworkPlayer np)
     {
         RPCSetLaser(laser);
         base.OnPlayerConnected1(np);
     }
-
-
-
     public void RPCSetLaser(bool value) { CallRPC("SetLaser", value); }
     [RPC]
     public void SetLaser(bool value)
     {
         laser = value;
     }
-
     public virtual void EnableGun()
     {
         Show(true);
@@ -68,6 +67,9 @@ public class GunBase : Base
     }
     protected virtual void Update()
     {
+        if (enabled )
+            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .10f);
+
         if (isOwner)
         {
             if (GunPicture != null && player != null && isOwner)

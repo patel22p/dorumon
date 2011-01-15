@@ -23,7 +23,7 @@ public class Player : Destroible,IAim
     public int speedUpgrate;
     public int lifeUpgrate;
     public bool haveAntiGravitation;
-    public float freezedt;
+    
     public int guni;
     public int fps;
     public int ping;
@@ -161,7 +161,7 @@ public class Player : Destroible,IAim
     }
     protected override void Update()
     {
-        maxLife = defMaxLife + (lifeUpgrate * 100);
+        maxLife = defMaxLife + (lifeUpgrate * 100);        
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
         if (isOwner)
@@ -304,8 +304,8 @@ public class Player : Destroible,IAim
         guntr.rotation = syncRot;
 
         Ray r = gun.GetRay();
-        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };        
-        if (Physics.Raycast(r, out h, 100))
+        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
+        if (Physics.Raycast(r, out h, 100, ~(1 << LayerMask.NameToLayer("Ignore Raycast"))))
         {
             var aim = h.collider.gameObject.transform.GetMonoBehaviorInParrent() as IAim;
             if (aim != null)
@@ -322,43 +322,39 @@ public class Player : Destroible,IAim
             laserRender.enabled = false;
     }
     protected virtual void FixedUpdate()
-    {                
-        if (isOwner) FixedLocalMove();
-        //UpdateAim();
-    }
-    private void FixedLocalMove()
     {
-        if (lockCursor)
+        if (isOwner && lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
-            if(Physics.gravity == _Game.gravity)
+            if (Physics.gravity == _Game.gravity)
                 moveDirection.y = 0;
             moveDirection.Normalize();
             Vector3 v = this.rigidbody.velocity;
-            if (Input.GetKey(KeyCode.LeftShift) && freezedt > 0)
+            if (Input.GetKey(KeyCode.LeftShift) && freezedt < 0)
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
-                this.rigidbody.AddForce(moveDirection / Time.timeScale * speed * 200);
-                v.x *= .35f;                
-                v.z *= .35f;
+                this.rigidbody.AddForce(moveDirection * fdt * speed * 500 * rigidbody.mass);
+                v.x *= 0;
+                v.z *= 0;
                 if (Physics.gravity != _Game.gravity)
-                    v.y *= .35f;
+                    v.y *= 0;
                 this.rigidbody.velocity = v;
             }
             else
             {
-                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed / Time.timeScale*5);
+                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed * 5);
             }
             if (freezedt > 0) this.rigidbody.velocity *= .85f;
         }
     }
+    
     public void RPCJump() { CallRPC("Jump"); }
     [RPC]
     public void Jump()
-    {        
+    {
         transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 1, 0));
-        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) / Time.timeScale);
+        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) * fdt);
         PlaySound(nitrojumpSound);
     }
     
@@ -423,25 +419,7 @@ public class Player : Destroible,IAim
         
         Destroy(g, 1.6f);
     }
-    [RPC]
-    public override void SetLife(float NwLife, int killedby)
-    {
-        if (!Alive) return;
-        if (isOwner)
-            _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
-
-
-
-        if (isEnemy(killedby) || NwLife > Life)
-        {
-            Life = Math.Min(NwLife, 100);
-            freezedt = (Life - NwLife) / 20;
-        }
-
-        if (Life <= 0 && isOwner)
-            RPCDie(killedby);
-
-    }
+    
     public void RPCSetUserInfo(string nick) { CallRPC("SetUserInfo", nick); }
     [RPC]
     public void SetUserInfo(string nick)
@@ -501,7 +479,7 @@ public class Player : Destroible,IAim
     {
         Debug.Log(name + " Alive " + value);
         foreach (var t in GetComponentsInChildren<Transform>())
-            t.gameObject.layer = value ? LayerMask.NameToLayer("Default") : LayerMask.NameToLayer("DeadPlayer");
+            t.gameObject.layer = value ? LayerMask.NameToLayer("Player") : LayerMask.NameToLayer("DeadPlayer");
 
 
         Alive = value;

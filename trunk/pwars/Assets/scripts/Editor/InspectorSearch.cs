@@ -10,7 +10,6 @@ using Object = UnityEngine.Object;
 using System.IO;
 using doru;
 
-[ExecuteInEditMode]
 public class InspectorSearch : EditorWindow
 {
     public List<string> instances = new List<string>();
@@ -20,13 +19,16 @@ public class InspectorSearch : EditorWindow
     Vector3 oldpos;
     protected virtual void OnGUI()
     {
-
         SetPivot = (GUI.Toggle(SetPivot, "Set Pivot") && Selection.activeGameObject != null);
         if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
 
         GUI.BeginHorizontal();       
         //CopyComponent();
-        CapturePrefabs();        
+        
+        //if (GUI.Button("Cap"))
+        //    Cap();
+        if (GUI.Button("Apply"))
+            ApplyAll();
         if (GUI.Button("Add"))
             if (!instances.Contains(Selection.activeGameObject.name))
                 instances.Add(Selection.activeGameObject.name);
@@ -34,52 +36,54 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
-    private void CapturePrefabs()
+    
+
+    [MenuItem("GameObject/Capture Screenshot")]
+    static void Cap()
     {
-        if (GUI.Button("Cap") && Selection.activeGameObject != null)
-        {
-            int size = 256;
-            var sc = SceneView.lastActiveSceneView.camera;
-            GameObject co = (GameObject)Instantiate(Base2.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
-            Camera c = co.GetComponentInChildren<Camera>();
-            RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
-            c.targetTexture = rt;
-            var output = new Texture2D(size, size, TextureFormat.ARGB32, false);
-            RenderTexture.active = rt;
-            var g = Selection.activeGameObject;
-            var g2 = (GameObject)Instantiate(g, g.transform.position, g.transform.rotation);
-            c.cullingMask = 1 << co.layer;
-            foreach (var a in g2.GetComponentsInChildren<Transform>())
-                a.gameObject.layer = co.layer;
-            var r = g2.GetComponentInChildren<Renderer>();
-            
-            if (r == null) { Debug.Log("Render is null " + r.name); return; }            
-            g2.active = true;
-            c.Render();
-            output.ReadPixels(new Rect(0, 0, size, size), 0, 0);
-            output.Apply();
-            Color? bk = null;
-            for (int x = 0; x < output.width; x++)
-                for (int y = 0; y < output.height; y++)
-                {
-                    var px = output.GetPixel(x, y);
-                    if (bk == null) bk = px;
-                    px.a = px == bk.Value ? 0 : .6f;
-                    output.SetPixel(x, y, px);
-                }
-            var p = AssetDatabase.GetAssetPath(g);
+        if (Selection.activeGameObject == null) return;
+        Undo.RegisterSceneUndo("rtools");
+        int size = 256;
+        var sc = SceneView.lastActiveSceneView.camera;
+        GameObject co = (GameObject)Instantiate(Base2.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
+        Camera c = co.GetComponentInChildren<Camera>();
+        RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
+        c.targetTexture = rt;
+        var output = new Texture2D(size, size, TextureFormat.ARGB32, false);
+        RenderTexture.active = rt;
+        var g = Selection.activeGameObject;
+        var g2 = (GameObject)Instantiate(g, g.transform.position, g.transform.rotation);
+        c.cullingMask = 1 << co.layer;
+        foreach (var a in g2.GetComponentsInChildren<Transform>())
+            a.gameObject.layer = co.layer;
+        var r = g2.GetComponentInChildren<Renderer>();
+
+        if (r == null) { Debug.Log("Render is null " + r.name); return; }
+        g2.active = true;
+        c.Render();
+        output.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+        output.Apply();
+        Color? bk = null;
+        for (int x = 0; x < output.width; x++)
+            for (int y = 0; y < output.height; y++)
+            {
+                var px = output.GetPixel(x, y);
+                if (bk == null) bk = px;
+                px.a = px == bk.Value ? 0 : .6f;
+                output.SetPixel(x, y, px);
+            }
+        var p = AssetDatabase.GetAssetPath(g);
 
 
-            p = (p == "" ? Application.dataPath + "/materials/Icons/" : Path.GetDirectoryName(p)) + "/" + g.name + ".png";
+        p = (p == "" ? Application.dataPath + "/materials/Icons/" : Path.GetDirectoryName(p)) + "/" + g.name + ".png";
 
-            File.WriteAllBytes(p, output.EncodeToPNG());
-            Debug.Log("Saved: " + p);
-            RenderTexture.ReleaseTemporary(rt);
-            RenderTexture.active = null;
-            c.targetTexture = null;
-            DestroyImmediate(g2);
-            DestroyImmediate(co);
-        }
+        File.WriteAllBytes(p, output.EncodeToPNG());
+        Debug.Log("Saved: " + p);
+        RenderTexture.ReleaseTemporary(rt);
+        RenderTexture.active = null;
+        c.targetTexture = null;
+        DestroyImmediate(g2);
+        DestroyImmediate(co);
     }
     protected virtual void Awake()
     {
@@ -199,20 +203,20 @@ public class InspectorSearch : EditorWindow
     }
     protected virtual void SetupLevel()
     {
-        foreach (Transform t in Selection.activeGameObject.transform)
+        foreach (Transform g in Selection.activeGameObject.transform)
         {
-            bool glow = t.name.Contains("glow");
-            if (t.name.Contains("glass") || glow)
+            bool glow = g.name.Contains("glow");
+            if (g.name.Contains("glass") || glow)
             {
-                foreach (var t2 in t.GetComponentsInChildren<Transform>())
+                foreach (var t in g.GetTransforms())
                 {
-                    if (glow && t2.collider != null)
-                        t2.collider.isTrigger = true;
-
-                    t2.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-                    if (t2.GetComponent<Renderer>() != null)
+                    if (glow && t.collider != null)
+                        t.collider.isTrigger = true;
+                    Debug.Log(t.gameObject.name);
+                    t.gameObject.layer = LayerMask.NameToLayer("Glass");
+                    if (t.GetComponent<Renderer>() != null)
                     {
-                        t2.renderer.castShadows = false;
+                        t.renderer.castShadows = false;
                     }
                 }
             }
@@ -304,10 +308,11 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         Selection.activeTransform.parent = Selection.activeTransform.parent.parent;
     }
+    
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
-        if (_ewnd == null) _ewnd = EditorWindow.GetWindow<RTools>();
+        EditorWindow.GetWindow<RTools>();
     }
     [MenuItem("Assets/Add Labels")]
     static void ApplyLabels()
@@ -427,16 +432,8 @@ public class InspectorSearch : EditorWindow
             lastUsed.Insert(0, ao);
 
         if (_TimerA.TimeElapsed(3000))
-            ewnd.Repaint();
+            this.Repaint();
     }
-    public static EditorWindow _ewnd;
-    protected virtual EditorWindow ewnd
-    {
-        get
-        {
-            if (_ewnd == null) _ewnd = EditorWindow.GetWindow(this.GetType());
-            return _ewnd;
-        }
-    }
+    
 }
 #endif

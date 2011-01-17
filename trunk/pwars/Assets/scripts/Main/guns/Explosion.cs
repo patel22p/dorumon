@@ -4,7 +4,7 @@ using System.Collections;
 public class Explosion : Base
 {
     public Shared self;
-    public int damage;
+    public AnimationCurve damage;
     public float exp = 500;
     public float radius = 4;
 
@@ -17,14 +17,14 @@ public class Explosion : Base
             if (ip != self && dist < radius && ip.isController && ip.Alive)
             {                
                 if (ip.isOwner)
-                    _Cam.exp = 1;                
-                ip.RPCSetLife(ip.Life - damage,OwnerID);
+                    _Cam.exp = 1;
+                ip.RPCSetLife(ip.Life - damage.Evaluate(dist), OwnerID);
             }
         }
         _TimerA.AddMethod(delegate
         {
             foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
-                if (b != self)
+                if (b != self && (!(b is Player) || ((Player)b).Alive))
                 {
                     b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * fdt, transform.position, radius);
                 }

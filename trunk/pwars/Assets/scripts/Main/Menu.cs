@@ -9,7 +9,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 
-[assembly: AssemblyVersion("1.0.*")] // C:\Documents and Settings\<USERNAME>\Local Settings\temp\UnityWebPlayer\log
+//[assembly: AssemblyVersion("1.0.*")] // C:\Documents and Settings\<USERNAME>\Local Settings\temp\UnityWebPlayer\log
 
 public class Menu : Base
 {

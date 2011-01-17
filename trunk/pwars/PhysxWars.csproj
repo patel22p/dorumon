@@ -48,7 +48,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <None Include="Assets\Detonator Explosion Framework\Resources\Detonator\Textures\HeatDistort.shader" />
      <Compile Include="Assets\materials\Image Based\NoiseEffect.cs" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderRGB.shader" />
      <None Include="Assets\materials\Image Based\NoiseEffectShaderYUV.shader" />
@@ -168,6 +167,7 @@
      <Compile Include="Assets\scripts\Main\Console.cs" />
      <Compile Include="Assets\scripts\Main\Destroible.cs" />
      <Compile Include="Assets\scripts\Main\Detonator.cs" />
+     <Compile Include="Assets\scripts\Main\Ext.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
      <Compile Include="Assets\scripts\Main\Irc.cs" />
@@ -282,6 +282,7 @@
      <None Include="Assets\Standard Assets\DefaultResourcesExtra\Lightmap-Diffuse.shader" />
      <None Include="Assets\Standard Assets\DefaultResourcesExtra\Lightmap-Glossy.shader" />
      <None Include="Assets\Standard Assets\DefaultResourcesExtra\Lightmap-VertexLit.shader" />
+     <None Include="Assets\Standard Assets\Detonator Explosion Framework\Resources\Detonator\Textures\HeatDistort.shader" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\BloomAndFlaresEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\ColorCorrectionCurvesEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />

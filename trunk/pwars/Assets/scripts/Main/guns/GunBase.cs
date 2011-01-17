@@ -45,10 +45,10 @@ public class GunBase : Base
     {
         Show(false);
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         RPCSetLaser(laser);
-        base.OnPlayerConnected1(np);
+        base.OnPlayerConnectedBase(np);
     }
     public void RPCSetLaser(bool value) { CallRPC("SetLaser", value); }
     [RPC]

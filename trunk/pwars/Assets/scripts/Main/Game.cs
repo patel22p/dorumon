@@ -16,13 +16,15 @@ public class Game : Base
     new public Player[] players = new Player[10];
     public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
+    public float[] timers = new float[20];
     public IEnumerable<Patron> patrons { get { return GameObject.FindObjectsOfType(typeof(Patron)).Cast<Patron>(); } }
-    private float fixedDeltaTime;
-    public LayerMask PatronCollMask;
+    private float fixedDeltaTime;    
     public List<Tower> towers = new List<Tower>();
     public List<Shared> boxes = new List<Shared>();
+    public List<MapItem> mapitems = new List<MapItem>();
     public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
     public IEnumerable<Zombie> deadZombies  { get { return zombies.Where(a => a.Alive == false); } }
+    [FindTransform("bounds",true)]
     public GameObject bounds;
     public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }    
     public new Player _localPlayer;
@@ -30,7 +32,6 @@ public class Game : Base
     public GameObject effects;
     [FindTransform("GameEffects/decals", true)]
     public GameObject decals;
-    
     public int stage;
     public float timeleft = 20;
     public bool wait;
@@ -43,7 +44,6 @@ public class Game : Base
     [GenerateEnums("DecalTypes")]
     public List<Decal> decalPresets = new List<Decal>();
     public int zombiespawnindex = 0;
-
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [FindAsset("Player")]
     public GameObject playerPrefab;    
@@ -55,10 +55,8 @@ public class Game : Base
                
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
-        
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("client"));
         print("mapSettings.host " + mapSettings.host);
-        
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
                 Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);
@@ -66,7 +64,16 @@ public class Game : Base
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
         else
             foreach (Base o in Component.FindObjectsOfType(typeof(Base))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
-    } 
+    }
+
+    protected override void Enable()
+    {
+        if (Network.isServer)
+            RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+        RPCWriteMessage("Player Connected: " + nick);
+        ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
+        base.Enable();
+    }
     private void clearObjects(string name)
     {
 
@@ -79,17 +86,9 @@ public class Game : Base
     public override void Init()
     {
         particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());        
-        bounds = GameObject.Find("bounds");
-        if (bounds == null) Debug.Log("warning no bounds founded");
     }
     protected override void Start()
-    {        
-        Debug.Log("game Start1");
-        print("timelimit"+mapSettings.timeLimit);
-        if (Network.isServer)
-            RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
-        RPCWriteMessage("Player Connected!" + nick);
-        _localPlayer = ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
+    {                
     }
     public void onTeamSelect()
     {
@@ -99,6 +98,7 @@ public class Game : Base
         lockCursor = true;
     }
     bool chatEnabled;
+    
     void Update()
     {        
         if (Input.GetKeyDown(KeyCode.Return))
@@ -108,7 +108,6 @@ public class Game : Base
         }
         if (chatEnabled)
         {
-            var a = Input.inputString.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             _GameWindow.chatInput.text += Input.inputString;
         }
         else if (_GameWindow.chatInput.text != "")
@@ -121,9 +120,12 @@ public class Game : Base
         timeleft -= Time.deltaTime / 60;
         
         if (Input.GetKeyDown(KeyCode.P)) RPCPause();
-    
+
         if (Input.GetKeyDown(KeyCode.Tab))
+        {
             _GameStatsWindow.Show(this);
+            lockCursor = true;
+        }
         if (Input.GetKeyUp(KeyCode.Tab))
             _GameStatsWindow.Hide();
 
@@ -175,8 +177,9 @@ public class Game : Base
     }
     public void OnPlayerConnected(NetworkPlayer np)
     {
+        Debug.Log("On Player Connected " + GameObject.FindObjectsOfType(typeof(Zombie)).Length);
         sendto = np;
-        networkView.RPC("SetTimeLeft", np, timeleft);
+        RPCSetTimeLeft(timeleft);        
         if (mapSettings.zombi && stage != 0) RPCNextStage(stage);        
         RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         var sorted = GameObject.FindObjectsOfType(typeof(Player))
@@ -185,11 +188,12 @@ public class Game : Base
         .Union(GameObject.FindObjectsOfType(typeof(Box)))
         .Union(GameObject.FindObjectsOfType(typeof(MapItem)))
         .Union(GameObject.FindObjectsOfType(typeof(Base)));
-
+        Debug.Log(sorted.Where(a => a is Zombie).Count());
         foreach (Base b in sorted)
-            b.OnPlayerConnected1(np);
+            b.OnPlayerConnectedBase(np);
         sendto = null;
     }
+    public void RPCSetTimeLeft(float time) { CallRPC("SetTimeLeft",time); }
     [RPC]
     public void SetTimeLeft(float time)
     {
@@ -309,7 +313,7 @@ public class Game : Base
     public void ChantMessage(string s, int id)
     {
         string d= players[id] + ": " + s;
-        chat.Add(s);
+        chat.Add(d);
         _GameWindow.chatOutput.text = string.Join("\r\n", chat.TakeLast(7).ToArray());
     }
     
@@ -331,15 +335,16 @@ public class Game : Base
     {
         int playerid = player.GetHashCode();
         RPCWriteMessage(players[playerid].nick + " Player Leaved" + player);
-        foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
-        {
-            if (box.selected == playerid)
-                box.RPCResetOwner();
+        foreach (Shared box in GameObject.FindObjectsOfType(typeof(Shared)))
+            if (!(box is Player))
+            {
+                if (box.selected == playerid)
+                    box.RPCResetOwner();
 
-            foreach (NetworkView nw in box.GetComponents<NetworkView>())
-                if (nw.owner.GetHashCode() == playerid) RPCDestroy(nw.viewID);
-        }
-        
+                foreach (NetworkView nw in box.GetComponents<NetworkView>())
+                    if (nw.owner.GetHashCode() == playerid) RPCDestroy(nw.viewID);
+            }
+
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);
     }
@@ -452,6 +457,7 @@ public class Game : Base
     {
         if (_SettingsWindow.Decals)
         {
+
             Decal d = decalPresets[(int)t];
             d.mesh.renderer.material = d.mat;
             d.mesh.transform.localScale = Vector3.one * d.scale;

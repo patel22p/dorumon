@@ -34,6 +34,7 @@ public class Gun : GunBase
     public override void Init()
     {        
         base.Init();
+        enabled = false;
         if (soundVolume == 1) soundVolume = .5f;        
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);         
     }

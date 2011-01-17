@@ -49,10 +49,9 @@ public class GameWindow : Base2 {
     List<string> systemMessage = new List<string>();
     public void AppendSystemMessage(string s)
     {
-        systemMessage.Insert(0, s);
-        systemMessages.text = string.Join("\r\n", systemMessage.Take(5).Reverse().ToArray());
+        systemMessage.Add(s);
+        systemMessages.text = string.Join("\r\n", systemMessage.TakeLast(5).ToArray());
     }
-    
 
     void Start()
     {
@@ -63,6 +62,7 @@ public class GameWindow : Base2 {
     public int fps;
     public void SetWidth(GUITexture t, int value)
     {
+        var a = t.color;
         var p = t.pixelInset;
         if (p.width != value)
         {
@@ -73,7 +73,7 @@ public class GameWindow : Base2 {
 
     void Update()
     {
-        
+        if (_localPlayer == null) return;
         if (_TimerA.TimeElapsed(500))
             fps = (int)_TimerA.GetFps();
         fpstext.text = "Fps: " + fps + " Errors:" + _Console.errorcount;
@@ -93,9 +93,9 @@ public class GameWindow : Base2 {
         {                        
             SetWidth(life, (int)Mathf.Min(_localPlayer.Life, _localPlayer.maxLife));
             SetWidth(lifeoff, (int)_localPlayer.maxLife);
-            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energyoff.pixelInset.width));            
-            
-            this.gunPatrons.text = _localPlayer.gun.Text + ":" + _localPlayer.gun.patronsLeft;
+            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energyoff.pixelInset.width));
+
+            this.gunPatrons.text = _localPlayer.gun.Text + ":" + (int)_localPlayer.gun.patronsLeft;
             if (mapSettings.zombi)
             {
                 this.zombiesLeft.text = "Zombies : " + _Game.AliveZombies.Count().ToString();
@@ -113,8 +113,7 @@ public class GameWindow : Base2 {
     }
     public void Hit(float hit)
     {
-        GUITexture[] gs = this.GetComponentsInChildren<GUITexture>();
-        GUITexture g = gs[Random.Range(0, gs.Length - 1)];
+        GUITexture g = blood[Random.Range(0, blood.Count- 1)];
         g.color += new Color(0, 0, 0, Mathf.Min(.7f, hit / uron));
     }
 

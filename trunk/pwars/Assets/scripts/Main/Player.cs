@@ -5,7 +5,7 @@ using doru;
 using System.Collections.Generic;
 using System;
 public enum Team : int { Red, Blue, None }
-interface IAim { void Aim(); }
+interface IAim { void Aim(Player p); }
 [Serializable]
 public class Player : Destroible,IAim 
 {
@@ -22,8 +22,7 @@ public class Player : Destroible,IAim
     public bool haveTimeBomb;
     public int speedUpgrate;
     public int lifeUpgrate;
-    public bool haveAntiGravitation;
-    
+    public bool haveAntiGravitation;    
     public int guni;
     public int fps;
     public int ping;
@@ -46,7 +45,6 @@ public class Player : Destroible,IAim
     public override void Init()
     {        
         base.Init();
-        gameObject.layer = LayerMask.NameToLayer("Player");
         guns = guntr.GetChild(0).GetComponentsInChildren<GunBase>().ToList();
         shared = false;
         title = transform.GetComponentInChildren<TextMesh>();
@@ -60,6 +58,8 @@ public class Player : Destroible,IAim
     }
     protected override void Awake()
     {
+        if (this.networkView.isMine)
+            _localPlayer = this;
         AliveMaterial = model.renderer.sharedMaterial;        
         Debug.Log("player awake");
         defmass = rigidbody.mass;
@@ -74,13 +74,14 @@ public class Player : Destroible,IAim
         //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
         base.Awake();
     }
+    
     protected override void Start()
     {
         base.Start();
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
-        base.OnPlayerConnected1(np);        
+        base.OnPlayerConnectedBase(np);        
         RPCSetUserInfo(nick);
         RPCSetFrags(frags, score);
         RPCSetDeaths(deaths);
@@ -95,14 +96,14 @@ public class Player : Destroible,IAim
     }
     public override void OnSetOwner()
     {
+        enabled = true;
         print("set owner" + OwnerID);
         if (isOwner)
-        {
             tag = name = "LocalPlayer";
-        }
         else
             name = "RemotePlayer" + OwnerID;
-        _Game.players[OwnerID] = this;        
+        _Game.players[OwnerID] = this;
+        base.OnSetOwner();
     }
     public void RPCSpawn() { CallRPC("Spawn"); }
     [RPC]
@@ -119,6 +120,7 @@ public class Player : Destroible,IAim
     }
     public override void ResetSpawn()
     {
+        Debug.Log(name + "Reset Spawn");
         base.ResetSpawn();
         transform.position = GameObject.FindGameObjectWithTag("Spawn" + team.ToString()).transform.position;
         transform.rotation = Quaternion.identity;
@@ -161,13 +163,17 @@ public class Player : Destroible,IAim
     }
     protected override void Update()
     {
+        
+
         maxLife = defMaxLife + (lifeUpgrate * 100);        
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
-        if (isOwner)
-            nitro += Time.deltaTime / 5;
         
-        UpdateTitle();
+        if (!isOwner)
+            UpdateTitle();
+
+        if (shift)
+            this.transform.rotation = Quaternion.identity;
 
         if (_TimerA.TimeElapsed(100))
         {
@@ -189,32 +195,46 @@ public class Player : Destroible,IAim
                 speedparticles.Emit();
             }
         }
-        if (freezedt >= 0)
-            freezedt -= Time.deltaTime;
-        LocalUpdate();
+        
+        if (isOwner)
+            LocalUpdate();
         base.Update();
         //UpdateLightmap(model.renderer.materials);
     }
+    public bool shift;
+    public void RPCSetStreff(bool value) { CallRPC("SetStreff", value); }
+    [RPC]
+    public void SetStreff(bool value)
+    {
+        shift = value;
+    }
     private void LocalUpdate()
     {
-        if (isOwner && lockCursor && Alive)
+
+        var m = _Game.mapitems.Where(a => a != null && Vector3.Distance(a.pos, _localPlayer.pos) < a.distance).OrderBy(a => Vector3.Distance(a.pos, _localPlayer.pos)).FirstOrDefault();
+        if (m != null && m.Check())
+            m.TmOn = .5f;
+        nitro += Time.deltaTime / 5;
+        if (lockCursor && Alive)
         {
+            bool sh = Input.GetKey(KeyCode.LeftShift);
+            if (sh != shift) RPCSetStreff(sh);
             //NextGun(Input.GetAxis("Mouse ScrollWheel"));
-            if (_TimerA.TimeElapsed(200))
+            if (_TimerA.TimeElapsed(500))
             {
                 if (Input.GetKey(KeyCode.H) || Input.GetKey(KeyCode.G))
                     foreach (var a in players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10))
                     {
                         if (Input.GetKey(KeyCode.H) && a.Life < a.maxLife)
                         {
-                            a.RPCSetLife(a.Life + 2, -1);
+                            a.RPCHeal(20);
                         }
                         if (Input.GetKey(KeyCode.G) && a is Player)
                         {
                             var p = ((Player)a);
                             if (score > 10)
                             {
-                                p.RPCSetFrags(p.frags, p.score + 10);
+                                p.RPCGiveMoney(10);
                                 score -= 10;
                             }
                         }
@@ -222,8 +242,7 @@ public class Player : Destroible,IAim
             }
 
             SelectGun();
-            if (Input.GetKey(KeyCode.LeftShift))
-                this.transform.rotation = Quaternion.identity;
+            
 
             if (Input.GetKeyDown(KeyCode.Y) && (haveAntiGravitation || debug))
             {
@@ -254,20 +273,21 @@ public class Player : Destroible,IAim
     private void UpdateTitle()
     {
         if (OwnerID != -1 && (team == Team.Red || team == Team.Blue))
-            title.renderer.material.color = team == Team.Red ? Color.red : Color.blue;
+            title.renderer.material.color = (team == Team.Red ? Color.red : Color.blue) * 1f;
         else
-            title.renderer.material.color = Color.white;
+            title.renderer.material.color = Color.white * 1;
 
-        if (shownicktime > 0)
+        if (shownicktime > 0 || !_localPlayer.isEnemy(OwnerID))
             title.text = nick + ":" + Life;
         else
             title.text = "";
 
         shownicktime -= Time.deltaTime;
     }
-    public void Aim()
+    public void Aim(Player p)
     {
-        shownicktime = 3;
+        if(p.isOwner)
+            shownicktime = 3;
     }
     public void RPCSetFanarik(bool v) { CallRPC("SetFanarik",v); }
     [RPC]
@@ -299,27 +319,30 @@ public class Player : Destroible,IAim
     }
     public LineRenderer laserRender;
     public void UpdateAim()
-    {
-        if (isOwner) syncRot = _Cam.transform.rotation;
-        guntr.rotation = syncRot;
-
-        Ray r = gun.GetRay();
-        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
-        if (Physics.Raycast(r, out h, 100, ~(1 << LayerMask.NameToLayer("Ignore Raycast"))))
+    {        
+        if (Alive)
         {
-            var aim = h.collider.gameObject.transform.GetMonoBehaviorInParrent() as IAim;
-            if (aim != null)
-                aim.Aim();
-        }
+            if (isOwner) syncRot = _Cam.transform.rotation;
+            guntr.rotation = syncRot;
 
-        if ((gun.laser || debug) && Alive && selectedgun != (int)GunType.physxgun)
-        {            
-            laserRender.enabled = true;
-            laserRender.SetPosition(0, r.origin);
-            laserRender.SetPosition(1, h.point);
+            Ray r = gun.GetRay();
+            RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
+            if (Physics.Raycast(r, out h, 100, ~(1 << LayerMask.NameToLayer("Glass"))))
+            {
+                var aim = h.collider.gameObject.transform.GetMonoBehaviorInParrent() as IAim;
+                if (aim != null)
+                    aim.Aim(this);
+            }
+
+            if ((gun.laser || debug) && selectedgun != (int)GunType.physxgun)
+            {
+                laserRender.enabled = true;
+                laserRender.SetPosition(0, r.origin);
+                laserRender.SetPosition(1, h.point);
+            }
+            else
+                laserRender.enabled = false;
         }
-        else
-            laserRender.enabled = false;
     }
     protected virtual void FixedUpdate()
     {
@@ -331,7 +354,7 @@ public class Player : Destroible,IAim
                 moveDirection.y = 0;
             moveDirection.Normalize();
             Vector3 v = this.rigidbody.velocity;
-            if (Input.GetKey(KeyCode.LeftShift) && freezedt < 0)
+            if (shift && !frozen)
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
                 this.rigidbody.AddForce(moveDirection * fdt * speed * 500 * rigidbody.mass);
@@ -345,7 +368,7 @@ public class Player : Destroible,IAim
             {
                 this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed * 5);
             }
-            if (freezedt > 0) this.rigidbody.velocity *= .85f;
+            if (frozen) this.rigidbody.velocity *= .85f;
         }
     }
     
@@ -354,7 +377,7 @@ public class Player : Destroible,IAim
     public void Jump()
     {
         transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 1, 0));
-        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) * fdt);
+        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1500) * rigidbody.mass * fdt);
         PlaySound(nitrojumpSound);
     }
     
@@ -396,11 +419,11 @@ public class Player : Destroible,IAim
     public AudioClip bowling;
     [FindAsset("nitrojump")]
     public AudioClip nitrojumpSound;
-    [FindAsset]
-    public AudioClip heal;
+    
     [FindAsset]
     public AudioClip givemoney;
-
+    [FindAsset]
+    public GameObject Explosion;
     public void RPCPowerExp(Vector3 v) { CallRPC("PowerExp",v); }        
     [RPC]
     public void PowerExp(Vector3 v)
@@ -408,12 +431,14 @@ public class Player : Destroible,IAim
         PlaySound(powerexpSound, 4);
         
         GameObject g = (GameObject)Instantiate(WavePrefab, v, Quaternion.Euler(90, 0, 0));
-        Explosion e = g.AddComponent<Explosion>();
+        GameObject exp = (GameObject)Instantiate(Explosion, v, Quaternion.identity);
+        exp.transform.parent = g.transform;
+        var e = exp.GetComponent<Explosion>();
         e.OwnerID = OwnerID;
         e.self = this;
         e.exp = 5000;
         e.radius = 10;
-        e.damage = 200;
+        
         if(isOwner)
             _Cam.exp = 2;
         
@@ -478,10 +503,14 @@ public class Player : Destroible,IAim
     public void SetAlive(bool value)
     {
         Debug.Log(name + " Alive " + value);
-        foreach (var t in GetComponentsInChildren<Transform>())
-            t.gameObject.layer = value ? LayerMask.NameToLayer("Player") : LayerMask.NameToLayer("DeadPlayer");
-
-
+        _TimerA.AddMethod(delegate
+        {
+            foreach (var t in GetComponentsInChildren<Transform>())
+                if (value)
+                    SetLayer(t.gameObject);
+                else
+                    t.gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
+        });
         Alive = value;
         RPCSetFanarik(false);
         if(value)
@@ -492,38 +521,41 @@ public class Player : Destroible,IAim
         if (isOwner)
             LocalSelectGun(1);
         Life = maxLife;
-        freezedt = 0;
+        RPCSetFrozen(false);
 
     }
     float multikilltime;
     int multikill;
     public void AddFrags(int i,float sc)
     {
-        if (multikilltime > 0)
-            multikill += i;
-        else
-            multikill = 0;
-        multikilltime = 1;
-
-        if (multikill >= 1)
+        if (isOwner)
         {
-            if (gun is GunPhysix)
-            {
-                if (!audio.isPlaying)
-                {
-                    audio.clip = bowling;
-                    audio.volume = 3;
-                    audio.Play();                    
-                }
-            }
+            if (multikilltime > 0)
+                multikill += i;
             else
-                PlayRandSound(multikillSounds, 5);
+                multikill = 0;
+            multikilltime = 1;
 
-            _Cam.ScoreText.text = "x" + (multikill + 1);
-            _Cam.ScoreText.animation.Play();
+            if (multikill >= 1)
+            {
+                if (gun is GunPhysix)
+                {
+                    if (!audio.isPlaying)
+                    {
+                        audio.clip = bowling;
+                        audio.volume = 3;
+                        audio.Play();
+                    }
+                }
+                else
+                    PlayRandSound(multikillSounds, 5);
+
+                _Cam.ScoreText.text = "x" + (multikill + 1);
+                _Cam.ScoreText.animation.Play();
+            }
+            frags += i;
+            score += sc;
         }
-        frags += i;
-        score += sc;
         RPCSetFrags(frags, score);
     }
     [FindAsset("toasty")]
@@ -535,7 +567,6 @@ public class Player : Destroible,IAim
         frags = i;
         score = sc;
     }
-
     public void RPCSetSpeedUpgrate(int value) { CallRPC("SetSpeedUpgrate", value); }
     [RPC]
     public void SetSpeedUpgrate(int value)
@@ -548,15 +579,6 @@ public class Player : Destroible,IAim
     public void SetLifeUpgrate(int value)
     {
         lifeUpgrate = value;
-    }
-
-    public void RPCHeal(float life) { CallRPC("Heal", life); }
-    [RPC]
-    public void Heal(float life)
-    {
-        PlaySound(heal);
-        if(isOwner)
-            RPCSetLife(Life + 10, -1);
     }
     public void RPCGiveMoney(int money) { CallRPC("GiveMoney",money); }
     [RPC]
@@ -586,5 +608,13 @@ public class Player : Destroible,IAim
         {
             guntr.rotation = value;
         }
+    }
+    public override void RPCSetLife(float NwLife, int killedby)
+    {
+        base.RPCSetLife(NwLife, killedby);
+    }
+    public override void SetLife(float NwLife, int killedby)
+    {
+        base.SetLife(NwLife, killedby);
     }
 }

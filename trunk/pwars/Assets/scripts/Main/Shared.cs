@@ -18,14 +18,15 @@ public class Shared : Base
     public Quaternion spawnrot;
     public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
-    public float tsendpackets;
+    public float[] tmsend = new float[10];
+    public AnimationCurve SendPackets;
     public bool shared = true;
     public Renderer[] renderers;
     [FindAsset("collision1")]
     public AudioClip soundcollision;
     protected override void Awake()
     {
-        renderers = this.GetComponentsInChildren<Renderer>().Distinct().ToArray();
+        renderers = this.GetComponentsInChildren<Renderer>().Where(a => a.GetComponent<TextMesh>() == null).Distinct().ToArray();
         base.Awake();
     }
     public override void Init()
@@ -60,10 +61,11 @@ public class Shared : Base
     public int updateLightmapInterval = 100;
     protected virtual void Update()
     {
-        tsendpackets -= Time.deltaTime;
+        for (int i = 0; i < tmsend.Length; i++)
+            tmsend[i] += Time.deltaTime;        
 
         if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
-            _TimerA.AddMethod(2000, delegate { ResetSpawn(); });
+            ResetSpawn(); 
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
             UpdateLightmap();
@@ -108,7 +110,6 @@ public class Shared : Base
             }
         }
     }
-
     void ControllerUpdate()
     {
         
@@ -130,17 +131,17 @@ public class Shared : Base
             RPCSetController(nearp.OwnerID);
 
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         if (OwnerID != -1) RPCSetOwner(OwnerID);
         if (selected != -1) RPCSetController(selected);
-        base.OnPlayerConnected1(np);
+        base.OnPlayerConnectedBase(np);
     }
-
     public void RPCSetOwner(int owner) { CallRPC("SetOwner", owner); }
     [RPC]
     public void SetOwner(int owner)
-    {
+    {        
+        
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
@@ -148,11 +149,10 @@ public class Shared : Base
             bas.OnSetOwner();
         }
     }
-
     public void RPCSetController(int owner) { CallRPC("SetController", owner); }
     [RPC]
     public void SetController(int owner)
-    {
+    {        
         this.selected = owner;
     }
     public void RPCResetOwner() { CallRPC("ResetOwner"); }
@@ -176,7 +176,6 @@ public class Shared : Base
         nw.viewID = id;
         name += "+" + Regex.Match(nw.viewID.ToString(), @"\d+").Value;
     }
-
     public void RPCSetOwner()
     {
         RPCSetOwner(Network.player.GetHashCode());
@@ -187,35 +186,54 @@ public class Shared : Base
         transform.rotation = spawnrot;
         rigidbody.angularVelocity = rigidbody.velocity = Vector3.zero;
     }
-    
+    public bool Interval(BitStream stream, NetworkMessageInfo info)
+    {
+        if (stream.isReading) return true;
+        if (SendPackets.length == 0) return true;
+        int o = info.networkView.owner.GetHashCode();
+        if (Network.isServer && Network.connections.Length > 1)
+            return tmsend[o] > SendPackets.Evaluate(Vector3.Distance(players[o].pos, this.pos));
+        else
+            return tmsend[o] > SendPackets.Evaluate(0);
+    }
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {        
+    {
         if (!enabled || !Sync) return;        
         if ((selected == -1 && Network.isServer) || selected == Network.player.GetHashCode() || stream.isReading || (Network.isServer && info.networkView.owner.GetHashCode() == selected))
-        {
-            if (stream.isReading || this.GetType() != typeof(Zombie) || tsendpackets < 0)
-                lock ("ser")
+        {            
+            if (Interval(stream,info))
+            {
+                if (stream.isWriting)
                 {
-                    tsendpackets = .3f;
-                    if (stream.isWriting)
+                    tmsend[info.networkView.owner.GetHashCode()] = 0;
+                    syncPos = pos;
+                    syncRot = rot;
+                    syncVelocity = rigidbody.velocity;
+                    syncAngularVelocity = rigidbody.angularVelocity;
+                }
+                if (posSync)
+                    stream.Serialize(ref syncPos);
+                if (velSync)
+                    stream.Serialize(ref syncVelocity);
+                if (rotSync)
+                    stream.Serialize(ref syncRot);
+                if (angSync)
+                    stream.Serialize(ref syncAngularVelocity);
+                if (stream.isReading)
+                {
+                    if (syncPos != default(Vector3))
                     {
-                        syncPos = pos;
-                        syncRot = rot;
-                        syncVelocity = rigidbody.velocity;
-                        syncAngularVelocity = rigidbody.angularVelocity;
-                    }
-                    if (posSync) stream.Serialize(ref syncPos);
-                    if (velSync) stream.Serialize(ref syncVelocity);
-                    if (rotSync) stream.Serialize(ref syncRot);
-                    if (angSync) stream.Serialize(ref syncAngularVelocity);
-                    if (stream.isReading)//&& syncPos != default(Vector3)
-                    {
-                        if (posSync) pos = syncPos;
-                        if (velSync) rigidbody.velocity = syncVelocity;
-                        if (rotSync) rot = syncRot;
-                        if (angSync) rigidbody.angularVelocity = syncAngularVelocity;
+                        if (posSync)
+                            pos = syncPos;
+                        if (velSync)
+                            rigidbody.velocity = syncVelocity;
+                        if (rotSync)
+                            rot = syncRot;
+                        if (angSync)
+                            rigidbody.angularVelocity = syncAngularVelocity;
                     }
                 }
+            }
         }
     }
 }

@@ -13,11 +13,11 @@ public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMat
 
 public class Game : Base
 {
-    new public Player[] players = new Player[10];
+    new public Player[] players = new Player[36];
     public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
     public float[] timers = new float[20];
-    public IEnumerable<Patron> patrons { get { return GameObject.FindObjectsOfType(typeof(Patron)).Cast<Patron>(); } }
+    public List<Patron> patrons = new List<Patron>();
     private float fixedDeltaTime;    
     public List<Tower> towers = new List<Tower>();
     public List<Shared> boxes = new List<Shared>();

@@ -456,15 +456,8 @@ public class Player : Destroible,IAim
     [RPC]
     public override void Die(int killedby)
     {
-        
         if (!Alive) return;
-        print(pr);
-        Detonator dt = this.detonator.GetComponent<Detonator>();
-        dt.autoCreateForce = false;
-        dt.size = 3;
-        Instantiate(dt, transform.position, Quaternion.identity);
-        var exp = dt.gameObject.AddComponent<Explosion>();
-        exp.self = this;
+        Destroy(Instantiate(detonator, transform.position, Quaternion.identity), .4f);
         deaths++;
         
         if (killedby == _localPlayer.OwnerID)

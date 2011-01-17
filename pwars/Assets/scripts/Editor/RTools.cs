@@ -345,7 +345,7 @@ public partial class RTools : InspectorSearch
     
     private void Build()
     {
-        PlayerSettings.productName = "Physics Wars V" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
         BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);

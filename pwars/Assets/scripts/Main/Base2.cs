@@ -46,20 +46,8 @@ public partial class Base2 : MonoBehaviour
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
     public static Cam _Cam { get { if (__Cam == null) __Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return __Cam; } }
-    public static Loader loader;
-    public static Loader _Loader
-    {
-        get
-        {
-            if (loader == null)
-            {                
-                foreach (Transform a in GameObject.Find("Loader").transform.GetTransforms())
-                    a.gameObject.active = true;
-                loader = GameObject.Find("Loader").GetComponentInChildren<Loader>();
-            }
-            return loader;
-        }
-    }
+    public static Loader __Loader;
+    public static Loader _Loader { get { if (__Loader == null) __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).First(); __Loader.Awake(); return __Loader; } }
     static Menu __Menu;
     public static Menu _Menu { get { if (__Menu == null) __Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return __Menu; } }
     static Music __Music;

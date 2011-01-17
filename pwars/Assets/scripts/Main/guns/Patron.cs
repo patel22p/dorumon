@@ -18,6 +18,7 @@ public class Patron : Base
     internal int damage = 60;
     public AnimationCurve ExpDamage;
     internal int probivaemost = 0;
+    public bool granate;
     public float gravitate = 0;
     public float radius = 6;
     public bool breakwall;
@@ -26,9 +27,14 @@ public class Patron : Base
     protected Vector3 previousPosition;
     protected override void Start()
     {
+        _Game.patrons.Add(this);
         Force = transform.rotation * Force;
         previousPosition = transform.position;
         base.Start();
+    }
+    void OnDisable()
+    {
+        _Game.patrons.Remove(this);
     }
     public override void Init()
     {
@@ -39,10 +45,11 @@ public class Patron : Base
     {
         if (Force != default(Vector3))
             this.transform.position += Force * Time.deltaTime;
+        if (granate)
+            Force.y += Physics.gravity.y * Time.deltaTime;
 
         if (gravitate > 0)
             Gravitate();
-
         if (SamoNavod.length > 0)
             foreach (Destroible p in _Game.players.Union(_Game.zombies.Cast<Destroible>()))
                 if (p != null && p.isEnemy(OwnerID))
@@ -55,29 +62,31 @@ public class Patron : Base
                 Explode(this.transform.position);
             else
                 Destroy(gameObject);
-        }        
-
-        if (DestroyOnHit)
-        {
-            Vector3 movementThisStep = transform.position - previousPosition;
-            RaycastHit hitInfo;
-            Ray ray = new Ray(previousPosition, movementThisStep);
-
-
-            if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, GetMask()))
-            {
-                ExplodeOnHit(hitInfo);
-            }
         }
-        previousPosition = transform.position;        
-    }
+        
 
+
+        Vector3 movementThisStep = transform.position - previousPosition;
+        RaycastHit hitInfo;
+        Ray ray = new Ray(previousPosition, movementThisStep);
+
+
+        if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, GetMask()))
+        {
+            if (DestroyOnHit)
+                ExplodeOnHit(hitInfo);
+
+            transform.position = hitInfo.point + (hitInfo.normal * .2f);
+            Force = Vector3.zero;
+        }
+        previousPosition = transform.position;
+    }
+    public bool hit;
     private int GetMask()
     {
         int mask = 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
-    }
-    
+    }    
     private void Gravitate()
     {
         foreach (Patron p in _Game.patrons)
@@ -87,7 +96,7 @@ public class Patron : Base
         }
 
         foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<Base>().Union(_Game.boxes.Cast<Base>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<Base>()).Union(_Game.zombies.Cast<Base>()))
-            if (b != null && b != this)
+            if (b != null && b != this && Vector3.Distance(pos, b.pos) < 10)
             {
                 if (b is Zombie)
                 {
@@ -156,8 +165,7 @@ public class Patron : Base
         }
         if(probivaemost<0)
             Destroy(gameObject);
-    }
-    
+    }    
     private void Explode(Vector3 pos)
     {
         Vector3 vector3 = pos - this.transform.rotation * new Vector3(0, 0, 2);

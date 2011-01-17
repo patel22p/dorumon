@@ -27,7 +27,7 @@ public class GunPhysix : GunBase
     }
 #endif
 
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
     }

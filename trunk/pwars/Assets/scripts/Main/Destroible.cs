@@ -31,7 +31,7 @@ public abstract class Destroible : Shared
         });
         
     }
-    protected override void Awake()
+    public override void Awake()
     {        
         base.Awake();
     }

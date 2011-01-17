@@ -19,11 +19,10 @@ public partial class RTools : InspectorSearch
     string file { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } } 
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public bool bake;
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();        
-    }
-    
+    }    
     protected override void OnGUI()
     {
         if (GUILayout.Button("Build"))
@@ -109,11 +108,7 @@ public partial class RTools : InspectorSearch
             EditorUtility.SetDirty(_Loader);
             EditorApplication.isPlaying = true;
         }
-        GUI.EndHorizontal();
-        if (GUILayout.Button("Open Project Folder"))
-        {
-            System.Diagnostics.Process.Start(@"C:\Users\igolevoc\Documents\PhysxWars");
-        }
+        GUI.EndHorizontal();        
     }
     static Color NormalizeColor(Color c, float procent, float a)
     {
@@ -347,6 +342,7 @@ public partial class RTools : InspectorSearch
             File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
+    
     private void Build()
     {
         PlayerSettings.productName = "Physics Wars V" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();

@@ -7,7 +7,7 @@ public class Console : Base
 {
     public static StringBuilder log = new StringBuilder();
     Rect r;
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
         Application.RegisterLogCallback(onLog);                

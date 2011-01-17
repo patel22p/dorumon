@@ -40,7 +40,7 @@ public class Zombie : Destroible
         updateLightmapInterval = 500;
         
     }
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();        
     }

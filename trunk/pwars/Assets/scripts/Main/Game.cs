@@ -47,12 +47,11 @@ public class Game : Base
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [FindAsset("Player")]
     public GameObject playerPrefab;    
-    protected override void Awake()
+    public override void Awake()
     {
         gravity = Physics.gravity;
         fixedDeltaTime = Time.fixedDeltaTime;        
         base.Awake();
-               
         if (nick == " ") nick = "Guest " + UnityEngine.Random.Range(0, 999);        
         _Level = Level.z4game;
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("client"));

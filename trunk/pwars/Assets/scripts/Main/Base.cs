@@ -22,7 +22,7 @@ public class Base : Base2
         _PopUpWindow.Text = s;
     }
     bool defenabled;
-    protected virtual void Awake()
+    public virtual void Awake()
     {        
         defenabled = enabled;
         if (networkView != null && enabled)

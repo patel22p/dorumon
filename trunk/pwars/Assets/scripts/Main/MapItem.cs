@@ -265,7 +265,7 @@ public class MapItem : Base, IAim
         base.Init();
     }
 #endif
-    protected override void Awake()
+    public override void Awake()
     {
         _Game.mapitems.Add(this);
         foreach (var a in gameObject.GetComponentsInChildren<Animation>())

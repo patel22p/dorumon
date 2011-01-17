@@ -56,7 +56,7 @@ public class Player : Destroible,IAim
     {
         isGrounded = 0;
     }
-    protected override void Awake()
+    public override void Awake()
     {
         if (this.networkView.isMine)
             _localPlayer = this;
@@ -613,6 +613,7 @@ public class Player : Destroible,IAim
     {
         base.RPCSetLife(NwLife, killedby);
     }
+    [RPC]
     public override void SetLife(float NwLife, int killedby)
     {
         base.SetLife(NwLife, killedby);

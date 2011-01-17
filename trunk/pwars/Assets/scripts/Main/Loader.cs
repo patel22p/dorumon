@@ -15,6 +15,7 @@ using Debug = UnityEngine.Debug;
 public enum Level { z1login, z2menu, z4game }
 public class Loader : Base
 {
+    public string version;
     public string cmd="";    
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
@@ -25,7 +26,6 @@ public class Loader : Base
     public bool logged;
     new public UserView LocalUserV;
     new public Level _Level;
-    
     new public TimerA _TimerA = new TimerA();
     public List<MapSetting> mapsets = new List<MapSetting>();
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
@@ -33,15 +33,9 @@ public class Loader : Base
     [FindAsset("Skin/Skin.guiskin")]
     public GUISkin Skin;
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
-    protected override void Awake()
-    {
-        if (__Loader != null)
-        {
-            Destroy(this.gameObject);
-            gameObject.active = false;            
-            return;
-        }
-
+    public static bool loaded;
+    public override void Awake()
+    {                        
         Application.targetFrameRate = 40;
         Debug.Log("isBuild = " + build);
         LocalUserV = gameObject.AddComponent<UserView>();
@@ -56,7 +50,11 @@ public class Loader : Base
             //new MapSetting { mapName = "z5city" , title  = "City" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
         });
     }
-    
+    public override void Init()
+    {
+        version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        base.Init();
+    }
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     protected override void Start()
     {

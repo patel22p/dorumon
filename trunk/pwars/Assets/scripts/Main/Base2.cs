@@ -42,13 +42,24 @@ public partial class Base2 : MonoBehaviour
     public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
     static Irc __Irc;
     public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
-    
     static Game __Game;
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
     public static Cam _Cam { get { if (__Cam == null) __Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return __Cam; } }
-    public static Loader __Loader;
-    public static Loader _Loader { get { if (__Loader == null) __Loader = (Loader)MonoBehaviour.FindObjectOfType(typeof(Loader)); return __Loader; } }
+    public static Loader loader;
+    public static Loader _Loader
+    {
+        get
+        {
+            if (loader == null)
+            {                
+                foreach (Transform a in GameObject.Find("Loader").transform.GetTransforms())
+                    a.gameObject.active = true;
+                loader = GameObject.Find("Loader").GetComponentInChildren<Loader>();
+            }
+            return loader;
+        }
+    }
     static Menu __Menu;
     public static Menu _Menu { get { if (__Menu == null) __Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return __Menu; } }
     static Music __Music;
@@ -78,7 +89,6 @@ public partial class Base2 : MonoBehaviour
         return new Rect(u.x, u.y, v.x, v.y);
     }
     public virtual void OnSetOwner() { }
-
     public virtual Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
     public virtual Vector3 pos { get { return transform.position; } set { transform.position = value; } }
     public float rotx

@@ -25,7 +25,7 @@ public class Zombie : Destroible
     [FindTransform("zombieDead")]
     public GameObject DeadZombie;
     public Seeker seeker;
-    public float zombieBiteDist = 3;
+    float zombieBiteDist = 3;
     Vector3[] pathPoints;
     public Vector3 oldpos;
     public AnimationCurve zombieSpeedCurve;
@@ -35,7 +35,7 @@ public class Zombie : Destroible
         base.Init();
         seeker = this.GetComponent<Seeker>();
         if (seeker == null) Debug.Log("Could not find seeker");
-        velSync = angSync = false;
+        velSync = angSync = true;
         posSync = rotSync = true;
         updateLightmapInterval = 500;
         
@@ -68,11 +68,10 @@ public class Zombie : Destroible
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
     {
-
         Alive = true;
         Sync = true;
         ResetSpawn();
-        gameObject.layer = LayerMask.NameToLayer("Enemy");
+        SetLayer(gameObject);
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
@@ -88,7 +87,8 @@ public class Zombie : Destroible
         Sync = false;
         Alive = false;
         gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
-        PlayRandSound(gibSound);
+        if (Game.sendto != null)
+            PlayRandSound(gibSound);
         AliveZombie.renderer.enabled = false;
         DeadZombie.renderer.enabled = true;
 
@@ -97,11 +97,17 @@ public class Zombie : Destroible
     }
     public float tiltTm;
     public float spawninTM;
+    
     public new Quaternion rot;
     protected override void Update()
     {
         base.Update();
-        if (!Alive || selected == -1 || freeze) return;
+
+        if(isController)
+            if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
+
+        if (!Alive || selected == -1 || frozen) return;
+
         zombieBite += Time.deltaTime;
         var ipl = Nearest();
         if (ipl != null)
@@ -131,8 +137,8 @@ public class Zombie : Destroible
                 if (zombieBite > 1)
                 {
                     zombieBite = 0;
-                    PlayRandSound(screamSounds);
-                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - 10 - _Game.stage, -1);
+                    //PlayRandSound(screamSounds);
+                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - _Game.stage + 1, -1);
                 }
             }
         }
@@ -153,26 +159,25 @@ public class Zombie : Destroible
     Destroible nearest;
     private Destroible Nearest()
     {
-        if(nearest == null || _TimerA.TimeElapsed(2000))
-            nearest = _Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players).Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        if(nearest == null || _TimerA.TimeElapsed(100))
+            //_Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players)
+            nearest = players.Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return nearest;
     }
-    bool freeze { get { return Physics.gravity != _Game.gravity || Time.timeScale != 1; } }
+    
     void FixedUpdate()
     {
-        if (move && Alive && !freeze)
+        
+        if (move && Alive && !frozen)
         {
-            if (rigidbody.velocity.magnitude < 5 * transform.localScale.x)
-            {
-                Vector3 v = rigidbody.velocity;
-                v.x = v.z = 0;                
-                rigidbody.velocity = v;
-                rigidbody.angularVelocity = Vector3.zero;
-                transform.rotation = rot;
-                var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);                
-                pos += t;
-            }            
-        }        
+            Vector3 v = rigidbody.velocity;
+            v.x = v.z = 0;
+            rigidbody.velocity = v;
+            rigidbody.angularVelocity = Vector3.zero;
+            transform.rotation = rot;
+            var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);
+            pos += t;
+        }
     }
     private Vector3? GetPlayerPathPoint(Destroible ipl)
     {
@@ -263,10 +268,14 @@ public class Zombie : Destroible
     {
         spawninTM = Random.Range(1f, 10f);
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
-        base.OnPlayerConnected1(np);
-        RPCSetup((float)speed, (float)Life, (int)zombieType);
-        if(!Alive) RPCDie(-1);
+        base.OnPlayerConnectedBase(np);
+        RPCSetup((float)speed, (float)maxLife, (int)zombieType);
+        if (!Alive)
+        {
+            Debug.Log("send zombie rpc die" + np);
+            RPCDie(-1);
+        }
     }
 }

@@ -10,27 +10,16 @@ public class Console : Base
     protected override void Awake()
     {
         base.Awake();
-        Application.RegisterLogCallback(onLog);
-        Debug.Log("app version" + version);
-        
+        Application.RegisterLogCallback(onLog);                
     }
     public int errorcount;
-    string old;
     public string version;
-#if UNITY_EDITOR && UNITY_STANDALONE_WIN
-    public override void Init()
-    {
-        version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        base.Init();
-    }
-#endif
+
     void onLog(string condition, string stackTrace, LogType type)
     {
         try
         {            
             if (type == LogType.Exception || type == LogType.Error) errorcount++;
-            if (condition == old) return;
-            old = condition;
 
             log.AppendLine(string.Format("{0,-50}{1}", Regex.Match(stackTrace, @"^\w+\:\w+", RegexOptions.Multiline).Value, condition));
         }

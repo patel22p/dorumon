@@ -21,16 +21,16 @@ public class Base : Base2
         _PopUpWindow.ShowDontHide(this);
         _PopUpWindow.Text = s;
     }
+    bool defenabled;
     protected virtual void Awake()
     {        
-        if (_Loader == null)
-            Instantiate(GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First());
-
+        defenabled = enabled;
         if (networkView != null && enabled)
         {
             name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
             if (Network.peerType == NetworkPeerType.Disconnected)
             {                
+                
                 enabled = false;
             }            
         }
@@ -38,10 +38,10 @@ public class Base : Base2
     protected virtual void Start(){}
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
-    protected virtual void Enable() { if (networkView != null) enabled = true; }
+    protected virtual void Enable() { if (networkView != null) enabled = defenabled; }
 
     
-    public virtual void OnPlayerConnected1(NetworkPlayer np) { }
+    public virtual void OnPlayerConnectedBase(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
         get

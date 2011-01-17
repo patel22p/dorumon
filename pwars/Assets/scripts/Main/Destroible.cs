@@ -10,7 +10,9 @@ public abstract class Destroible : Shared
 {
     public float maxLife = 100;
     public float Life;
-    public float freezedt;
+    float freezedt;
+    [FindAsset]
+    public AudioClip heal;
     public Team? team
     {
         get
@@ -21,24 +23,29 @@ public abstract class Destroible : Shared
     }    
     public bool dead { get { return !Alive; } set { Alive = !value; } }
     public bool Alive = true;
-    
-    
+    public void SetLayer(GameObject g)
+    {
+        _TimerA.AddMethod(delegate
+        {
+            g.layer = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally"); 
+        });
+        
+    }
     protected override void Awake()
     {        
         base.Awake();
     }
-
     public override void Init()
     {
         if (Life == 0) Life = 100;
         base.Init();
     }
     protected override void Start()
-    {        
+    {
+        SetLayer(gameObject);
         base.Start();
     }
     public float isGrounded;
-    
     protected virtual void OnCollisionEnter(Collision collisionInfo)
     {
         if (Alive && isController)
@@ -50,27 +57,54 @@ public abstract class Destroible : Shared
             }
         }
     }
+    public bool frozen;
+
+    public void RPCSetFrozen(bool value)
+    {
+        if(value)
+            freezedt = .5f;
+        if (value != frozen)
+           CallRPC("SetFrozen", value);
+    }
+    [RPC]
+    public void SetFrozen(bool value)
+    {        
+        frozen = value;
+    }
     protected override void Update()
     {
+        if (isController)
+        {
+            freezedt -= Time.deltaTime;
+            if (freezedt < 0 && frozen)
+                RPCSetFrozen(false);
+        }
+
         isGrounded +=Time.deltaTime;
         base.Update();
     }
-
-    public void RPCSetLife(float NwLife, int killedby)
+    public void RPCHeal(float life) { CallRPC("Heal", life); }
+    [RPC]
+    public void Heal(float life)
+    {
+        PlaySound(heal);
+        if (isController)
+            RPCSetLife(Life + 10, -1);
+    }
+    public virtual void RPCSetLife(float NwLife, int killedby)
     {
         if (dead) return;
         if (isController)
         {
             if (isEnemy(killedby) || NwLife > Life)
             {
-                Life = Math.Min(NwLife, maxLife);
-                if (_localPlayer == this) Life = Math.Max(Life, 1);
+                Life = Math.Min(NwLife, maxLife);                
                 CallRPC("SetLife", Life, killedby);
                 if (this == _localPlayer)
                 {
                     if (killedby == _localPlayer.OwnerID && NwLife < Life) _localPlayer.score += Math.Abs(Life - NwLife) / 100;
                     _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
-                    freezedt = (Life - NwLife) / 20;
+                    RPCSetFrozen(true);
                 }
             }
             
@@ -78,14 +112,11 @@ public abstract class Destroible : Shared
                 RPCDie(killedby);
         }
     }
-
     [RPC]
-    public void SetLife(float NwLife, int killedby)
+    public virtual void SetLife(float NwLife, int killedby)
     {
         Life = NwLife;
     }
-
-
     public virtual bool isEnemy(int id)
     {
         if (this is Zombie) return true;        
@@ -95,8 +126,7 @@ public abstract class Destroible : Shared
         if (id != -1 && players[id] != null && players[id].team != team) return true;        
         return false;    
     }
-    
-    public void RPCDie(int killedby) { if (isController) CallRPC("Die", killedby); }
+    public void RPCDie(int killedby) { CallRPC("Die", killedby); }
     [RPC]
     public abstract void Die(int killedby);
 }

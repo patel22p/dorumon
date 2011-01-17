@@ -10,9 +10,9 @@ public class GunPhysix : GunBase
     public float radius = 50;
     public float exp = 2000;
     public float expradius = 40;
-    public float gravitaty = 1;
+    public AnimationCurve gravitaty;
     public float scalefactor = 10;
-    public float holdtm;
+    public float holdtm;    
     public bool power;
     [FindAsset("wave")]
     public GameObject wavePrefab;
@@ -50,14 +50,15 @@ public class GunPhysix : GunBase
             }
             var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position)<20);
             var count = boxes.Count();
-            var mpos = cursor[0].position  + (cursor[0].position - pos).normalized * count;
+            var mpos = pos + (transform.forward * count * 2) + (transform.forward * 8);
             foreach (Base b in boxes)
             {
                 var f = 600;
-                b.rigidbody.AddExplosionForce(fdt*-gravitaty * f * .3f * scalefactor * b.rigidbody.mass, mpos, radius);
-                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty * f * fdt);
-                b.rigidbody.angularVelocity *= .6f;
-                b.rigidbody.velocity *= Math.Min(.15f * Vector3.Distance(b.pos, mpos), 1);
+                var d = Vector3.Distance(b.pos, mpos);
+                //b.rigidbody.AddExplosionForce(fdt*-gravitaty.Evaluate(d) * f * .3f * scalefactor * b.rigidbody.mass, mpos, radius);
+                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty.Evaluate(d) * f * fdt);
+                //b.rigidbody.angularVelocity *= .6f;
+                b.rigidbody.velocity *= Math.Min(.1f * d, 1);
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);

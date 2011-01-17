@@ -1,3 +1,4 @@
+
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
 
 using UnityEditor;
@@ -12,10 +13,10 @@ using System.Collections;
 using AstarClasses;
 using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
-[ExecuteInEditMode]
+[assembly: AssemblyVersion("1.0.*")]
 public partial class RTools : InspectorSearch
 {
-    string file;
+    string file { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } } 
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public bool bake;
     protected override void Awake()
@@ -25,6 +26,11 @@ public partial class RTools : InspectorSearch
     
     protected override void OnGUI()
     {
+        if (GUILayout.Button("Build"))
+        {
+            Build();
+            return;
+        }
         BuildButtons();        
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake"); 
@@ -83,17 +89,12 @@ public partial class RTools : InspectorSearch
     }
     private void BuildButtons()
     {
-        if (GUILayout.Button("Build"))
-        {
-            Build();
-            return;
-        }
 
         GUI.BeginHorizontal();
         if (GUILayout.Button("Server Editor"))
         {
             _Loader.mapSettings.host = true;
-            new SerializedObject(_Loader).ApplyModifiedProperties();
+            EditorUtility.SetDirty(_Loader);
             EditorApplication.isPlaying = true;
         }
         if (GUILayout.Button("Server App"))
@@ -105,7 +106,7 @@ public partial class RTools : InspectorSearch
         if (GUILayout.Button("Client Editor"))
         {
             _Loader.mapSettings.host = false;
-            new SerializedObject(_Loader).ApplyModifiedProperties();
+            EditorUtility.SetDirty(_Loader);
             EditorApplication.isPlaying = true;
         }
         GUI.EndHorizontal();
@@ -197,7 +198,7 @@ public partial class RTools : InspectorSearch
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
-        base.SetupLevel();
+        
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
@@ -211,7 +212,6 @@ public partial class RTools : InspectorSearch
         }
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
         {
-            Debug.Log(t.name);
             t.gameObject.layer = LayerMask.NameToLayer("Level");
             t.gameObject.isStatic = true;
             if (t.gameObject.animation != null && t.gameObject.animation.clip == null)
@@ -265,6 +265,7 @@ public partial class RTools : InspectorSearch
                     DestroyImmediate(t.gameObject);
                 }
         });
+        base.SetupLevel();
     }
     private static void PathFind(Base2 scr, FieldInfo pf)
     {
@@ -318,14 +319,12 @@ public partial class RTools : InspectorSearch
                         Selection.activeObject = p;
         }        
        
-        if (_Loader != null)
-        {
-            
-            _Loader.build = GUI.Toggle(_Loader.build, "build");
-            _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
-            _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
-        }
-
+        //if (_Loader != null)
+        //{
+        //    _Loader.build = GUI.Toggle(_Loader.build, "build");
+        //    _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
+        //    _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
+        //}
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
@@ -350,6 +349,7 @@ public partial class RTools : InspectorSearch
     }
     private void Build()
     {
+        PlayerSettings.productName = "Physics Wars V" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
         BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
@@ -359,14 +359,16 @@ public partial class RTools : InspectorSearch
         
         base.Update();
     }
-    private static Loader _Loader
+    Loader loader ;
+    Loader _Loader
     {
         get
         {
-            Loader l = (Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).FirstOrDefault();
-            return l;
+            if (loader == null)
+                loader = Base2.FindAsset<Loader>("loader"); //(Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();
+            return loader;
         }
-    }    
+    }
     IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
     {
         foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))

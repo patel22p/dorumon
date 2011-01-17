@@ -47,7 +47,7 @@ public partial class Base2 : MonoBehaviour
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
     public static Cam _Cam { get { if (__Cam == null) __Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return __Cam; } }
-    static Loader __Loader;
+    public static Loader __Loader;
     public static Loader _Loader { get { if (__Loader == null) __Loader = (Loader)MonoBehaviour.FindObjectOfType(typeof(Loader)); return __Loader; } }
     static Menu __Menu;
     public static Menu _Menu { get { if (__Menu == null) __Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return __Menu; } }
@@ -64,7 +64,7 @@ public partial class Base2 : MonoBehaviour
             table += "{" + i + ",-" + m[i].Length + "}";
         return table;
     }
-    public float fdt { get { return 0.02f / Time.fixedDeltaTime / Time.timeScale; } }
+    public float fdt { get { return 0.02f / Time.fixedDeltaTime ; } }
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
     public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { if (!Application.isPlaying) throw new Exception("access from editor"); return _Loader._TimerA; } }

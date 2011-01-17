@@ -1,4 +1,4 @@
-    using System.Linq;
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Xml.Serialization;
 using System.Net.Sockets;
 using System.Text;
-
+using Debug = UnityEngine.Debug;
 public enum Level { z1login, z2menu, z4game }
 public class Loader : Base
 {
@@ -35,6 +35,15 @@ public class Loader : Base
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     protected override void Awake()
     {
+        if (__Loader != null)
+        {
+            Destroy(this.gameObject);
+            gameObject.active = false;            
+            return;
+        }
+
+        Application.targetFrameRate = 40;
+        Debug.Log("isBuild = " + build);
         LocalUserV = gameObject.AddComponent<UserView>();
         base.Awake();        
         print("loader awake");        

@@ -84,10 +84,10 @@ public class Tower : Destroible
     {
         return true;
     }
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         RPCShow(enabled);
-        base.OnPlayerConnected1(np);
+        base.OnPlayerConnectedBase(np);
     }
     [RPC]
     public override void Die(int killedby)
@@ -95,12 +95,10 @@ public class Tower : Destroible
         _Game.towers.Remove(this);
         Alive = false;
         dt.autoCreateForce = false;
-        GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);
-
+        GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);        
         var e = g.AddComponent<Explosion>();
         e.exp = 3000;
-        e.radius = 8;
-        e.damage = 50;
+        e.radius = 8;        
         RPCShow(false);
 
     }

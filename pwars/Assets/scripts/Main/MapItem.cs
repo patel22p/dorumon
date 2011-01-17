@@ -47,6 +47,7 @@ public class MapItem : Base, IAim
     public AudioClip superphys_launch3;
     [FindAsset("wave")]
     public GameObject wavePrefab;
+#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public override void Init()
     {
         foreach (Transform t in GetComponentsInChildren<Transform>())
@@ -96,13 +97,12 @@ public class MapItem : Base, IAim
             text = "Press F to buy " + gunType;
             endless = !autoTake;
             hide = autoTake;
-            if (autoTake)
-                distance = 1;
+            
         }
 
         if (itemType == MapItemType.shop)
         {
-            distance = 2;
+            distance = 3;
             switch (gunType.Parse<GunType>())
             {
                 case GunType.ak:
@@ -210,7 +210,7 @@ public class MapItem : Base, IAim
             distance = 0;
         }
 
-        
+
         if (itemType == MapItemType.teleport)
         {
             opendoor = Base2.FindAsset<AudioClip>("teleport");
@@ -249,8 +249,8 @@ public class MapItem : Base, IAim
             endless = true;
             distance = 0;
         }
-        
-            
+
+
 
 
         foreach (var a in g.GetComponentsInChildren<Renderer>().Distinct())
@@ -258,14 +258,16 @@ public class MapItem : Base, IAim
             var go = a.gameObject;
             if (a.collider != null)
                 DestroyImmediate(a.collider);
-            if (itemType == MapItemType.door || itemType == MapItemType.teleport || itemType == MapItemType.speed || itemType == MapItemType.lift)
+            if (itemType == MapItemType.door || itemType == MapItemType.teleport || itemType == MapItemType.speed || itemType == MapItemType.lift|| itemType == MapItemType.trap)
                 go.AddComponent<BoxCollider>();
         }
 
         base.Init();
     }
+#endif
     protected override void Awake()
     {
+        _Game.mapitems.Add(this);
         foreach (var a in gameObject.GetComponentsInChildren<Animation>())
             a.wrapMode = WrapMode.Once;
 
@@ -281,19 +283,15 @@ public class MapItem : Base, IAim
     {
         if (animation != null && animation.clip != null && animation.clip.name == "Take 001" && Network.isServer)
             animation.Stop();
-
     }
-
-
-
-    public void Aim()
-    {
-        if (lookat && Check())
+    public void Aim(Player p)
+    {        
+        if (lookat && Check() && p.isOwner)
         {
             TmOn = .5f;
         }
     }
-    bool Check()
+    public bool Check()
     {
         if (!_localPlayer.Alive) return false;
         if (itemType == MapItemType.life && _localPlayer.Life == _localPlayer.maxLife)
@@ -303,7 +301,7 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.spotlight && _localPlayer.haveLight) return false;
         if (itemType == MapItemType.antigravitation && _localPlayer.haveAntiGravitation) return false;
         if (itemType == MapItemType.lifeupgrate && _localPlayer.lifeUpgrate >= 6) return false;
-        if (itemType == MapItemType.speedupgrate && _localPlayer.lifeUpgrate >= 3) return false;
+        if (itemType == MapItemType.speedupgrate && _localPlayer.speedUpgrate >= 3) return false;
         if (!endless && itemsLeft <= 0) return false;
         if (tmCheckOut >= 0) return false;
         if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false;
@@ -313,24 +311,16 @@ public class MapItem : Base, IAim
     {
         tmCheckOut -= Time.deltaTime;
         if (TmOn > 0)
-            TmOn -= Time.deltaTime;
+            TmOn -= Time.deltaTime;                
 
-        foreach (var t in transform.GetTransforms())
-            if (Vector3.Distance(t.position, _localPlayer.pos) < distance && Check())
-            {
-                TmOn = .5f;
-                teleport = t;
-            }
-
-        if (TmOn > 0 && Check())
+        if (TmOn > 0)
         {
-            if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug))
+            if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug) && Check())
             {                
-                TmOn = -1;
+                _GameWindow.CenterText.text = "";
                 LocalCheckOut();
             }
-
-            if (text != "" && _GameWindow.CenterText.text == "")
+            if (text != "")
                 _GameWindow.CenterText.text = text + (Score > 0 ? (", costs " + Score + " Money") : "");
         }
         else if (TmOn < 0)
@@ -341,7 +331,7 @@ public class MapItem : Base, IAim
     }
     bool isbought { get { return Score == 0; } }
 
-    public override void OnPlayerConnected1(NetworkPlayer np)
+    public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         if (isCheckOutCalled)
         {
@@ -355,7 +345,7 @@ public class MapItem : Base, IAim
 
         //if (animation != null && animation["Take 001"] != null)
         //    RPCSetTime(animation["Take 001"].time);
-        base.OnPlayerConnected1(np);
+        base.OnPlayerConnectedBase(np);
     }
     //public void RPCSetTime(float time) { CallRPC("SetTime", time); }
     //[RPC]
@@ -366,7 +356,7 @@ public class MapItem : Base, IAim
     //}
     void OnCollisionStay(Collision c)
     {
-        if (itemType == MapItemType.trap)
+        if (itemType == MapItemType.trap && bullets > 0 && animation.isPlaying)
         {
             var ipl = c.gameObject.GetComponent<Destroible>();
             if (_TimerA.TimeElapsed(100) && ipl != null && ipl.isController)
@@ -385,14 +375,7 @@ public class MapItem : Base, IAim
 
             if (itemType == MapItemType.teleport)
             {
-
-                foreach (var a in transform.Cast<Transform>().OrderBy(a => Random.Range(-1, 1)))
-                {
-                    if (a != teleport)
-                    {
-                        _localPlayer.transform.position = a.position;
-                    }
-                }
+                _localPlayer.transform.position = teleport.position;                
             }
             if (itemType == MapItemType.jumper && isbought)
             {

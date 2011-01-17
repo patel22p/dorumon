@@ -24,7 +24,7 @@ public class Shared : Base
     public Renderer[] renderers;
     [FindAsset("collision1")]
     public AudioClip soundcollision;
-    protected override void Awake()
+    public override void Awake()
     {
         renderers = this.GetComponentsInChildren<Renderer>().Where(a => a.GetComponent<TextMesh>() == null).Distinct().ToArray();
         base.Awake();
@@ -69,7 +69,7 @@ public class Shared : Base
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
             UpdateLightmap();
-        if (_TimerA.TimeElapsed(100))
+        if (_TimerA.TimeElapsed(500))
         {
             if (shared && Network.isServer)
                 ControllerUpdate();
@@ -112,11 +112,10 @@ public class Shared : Base
     }
     void ControllerUpdate()
     {
-        
         float min = float.MaxValue;
         Destroible nearp = null;
         foreach (Player p in _Game.players)
-            if (p != null)
+            if (p != null)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
             {
                 if (p.Alive && p.OwnerID != -1)
                 {

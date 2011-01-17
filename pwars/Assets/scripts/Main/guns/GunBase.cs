@@ -16,7 +16,7 @@ public class GunBase : Base
     public float patronsLeft = 0;
     public string Text;
     public GameObject gunModel;
-    protected override void Awake()
+    public override void Awake()
     {
         Text = name;
         base.Awake();

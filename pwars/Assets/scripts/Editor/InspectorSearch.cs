@@ -85,7 +85,7 @@ public class InspectorSearch : EditorWindow
         DestroyImmediate(g2);
         DestroyImmediate(co);
     }
-    protected virtual void Awake()
+    public virtual void Awake()
     {
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
     }

@@ -39,7 +39,7 @@ public class Gun : GunBase
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);         
     }
     
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
     }

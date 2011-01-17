@@ -46,7 +46,7 @@ public class Tower : Destroible
         gun.transform.parent = this.cursor.transform;
         gun.EnableGun();
     }
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
     }

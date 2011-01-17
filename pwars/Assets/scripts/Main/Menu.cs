@@ -16,7 +16,7 @@ public class Menu : Base
     public string gameVersionName = "Swiborg2";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
     public bool enableIrc;    
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
     }

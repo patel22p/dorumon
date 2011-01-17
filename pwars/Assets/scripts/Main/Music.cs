@@ -11,7 +11,7 @@ public class Music : Base
 {
     string[] s = new string[0];
     bool enableMusic=true;
-    protected override void Awake()
+    public override void Awake()
     {
         base.Awake();
     }

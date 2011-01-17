@@ -35,12 +35,12 @@ public class Loader : Base
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
     public static bool loaded;
     public override void Awake()
-    {                        
-        Application.targetFrameRate = 40;
-        Debug.Log("isBuild = " + build);
+    {
+        if (loaded) return;
+        loaded = true;
+        Application.targetFrameRate = 40;        
         LocalUserV = gameObject.AddComponent<UserView>();
         base.Awake();        
-        print("loader awake");        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
         if(!isWebPlayer)
@@ -52,13 +52,13 @@ public class Loader : Base
     }
     public override void Init()
     {
-        version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        version = DateTime.Now.ToString();
         base.Init();
     }
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     protected override void Start()
     {
-        
+        print("Version " + version);        
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
         onGraphicQuality();
         if (!isWebPlayer)

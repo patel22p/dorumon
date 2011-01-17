@@ -10,9 +10,7 @@ public class Gun : GunBase
     public GameObject patronPrefab;
     public GameObject towerPrefab;
     public GameObject staticFieldPrefab;
-    public Vector3 random;
-    
-    public Vector3 Force;
+    public Vector3 random;        
     public Transform barrel;
     public float exp = 500;
     public float vibration=0;
@@ -137,21 +135,17 @@ public class Gun : GunBase
 
                 var p2 = cursor[cursorid].position;
                 Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
-
-                {
-                    Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back, r2))).GetComponent<Patron>();
-                    patron.OwnerID = OwnerID;
-                    patron.damage = this.damage;
-                    patron.ExpForce = exp;
-                    if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
-                    patron.probivaemost = this.probivaemost;
-                    if (Force != default(Vector3)) patron.rigidbody.AddForce(this.transform.rotation * Force * fdt);
-                }
+                Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back, r2))).GetComponent<Patron>();
+                patron.OwnerID = OwnerID;
+                patron.damage = this.damage;
+                patron.ExpForce = exp;
+                if (bulletForce != 0) patron.Force = new Vector3(0, 0, bulletForce);
+                patron.probivaemost = this.probivaemost;                
             }
         }
         RandomFactorTm = Mathf.Min(RandomFactorTm + .2f, 1);
         this.pos -= rot * new Vector3(0, 0, vibration);
-        
+
     }
     public void RPCCreateField(Vector3 pos ) { CallRPC("CreateField", pos); }
     [RPC]

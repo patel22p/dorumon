@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,12 +12,12 @@ public partial class Base2:MonoBehaviour
 
 public class GameStatsWindow : WindowBase {
 		
-	public bool focusPlayerStatsTitle;
-	public bool isReadOnlyPlayerStatsTitle = true;
-	public string PlayerStatsTitle = @"       Player Name              Team      Score  Frags Deaths  FPS   Ping";
-	public bool focusPlayerStats;
-	public bool isReadOnlyPlayerStats = true;
-	public string PlayerStats = @"";
+	internal bool focusPlayerStatsTitle;
+	internal bool isReadOnlyPlayerStatsTitle = true;
+	internal string PlayerStatsTitle = @"       Player Name              Team      Score  Frags Deaths  FPS   Ping";
+	internal bool focusPlayerStats;
+	internal bool isReadOnlyPlayerStats = true;
+	internal string PlayerStats = @"";
 	private int wndid1;
 	
     
@@ -68,7 +68,7 @@ public class GameStatsWindow : WindowBase {
 		} else
 		PlayerStats = GUI.TextField(new Rect(10f, 37f, 546f, 300f), PlayerStats, GUI.skin.customStyles[2]);
 		GUI.EndGroup();
-		if (GUI.Button(new Rect(611f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(611f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

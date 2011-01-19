@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,16 +12,16 @@ public partial class Base2:MonoBehaviour
 
 public class GameMenuWindow : WindowBase {
 		
-	[FindAsset("Skin/Images/physx_wars_title.png")]
+	[FindAsset("physx_wars_title")]
 	public Texture2D ImageImage2;
-	public bool focusTeamSelectButton;
-	public bool TeamSelectButton=false;
-	public bool focusIrcChatButton;
-	public bool IrcChatButton=false;
-	public bool focusOptions;
-	public bool Options=false;
-	public bool focusDisconnect;
-	public bool Disconnect=false;
+	internal bool focusTeamSelectButton;
+	internal bool TeamSelectButton=false;
+	internal bool focusIrcChatButton;
+	internal bool IrcChatButton=false;
+	internal bool focusOptions;
+	internal bool Options=false;
+	internal bool focusDisconnect;
+	internal bool Disconnect=false;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverTeamSelectButton;
@@ -88,7 +88,7 @@ public class GameMenuWindow : WindowBase {
 		onMouseOver = new Rect(110f, 330f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDisconnect != onMouseOver && onMouseOver) onOver();
 		oldMouseOverDisconnect = onMouseOver;
-		if (GUI.Button(new Rect(509.968f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(509.968f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

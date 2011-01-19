@@ -12,8 +12,6 @@ public class Cam : Base
     float y = 0.0f;
     public TextMesh LevelText;
     public TextMesh ScoreText;
-    [FindAsset("timewarp")]
-    public AudioClip timewarp;    
     public override void Init()
     {
         camera = GetComponentInChildren<Camera>();
@@ -82,21 +80,11 @@ public class Cam : Base
             blur.blurAmount = Vector3.Distance(oldpos, transform.position) / 15;
             oldpos = transform.position;
         }
-
-        if (_Cam.Vingetting.enabled)
-        {
-            root.audio.clip = timewarp;
-            if (!root.audio.isPlaying)            
-                root.audio.Play();
-        }
-        else if (root.audio.clip == timewarp) root.audio.Stop();
-
         if (lockCursor)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * .02f;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f;
+            x += Input.GetAxis("Mouse X") * xSpeed * .02f * _SettingsWindow.MouseX;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * _SettingsWindow.MouseY;
         }
-
     }
     void CamUpdate()
     {
@@ -108,16 +96,20 @@ public class Cam : Base
         Quaternion rot2 = Quaternion.Euler(y, x, 0);
         Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
         pos2.y += yoffset;
-
         RaycastHit h;
         Vector3 plpos = _localPlayer.transform.position;
         Ray r = new Ray(pos2, plpos - pos2);
         if (Physics.Raycast(r, out h, Vector3.Distance(plpos, pos2), 1 << LayerMask.NameToLayer("Level")))
             pos2 = h.point + r.direction.normalized;
 
-        pos = ((pos2 * Time.deltaTime * 5) + (pos)) / (Time.deltaTime * 5 + 1);
+        if (_SettingsWindow.CamSmooth == 0)
+            pos = pos2;
+        else
+        {
+            var a = Time.deltaTime * 5 * (2f - _SettingsWindow.CamSmooth);
+            pos = ((pos2 * a) + (pos)) / (a + 1);
+        }
         rot = rot2; //Quaternion.Euler(rot.eulerAngles + (rot2.eulerAngles * 10) / 11);
-
         camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
         exp -= .1f;
         if (exp < 0) exp = 0;
@@ -134,8 +126,6 @@ public class Cam : Base
             angle = clamp;
         return Mathf.Clamp(angle, min, max);
     }
-
-
 }
 [System.Serializable]
 public class Decal

@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,22 +12,24 @@ public partial class Base2:MonoBehaviour
 
 public class ServersWindow : WindowBase {
 		
-	public string Ipaddress{ get { return PlayerPrefs.GetString("Ipaddress", @""); } set { PlayerPrefs.SetString("Ipaddress", value); } }
-	public int Port{ get { return PlayerPrefs.GetInt("Port", 5300); } set { PlayerPrefs.SetInt("Port", value); } }
-	public bool focusIpaddress;
-	public bool isReadOnlyIpaddress = false;
-	public bool focusPort;
-	public bool isReadOnlyPort = false;
-	public bool focusConnect;
-	public bool Connect=false;
-	public bool focusServersTable;
+	private string _Ipaddress;
+	internal string Ipaddress{ get { if(_Ipaddress == null) _Ipaddress = PlayerPrefs.GetString("Ipaddress", @""); return _Ipaddress; } set { PlayerPrefs.SetString("Ipaddress", value); _Ipaddress = value; } }
+	private int? _Port;
+	internal int Port{ get { if(_Port == null) _Port = PlayerPrefs.GetInt("Port", 5300); return _Port.Value; } set { PlayerPrefs.SetInt("Port", value); _Port = value; } }
+	internal bool focusIpaddress;
+	internal bool isReadOnlyIpaddress = false;
+	internal bool focusPort;
+	internal bool isReadOnlyPort = false;
+	internal bool focusConnect;
+	internal bool Connect=false;
+	internal bool focusServersTable;
 	public string[] ServersTable = new string[] {};
-	public int iServersTable = -1;
-	public bool focusRefresh;
-	public bool Refresh=false;
-	public bool focusServersTitle;
-	public bool isReadOnlyServersTitle = true;
-	public string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
+	internal int iServersTable = -1;
+	internal bool focusRefresh;
+	internal bool Refresh=false;
+	internal bool focusServersTitle;
+	internal bool isReadOnlyServersTitle = true;
+	internal string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
 	private int wndid1;
 	private bool oldMouseOverConnect;
 	private Vector2 sServersTable;
@@ -60,7 +62,7 @@ public class ServersWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
-		GUI.Label(new Rect(21f, 30f, 66.89667f, 21.96f), @"ip аддресс");
+		GUI.Label(new Rect(21f, 30f, 64.12334f, 21.96f), @"ip address");
 		if(focusIpaddress) { focusIpaddress = false; GUI.FocusControl("Ipaddress");}
 		GUI.SetNextControlName("Ipaddress");
 		if(isReadOnlyIpaddress){
@@ -114,7 +116,7 @@ public class ServersWindow : WindowBase {
 		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);
 		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Server");
-		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
+using gui = UnityEditor.EditorGUILayout;
 using System.IO;
 using System.Collections;
 using AstarClasses;
@@ -16,8 +17,10 @@ using Object = UnityEngine.Object;
 [assembly: AssemblyVersion("1.0.*")]
 public partial class RTools : InspectorSearch
 {
-    string file { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } } 
+    string file { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
+    float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
+
     public bool bake;
     public override void Awake()
     {
@@ -32,10 +35,10 @@ public partial class RTools : InspectorSearch
         }
         BuildButtons();        
         GUI.BeginHorizontal();
-        bake = GUI.Toggle(bake, "Bake"); 
+        bake = GUI.Toggle(bake, "Bake");
+        lfactor = EditorGUILayout.FloatField(lfactor);
         if (GUI.Button("SetupLevel"))
         {
-            
             var l = GameObject.Find("level");
             var p = l.transform.parent;
             DestroyImmediate(l);
@@ -53,13 +56,13 @@ public partial class RTools : InspectorSearch
                 if (bake)
                 {
                     var old = RenderSettings.ambientLight;
-                    RenderSettings.ambientLight = Color.white * .2f;
+                    RenderSettings.ambientLight = Color.white * .08f;
                     var en = new Queue<LightShadows>();
                     
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
                     {
                         en.Enqueue(a.shadows);
-                        a.shadows = LightShadows.Soft;
+                        a.shadows = LightShadows.Soft;                        
                     }
                     Lightmapping.BakeAsync();
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
@@ -70,19 +73,14 @@ public partial class RTools : InspectorSearch
             });
         }
 
-
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
             SetupMaterials();
-            
-
             if (Selection.activeGameObject != null)
                 Inits(cspath);
         }
-
         GUI.EndHorizontal();
-
         BuildGUI();
         base.OnGUI();
     }
@@ -243,10 +241,8 @@ public partial class RTools : InspectorSearch
             }
             if (g.name == "path")
             {
-                g.active = false;
-                DestroyImmediate(g.GetComponent<MeshCollider>());                
-                Debug.Log("founded path");
-                destroy.Add(g);
+                g.active = false;                
+                Debug.Log("founded path");                
             }                      
         }
 
@@ -348,6 +344,8 @@ public partial class RTools : InspectorSearch
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         file = "Builds/" + DateTime.Now.ToFileTime() + "/";
         Directory.CreateDirectory(file);
+        File.WriteAllText(file + "Client.bat", "start \"Game.Exe client\"");
+        File.WriteAllText(file + "Server.bat", "start \"Game.Exe server\"");
         BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
     protected override void Update()

@@ -1,26 +1,31 @@
 ﻿using System;
 using UnityEngine;
 
+public interface IWindow {
+    void Action(string name, params object[] param);
+}
 public class WindowBase : Base2
 {
-    public void Action(string name, object param)
+    
+    public void Action(string name, params object[] param)
     {
-        controller.SendMessage(name, param, SendMessageOptions.DontRequireReceiver);
+        controller.Action(name, param);
     }
     public void Action(string name)
     {
-        controller.SendMessage(name, SendMessageOptions.DontRequireReceiver);
+        controller.Action(name);
     }
-    public void ActionAll(string name)
-    {
-        foreach (Base a in GameObject.FindObjectsOfType(typeof(Base)))
-            a.SendMessage(name, SendMessageOptions.DontRequireReceiver);
-    }
-
-    public MonoBehaviour controller;
+    //public void ActionAll(string name)
+    //{
+    //    foreach (Base a in GameObject.FindObjectsOfType(typeof(Base)))
+    //        a.SendMessage(name, SendMessageOptions.DontRequireReceiver);
+    //}    
     //new public bool enabled { get { return base.enabled; } set { if (enabled) Show(); else Hide(); } }
 
-    public void Toggle(MonoBehaviour obj)
+    public IWindow controller;
+
+
+    public void Toggle(IWindow obj)
     {
         
         if (!enabled)        
@@ -29,20 +34,20 @@ public class WindowBase : Base2
             Hide();
 
     }
-    public void Show(MonoBehaviour controller)
+    public void Show(IWindow controller)
     {
         lockCursor = false;
         SendMessageUpwards("HideWindow", SendMessageOptions.DontRequireReceiver);        
         enabled = true;
         this.controller = controller;                
     }
-    public void ShowDontHide(MonoBehaviour controller)
+    public void ShowDontHide(IWindow controller)
     {        
         enabled = true;
         this.controller = controller;
     }
 
-    public void ShowOnTop(MonoBehaviour controller)
+    public void ShowOnTop(IWindow controller)
     {        
         enabled = true;
         this.controller = controller;

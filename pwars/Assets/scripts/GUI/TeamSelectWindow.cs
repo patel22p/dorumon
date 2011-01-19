@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,34 +12,31 @@ public partial class Base2:MonoBehaviour
 
 public class TeamSelectWindow : WindowBase {
 		
-	public bool focusTeamsView;
-	public bool enabledTeamsView = true;
-	public bool focusTeams;
+	internal bool focusTeamsView;
+	internal bool enabledTeamsView = true;
+	internal bool focusTeams;
 	public string[] Teams = new string[] {"Red Team","Blue Team",};
-	public int iTeams = 0;
-	public bool focusImages;
-	public int tabImages;
-	public bool focusRed;
-	[FindAsset("Skin/Images/Image2.png")]
+	internal int iTeams = 0;
+	internal bool focusImages;
+	internal int tabImages;
+	internal bool focusRed;
+	[FindAsset("Image2")]
 	public Texture2D ImageRed;
-	public bool focusBlue;
-	[FindAsset("Skin/Images/Image1.png")]
+	internal bool focusBlue;
+	[FindAsset("Image1")]
 	public Texture2D ImageBlue;
-	public bool focusTeamSelect;
-	public bool TeamSelect=false;
-	public bool focusObserver;
-	public bool Observer=false;
-	public bool focusFraglimit;
-	public bool isReadOnlyFraglimit = true;
-	public int Fraglimit = 0;
-	public bool focusGameType;
-	public int tabGameType;
+	internal bool focusTeamSelect;
+	internal bool TeamSelect=false;
+	internal bool focusFraglimit;
+	internal bool isReadOnlyFraglimit = true;
+	internal int Fraglimit = 0;
+	internal bool focusGameType;
+	internal int tabGameType;
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
 	private Rect Blue;
 	private bool oldMouseOverTeamSelect;
-	private bool oldMouseOverObserver;
 	
     
     
@@ -107,20 +104,12 @@ public class TeamSelectWindow : WindowBase {
 		if(focusTeamSelect) { focusTeamSelect = false; GUI.FocusControl("TeamSelect");}
 		GUI.SetNextControlName("TeamSelect");
 		bool oldTeamSelect = TeamSelect;
-		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Login",""));
+		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Start",""));
 		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("onTeamSelect");onButtonClick(); }
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();
 		oldMouseOverTeamSelect = onMouseOver;
-		if(focusObserver) { focusObserver = false; GUI.FocusControl("Observer");}
-		GUI.SetNextControlName("Observer");
-		bool oldObserver = Observer;
-		Observer = GUI.Button(new Rect(370f, 8f, 75f, 21.96f), new GUIContent("Spectator",""));
-		if (Observer != oldObserver && Observer ) {Action("onObserver");onButtonClick(); }
-		onMouseOver = new Rect(370f, 8f, 75f, 21.96f).Contains(Event.current.mousePosition);
-		if (oldMouseOverObserver != onMouseOver && onMouseOver) onOver();
-		oldMouseOverObserver = onMouseOver;
-		GUI.Label(new Rect(133f, 13.95f, 73.38f, 21.96f), @"Frag Limit");
+		GUI.Label(new Rect(113f, 13.95f, 96f, 21.96f), @"Frag Limit");
 		if(focusFraglimit) { focusFraglimit = false; GUI.FocusControl("Fraglimit");}
 		GUI.SetNextControlName("Fraglimit");
 		if(isReadOnlyFraglimit){
@@ -145,11 +134,10 @@ public class TeamSelectWindow : WindowBase {
  kill the maximum number of players.");
 		}
 		if(tabGameType==3){
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle.  
- kill the maximum number of players.");
+		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle. \r \n kill the maximum number of players.");
 		}
 		GUI.EndGroup();
-		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

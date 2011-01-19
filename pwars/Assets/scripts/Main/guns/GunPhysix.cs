@@ -6,19 +6,16 @@ using UnityEngine;
 
 public class GunPhysix : GunBase
 {
-
-    public float radius = 50;
-    public float exp = 2000;
-    public float expradius = 40;
+    public float radius = 50;    
+    public float ExpRadius = 1;
     public AnimationCurve gravitaty;
-    public float scalefactor = 10;
-    public float holdtm;    
+    public AnimationCurve release;
+    public float holdtm;
     public bool power;
     [FindAsset("wave")]
     public GameObject wavePrefab;
     [FindAsset("superphys_launch3")]
     public AudioClip superphys_launch3;
-
 #if(UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public override void Init()
     {
@@ -26,12 +23,10 @@ public class GunPhysix : GunBase
         audio.clip = Base2.FindAsset<AudioClip>("PowerGun");
     }
 #endif
-
     public override void Awake()
     {
         base.Awake();
     }
-    
     protected override void FixedUpdate()
     {
         if (power)
@@ -48,18 +43,17 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position)<20);
-            var count = boxes.Count();
-            var mpos = pos + (transform.forward * count * 2) + (transform.forward * 8);
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position) < 20);
+            float size = boxes.Sum(a => a.collider.bounds.size.magnitude);
+            cursor[0].position = pos + (transform.forward * size / 5) + (transform.forward * 2);
             foreach (Base b in boxes)
             {
+                if (b.rigidbody.velocity.magnitude < 1)
+                    b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                 var f = 600;
-                var d = Vector3.Distance(b.pos, mpos);
-                //b.rigidbody.AddExplosionForce(fdt*-gravitaty.Evaluate(d) * f * .3f * scalefactor * b.rigidbody.mass, mpos, radius);
-                b.rigidbody.AddForce((b.pos - mpos).normalized * scalefactor * b.rigidbody.mass * -gravitaty.Evaluate(d) * f * fdt);
-                //b.rigidbody.angularVelocity *= .6f;
-                b.rigidbody.velocity *= Math.Min(.1f * d, 1);
-                b.OwnerID = this.root.GetComponent<Player>().OwnerID;
+                var d = Vector3.Distance(b.pos, cursor[0].position);
+                b.rigidbody.AddForce((b.pos - cursor[0].position).normalized * b.rigidbody.mass * -gravitaty.Evaluate(d) * f * fdt);
+                b.rigidbody.velocity *= Math.Min(.1f * d, 1);                
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
             if (!audio.isPlaying) audio.Play();
@@ -69,9 +63,8 @@ public class GunPhysix : GunBase
             audio.Stop();
             holdtm = 0;
         }
-
+        base.FixedUpdate();
     }
-
     private bool HitTest(Transform j,float dist)
     {        
         Vector3 pos = transform.position;
@@ -94,11 +87,15 @@ public class GunPhysix : GunBase
     {
         bool boxes = false;
         foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
-            if (Vector3.Distance(b.pos, cursor[0].position) < expradius)
-            {
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, exp * scalefactor * b.rigidbody.mass) * fdt);
+        {
+            var d = Vector3.Distance(b.pos, cursor[0].position) ;
+            if (d < ExpRadius * 20)
+            {                
+                b.OwnerID = this.root.GetComponent<Player>().OwnerID;
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 5000 * b.rigidbody.mass) * fdt);
                 boxes = true;
             }
+        }
         var v = cursor[0].position;
         if (!boxes)
         {
@@ -138,7 +135,4 @@ public class GunPhysix : GunBase
         base.Update();
 
     }
-
-
-
 }

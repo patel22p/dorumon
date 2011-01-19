@@ -106,7 +106,8 @@ public class InspectorSearch : EditorWindow
                     array = array.Union(Selection.activeGameObject.GetComponents<Component>());                    
                 foreach (var m in array)
                 {
-                    SerializedObject so = new SerializedObject(m);
+                    
+                    SerializedObject so = new SerializedObject(m);                    
                     SerializedProperty pr = so.GetIterator();
                     pr.NextVisible(true);
                     do
@@ -212,7 +213,6 @@ public class InspectorSearch : EditorWindow
                 {
                     if (glow && t.collider != null)
                         t.collider.isTrigger = true;
-                    Debug.Log(t.gameObject.name);
                     t.gameObject.layer = LayerMask.NameToLayer("Glass");
                     if (t.GetComponent<Renderer>() != null)
                     {
@@ -349,15 +349,15 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         foreach (var a in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
         {
-            var ms =a.sharedMaterials;
+            var ms = a.sharedMaterials;
             for (int i = 0; i < ms.Count(); i++)
             {
                 var p = AssetDatabase.GetAssetPath(ms[i]);
-                var nwp = p.Substring(0, p.Length - 4)+"D.mat";
+                var nwp = p.Substring(0, p.Length - 4) + "D.mat";
                 AssetDatabase.DeleteAsset(nwp);
                 AssetDatabase.CopyAsset(p, nwp);
                 AssetDatabase.Refresh();
-                ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));                
+                ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));
             }
             a.sharedMaterials = ms;
         }
@@ -374,7 +374,7 @@ public class InspectorSearch : EditorWindow
                 var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.transform.parent.name + "/" + g.name + ".prefab");
                 EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
                 EditorUtility.SetDirty(g);
-            } 
+            }
             AssetDatabase.Refresh();
         }
     }
@@ -385,11 +385,12 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         foreach (var go in Selection.gameObjects)
         {
+            Debug.Log("Applied:" + go.name);
             EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
             EditorUtility.ResetGameObjectToPrefabState(go);
             EditorUtility.ReconnectToLastPrefab(go);
-            AssetDatabase.SaveAssets();
         }
+        AssetDatabase.SaveAssets();
     }
     [MenuItem("GameObject/ReconnectAll")]
     static void ReconnectAll()

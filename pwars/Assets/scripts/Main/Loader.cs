@@ -13,15 +13,16 @@ using System.Net.Sockets;
 using System.Text;
 using Debug = UnityEngine.Debug;
 public enum Level { z1login, z2menu, z4game }
-public class Loader : Base
+public class Loader : Base,IWindow
 {
     public string version;
-    public string cmd="";    
+    public string[] cmd;    
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
-    new public bool skip;
+    new public bool skip;    
     public bool dontcheckwin;
+    public bool debugPath;
     public bool disablePathFinding= true;
     public bool logged;
     new public UserView LocalUserV;
@@ -43,8 +44,8 @@ public class Loader : Base
         base.Awake();        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
-        if(!isWebPlayer)
-            cmd = joinString(' ', Environment.GetCommandLineArgs());
+        //if(!isWebPlayer)
+        //    cmd = Environment.GetCommandLineArgs();
         mapsets.AddRange(new[]{
             new MapSetting { mapName = "Game", title = "Demo" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
             //new MapSetting { mapName = "z5city" , title  = "City" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
@@ -58,68 +59,53 @@ public class Loader : Base
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     protected override void Start()
     {
-        print("Version " + version);        
+        print("Version " + version);
         _SettingsWindow.ScreenSize = ToString(Screen.resolutions).ToArray();
-        onGraphicQuality();
+        Action("onGraphicQuality");
         if (!isWebPlayer)
         {
-            onScreenSize();
+            Action("onScreenSize");            
             Directory.CreateDirectory(curdir + "/ScreenShots");
             foreach (var a in Directory.GetFiles(curdir + "/ScreenShots").Reverse().Skip(100))
                 File.Delete(a);
         }
     }
 
-    void onFullScreen()
+    public void Action(string s, params object[] p)
     {
-        Screen.fullScreen = _SettingsWindow.FullScreen;
-    }
-    void onGraphicQuality()
-    {
-        if (_Cam != null)
-            _Cam.onEffect();      
-    }
-    void onScreenSize()
-    {
-        if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
-        {
-            print(pr);
-            Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
-            Screen.SetResolution(r.width, r.height, _SettingsWindow.FullScreen);
-        }
-    }
-    void onShadows()
-    {
-        if (_Cam != null)
+        if (s == "onFullScreen")
+            Screen.fullScreen = _SettingsWindow.FullScreen;
+        if (s == "onGraphicQuality")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (s == "onScreenSize")
+            if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
+            {
+                print(pr);
+                Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
+                Screen.SetResolution(r.width, r.height, _SettingsWindow.FullScreen);
+            }
+        if (s == "onShadows")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (s == "onReset")
+            PlayerPrefs.DeleteAll();
+        if (s == "onAtmoSphere")
+            if (_Cam != null)
+                _Cam.onEffect();
+
+        if (s == "onSao")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (s == "onBloomAndFlares")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (s == "onRenderSettings")
             _Cam.onEffect();
+        if (s == "onOk")
+            _PopUpWindow.Hide();
     }
-    void onReset()
-    {
-        PlayerPrefs.DeleteAll();
-    }
-    void onAtmoSphere()
-    {
-        if (_Cam != null)
-            _Cam.onEffect();
-    }
-    void onSao()
-    {
-        if (_Cam != null)
-            _Cam.onEffect();
-    }
-    void onBloomAndFlares()
-    {
-        if (_Cam != null)
-            _Cam.onEffect();
-    }
-    void onRenderSettings()
-    {
-        _Cam.onEffect();
-    }
-    void onOk()
-    {
-        _PopUpWindow.Hide();
-    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))

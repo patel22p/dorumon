@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 public enum GameMode { ZombieSurive, TeamZombieSurvive, DeathMatch, TeamDeathMatch }
 
-public class Game : Base
+public class Game : Base,IWindow
 {
     new public Player[] players = new Player[36];
     public List<Shared> shareds = new List<Shared>();
@@ -32,7 +32,7 @@ public class Game : Base
     public GameObject effects;
     [FindTransform("GameEffects/decals", true)]
     public GameObject decals;
-    public int stage;
+    internal int stage;
     public float timeleft = 20;
     public bool wait;
     public bool win;
@@ -46,7 +46,12 @@ public class Game : Base
     public int zombiespawnindex = 0;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [FindAsset("Player")]
-    public GameObject playerPrefab;    
+    public GameObject playerPrefab;
+    [FindAsset]
+    public AudioClip antigrav;
+    [FindAsset]
+    public AudioClip timewarp;    
+
     public override void Awake()
     {
         gravity = Physics.gravity;
@@ -56,20 +61,31 @@ public class Game : Base
         _Level = Level.z4game;
         Debug.Log("cmdserver:" + _Loader.cmd.Contains("client"));
         print("mapSettings.host " + mapSettings.host);
+        
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((mapSettings.host && Application.isEditor) || _Loader.cmd.Contains("server"))
+            {
+
                 Network.InitializeServer(mapSettings.maxPlayers, mapSettings.port, false);
+            }
             else
+            {
+                //if (_Loader.cmd.Length == 2)
+                //{
+                //    Debug.Log("added IPADDRESS: " + _Loader.cmd[2]);
+                //    mapSettings.ipaddress.Union(new string[] { _Loader.cmd[2] });
+                //}
                 Network.Connect(mapSettings.ipaddress, _ServersWindow.Port);
+            }
         else
             foreach (Base o in Component.FindObjectsOfType(typeof(Base))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
+        
     }
 
     protected override void Enable()
-    {
-        if (Network.isServer)
-            RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
+    {        
         RPCWriteMessage("Player Connected: " + nick);
+        SendGameSettings();
         ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
         base.Enable();
     }
@@ -84,24 +100,19 @@ public class Game : Base
     }
     public override void Init()
     {
-        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());        
+        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());
     }
     protected override void Start()
-    {                
-    }
-    public void onTeamSelect()
     {
-        _TeamSelectWindow.Hide();
-        _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
-        if (!_localPlayer.spawned) _localPlayer.RPCSetAlive(true);
-        lockCursor = true;
     }
-    bool chatEnabled;
     
+    bool chatEnabled;
+
     void Update()
-    {        
+    {
+
         if (Input.GetKeyDown(KeyCode.Return))
-        {            
+        {
             chatEnabled = !chatEnabled;
             Screen.lockCursor = !chatEnabled;
         }
@@ -112,12 +123,12 @@ public class Game : Base
         else if (_GameWindow.chatInput.text != "")
         {
             RPCSendChantMessage(_GameWindow.chatInput.text, _localPlayer.OwnerID);
-            
+
             _GameWindow.chatInput.text = "";
         }
         if (sendto != null) Debug.Log("warning,sendto is not null");
         timeleft -= Time.deltaTime / 60;
-        
+
         if (Input.GetKeyDown(KeyCode.P)) RPCPause();
 
         if (Input.GetKeyDown(KeyCode.Tab))
@@ -156,19 +167,38 @@ public class Game : Base
 
     }
     void onMenu() { _GameMenuWindow.Show(this); }
-    void onIrcChatButton() { _IrcChatWindow.Show(this); }
-    void onTeams() { _TeamSelectWindow.tabImages = _TeamSelectWindow.iTeams; }
-    //void onObserver() { Spectator(); }
-    void onOptions() { _SettingsWindow.Show(_Loader); }
-    void onDisconnect() { Network.Disconnect(); }
-    void onTeamSelectButton() { _TeamSelectWindow.Show(this); }
-    void onScoreBoard() { _GameStatsWindow.Show(this); }
-    public void RPCGameSettings(string version, int gameMode, int frags, float timelimit) { CallRPC("GameSettings", version, gameMode, frags, timelimit); }
+    public void Action(string s, params object[] p)
+    {
+        if (s == "onMenu")
+            _GameMenuWindow.Show(this);
+        if (s == "onIrcChatButton")
+            _IrcChatWindow.Show(this);
+        if (s == "onTeams")
+            _TeamSelectWindow.tabImages = _TeamSelectWindow.iTeams;
+        if (s == "onOptions")
+            _SettingsWindow.Show(_Loader);
+        if (s == "onDisconnect")
+            Network.Disconnect();
+        if (s == "onTeamSelectButton")
+            _TeamSelectWindow.Show(this);
+        if (s == "onScoreBoard")
+            _GameStatsWindow.Show(this);
+        if (s == "onTeamSelect")
+        {
+            _TeamSelectWindow.Hide();
+            _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : (Team)_TeamSelectWindow.iTeams;
+            if (!_localPlayer.spawned) _localPlayer.RPCSetAlive(true);
+            lockCursor = true;
+        }
+    }
+
+    public void RPCGameSettings(string version, int gameMode, int frags, float timelimit,int stage) { CallRPC("GameSettings", version, gameMode, frags, timelimit,stage); }
     [RPC]
-    public void GameSettings(string version, int gameMode, int frags, float timelimit)
+    public void GameSettings(string version, int gameMode, int frags, float timelimit,int stage)
     {
         mapSettings.gameMode = (GameMode)gameMode;
         timeleft = mapSettings.timeLimit = timelimit;
+        this.stage = mapSettings.stage = stage;
         _TeamSelectWindow.tabGameType = (int)mapSettings.gameMode;
         _TeamSelectWindow.Fraglimit = mapSettings.fragLimit = frags;
         if (!mapSettings.Team) _TeamSelectWindow.enabledTeamsView = false;
@@ -178,9 +208,9 @@ public class Game : Base
     {
         Debug.Log("On Player Connected " + GameObject.FindObjectsOfType(typeof(Zombie)).Length);
         sendto = np;
-        RPCSetTimeLeft(timeleft);        
+        RPCSetTimeLeft(timeleft);
+        SendGameSettings();
         if (mapSettings.zombi && stage != 0) RPCNextStage(stage);        
-        RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit);
         var sorted = GameObject.FindObjectsOfType(typeof(Player))
         .Union(GameObject.FindObjectsOfType(typeof(Gun)))
         .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
@@ -191,6 +221,11 @@ public class Game : Base
         foreach (Base b in sorted)
             b.OnPlayerConnectedBase(np);
         sendto = null;
+    }
+
+    private void SendGameSettings()
+    {
+        RPCGameSettings(_Console.version, (int)gameMode, mapSettings.fragLimit, mapSettings.timeLimit, mapSettings.stage);
     }
     public void RPCSetTimeLeft(float time) { CallRPC("SetTimeLeft",time); }
     [RPC]
@@ -208,13 +243,18 @@ public class Game : Base
             foreach (Rigidbody a in FindObjectsOfType(typeof(Rigidbody)))
                 if (!a.isKinematic)
                 {
-                    a.AddForce(Vector3.up * 100 * Random.value*fdt);
+                    a.AddForce(Vector3.up * 100 * Random.value * fdt);
                     a.angularVelocity = Random.insideUnitSphere * 100;
                 }
             _Cam.Vingetting.enabled = true;
+            root.audio.clip = antigrav;
+            root.audio.Play();
         }
         else
+        {
+            root.audio.Stop();
             _Cam.Vingetting.enabled = false;
+        }
     }
     public void RPCSetTimeBomb(float timescale) { CallRPC("SetTimeBomb",timescale); }
     [RPC]
@@ -226,9 +266,16 @@ public class Game : Base
         foreach (AudioSource a in FindObjectsOfTypeIncludingAssets(typeof(AudioSource)))
             a.pitch = Time.timeScale;
         if (Time.timeScale == 1)
+        {
             _Cam.Vingetting.enabled = false;
+            root.audio.Stop();
+        }
         else
+        {
+            root.audio.clip = timewarp;
+            root.audio.Play();
             _Cam.Vingetting.enabled = true;
+        }
 
     }
     public void RPCPause() { CallRPC("Pause"); }
@@ -237,7 +284,6 @@ public class Game : Base
     {
         Debug.Break();
     }
-
     
     bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
     [FindAsset("Zombie")]
@@ -303,7 +349,7 @@ public class Game : Base
         _Cam.LevelText.animation.Play();
         foreach (Player p in players)
             if (p != null)
-                if (p.dead)
+                if (!p.Alive && !p.spawned && stage == 1)
                     p.RPCSpawn();
     }
     public void RPCSendChantMessage(string msg,int userid) { CallRPC("ChantMessage",msg,userid); }
@@ -389,7 +435,7 @@ public class Game : Base
     {
         int live = 0;
         foreach (Player p in players)
-            if (p != null && !p.dead) live++;
+            if (p != null && (p.Alive || !p.spawned)) live++;
         if (live == 0 && HasAny() || TimeEnd)
         {
             RPCWriteMessage(String.Format("You survived until {0} level.", stage));
@@ -432,12 +478,12 @@ public class Game : Base
         foreach (Player p in TP(Team.Blue))
         {
             rcount++;
-            if (!p.dead) BlueteamLive = true;
+            if (p.Alive) BlueteamLive = true;
         }
         foreach (Player p in TP(Team.Red))
         {
             bcount++;
-            if (!p.dead) RedteamLive = true;
+            if (p.Alive) RedteamLive = true;
         }
 
         if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive) || TimeEnd)

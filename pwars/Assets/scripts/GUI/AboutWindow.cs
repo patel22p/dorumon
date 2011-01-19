@@ -12,7 +12,7 @@ public partial class Base2:MonoBehaviour
 
 public class AboutWindow : WindowBase {
 		
-	[FindAsset("Skin/Images/physx_wars_title.png")]
+	[FindAsset("physx_wars_title")]
 	public Texture2D ImageImage2;
 	private int wndid1;
 	private Rect Image2;
@@ -58,7 +58,7 @@ Igor Levochkin
 :Music producers:
 CentaSpike
 Никита Сафонов", GUI.skin.customStyles[7]);
-		if (GUI.Button(new Rect(715f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(715f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

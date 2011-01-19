@@ -104,3 +104,11 @@ Copyright PhysxWars Team\r\n\r\n\r\n:Programming:\r\nIgor Levochkin\r\n\r\n\r\n:
 чтобы открыть дверь нажми F|Door
 , нужно заплатить |, costs 
  очков| Money
+Жизнь|Life
+Енергия|Energy
+зомби|Zombie
+уровень|Level
+Фраги|Frags
+минут|minutes
+ip аддресс|ip address
+моушн блур|motion blur

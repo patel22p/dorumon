@@ -21,7 +21,7 @@ public abstract class Destroible : Shared
             else return _Game.players[OwnerID.GetHashCode()].team;
         }
     }    
-    public bool dead { get { return !Alive; } set { Alive = !value; } }
+    //public bool dead { get { return !Alive; } set { Alive = !value; } }
     public bool Alive = true;
     public void SetLayer(GameObject g)
     {
@@ -51,7 +51,7 @@ public abstract class Destroible : Shared
         if (Alive && isController)
         {
             Box b = collisionInfo.gameObject.GetComponent<Box>();
-            if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 50)
+            if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
             {
                 RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10, b.OwnerID);
             }
@@ -59,7 +59,7 @@ public abstract class Destroible : Shared
     }
     public bool frozen;
 
-    public void RPCSetFrozen(bool value)
+    public virtual void RPCSetFrozen(bool value)
     {
         if(value)
             freezedt = .5f;
@@ -67,7 +67,7 @@ public abstract class Destroible : Shared
            CallRPC("SetFrozen", value);
     }
     [RPC]
-    public void SetFrozen(bool value)
+    public virtual void SetFrozen(bool value)
     {        
         frozen = value;
     }
@@ -93,7 +93,7 @@ public abstract class Destroible : Shared
     }
     public virtual void RPCSetLife(float NwLife, int killedby)
     {
-        if (dead) return;
+        if (!Alive) return;
         if (isController)
         {
             if (isEnemy(killedby) || NwLife > Life)
@@ -104,8 +104,9 @@ public abstract class Destroible : Shared
                 {
                     if (killedby == _localPlayer.OwnerID && NwLife < Life) _localPlayer.score += Math.Abs(Life - NwLife) / 100;
                     _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
-                    RPCSetFrozen(true);
                 }
+                if(killedby!=-1)
+                    RPCSetFrozen(true);
             }
             
             if (Life <= 0)

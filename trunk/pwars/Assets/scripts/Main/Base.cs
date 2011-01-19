@@ -15,10 +15,9 @@ public class Base : Base2
 {    
     public int OwnerID = -1;
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
-    public bool isOwnerOrServer { get { return (this.isOwner || (Network.isServer && this.OwnerID == -1)); } }    
     public void ShowPopup(string s)
     {
-        _PopUpWindow.ShowDontHide(this);
+        _PopUpWindow.ShowDontHide(null);
         _PopUpWindow.Text = s;
     }
     bool defenabled;
@@ -137,7 +136,7 @@ public class Base : Base2
     {
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
         {
-            rigidbody.isKinematic = !value;
+            //rigidbody.isKinematic = !value;
             rigidbody.detectCollisions = value;
             rigidbody.useGravity = value;                        
         }

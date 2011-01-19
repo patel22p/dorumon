@@ -12,17 +12,17 @@ public partial class Base2:MonoBehaviour
 
 public class IrcChatWindow : WindowBase {
 		
-	public bool focusMsgs;
-	public bool isReadOnlyMsgs = true;
-	public string Msgs = @"";
-	public bool focusInput;
-	public bool isReadOnlyInput = false;
-	public string Input = @"";
-	public bool focusUsers;
+	internal bool focusMsgs;
+	internal bool isReadOnlyMsgs = true;
+	internal string Msgs = @"";
+	internal bool focusInput;
+	internal bool isReadOnlyInput = false;
+	internal string Input = @"";
+	internal bool focusUsers;
 	public string[] Users = new string[] {};
-	public int iUsers = -1;
-	public bool focusIrcSend;
-	public bool IrcSend=false;
+	internal int iUsers = -1;
+	internal bool focusIrcSend;
+	internal bool IrcSend=false;
 	private int wndid1;
 	private Vector2 sUsers;
 	private bool oldMouseOverIrcSend;
@@ -82,7 +82,7 @@ public class IrcChatWindow : WindowBase {
 		oldMouseOverIrcSend = onMouseOver;
 		GUI.Label(new Rect(8f, 8f, 94f, 21.96f), @"Irc Chat");
 		GUI.Label(new Rect(151f, 36f, 353f, 14f), @"Сервер:irc.quakenet.org:6667 Комната:#PhysxWars");
-		if (GUI.Button(new Rect(679f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(679f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

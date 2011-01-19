@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,17 +12,18 @@ public partial class Base2:MonoBehaviour
 
 public class LoginWindow : WindowBase {
 		
-	public string Nick{ get { return PlayerPrefs.GetString("Nick", @""); } set { PlayerPrefs.SetString("Nick", value); } }
-	public int tabTabControl4;
-	public bool focusEnterAsGuest;
-	public bool EnterAsGuest=false;
-	public bool focusNick;
-	public bool isReadOnlyNick = false;
-	public bool focusAddress;
-	public bool isReadOnlyAddress = false;
-	public string Address = @"";
-	public bool Button9=false;
-	public bool Button10=false;
+	private string _Nick;
+	internal string Nick{ get { if(_Nick == null) _Nick = PlayerPrefs.GetString("Nick", @""); return _Nick; } set { PlayerPrefs.SetString("Nick", value); _Nick = value; } }
+	internal int tabTabControl4;
+	internal bool focusEnterAsGuest;
+	internal bool EnterAsGuest=false;
+	internal bool focusNick;
+	internal bool isReadOnlyNick = false;
+	internal bool focusAddress;
+	internal bool isReadOnlyAddress = false;
+	internal string Address = @"";
+	internal bool Button9=false;
+	internal bool Button10=false;
 	private int wndid1;
 	private bool oldMouseOverEnterAsGuest;
 	private bool oldMouseOverButton9;
@@ -55,7 +56,7 @@ public class LoginWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(19f, 21f, 574f, 88f), "");
 		GUI.Box(new Rect(0, 0, 574f, 88f), "");
-		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"Прежде чем попасть в основное меню игры и начать играть, необходимо выполнить вход (авторизацию в системе).");
+		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ).");
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(19f, 130f, 562f, 199f), "");
 		GUI.Box(new Rect(0, 0, 562f, 199f), "");
@@ -65,9 +66,9 @@ public class LoginWindow : WindowBase {
 		GUI.BeginGroup(new Rect(0, 18, 562, 181), "");
 		GUI.Box(new Rect(0, 0, 562, 181), "");
 		if(tabTabControl4==0){
-		GUI.Label(new Rect(21f, 21.04f, 513f, 76f), @"Внимание: вход в режиме ""Гостя"" лишает вас многих возможностей игры,таких как участия в рейтенге игроков и получение званий.
+		GUI.Label(new Rect(21f, 21.04f, 513f, 76f), @"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ""пїЅпїЅпїЅпїЅпїЅ"" пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ,пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
 
-Для входа введите свое Имя(Ник) в текстовую строку ""Name"" и нажмите кнопку ""Login"".");
+пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ(пїЅпїЅпїЅ) пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ""пїЅпїЅпїЅ"" пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ""пїЅпїЅпїЅпїЅ"".");
 		GUI.Label(new Rect(60f, 114.04f, 33f, 19f), @"Name");
 		if(focusEnterAsGuest) { focusEnterAsGuest = false; GUI.FocusControl("EnterAsGuest");}
 		GUI.SetNextControlName("EnterAsGuest");
@@ -85,18 +86,18 @@ public class LoginWindow : WindowBase {
 		Nick = GUI.TextField(new Rect(97f, 114.04f, 260f, 19f), Nick,10);
 		}
 		if(tabTabControl4==1){
-		GUI.Label(new Rect(58f, 113f, 59f, 19f), @"Адрес:");
+		GUI.Label(new Rect(58f, 113f, 59f, 19f), @"пїЅпїЅпїЅпїЅпїЅ:");
 		if(focusAddress) { focusAddress = false; GUI.FocusControl("Address");}
 		GUI.SetNextControlName("Address");
 		if(isReadOnlyAddress){
 		GUI.Label(new Rect(112f, 109.04f, 344f, 17.96f), Address.ToString());
 		} else
 		Address = GUI.TextField(new Rect(112f, 109.04f, 344f, 17.96f), Address);
-		GUI.Label(new Rect(28f, 19f, 517f, 85f), @"1. Нажмите на кнопку: 
+		GUI.Label(new Rect(28f, 19f, 517f, 85f), @"1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: 
 
-2. Скопируйте код из адресной строки открывшегося окна ""Login sucess""
+2. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ""Login sucess""
 
-3. Вставьте скопированный текст сюда в строку ""адрес"" и нажмите кнопку ""Login"".");
+3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ""пїЅпїЅпїЅпїЅпїЅ"" пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ""пїЅпїЅпїЅпїЅ"".");
 		bool oldButton9 = Button9;
 		Button9 = GUI.Button(new Rect(189f, 17f, 101f, 18f), new GUIContent("Authorization",""));
 		if (Button9 != oldButton9 && Button9 ) {Action("onButton9");onButtonClick(); }

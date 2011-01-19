@@ -15,6 +15,7 @@ public class Shared : Base
     public Vector3 syncVelocity;
     public Vector3 syncAngularVelocity;
     public Vector3 spawnpos;
+    public NetworkStateSynchronization nss = NetworkStateSynchronization.ReliableDeltaCompressed;
     public Quaternion spawnrot;
     public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
@@ -36,10 +37,12 @@ public class Shared : Base
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("Default");
         }
-        gameObject.AddOrGet<NetworkView>().observed = this;
+        var nw = gameObject.AddOrGet<NetworkView>();
+        nw.observed = this;
+        nw.stateSynchronization = NetworkStateSynchronization.Off;
         gameObject.AddOrGet<Rigidbody>();
         gameObject.AddOrGet<AudioSource>();
-        
+
         if (collider is MeshCollider)
         {
             ((MeshCollider)collider).convex = true;
@@ -50,22 +53,21 @@ public class Shared : Base
         base.Init();
     }
     protected override void Start()
-    {        
+    {
         spawnpos = transform.position;
         spawnrot = transform.rotation;
         if (shared)
-            if (!Network.isServer)
-                networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
+            networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
         base.Start();
     }
     public int updateLightmapInterval = 100;
     protected virtual void Update()
     {
         for (int i = 0; i < tmsend.Length; i++)
-            tmsend[i] += Time.deltaTime;        
+            tmsend[i] += Time.deltaTime;
 
         if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
-            ResetSpawn(); 
+            ResetSpawn();
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
             UpdateLightmap();
@@ -100,7 +102,7 @@ public class Shared : Base
                                 if (!m.name.Contains("DefColors"))
                                     m.name = "DefColors" + "-" + m.color.r + "-" + m.color.b + "-" + m.color.g + "-" + m.color.a + "-";
                                 var cs = m.name.ToString().Split('-');
-                                c = new Color(float.Parse(cs[1]), float.Parse(cs[2]), float.Parse(cs[3]), float.Parse(cs[4]));
+                                c = new Color(float.Parse(cs[1]), float.Parse(cs[3]), float.Parse(cs[2]), float.Parse(cs[4]));
                                 defcolors.Add(m, c);
                             }                            
                             m.color = c * a;
@@ -140,7 +142,6 @@ public class Shared : Base
     [RPC]
     public void SetOwner(int owner)
     {        
-        
         SetController(owner);
         foreach (Base bas in GetComponentsInChildren(typeof(Base)))
         {
@@ -171,7 +172,7 @@ public class Shared : Base
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)GroupNetwork.Shared;
         nw.observed = this;
-        nw.stateSynchronization = ss;
+        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
         nw.viewID = id;
         name += "+" + Regex.Match(nw.viewID.ToString(), @"\d+").Value;
     }

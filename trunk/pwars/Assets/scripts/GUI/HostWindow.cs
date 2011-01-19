@@ -1,4 +1,4 @@
-
+п»ї
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,32 +12,33 @@ public partial class Base2:MonoBehaviour
 
 public class HostWindow : WindowBase {
 		
-	public string Name{ get { return PlayerPrefs.GetString("Name", @""); } set { PlayerPrefs.SetString("Name", value); } }
-	public bool focusName;
-	public bool isReadOnlyName = false;
-	public bool focusPort;
-	public bool isReadOnlyPort = false;
-	public int Port = 5300;
-	public bool focusMaxPlayers;
-	public bool isReadOnlyMaxPlayers = false;
-	public int MaxPlayers = 6;
-	public bool focusMaxFrags;
-	public bool isReadOnlyMaxFrags = false;
-	public int MaxFrags = 20;
-	public bool focusMaxTime;
-	public bool isReadOnlyMaxTime = false;
-	public int MaxTime = 15;
-	public bool focusGameMode;
-	public string[] GameMode = new string[] {"Zombie Survive","Zombie Team Game","DeathMatch","Team Game",};
-	public int iGameMode = 0;
-	public bool focusMap;
+	private string _Name;
+	internal string Name{ get { if(_Name == null) _Name = PlayerPrefs.GetString("Name", @""); return _Name; } set { PlayerPrefs.SetString("Name", value); _Name = value; } }
+	internal bool focusName;
+	internal bool isReadOnlyName = false;
+	internal bool focusPort;
+	internal bool isReadOnlyPort = false;
+	internal int Port = 5300;
+	internal bool focusMaxPlayers;
+	internal bool isReadOnlyMaxPlayers = false;
+	internal int MaxPlayers = 6;
+	internal bool focusMaxFrags;
+	internal bool isReadOnlyMaxFrags = false;
+	internal int MaxFrags = 20;
+	internal bool focusMaxTime;
+	internal bool isReadOnlyMaxTime = false;
+	internal int MaxTime = 15;
+	internal bool focusGameMode;
+	public string[] GameMode = new string[] {"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ","пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ","пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ","пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ",};
+	internal int iGameMode = 0;
+	internal bool focusMap;
 	public string[] Map = new string[] {"none",};
-	public int iMap = 0;
-	public int tabTabControl15;
-	[FindAsset("Skin/Images/Image3.png")]
+	internal int iMap = 0;
+	internal int tabTabControl15;
+	[FindAsset("Image3")]
 	public Texture2D ImageImage16;
-	public bool focusStartServer;
-	public bool StartServer=false;
+	internal bool focusStartServer;
+	internal bool StartServer=false;
 	private int wndid1;
 	private Vector2 sGameMode;
 	private Vector2 sMap;
@@ -109,7 +110,7 @@ public class HostWindow : WindowBase {
 		GUI.Label(new Rect(126f, 78.667f, 56f, 17f), MaxTime.ToString());
 		} else
 		MaxTime = int.Parse(GUI.TextField(new Rect(126f, 78.667f, 56f, 17f), MaxTime.ToString(),2));
-		GUI.Label(new Rect(180f, 81.667f, 61.5f, 14f), @"минут");
+		GUI.Label(new Rect(180f, 81.667f, 61.5f, 14f), @"minutes");
 		GUI.EndGroup();
 		GUI.Label(new Rect(10.833f, 15f, 155.334f, 14.667f), @"Create Server");
 		GUI.BeginGroup(new Rect(25.5f, 179f, 556.5f, 181.667f), "");
@@ -147,7 +148,7 @@ public class HostWindow : WindowBase {
 		onMouseOver = new Rect(480.5f, 376.667f, 101.5f, 28.333f).Contains(Event.current.mousePosition);
 		if (oldMouseOverStartServer != onMouseOver && onMouseOver) onOver();
 		oldMouseOverStartServer = onMouseOver;
-		if (GUI.Button(new Rect(615f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();ActionAll("onClose"); }
+		if (GUI.Button(new Rect(615f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
 	}
 
 

@@ -1,4 +1,4 @@
-
+﻿
 #pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System;
@@ -12,20 +12,20 @@ public partial class Base2:MonoBehaviour
 
 public class MenuWindow : WindowBase {
 		
-	[FindAsset("Skin/Images/1.png")]
+	[FindAsset("1")]
 	public Texture2D ImageImage2;
-	public bool focusServers;
-	public bool Servers=false;
-	public bool focusIrcChat;
-	public bool IrcChat=false;
-	public bool focusCreate;
-	public bool Create=false;
-	public bool focusSettings;
-	public bool Settings=false;
-	public bool focusAbout;
-	public bool About=false;
-	public bool focusLogOut;
-	public bool LogOut=false;
+	internal bool focusServers;
+	internal bool Servers=false;
+	internal bool focusIrcChat;
+	internal bool IrcChat=false;
+	internal bool focusCreate;
+	internal bool Create=false;
+	internal bool focusSettings;
+	internal bool Settings=false;
+	internal bool focusAbout;
+	internal bool About=false;
+	internal bool focusLogOut;
+	internal bool LogOut=false;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverServers;

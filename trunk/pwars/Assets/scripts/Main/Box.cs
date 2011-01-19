@@ -14,9 +14,10 @@ public class Box : Shared
     {
         base.Init();
         rigidbody.mass = 5;
-
+        
         if (collider.sharedMaterial == null)
-            collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");                        
+            collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");
+        
     }
 #endif
 

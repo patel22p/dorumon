@@ -12,7 +12,7 @@ public class Zombie : Destroible
     public float zombieBite;
     public float speed = .3f;
     public float up = 1f;
-    float seekPath;
+    float seekPathtm;
     public bool move;
     [FindAsset("scream")]
     public AudioClip[] screamSounds;
@@ -34,6 +34,7 @@ public class Zombie : Destroible
     {        
         base.Init();
         seeker = this.GetComponent<Seeker>();
+        
         if (seeker == null) Debug.Log("Could not find seeker");
         velSync = angSync = true;
         posSync = rotSync = true;
@@ -42,12 +43,11 @@ public class Zombie : Destroible
     }
     public override void Awake()
     {
+        seeker.debugPath = _Loader.debugPath;
         base.Awake();        
     }
     protected override void Start()
-    {
-
-        if (!_Loader.disablePathFinding) seeker.enabled = true;
+    {        
         ResetSpawnTm();
         _Game.zombies.Add(this);
         base.Start();
@@ -97,29 +97,28 @@ public class Zombie : Destroible
     }
     public float tiltTm;
     public float spawninTM;
-    
     public new Quaternion rot;
     protected override void Update()
     {
         base.Update();
-
         if(isController)
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
-        if (!Alive || selected == -1 || frozen) return;
-
         zombieBite += Time.deltaTime;
+        if (!Alive || selected == -1 || frozen) return;        
         var ipl = Nearest();
         if (ipl != null)
         {
             Vector3 pathPointDir;
             Vector3 zToPlDir = ipl.transform.position - pos;
+            pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? zToPlDir);
+            Debug.DrawLine(pos, pos + pathPointDir);
+            pathPointDir.y = 0;
+            rot = Quaternion.LookRotation(pathPointDir.normalized);
+
             if (zToPlDir.magnitude > zombieBiteDist)
             {
-                pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetRay(ipl)?? GetPlayerPathPoint(ipl) ?? GetNextPathPoint(ipl) ?? zToPlDir);
-                Debug.DrawLine(pos, pos + pathPointDir);
-                pathPointDir.y = 0;
-                rot = Quaternion.LookRotation(pathPointDir.normalized);
+                
                 move = true;
                 tiltTm += Time.deltaTime;
                 if (tiltTm > spawninTM && isController)
@@ -137,8 +136,8 @@ public class Zombie : Destroible
                 if (zombieBite > 1)
                 {
                     zombieBite = 0;
-                    //PlayRandSound(screamSounds);
-                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - _Game.stage + 1, -1);
+                    PlayRandSound(screamSounds);
+                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - Math.Min(20, _Game.stage + 1), -1);
                 }
             }
         }
@@ -164,19 +163,23 @@ public class Zombie : Destroible
             nearest = players.Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return nearest;
     }
-    
     void FixedUpdate()
     {
-        
-        if (move && Alive && !frozen)
+        if (Alive && !frozen)
         {
-            Vector3 v = rigidbody.velocity;
-            v.x = v.z = 0;
-            rigidbody.velocity = v;
-            rigidbody.angularVelocity = Vector3.zero;
             transform.rotation = rot;
-            var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);
-            pos += t;
+            if (move)
+            {
+                Vector3 v = rigidbody.velocity;
+                v.x = v.z = 0;
+                rigidbody.velocity = v;
+                rigidbody.angularVelocity = Vector3.zero;
+                var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);
+                Ray r = new Ray(pos,t);
+                if (Physics.Raycast(r, .3f, 1 << LayerMask.NameToLayer("Level")))
+                    t.y++;
+                pos += t;                
+            }
         }
     }
     private Vector3? GetPlayerPathPoint(Destroible ipl)
@@ -217,21 +220,26 @@ public class Zombie : Destroible
 
         return null;
     }
-    private Vector3? GetNextPathPoint(Destroible ipl)
+    private Vector3? GetNextPathFindPoint(Destroible ipl)
     {
         if (_Loader.disablePathFinding) return null;
-        if ((seekPath -= Time.deltaTime) < 0)
+        if ((seekPathtm -= Time.deltaTime) < 0)
         {
             seeker.StartPath(this.transform.position, ipl.transform.position);
-            seekPath = UnityEngine.Random.Range(.5f, 1);
+            seekPathtm = UnityEngine.Random.Range(3f, 6);
         }
-
         return FindNextPoint(pathPoints);
         
     }
     void PathComplete(Vector3[] points)
     {
         pathPoints = points;
+    }
+    [RPC]
+    public override void SetFrozen(bool value)
+    {
+        tiltTm = 0;
+        base.SetFrozen(value);
     }
     private void PlayRandom()
     {
@@ -263,10 +271,13 @@ public class Zombie : Destroible
         rot = Quaternion.identity;
         rigidbody.velocity = Vector3.zero;
     }
-
     public void ResetSpawnTm()
     {
         spawninTM = Random.Range(1f, 10f);
+    }
+    protected override void OnCollisionEnter(Collision collisionInfo)
+    {
+        base.OnCollisionEnter(collisionInfo);
     }
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
@@ -277,5 +288,14 @@ public class Zombie : Destroible
             Debug.Log("send zombie rpc die" + np);
             RPCDie(-1);
         }
+    }
+    public override void RPCSetLife(float NwLife, int killedby)
+    {
+        base.RPCSetLife(NwLife, killedby);
+    }
+    [RPC]
+    public override void SetLife(float NwLife, int killedby)
+    {
+        base.SetLife(NwLife, killedby);
     }
 }

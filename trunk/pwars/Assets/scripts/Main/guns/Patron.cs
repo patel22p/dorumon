@@ -49,7 +49,7 @@ public class Patron : Base
             Force.y += Physics.gravity.y * Time.deltaTime;
 
         if (gravitate > 0)
-            Gravitate();
+            GravitateMagnet();
         if (SamoNavod.length > 0)
             foreach (Destroible p in _Game.players.Union(_Game.zombies.Cast<Destroible>()))
                 if (p != null && p.isEnemy(OwnerID))
@@ -63,21 +63,18 @@ public class Patron : Base
             else
                 Destroy(gameObject);
         }
-        
-
-
         Vector3 movementThisStep = transform.position - previousPosition;
         RaycastHit hitInfo;
         Ray ray = new Ray(previousPosition, movementThisStep);
-
-
-        if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, GetMask()))
+        if (Physics.Raycast(ray, out hitInfo, movementThisStep.magnitude + 1, granate ? 1 << LayerMask.NameToLayer("Level") : GetMask()))
         {
             if (DestroyOnHit)
                 ExplodeOnHit(hitInfo);
-
-            transform.position = hitInfo.point + (hitInfo.normal * .2f);
-            Force = Vector3.zero;
+            if (granate)
+            {
+                transform.position = hitInfo.point + (hitInfo.normal * .2f);
+                Force = Vector3.zero;                
+            }
         }
         previousPosition = transform.position;
     }
@@ -87,16 +84,16 @@ public class Patron : Base
         int mask = 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
     }    
-    private void Gravitate()
+    private void GravitateMagnet()
     {
         foreach (Patron p in _Game.patrons)
         {
-            if (p.Force.magnitude != 0 && p != this)
+            if (p.Force.magnitude != 0 && !p.granate && p != this)
                 p.Force += (pos - p.pos).normalized * gravitate * 500 * Time.deltaTime * p.Force.sqrMagnitude / Vector3.Distance(p.pos, pos) / 2000;
         }
 
         foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<Base>().Union(_Game.boxes.Cast<Base>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<Base>()).Union(_Game.zombies.Cast<Base>()))
-            if (b != null && b != this && Vector3.Distance(pos, b.pos) < 10)
+            if (b != null && b != this && Vector3.Distance(pos, b.pos) < radius)
             {
                 if (b is Zombie)
                 {
@@ -119,10 +116,12 @@ public class Patron : Base
         
         if (!explodeOnDestroy)
         {
-            Transform b = t.root;
-            
-            if (b.rigidbody != null)
-                b.rigidbody.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * fdt , hit.point);
+            var  r = t.transform.GetComponentInParrent<Rigidbody>();
+
+            if (r!= null)
+            {
+                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * r.mass * fdt, hit.point);
+            }
         }
 
         if (g.layer == LayerMask.NameToLayer("Level") || g.layer == LayerMask.NameToLayer("Glass"))
@@ -148,7 +147,7 @@ public class Patron : Base
         {
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
         }
-        if (destroible != null && destroible.isController && !destroible.dead)
+        if (destroible != null && destroible.isController && destroible.Alive)
         {
             destroible.RPCSetLife(destroible.Life - damage, OwnerID);
         }

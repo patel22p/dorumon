@@ -7,13 +7,16 @@ using System;
 public enum Team : int { Red, Blue, None }
 interface IAim { void Aim(Player p); }
 [Serializable]
-public class Player : Destroible,IAim 
+public class Player : Destroible, IAim
 {
+    public MapItem mapItem;
+    public float mapItemTm;
+    public float MapItemInterval;
     float shownicktime;
     public List<Vector3> plPathPoints = new List<Vector3>();
     public TextMesh title;
     public float nitro;
-    public new bool dead { get { return !Alive && spawned; } }
+    //public new bool dead { get { return !Alive && spawned; } }
     public new Team team = Team.None;
     public float speed;
     public float score;
@@ -73,6 +76,7 @@ public class Player : Destroible,IAim
         }
         //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
         base.Awake();
+        
     }
     
     protected override void Start()
@@ -163,8 +167,7 @@ public class Player : Destroible,IAim
     }
     protected override void Update()
     {
-        
-
+     
         maxLife = defMaxLife + (lifeUpgrate * 100);        
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
@@ -211,15 +214,17 @@ public class Player : Destroible,IAim
     private void LocalUpdate()
     {
 
-        var m = _Game.mapitems.Where(a => a != null && Vector3.Distance(a.pos, _localPlayer.pos) < a.distance).OrderBy(a => Vector3.Distance(a.pos, _localPlayer.pos)).FirstOrDefault();
-        if (m != null && m.Check())
-            m.TmOn = .5f;
+        UpdateMapItems();
+
         nitro += Time.deltaTime / 5;
         if (lockCursor && Alive)
         {
             bool sh = Input.GetKey(KeyCode.LeftShift);
             if (sh != shift) RPCSetStreff(sh);
-            //NextGun(Input.GetAxis("Mouse ScrollWheel"));
+            //int i = 0;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0) PrevGun() ;
+            if (Input.GetAxis("Mouse ScrollWheel") < 0) NextGun();
+            
             if (_TimerA.TimeElapsed(500))
             {
                 if (Input.GetKey(KeyCode.H) || Input.GetKey(KeyCode.G))
@@ -269,6 +274,27 @@ public class Player : Destroible,IAim
                 RPCSetFanarik(!fanarik.enabled);                
             }
         }
+    }
+
+    private void UpdateMapItems()
+    {
+        var mi = _Game.mapitems.Where(a => Vector3.Distance(a.pos, pos) < 2 && a.enabled).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        if (mi != null)
+        {
+            mapItem = mi;
+            mapItemTm = .5f;
+        }
+        MapItemInterval -= Time.deltaTime;
+        mapItemTm -= Time.deltaTime;
+        if (mapItemTm > 0 && MapItemInterval < 0)
+        {
+            _GameWindow.CenterText.text = mapItem.text + (mapItem.Score > 0 ? (", costs " + mapItem.Score + " Money") : "");
+            if ((Input.GetKeyDown(KeyCode.F) || mapItem.autoTake) && (score >= mapItem.Score - 1 || debug) && mapItem.Check())
+                mapItem.LocalCheckOut();
+        }
+        else
+            _GameWindow.CenterText.text = "";
+
     }
     private void UpdateTitle()
     {
@@ -343,6 +369,8 @@ public class Player : Destroible,IAim
             else
                 laserRender.enabled = false;
         }
+        else
+            laserRender.enabled = false;
     }
     protected virtual void FixedUpdate()
     {
@@ -380,18 +408,45 @@ public class Player : Destroible,IAim
         rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1500) * rigidbody.mass * fdt);
         PlaySound(nitrojumpSound);
     }
-    
-    public void NextGun(float a)
+
+    public void PrevGun()
     {
-        if (a != 0)
+
+        for (int i = selectedgun - 1; i >= 0; i--)
         {
-            if (a > 0)
-                guni++;
-            if (a < 0)
-                guni--;
-            if (guni > guns.Count - 1) guni = 0;
-            if (guni < 0) guni = guns.Count - 1;
-            RPCSelectGun(guni);
+            if (guns[i].patronsLeft > 0 || debug)
+            {
+                RPCSelectGun(i);
+                return;
+            }
+        }
+        for (int i = guns.Count-1; i > 0; i--)
+        {
+            if (guns[i].patronsLeft > 0 || debug)
+            {
+                RPCSelectGun(i);
+                return;
+            }
+        }
+    }
+    public void NextGun()
+    {
+
+        for (int i = selectedgun + 1; i < guns.Count; i++)
+        {
+            if (guns[i].patronsLeft > 0 || debug)
+            {
+                RPCSelectGun(i);
+                return;
+            }
+        }
+        for (int i = 0; i < guns.Count; i++)
+        {
+            if (guns[i].patronsLeft > 0 || debug)
+            {
+                RPCSelectGun(i);
+                return;
+            }
         }
     }
     public void RPCSetTeam(int t) { CallRPC("SetTeam",t); }
@@ -407,7 +462,7 @@ public class Player : Destroible,IAim
     {        
         if (!Alive) return;
         
-        if (isOwner && collisionInfo.relativeVelocity.y > 30)
+        if (isOwner && collisionInfo.relativeVelocity.y >20)
             RPCPowerExp(this.transform.position);
         base.OnCollisionEnter(collisionInfo);
     }
@@ -459,28 +514,27 @@ public class Player : Destroible,IAim
         if (!Alive) return;
         Destroy(Instantiate(detonator, transform.position, Quaternion.identity), .4f);
         deaths++;
-        
         if (killedby == _localPlayer.OwnerID)
         {
             if (OwnerID == _localPlayer.OwnerID)
             {
-                _Game.RPCWriteMessage(_localPlayer.nick + " Killed self ");
+                _Game.WriteMessage(_localPlayer.nick + " Killed self ");
                 _localPlayer.AddFrags(-1, -.5f);
             }
             else if (team != _localPlayer.team || mapSettings.DM)
             {
-                _Game.RPCWriteMessage(_localPlayer.nick + " kill " + nick);
+                _Game.WriteMessage(_localPlayer.nick + " kill " + nick);
                 _localPlayer.AddFrags(+1, 2);
             }
             else
             {
-                _Game.RPCWriteMessage(_localPlayer.nick + " kill " + nick);
+                _Game.WriteMessage(_localPlayer.nick + " kill " + nick);
                 _localPlayer.AddFrags(-1, -1);
             }
         }
         if (killedby == -1)
         {
-            _Game.RPCWriteMessage(nick + " died ");
+            _Game.WriteMessage(nick + " died ");
         }
 
         if (isOwner)

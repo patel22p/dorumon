@@ -76,7 +76,7 @@ public class GameWindow : Base2 {
         if (_localPlayer == null) return;
         if (_TimerA.TimeElapsed(500))
             fps = (int)_TimerA.GetFps();
-        fpstext.text = "Fps: " + fps + " Errors:" + _Console.errorcount;
+        fpstext.text = "Fps: " + fps + " Errors:" + _Console.exceptionCount;
 
         var ts = System.TimeSpan.FromMinutes(_Game.timeleft);
         this.time.text = ts.Minutes + ":" + ts.Seconds;
@@ -104,7 +104,7 @@ public class GameWindow : Base2 {
             
             this.frags.text = "Frags: " + _localPlayer.frags.ToString();
 
-            this.Score.text = "Score: " + ((int)_localPlayer.score).ToString();
+            this.Score.text = "Points: " + ((int)_localPlayer.score) + "$";
         }
 
         foreach (GUITexture a in blood)
@@ -114,7 +114,7 @@ public class GameWindow : Base2 {
     public void Hit(float hit)
     {
         GUITexture g = blood[Random.Range(0, blood.Count- 1)];
-        g.color += new Color(0, 0, 0, Mathf.Min(.7f, hit / uron));
+        g.color += new Color(0, 0, 0, .2f);
     }
 
 }

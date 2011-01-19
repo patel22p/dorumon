@@ -21,10 +21,10 @@ public class MapItem : Base, IAim
     [FindAsset("checkout", overide = true)]
     public AudioClip opendoor;
     public bool payonce;
-    public bool hide;
+    public bool Hide = true;
     public bool lookat;
     public bool autoTake;
-    float scorefactor = .5f;
+    float scorefactor = .1f;
     public Vector3 Jumper = new Vector3(0, 1000, 0);
     public Vector2 Speed;
     public float distance = 10;
@@ -38,9 +38,7 @@ public class MapItem : Base, IAim
     public bool isCheckOutCalled;
     public int bullets = 1000;
     public string text = "";
-    public float TmOn;
-    public int respawnTm;
-    public float tmCheckOut;
+    public int RespawnTm = 1;    
     [FindAsset("Player")]
     public GameObject playerPrefab;
     [FindAsset("superphys_launch3")]
@@ -74,13 +72,7 @@ public class MapItem : Base, IAim
             //foreach (AnimationState b in a)
             //    b.wrapMode = WrapMode.Loop;            
         }
-        if (itemType == MapItemType.trap)
-        {
-            lookat = true;
-            bullets = 1000;
-            endless = true;
-            score = 20;
-        }
+      
         if (itemType == MapItemType.shop)
         {
             var gun = playerPrefab.GetComponent<Player>().guns[guni];
@@ -92,16 +84,11 @@ public class MapItem : Base, IAim
             }
             if (gun is Gun)
             {
-                bullets = (int)(20 / ((Gun)gun).interval);
+                //bullets = (int)(20 / ((Gun)gun).interval);
             }
             text = "Press F to buy " + gunType;
-            endless = !autoTake;
-            hide = autoTake;
-            
-        }
-
-        if (itemType == MapItemType.shop)
-        {
+            endless = true;
+            Hide = true;
             distance = 3;
             switch (gunType.Parse<GunType>())
             {
@@ -131,7 +118,7 @@ public class MapItem : Base, IAim
                     score = 110;
                     break;
                 case GunType.shotgun:
-                    score = 60;
+                    score = 30;
                     break;
                 case GunType.staticField:
                     score = 100;
@@ -143,13 +130,13 @@ public class MapItem : Base, IAim
                     score = 100;
                     break;
             }
-
         }
+
         if (itemType == MapItemType.timewarp)
         {
             text = "Time Warp, Press T to use";
             endless = true;
-            hide = true;
+            Hide = true;
             score = 70;
         }
         if (itemType == MapItemType.spotlight)
@@ -201,16 +188,20 @@ public class MapItem : Base, IAim
 
         if (itemType == MapItemType.trap)
         {
+            lookat = true;
+            bullets = 1000;
+            endless = true;
+            score = 20;
+            Hide = false;
             text = "Trap";
         }
         if (itemType == MapItemType.lift)
         {
+            Hide = false;
             text = "elevator";
             payonce = true;
             distance = 0;
         }
-
-
         if (itemType == MapItemType.teleport)
         {
             opendoor = Base2.FindAsset<AudioClip>("teleport");
@@ -236,8 +227,8 @@ public class MapItem : Base, IAim
 
         if (itemType == MapItemType.money)
         {
-            hide = true;
-            respawnTm = 30000;
+            Hide = true;
+            RespawnTm = 30000;
             distance = 1;
             if (Score == 0) score = -20;
             text = "Take money";
@@ -266,7 +257,7 @@ public class MapItem : Base, IAim
     }
 #endif
     public override void Awake()
-    {
+    {        
         _Game.mapitems.Add(this);
         foreach (var a in gameObject.GetComponentsInChildren<Animation>())
             a.wrapMode = WrapMode.Once;
@@ -288,7 +279,8 @@ public class MapItem : Base, IAim
     {        
         if (lookat && Check() && p.isOwner)
         {
-            TmOn = .5f;
+            p.mapItemTm = .5f;
+            p.mapItem = this;
         }
     }
     public bool Check()
@@ -303,31 +295,13 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.lifeupgrate && _localPlayer.lifeUpgrate >= 6) return false;
         if (itemType == MapItemType.speedupgrate && _localPlayer.speedUpgrate >= 3) return false;
         if (!endless && itemsLeft <= 0) return false;
-        if (tmCheckOut >= 0) return false;
+        if (_localPlayer.MapItemInterval >= 0) return false;
         if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false;
         return true;
     }
     void Update()
     {
-        tmCheckOut -= Time.deltaTime;
-        if (TmOn > 0)
-            TmOn -= Time.deltaTime;                
-
-        if (TmOn > 0)
-        {
-            if ((Input.GetKeyDown(KeyCode.F) || autoTake) && (_localPlayer.score >= Score || debug) && Check())
-            {                
-                _GameWindow.CenterText.text = "";
-                LocalCheckOut();
-            }
-            if (text != "")
-                _GameWindow.CenterText.text = text + (Score > 0 ? (", costs " + Score + " Money") : "");
-        }
-        else if (TmOn < 0)
-        {
-            _GameWindow.CenterText.text = "";
-            TmOn = 0;
-        }
+                                        
     }
     bool isbought { get { return Score == 0; } }
 
@@ -364,7 +338,10 @@ public class MapItem : Base, IAim
         }
 
         if (c.gameObject == _localPlayer.gameObject && Check())
-            TmOn = .5f;
+        {
+            _localPlayer.mapItem = this;
+            _localPlayer.mapItemTm = .5f;
+        }
     }
     public void LocalCheckOut()
     {
@@ -386,7 +363,7 @@ public class MapItem : Base, IAim
                 Destroy(g, 1.6f);
             }
 
-            tmCheckOut = 4;
+            _localPlayer.MapItemInterval = 1;
             _localPlayer.score -= Score;
 
             if (itemType == MapItemType.shop)
@@ -444,10 +421,10 @@ public class MapItem : Base, IAim
         if (opendoor != null)
             audio.PlayOneShot(opendoor, 10);
 
-        if (hide && itemsLeft <= 0)
+        if (Hide && itemsLeft <= 0)
         {
             this.Show(false);
-            if (respawnTm > 0) _TimerA.AddMethod(respawnTm, delegate { this.Show(true); itemsLeft = 1; });
+            if (RespawnTm > 0) _TimerA.AddMethod(RespawnTm * 1000, delegate { this.Show(true); itemsLeft = 1; });
         }
 
     }

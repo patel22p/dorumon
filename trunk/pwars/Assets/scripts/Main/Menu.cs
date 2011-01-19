@@ -11,7 +11,7 @@ using System.Threading;
 
 //[assembly: AssemblyVersion("1.0.*")] // C:\Documents and Settings\<USERNAME>\Local Settings\temp\UnityWebPlayer\log
 
-public class Menu : Base
+public class Menu : Base,IWindow
 {
     public string gameVersionName = "Swiborg2";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
@@ -33,8 +33,10 @@ public class Menu : Base
             onLogin();
         else
             _LoginWindow.Show(this);
-
         onRefresh();
+    }
+    public void Action(string s, params object[] param)
+    {
 
     }
 

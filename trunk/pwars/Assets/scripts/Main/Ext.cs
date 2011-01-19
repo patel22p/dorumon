@@ -116,10 +116,10 @@ public class MapSetting
     public int fragLimit = 20;
     public string[] ipaddress;
     public int port = 5300;
-
     public bool host;
     public int maxPlayers = 4;
     public float timeLimit = 15;
+    public int stage;
     public bool TeamZombiSurvive { get { return gameMode == GameMode.TeamZombieSurvive; } }
     public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
     public bool DM { get { return gameMode == GameMode.DeathMatch; } }

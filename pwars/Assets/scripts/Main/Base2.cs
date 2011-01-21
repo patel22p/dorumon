@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 using doru;
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
 
 
 public partial class Base2 : MonoBehaviour
@@ -22,6 +24,7 @@ public partial class Base2 : MonoBehaviour
     //        sb.Append(" " + o + ",");
     //    MonoBehaviour.print(sb.ToString());
     //}
+    
     public static string pr
     {
         get
@@ -32,12 +35,30 @@ public partial class Base2 : MonoBehaviour
             return sb.ToString();
         }
     }
-    public static string nick { get { return _Loader.LocalUserV.nick; } set { _Loader.LocalUserV.nick = value; } }
+    public static string nick { get { return _Loader.userView.nick; } set { _Loader.userView.nick = value; } }
     //public static Cam _Cam; 
     public static T TakeRandom<T>(IList<T> t)
     {
         return t[UnityEngine.Random.Range(0, t.Count-1)];
     }
+    public static object Deserialize(byte[] s,XmlSerializer xml)
+    {
+        using (MemoryStream ms = new MemoryStream(s))
+        using (StreamReader sr = new StreamReader(ms, Encoding.UTF8))
+        {            
+            return xml.Deserialize(sr);
+        }
+    }
+    public static byte[] Serialize(object t, XmlSerializer xml)
+    {
+        using (MemoryStream ms = new MemoryStream())
+        using (StreamWriter sw = new StreamWriter(ms, Encoding.UTF8))
+        {
+            xml.Serialize(sw, t);
+            return ms.ToArray();
+        }
+    }
+
     static GameWindow __GameWindow;
     public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
     static Irc __Irc;
@@ -46,8 +67,18 @@ public partial class Base2 : MonoBehaviour
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
     public static Cam _Cam { get { if (__Cam == null) __Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return __Cam; } }
-    public static Loader __Loader;
-    public static Loader _Loader { get { if (__Loader == null) __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).First(); __Loader.Awake(); return __Loader; } }
+    static Loader __Loader;
+    public static Loader _Loader
+    {
+        get
+        {
+            if (__Loader == null)
+                __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault(); 
+            if(__Loader==null)
+                __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
+            return __Loader;
+        }
+    }
     static Menu __Menu;
     public static Menu _Menu { get { if (__Menu == null) __Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return __Menu; } }
     static Music __Music;
@@ -162,6 +193,7 @@ public partial class Base2 : MonoBehaviour
     public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
     public static Object FindAsset(string name, Type t)
     {
+        
         var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)
             .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, t))
             .Where(a => a != null).FirstOrDefault();

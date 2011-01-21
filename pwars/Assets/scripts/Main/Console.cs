@@ -46,8 +46,7 @@ public class Console : Base
     void Window(int id)
     {        
         //GUI.Box(r, "");                
-        GUILayout.Label("Warning Count:" + errorcount);
-        GUILayout.Label("Error Count:" + exceptionCount);
+        GUILayout.Label("Version " + _Loader.version + " Warning Count:" + errorcount + " Error Count:" + exceptionCount);        
         GUI.TextField(new Rect(0, 50, r.width, r.height - 50), log.ToString(), GUI.skin.customStyles[8]);
         GUI.BringWindowToFront(-1);
         GUI.FocusWindow(-1);

@@ -16,13 +16,12 @@ public class Player : Destroible, IAim
     public List<Vector3> plPathPoints = new List<Vector3>();
     public TextMesh title;
     public float nitro;
-    //public new bool dead { get { return !Alive && spawned; } }
     public new Team team = Team.None;
     public float speed;
-    public float score;
-    public float defscore;
+    public float Score = 1;    
     public bool haveLight;
     public bool haveTimeBomb;
+    internal UserView user = new UserView(); 
     public int speedUpgrate;
     public int lifeUpgrate;
     public bool haveAntiGravitation;    
@@ -30,7 +29,7 @@ public class Player : Destroible, IAim
     public int fps;
     public int ping;
     public int deaths;
-    new public string nick;
+    new public string nick { get { return user.nick; } }
     public bool spawned;
     public int frags;
     public float defMaxLife;
@@ -59,39 +58,45 @@ public class Player : Destroible, IAim
     {
         isGrounded = 0;
     }
+    public void RPCSetUserView(byte[] s) { CallRPC("SetUserView",s); }
+    [RPC]
+    public void SetUserView(byte[] data)
+    {
+        Debug.Log(data.Length + name);
+        user = (UserView)Deserialize(data, UserView.xml);
+    }
     public override void Awake()
     {
-        if (this.networkView.isMine)
-            _localPlayer = this;
+        CanFreeze = mapSettings.freezeOnBite;
         AliveMaterial = model.renderer.sharedMaterial;        
         Debug.Log("player awake");
         defmass = rigidbody.mass;
         defMaxLife = maxLife;
+        Score = _Loader.mapSettings.StartMoney + _Game.stage * 10 * _Game.scorefactor.Evaluate(_Game.stage);
         this.rigidbody.maxAngularVelocity = 3000;
         if (networkView.isMine)
         {
-            RPCSetOwner();
-            RPCSetUserInfo(LocalUserV.nick);
-            RPCSpawn();
+            _localPlayer = this;
+            var s = Serialize(_Loader.userView, UserView.xml);            
+            RPCSetUserView(s);
+            RPCSetOwner();            
+            ResetSpawn();
         }
         //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
         base.Awake();
-        
     }
-    
     protected override void Start()
     {
         base.Start();
     }
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
-        base.OnPlayerConnectedBase(np);        
-        RPCSetUserInfo(nick);
-        RPCSetFrags(frags, score);
-        RPCSetDeaths(deaths);
-        RPCSetTeam((int)team);
-        RPCSpawn();        
+        base.OnPlayerConnectedBase(np);
+        RPCSetUserView(Serialize(user,UserView.xml));
+        RPCSetTeam((int)team);           
         RPCSetAlive( Alive);
+        RPCSetFrags(frags, Score);
+        RPCSetDeaths(deaths);
         RPCSetFanarik(fanarik.enabled);
         RPCSelectGun( selectedgun);
         RPCSetLifeUpgrate(lifeUpgrate);
@@ -109,24 +114,13 @@ public class Player : Destroible, IAim
         _Game.players[OwnerID] = this;
         base.OnSetOwner();
     }
-    public void RPCSpawn() { CallRPC("Spawn"); }
-    [RPC]
-    public void Spawn()
-    {        
-        print(pr + "+" + OwnerID);        
-        if (isOwner)
-        {
-            RPCSetTeam((int)team);
-            RPCSetAlive(Alive);
-            RPCSetFrags(frags, defscore);
-            ResetSpawn();
-        }        
-    }
     public override void ResetSpawn()
     {
         Debug.Log(name + "Reset Spawn");
         base.ResetSpawn();
-        transform.position = GameObject.FindGameObjectWithTag("Spawn" + team.ToString()).transform.position;
+        Debug.Log((team + "spawn"));
+        RPCSetAlive(false);
+        transform.position = _Game.spawns.Where(a => a.SpawnType.ToLower() == (team + "spawn").ToLower()).Random().transform.position;
         transform.rotation = Quaternion.identity;
     }
     public void LocalSelectGun(int id)
@@ -183,7 +177,7 @@ public class Player : Destroible, IAim
             if (plPathPoints.Count == 0 || Vector3.Distance(pos, plPathPoints.Last()) > 1)
             {
                 plPathPoints.Add(pos);
-                if (plPathPoints.Count > 10) plPathPoints.RemoveAt(0);
+                if (plPathPoints.Count > 20) plPathPoints.RemoveAt(0);
             }
         }
         
@@ -221,34 +215,25 @@ public class Player : Destroible, IAim
         {
             bool sh = Input.GetKey(KeyCode.LeftShift);
             if (sh != shift) RPCSetStreff(sh);
-            //int i = 0;
-            if (Input.GetAxis("Mouse ScrollWheel") > 0) PrevGun() ;
+            if (Input.GetAxis("Mouse ScrollWheel") > 0) PrevGun();
             if (Input.GetAxis("Mouse ScrollWheel") < 0) NextGun();
-            
-            if (_TimerA.TimeElapsed(500))
-            {
-                if (Input.GetKey(KeyCode.H) || Input.GetKey(KeyCode.G))
-                    foreach (var a in players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10))
+
+            if (_TimerA.TimeElapsed(500) && Input.GetKey(KeyCode.H))
+                foreach (var a in Nearest())
+                    if (Input.GetKey(KeyCode.H) && a.Life < a.maxLife)
+                        a.RPCHeal(20);
+
+            foreach (var a in Nearest())
+                if (Input.GetKeyDown(KeyCode.G) && a is Player)
+                {
+                    var p = ((Player)a);
+                    if (Score >= 1)
                     {
-                        if (Input.GetKey(KeyCode.H) && a.Life < a.maxLife)
-                        {
-                            a.RPCHeal(20);
-                        }
-                        if (Input.GetKey(KeyCode.G) && a is Player)
-                        {
-                            var p = ((Player)a);
-                            if (score > 10)
-                            {
-                                p.RPCGiveMoney(10);
-                                score -= 10;
-                            }
-                        }
+                        p.RPCGiveMoney(1);
+                        Score -= 1;
                     }
-            }
-
+                }
             SelectGun();
-            
-
             if (Input.GetKeyDown(KeyCode.Y) && (haveAntiGravitation || debug))
             {
                 haveAntiGravitation = false;
@@ -276,9 +261,14 @@ public class Player : Destroible, IAim
         }
     }
 
+    private IEnumerable<Destroible> Nearest()
+    {
+        return players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10);
+    }
+
     private void UpdateMapItems()
     {
-        var mi = _Game.mapitems.Where(a => Vector3.Distance(a.pos, pos) < 2 && a.enabled).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        var mi = _Game.mapitems.Where(a => Vector3.Distance(a.pos, pos) < a.Distance && a.enabled).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         if (mi != null)
         {
             mapItem = mi;
@@ -289,7 +279,7 @@ public class Player : Destroible, IAim
         if (mapItemTm > 0 && MapItemInterval < 0)
         {
             _GameWindow.CenterText.text = mapItem.text + (mapItem.Score > 0 ? (", costs " + mapItem.Score + " Money") : "");
-            if ((Input.GetKeyDown(KeyCode.F) || mapItem.autoTake) && (score >= mapItem.Score - 1 || debug) && mapItem.Check())
+            if ((Input.GetKeyDown(KeyCode.F) || mapItem.autoTake) && (Score >= mapItem.Score - 1 || debug) && mapItem.Check())
                 mapItem.LocalCheckOut();
         }
         else
@@ -405,7 +395,7 @@ public class Player : Destroible, IAim
     public void Jump()
     {
         transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 1, 0));
-        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1500) * rigidbody.mass * fdt);
+        rigidbody.AddForce(_Cam.transform.rotation * new Vector3(0, 0, 1000) * rigidbody.mass * fdt);
         PlaySound(nitrojumpSound);
     }
 
@@ -499,13 +489,7 @@ public class Player : Destroible, IAim
         
         Destroy(g, 1.6f);
     }
-    
-    public void RPCSetUserInfo(string nick) { CallRPC("SetUserInfo", nick); }
-    [RPC]
-    public void SetUserInfo(string nick)
-    {        
-        this.nick = nick;
-    }
+        
     [FindAsset("Detonator-Base")]
     public GameObject detonator;
     [RPC]
@@ -540,7 +524,7 @@ public class Player : Destroible, IAim
         if (isOwner)
         {
             if (!mapSettings.zombi) _TimerA.AddMethod(10000, delegate { RPCSetAlive(true); });
-            RPCSetAlive(false);
+            ResetSpawn();
         }
     }
     public Material AliveMaterial;
@@ -549,7 +533,7 @@ public class Player : Destroible, IAim
     [RPC]
     public void SetAlive(bool value)
     {
-        Debug.Log(name + " Alive " + value);
+        Debug.Log(name + " Alive " + value);        
         _TimerA.AddMethod(delegate
         {
             foreach (var t in GetComponentsInChildren<Transform>())
@@ -559,6 +543,7 @@ public class Player : Destroible, IAim
                     t.gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
         });
         Alive = value;
+        
         RPCSetFanarik(false);
         if(value)
             spawned = true;
@@ -601,9 +586,9 @@ public class Player : Destroible, IAim
                 _Cam.ScoreText.animation.Play();
             }
             frags += i;
-            score += sc;
+            Score += sc;
         }
-        RPCSetFrags(frags, score);
+        RPCSetFrags(frags, Score);
     }
     [FindAsset("toasty")]
     public AudioClip[] multikillSounds;
@@ -612,7 +597,7 @@ public class Player : Destroible, IAim
     public void SetFrags(int i, float sc)
     {        
         frags = i;
-        score = sc;
+        Score = sc;
     }
     public void RPCSetSpeedUpgrate(int value) { CallRPC("SetSpeedUpgrate", value); }
     [RPC]
@@ -633,7 +618,7 @@ public class Player : Destroible, IAim
     {
         PlaySound(givemoney);
         if (isOwner)
-            RPCSetFrags(frags, score + 10);
+            RPCSetFrags(frags, Score + money);
     }
 
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)

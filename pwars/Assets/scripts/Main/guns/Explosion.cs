@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Explosion : Base
 {
+
     public Shared self;
     public AnimationCurve damage;
     public float exp = 500;
@@ -18,7 +19,7 @@ public class Explosion : Base
             {
                 if (ip.isOwner)
                     _Cam.exp = 1;
-                ip.RPCSetLife(ip.Life - damage.Evaluate(dist), OwnerID);
+                ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * mapSettings.damageFactor, OwnerID);
             }
         }
         //_TimerA.AddMethod(delegate

@@ -12,27 +12,36 @@ public partial class Base2:MonoBehaviour
 
 public class LoginWindow : WindowBase {
 		
-	private string _Nick;
-	internal string Nick{ get { if(_Nick == null) _Nick = PlayerPrefs.GetString("Nick", @""); return _Nick; } set { PlayerPrefs.SetString("Nick", value); _Nick = value; } }
+	internal string Nick{ get { return PlayerPrefs.GetString("Nick", @""); } set { PlayerPrefs.SetString("Nick", value); } }
 	internal int tabTabControl4;
+	internal bool vEnterAsGuest = true;
 	internal bool focusEnterAsGuest;
 	internal bool EnterAsGuest=false;
+	internal bool vNick = true;
 	internal bool focusNick;
 	internal bool isReadOnlyNick = false;
-	internal bool focusAddress;
-	internal bool isReadOnlyAddress = false;
-	internal string Address = @"";
-	internal bool Button9=false;
-	internal bool Button10=false;
+	internal bool vLogin = true;
+	internal bool focusLogin;
+	internal bool Login=false;
+	public Texture ImageImage8;
+	internal bool vPrev = true;
+	internal bool focusPrev;
+	internal bool Prev=false;
+	internal bool vNext = true;
+	internal bool focusNext;
+	internal bool Next=false;
 	private int wndid1;
 	private bool oldMouseOverEnterAsGuest;
-	private bool oldMouseOverButton9;
-	private bool oldMouseOverButton10;
+	private bool oldMouseOverLogin;
+	private Rect Image8;
+	private bool oldMouseOverPrev;
+	private bool oldMouseOverNext;
 	
     
     
 	void Start () {
 		wndid1 = UnityEngine.Random.Range(0, 1000);
+		Image8 = new Rect(-2f, 1.333f, 195f, 171.868f);
 
 	}    
     
@@ -56,62 +65,75 @@ public class LoginWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(19f, 21f, 574f, 88f), "");
 		GUI.Box(new Rect(0, 0, 574f, 88f), "");
-		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"������ ��� ������� � �������� ���� ���� � ������ ������, ���������� ��������� ���� (����������� � �������).");
+		GUI.Label(new Rect(25f, 22f, 524f, 43f), @"Before I get to the main menu of the game and start playing, you need to login (authentication system).");
 		GUI.EndGroup();
-		GUI.BeginGroup(new Rect(19f, 130f, 562f, 199f), "");
-		GUI.Box(new Rect(0, 0, 562f, 199f), "");
-		GUILayout.BeginArea(new Rect(0f, 0, 562, 18));
-		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Join as Guest","Vkontakte Join", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
+		GUI.BeginGroup(new Rect(19f, 130f, 375f, 199f), "");
+		GUI.Box(new Rect(0, 0, 375f, 199f), "");
+		GUILayout.BeginArea(new Rect(0f, 0, 375, 18));
+		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Login as Guest", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
 		GUILayout.EndArea();
-		GUI.BeginGroup(new Rect(0, 18, 562, 181), "");
-		GUI.Box(new Rect(0, 0, 562, 181), "");
+		GUI.BeginGroup(new Rect(0, 18, 375, 181), "");
+		GUI.Box(new Rect(0, 0, 375, 181), "");
 		if(tabTabControl4==0){
-		GUI.Label(new Rect(21f, 21.04f, 513f, 76f), @"��������: ���� � ������ ""�����"" ������ ��� ������ ������������ ����,����� ��� ������� � �������� ������� � ��������� ������.
+		GUI.Label(new Rect(21f, 21.04f, 327f, 112f), @"Please note: entrance in the ""Visitor "" leaves you many opportunities to play, such as participation in reytenge players and getting degrees.
 
-��� ����� ������� ���� ���(���) � ��������� ������ ""���"" � ������� ������ ""����"".");
-		GUI.Label(new Rect(60f, 114.04f, 33f, 19f), @"Name");
+To login, enter your name (nickname) in the text string ""Name"" and click ""Login"".");
+		GUI.Label(new Rect(17f, 137.04f, 47f, 19f), @"Name");
+		if(vEnterAsGuest){
 		if(focusEnterAsGuest) { focusEnterAsGuest = false; GUI.FocusControl("EnterAsGuest");}
 		GUI.SetNextControlName("EnterAsGuest");
 		bool oldEnterAsGuest = EnterAsGuest;
 		EnterAsGuest = GUI.Button(new Rect(376f, 114.04f, 107f, 19f), new GUIContent("Login",""));
-		if (EnterAsGuest != oldEnterAsGuest && EnterAsGuest ) {Action("onEnterAsGuest");onButtonClick(); }
+		if (EnterAsGuest != oldEnterAsGuest && EnterAsGuest ) {Action("EnterAsGuest");onButtonClick(); }
 		onMouseOver = new Rect(376f, 114.04f, 107f, 19f).Contains(Event.current.mousePosition);
 		if (oldMouseOverEnterAsGuest != onMouseOver && onMouseOver) onOver();
 		oldMouseOverEnterAsGuest = onMouseOver;
+		}
+		if(vNick){
 		if(focusNick) { focusNick = false; GUI.FocusControl("Nick");}
 		GUI.SetNextControlName("Nick");
 		if(isReadOnlyNick){
-		GUI.Label(new Rect(97f, 114.04f, 260f, 19f), Nick.ToString());
+		GUI.Label(new Rect(68f, 137.04f, 189.333f, 19f), Nick.ToString());
 		} else
-		Nick = GUI.TextField(new Rect(97f, 114.04f, 260f, 19f), Nick,10);
+		Nick = GUI.TextField(new Rect(68f, 137.04f, 189.333f, 19f), Nick,10);
 		}
-		if(tabTabControl4==1){
-		GUI.Label(new Rect(58f, 113f, 59f, 19f), @"�����:");
-		if(focusAddress) { focusAddress = false; GUI.FocusControl("Address");}
-		GUI.SetNextControlName("Address");
-		if(isReadOnlyAddress){
-		GUI.Label(new Rect(112f, 109.04f, 344f, 17.96f), Address.ToString());
-		} else
-		Address = GUI.TextField(new Rect(112f, 109.04f, 344f, 17.96f), Address);
-		GUI.Label(new Rect(28f, 19f, 517f, 85f), @"1. ������� �� ������: 
-
-2. ���������� ��� �� �������� ������ ������������ ���� ""Login sucess""
-
-3. �������� ������������� ����� ���� � ������ ""�����"" � ������� ������ ""����"".");
-		bool oldButton9 = Button9;
-		Button9 = GUI.Button(new Rect(189f, 17f, 101f, 18f), new GUIContent("Authorization",""));
-		if (Button9 != oldButton9 && Button9 ) {Action("onButton9");onButtonClick(); }
-		onMouseOver = new Rect(189f, 17f, 101f, 18f).Contains(Event.current.mousePosition);
-		if (oldMouseOverButton9 != onMouseOver && onMouseOver) onOver();
-		oldMouseOverButton9 = onMouseOver;
-		bool oldButton10 = Button10;
-		Button10 = GUI.Button(new Rect(464f, 110f, 44f, 18f), new GUIContent("Login",""));
-		if (Button10 != oldButton10 && Button10 ) {Action("onButton10");onButtonClick(); }
-		onMouseOver = new Rect(464f, 110f, 44f, 18f).Contains(Event.current.mousePosition);
-		if (oldMouseOverButton10 != onMouseOver && onMouseOver) onOver();
-		oldMouseOverButton10 = onMouseOver;
+		if(vLogin){
+		if(focusLogin) { focusLogin = false; GUI.FocusControl("Login");}
+		GUI.SetNextControlName("Login");
+		bool oldLogin = Login;
+		Login = GUI.Button(new Rect(261.333f, 137.04f, 79.667f, 19f), new GUIContent("Login",""));
+		if (Login != oldLogin && Login ) {Action("Login");onButtonClick(); }
+		onMouseOver = new Rect(261.333f, 137.04f, 79.667f, 19f).Contains(Event.current.mousePosition);
+		if (oldMouseOverLogin != onMouseOver && onMouseOver) onOver();
+		oldMouseOverLogin = onMouseOver;
+		}
 		}
 		GUI.EndGroup();
+		GUI.EndGroup();
+		GUI.BeginGroup(new Rect(400f, 127f, 193f, 202f), "");
+		GUI.Box(new Rect(0, 0, 193f, 202f), "");
+		if(ImageImage8!=null)
+			GUI.DrawTexture(Image8,ImageImage8, ScaleMode.ScaleToFit);
+		if(vPrev){
+		if(focusPrev) { focusPrev = false; GUI.FocusControl("Prev");}
+		GUI.SetNextControlName("Prev");
+		bool oldPrev = Prev;
+		Prev = GUI.Button(new Rect(-2f, 176.917f, 68f, 25.083f), new GUIContent("Prev",""));
+		if (Prev != oldPrev && Prev ) {Action("Prev");onButtonClick(); }
+		onMouseOver = new Rect(-2f, 176.917f, 68f, 25.083f).Contains(Event.current.mousePosition);
+		if (oldMouseOverPrev != onMouseOver && onMouseOver) onOver();
+		oldMouseOverPrev = onMouseOver;
+		}
+		if(vNext){
+		if(focusNext) { focusNext = false; GUI.FocusControl("Next");}
+		GUI.SetNextControlName("Next");
+		bool oldNext = Next;
+		Next = GUI.Button(new Rect(125f, 176.917f, 68f, 25.083f), new GUIContent("Next",""));
+		if (Next != oldNext && Next ) {Action("Next");onButtonClick(); }
+		onMouseOver = new Rect(125f, 176.917f, 68f, 25.083f).Contains(Event.current.mousePosition);
+		if (oldMouseOverNext != onMouseOver && onMouseOver) onOver();
+		oldMouseOverNext = onMouseOver;
+		}
 		GUI.EndGroup();
 	}
 

@@ -98,7 +98,7 @@ public class Patron : Base
                 if (b is Zombie)
                 {
                     var z = ((Zombie)b);    
-                    z.ResetSpawnTm();
+                    z.ResetSpawnTm();                    
                     z.RPCSetFrozen(true);
                 }
                 b.rigidbody.AddExplosionForce(-gravitate * 300 * b.rigidbody.mass * fdt, transform.position, 15);
@@ -112,7 +112,7 @@ public class Patron : Base
         var t = hit.collider.transform;
 
         transform.position = hit.point + transform.rotation * Vector3.forward;
-        bool glass =g.name.Contains("glass");
+        bool glass = g.tag == "glass";
         
         if (!explodeOnDestroy)
         {
@@ -149,7 +149,7 @@ public class Patron : Base
         }
         if (destroible != null && destroible.isController && destroible.Alive)
         {
-            destroible.RPCSetLife(destroible.Life - damage, OwnerID);
+            destroible.RPCSetLife(destroible.Life - damage * mapSettings.damageFactor, OwnerID);
         }
         
         bool staticfield = g.name.ToLower().StartsWith("staticfield");

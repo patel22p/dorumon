@@ -12,26 +12,39 @@ public partial class Base2:MonoBehaviour
 
 public class TeamSelectWindow : WindowBase {
 		
+	internal bool vTeamsView = true;
 	internal bool focusTeamsView;
-	internal bool enabledTeamsView = true;
+	internal bool vTeams = true;
 	internal bool focusTeams;
 	public string[] Teams = new string[] {"Red Team","Blue Team",};
 	internal int iTeams = 0;
+	internal bool vImages = true;
 	internal bool focusImages;
-	internal int tabImages;
+	internal bool vred = true;
 	internal bool focusRed;
 	[FindAsset("Image2")]
-	public Texture2D ImageRed;
+	public Texture ImageRed;
+	internal bool vblue = true;
 	internal bool focusBlue;
 	[FindAsset("Image1")]
-	public Texture2D ImageBlue;
+	public Texture ImageBlue;
+	internal bool vTeamSelect = true;
 	internal bool focusTeamSelect;
 	internal bool TeamSelect=false;
+	internal bool vfraglimit = true;
 	internal bool focusFraglimit;
 	internal bool isReadOnlyFraglimit = true;
 	internal int Fraglimit = 0;
+	internal bool vGameType = true;
 	internal bool focusGameType;
-	internal int tabGameType;
+	internal bool vZombi = false;
+	internal bool focusZombi;
+	internal bool vZombiTeam = false;
+	internal bool focusZombiTeam;
+	internal bool vDeathmatch = false;
+	internal bool focusDeathmatch;
+	internal bool vTeamDeathMatch = false;
+	internal bool focusTeamDeathMatch;
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
@@ -68,76 +81,108 @@ public class TeamSelectWindow : WindowBase {
 		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Game Menu");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");
 		GUI.Box(new Rect(0, 0, 596f, 297f), "");
+		if(vTeamsView){
 		if(focusTeamsView) { focusTeamsView = false; GUI.FocusControl("TeamsView");}
 		GUI.SetNextControlName("TeamsView");
-		if(enabledTeamsView){
 		GUI.BeginGroup(new Rect(34f, 19f, 317f, 109f), "");
 		GUI.Box(new Rect(0, 0, 317f, 109f), "");
+		if(vTeams){
 		if(focusTeams) { focusTeams = false; GUI.FocusControl("Teams");}
 		GUI.SetNextControlName("Teams");
 		GUI.Box(new Rect(11f, 20f, 298f, 87f), "");
 		sTeams = GUI.BeginScrollView(new Rect(11f, 20f, 298f, 87f), sTeams, new Rect(0,0, 278f, Teams.Length* 28.9599990844727f));
 		int oldTeams = iTeams;
 		iTeams = GUI.SelectionGrid(new Rect(0,0, 278f, Teams.Length* 28.9599990844727f), iTeams, Teams,1,GUI.skin.customStyles[0]);
-		if (iTeams != oldTeams) Action("onTeams",Teams[iTeams]);
+		if (iTeams != oldTeams) Action("Teams",Teams[iTeams]);
 		GUI.EndScrollView();
+		}
 		GUI.EndGroup();
 		}
+		if(vImages){
 		if(focusImages) { focusImages = false; GUI.FocusControl("Images");}
 		GUI.SetNextControlName("Images");
 		GUI.BeginGroup(new Rect(358f, 20f, 211f, 195f), "");
 		GUI.Box(new Rect(0, 0, 211f, 195f), "");
-		if(tabImages==0){
+		if(vred){
 		if(focusRed) { focusRed = false; GUI.FocusControl("Red");}
 		GUI.SetNextControlName("Red");
-		GUI.DrawTexture(Red,ImageRed, ScaleMode.ScaleToFit);
+		if(ImageRed!=null)
+			GUI.DrawTexture(Red,ImageRed, ScaleMode.ScaleToFit);
 		}
-		if(tabImages==1){
+		if(vblue){
 		if(focusBlue) { focusBlue = false; GUI.FocusControl("Blue");}
 		GUI.SetNextControlName("Blue");
-		GUI.DrawTexture(Blue,ImageBlue, ScaleMode.ScaleToFit);
+		if(ImageBlue!=null)
+			GUI.DrawTexture(Blue,ImageBlue, ScaleMode.ScaleToFit);
 		}
 		GUI.EndGroup();
+		}
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(28f, 263f, 542f, 40f), "");
 		GUI.Box(new Rect(0, 0, 542f, 40f), "");
+		if(vTeamSelect){
 		if(focusTeamSelect) { focusTeamSelect = false; GUI.FocusControl("TeamSelect");}
 		GUI.SetNextControlName("TeamSelect");
 		bool oldTeamSelect = TeamSelect;
 		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Start",""));
-		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("onTeamSelect");onButtonClick(); }
+		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("TeamSelect");onButtonClick(); }
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();
 		oldMouseOverTeamSelect = onMouseOver;
+		}
 		GUI.Label(new Rect(113f, 13.95f, 96f, 21.96f), @"Frag Limit");
+		if(vfraglimit){
 		if(focusFraglimit) { focusFraglimit = false; GUI.FocusControl("Fraglimit");}
 		GUI.SetNextControlName("Fraglimit");
 		if(isReadOnlyFraglimit){
 		GUI.Label(new Rect(213f, 13.95f, 75.333f, 21.96f), Fraglimit.ToString());
 		} else
 		Fraglimit = int.Parse(GUI.TextField(new Rect(213f, 13.95f, 75.333f, 21.96f), Fraglimit.ToString()));
+		}
 		GUI.EndGroup();
+		if(vGameType){
 		if(focusGameType) { focusGameType = false; GUI.FocusControl("GameType");}
 		GUI.SetNextControlName("GameType");
 		GUI.BeginGroup(new Rect(40f, 155f, 302f, 95f), "");
 		GUI.Box(new Rect(0, 0, 302f, 95f), "");
-		if(tabGameType==0){
+		if(vZombi){
+		if(focusZombi) { focusZombi = false; GUI.FocusControl("Zombi");}
+		GUI.SetNextControlName("Zombi");
+		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
+		GUI.Box(new Rect(0, 0, 292f, 79f), "");
 		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Zombie survival. 
  kill the maximum number of zombies.");
+		GUI.EndGroup();
 		}
-		if(tabGameType==1){
+		if(vZombiTeam){
+		if(focusZombiTeam) { focusZombiTeam = false; GUI.FocusControl("ZombiTeam");}
+		GUI.SetNextControlName("ZombiTeam");
+		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
+		GUI.Box(new Rect(0, 0, 292f, 79f), "");
 		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle with zombies. 
  surviving team wins.");
+		GUI.EndGroup();
 		}
-		if(tabGameType==2){
+		if(vDeathmatch){
+		if(focusDeathmatch) { focusDeathmatch = false; GUI.FocusControl("Deathmatch");}
+		GUI.SetNextControlName("Deathmatch");
+		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
+		GUI.Box(new Rect(0, 0, 292f, 79f), "");
 		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"DeathMatch. 
  kill the maximum number of players.");
+		GUI.EndGroup();
 		}
-		if(tabGameType==3){
+		if(vTeamDeathMatch){
+		if(focusTeamDeathMatch) { focusTeamDeathMatch = false; GUI.FocusControl("TeamDeathMatch");}
+		GUI.SetNextControlName("TeamDeathMatch");
+		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
+		GUI.Box(new Rect(0, 0, 292f, 79f), "");
 		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle. \r \n kill the maximum number of players.");
+		GUI.EndGroup();
 		}
 		GUI.EndGroup();
-		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
+		}
+		if (GUI.Button(new Rect(596f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}
 
 

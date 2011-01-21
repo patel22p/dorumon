@@ -22,6 +22,7 @@ public class Cam : Base
         bloomAndFlares = (MonoBehaviour)camera.GetComponent("BloomAndFlares");
         ambientsmoke = transform.Find("ambientsmoke");
         ssao = GetComponentInChildren<SSAOEffect>();
+        contranStretch = GetComponentInChildren<ContrastStretchEffect>();
         xSpeed = 120;
         ySpeed = 120;
         yMinLimit = -90;
@@ -34,6 +35,7 @@ public class Cam : Base
     public MonoBehaviour Vingetting;
     public SSAOEffect ssao;
     public MonoBehaviour bloomAndFlares;
+    public ContrastStretchEffect contranStretch;
     public void onEffect()
     {
 
@@ -41,6 +43,7 @@ public class Cam : Base
         if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
         if (blur.enabled != _SettingsWindow.MotionBlur) { blur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + blur.enabled); }
         if (bloomAndFlares.enabled != _SettingsWindow.BloomAndFlares) { bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares; Debug.Log("blom and flares" + bloomAndFlares.enabled); }
+        if (contranStretch.enabled != _SettingsWindow.Contrast) { contranStretch.enabled = _SettingsWindow.Contrast; Debug.Log("Contrast stretch " + contranStretch.enabled); }
         if (_SettingsWindow.iGraphicQuality != -1 && (QualityLevel)_SettingsWindow.iGraphicQuality != QualitySettings.currentLevel)
         {            
             QualitySettings.currentLevel = (QualityLevel)_SettingsWindow.iGraphicQuality;
@@ -71,6 +74,7 @@ public class Cam : Base
     {
         CamUpdate();
     }
+    
     void LateUpdate()
     {        
         blurtime += Time.deltaTime;
@@ -82,26 +86,37 @@ public class Cam : Base
         }
         if (lockCursor)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * .02f * _SettingsWindow.MouseX;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * _SettingsWindow.MouseY;
+            x += Input.GetAxis("Mouse X") * xSpeed * .02f * mousex;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * mousey;
+        }
+        if (_SettingsWindow.enabled || !loaded)
+        {
+            loaded = true;
+            camx = _SettingsWindow.Camx;
+            camy = _SettingsWindow.Camy;
+            mousex = _SettingsWindow.MouseX;
+            mousey = _SettingsWindow.MouseY;
         }
     }
+    bool loaded;
+    float mousex, mousey, camx, camy;
     void CamUpdate()
     {
+       
         if (_localPlayer == null) return;
         camera.fieldOfView = _SettingsWindow.Fieldof;
-        xoffset = _SettingsWindow.Camx + 0.01f;
-        yoffset = _SettingsWindow.Camy + 0.01f;        
+        xoffset = camx + 0.01f;
+        yoffset = camy + 0.01f;        
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
         Quaternion rot2 = Quaternion.Euler(y, x, 0);
         Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
         pos2.y += yoffset;
         RaycastHit h;
         Vector3 plpos = _localPlayer.transform.position;
-        Ray r = new Ray(pos2, plpos - pos2);
+        Ray r = new Ray(plpos, pos2 - plpos);
+        
         if (Physics.Raycast(r, out h, Vector3.Distance(plpos, pos2), 1 << LayerMask.NameToLayer("Level")))
-            pos2 = h.point + r.direction.normalized;
-
+            pos2 = h.point - r.direction.normalized;
         if (_SettingsWindow.CamSmooth == 0)
             pos = pos2;
         else

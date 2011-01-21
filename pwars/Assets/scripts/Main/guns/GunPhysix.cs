@@ -45,7 +45,7 @@ public class GunPhysix : GunBase
             }
             var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position) < 20);
             float size = boxes.Sum(a => a.collider.bounds.size.magnitude);
-            cursor[0].position = pos + (transform.forward * size / 5) + (transform.forward * 2);
+            cursor[0].position = pos + (transform.forward * size / 7) + (transform.forward * 4);
             foreach (Base b in boxes)
             {
                 if (b.rigidbody.velocity.magnitude < 1)

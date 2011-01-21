@@ -12,20 +12,26 @@ using System.Xml.Serialization;
 using System.Net.Sockets;
 using System.Text;
 using Debug = UnityEngine.Debug;
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
+using UnityEditor;
+#endif
+using System.Runtime.Serialization.Formatters.Binary;
 public enum Level { z1login, z2menu, z4game }
-public class Loader : Base,IWindow
+public class Loader : Base
 {
     public string version;
-    public string[] cmd;    
+    public string cmd="";    
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
     new public bool skip;    
     public bool dontcheckwin;
+    [FindAsset]
+    public Material[] playerTextures;
     public bool debugPath;
     public bool disablePathFinding= true;
     public bool logged;
-    new public UserView LocalUserV;
+    public UserView userView = new UserView();
     new public Level _Level;
     new public TimerA _TimerA = new TimerA();
     public List<MapSetting> mapsets = new List<MapSetting>();
@@ -34,28 +40,40 @@ public class Loader : Base,IWindow
     [FindAsset("Skin/Skin.guiskin")]
     public GUISkin Skin;
     //new public LayerMask collmask = 1 << 8 | 1 << 9 | 1 << 12 | 1 << 13;
-    public static bool loaded;
     public override void Awake()
     {
-        if (loaded) return;
-        loaded = true;
-        Application.targetFrameRate = 40;        
-        LocalUserV = gameObject.AddComponent<UserView>();
+        Debug.Log("loader Awake");
+        Application.targetFrameRate = 60;                
         base.Awake();        
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
-        //if(!isWebPlayer)
-        //    cmd = Environment.GetCommandLineArgs();
-        mapsets.AddRange(new[]{
-            new MapSetting { mapName = "Game", title = "Demo" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.TeamZombieSurvive, GameMode.ZombieSurive } },
-            //new MapSetting { mapName = "z5city" , title  = "City" ,supportedModes = new List<GameMode>() { GameMode.DeathMatch } }
-        });
+        if (!isWebPlayer)
+            cmd = joinString(' ', Environment.GetCommandLineArgs());
+        else
+            cmd = Application.absoluteURL;
+        if (dedicated)
+            using (var s = File.OpenRead(mapspath))
+                mapsets = (List<MapSetting>)xml.Deserialize(s);
     }
+    string mapspath { get { return Application.dataPath + "/../maps.xml"; } }
+    XmlSerializer xml = new XmlSerializer(typeof(List<MapSetting>), new Type[] { typeof(MapSetting) });
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void Init()
     {
+        mapsets.Clear();
+        mapsets.AddRange(new[]{
+            new MapSetting { mapName = "Arena", title = "Arena" ,supportedModes = new []{ GameMode.DeathMatch } },
+            new MapSetting { mapName = "Pitt", title = "Pitt" ,supportedModes = new []{ GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.ZombieSurive } },
+            new MapSetting { mapName = "test", title = "test" ,supportedModes = new []{ GameMode.DeathMatch , GameMode.TeamDeathMatch, GameMode.ZombieSurive } },
+        });
+
+        using (var s = File.Open(mapspath, FileMode.Create))
+            xml.Serialize(s, mapsets);
+
         version = DateTime.Now.ToString();
         base.Init();
     }
+#endif
     string curdir { get { return Directory.GetCurrentDirectory(); } }
     protected override void Start()
     {
@@ -70,42 +88,42 @@ public class Loader : Base,IWindow
                 File.Delete(a);
         }
     }
-
-    public void Action(string s, params object[] p)
+    public void Action(string s)
     {
-        if (s == "onFullScreen")
+        if (s == "FullScreen")
             Screen.fullScreen = _SettingsWindow.FullScreen;
-        if (s == "onGraphicQuality")
+        if (s == "GraphicQuality")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "onScreenSize")
+        if (s == "ScreenSize")
             if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
             {
                 print(pr);
                 Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
                 Screen.SetResolution(r.width, r.height, _SettingsWindow.FullScreen);
             }
-        if (s == "onShadows")
+        if (s == "Shadows")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "onReset")
+        if (s == "Reset")
+        {
             PlayerPrefs.DeleteAll();
-        if (s == "onAtmoSphere")
+            _SettingsWindow.enabled = false;
+        }
+        if (s == "AtmoSphere")
             if (_Cam != null)
                 _Cam.onEffect();
-
-        if (s == "onSao")
+        if (s == "Sao")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "onBloomAndFlares")
+        if (s == "BloomAndFlares")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "onRenderSettings")
+        if (s == "RenderSettings")
             _Cam.onEffect();
-        if (s == "onOk")
+        if (s == "Ok")
             _PopUpWindow.Hide();
     }
-
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
@@ -119,8 +137,6 @@ public class Loader : Base,IWindow
         _TimerA.Update();
         //WWW2.Update();
     }
-    
-
     public void RPCLoadLevel(string level, RPCMode rpcmode)
     {
         print("load Level" + level);

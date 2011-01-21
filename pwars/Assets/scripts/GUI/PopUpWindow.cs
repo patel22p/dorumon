@@ -12,9 +12,11 @@ public partial class Base2:MonoBehaviour
 
 public class PopUpWindow : WindowBase {
 		
+	internal bool vtext = true;
 	internal bool focusText;
 	internal bool isReadOnlyText = true;
 	internal string Text = @"";
+	internal bool vok = true;
 	internal bool focusOk;
 	internal bool Ok=false;
 	private int wndid1;
@@ -45,20 +47,24 @@ public class PopUpWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
+		if(vtext){
 		if(focusText) { focusText = false; GUI.FocusControl("Text");}
 		GUI.SetNextControlName("Text");
 		if(isReadOnlyText){
 		GUI.Label(new Rect(23f, 25f, 360f, 189f), Text.ToString());
 		} else
 		Text = GUI.TextField(new Rect(23f, 25f, 360f, 189f), Text);
+		}
+		if(vok){
 		if(focusOk) { focusOk = false; GUI.FocusControl("Ok");}
 		GUI.SetNextControlName("Ok");
 		bool oldOk = Ok;
 		Ok = GUI.Button(new Rect(125f, 230f, 142f, 27f), new GUIContent("OK",""));
-		if (Ok != oldOk && Ok ) {Action("onOk");onButtonClick(); }
+		if (Ok != oldOk && Ok ) {Action("Ok");onButtonClick(); }
 		onMouseOver = new Rect(125f, 230f, 142f, 27f).Contains(Event.current.mousePosition);
 		if (oldMouseOverOk != onMouseOver && onMouseOver) onOver();
 		oldMouseOverOk = onMouseOver;
+		}
 	}
 
 

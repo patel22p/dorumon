@@ -39,7 +39,7 @@ public class Window : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		if (GUI.Button(new Rect(414f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
+		if (GUI.Button(new Rect(414f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}
 
 

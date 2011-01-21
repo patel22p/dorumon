@@ -3,11 +3,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
 
 public static class Ext
 {
 
 
+    
     public static IEnumerable<Transform> GetTransforms(this Transform ts)
     {
         yield return ts;
@@ -106,24 +109,4 @@ public class GenerateEnums : Attribute
         name = enumName;
     }
 }
-[Serializable]
-public class MapSetting
-{
-    public List<GameMode> supportedModes = new List<GameMode>();
-    public string mapName = "none";
-    public string title = "none";
-    public GameMode gameMode;
-    public int fragLimit = 20;
-    public string[] ipaddress;
-    public int port = 5300;
-    public bool host;
-    public int maxPlayers = 4;
-    public float timeLimit = 15;
-    public int stage;
-    public bool TeamZombiSurvive { get { return gameMode == GameMode.TeamZombieSurvive; } }
-    public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
-    public bool DM { get { return gameMode == GameMode.DeathMatch; } }
-    public bool ZombiSurvive { get { return gameMode == GameMode.ZombieSurive; } }
-    public bool Team { get { return TeamZombiSurvive || TDM; } }
-    public bool zombi { get { return ZombiSurvive || TeamZombiSurvive; } }
-}
+

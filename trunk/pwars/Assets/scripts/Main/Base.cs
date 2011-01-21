@@ -60,11 +60,11 @@ public class Base : Base2
     public static bool skip { get { return _Loader.skip; } }
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
-    public static UserView LocalUserV { get { return _Loader.LocalUserV; } set { _Loader.LocalUserV = value; } }
     public static bool DebugKey(KeyCode key)
     {
-        if (Input.GetKeyDown(key) && !build) print("Debug Key" + key);
-        return Input.GetKeyDown(key) && !build;
+        if (Input.GetKeyDown(key))
+            print("Debug Key" + key);
+        return Input.GetKeyDown(key);
     }
     public static string joinString(char j, params object[] o)
     {
@@ -171,7 +171,7 @@ public class Base : Base2
         if (sendto == null)
         {
             networkView.RPC(name, RPCMode.Others, obs);
-            this.GetType().GetMethod(name).Invoke(this, obs);
+            this.GetType().GetMethod(name).Invoke(this, obs); // make method public !!!!
         }
         else
             networkView.RPC(name, sendto.Value, obs);

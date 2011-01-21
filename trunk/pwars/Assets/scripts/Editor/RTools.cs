@@ -17,26 +17,38 @@ using Object = UnityEngine.Object;
 [assembly: AssemblyVersion("1.0.*")]
 public partial class RTools : InspectorSearch
 {
-    string file { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
+    string path { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
     float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
+    float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
 
     public bool bake;
+    public bool web;
     public override void Awake()
     {
         base.Awake();        
     }    
     protected override void OnGUI()
     {
+
+        GUI.BeginHorizontal();
+        web = GUI.Toggle(web, "web",GUI.ExpandWidth(false));
         if (GUILayout.Button("Build"))
         {
             Build();
             return;
         }
-        BuildButtons();        
+        GUI.EndHorizontal();
+        BuildButtons();
+        GUI.BeginHorizontal();
+        _Loader.build = !GUI.Toggle(!_Loader.build, "Debug");
+        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable Path");
+        GUI.EndHorizontal();
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
+        
         lfactor = EditorGUILayout.FloatField(lfactor);
+        dfactor = EditorGUILayout.FloatField(dfactor);
         if (GUI.Button("SetupLevel"))
         {
             var l = GameObject.Find("level");
@@ -45,7 +57,7 @@ public partial class RTools : InspectorSearch
             string path = EditorApplication.currentScene.Split('.')[0] + "/";
             path = path.Substring("Assets/".Length);
             Debug.Log("setup level: " + path);
-            l = (GameObject)Editor.Instantiate(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
+            l = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
             l.transform.parent = p;            
             l.name = "level";
             Selection.activeGameObject = l;
@@ -56,17 +68,24 @@ public partial class RTools : InspectorSearch
                 if (bake)
                 {
                     var old = RenderSettings.ambientLight;
-                    RenderSettings.ambientLight = Color.white * .08f;
+                    RenderSettings.ambientLight = Color.white * lfactor;
                     var en = new Queue<LightShadows>();
-                    
+                    var q = new Queue<float>();
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
                     {
+                        
+                        q.Enqueue(a.intensity);
                         en.Enqueue(a.shadows);
+                        if (a.type == LightType.Directional)
+                            a.intensity = dfactor;
                         a.shadows = LightShadows.Soft;                        
                     }
                     Lightmapping.BakeAsync();
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                    {
+                        a.intensity = q.Dequeue();
                         a.shadows = en.Dequeue();
+                    }
                     RenderSettings.ambientLight = old;
 
                 }
@@ -84,6 +103,10 @@ public partial class RTools : InspectorSearch
         BuildGUI();
         base.OnGUI();
     }
+    protected override void Update()
+    {
+        base.Update();
+    }
     private void BuildButtons()
     {
 
@@ -95,11 +118,14 @@ public partial class RTools : InspectorSearch
             EditorApplication.isPlaying = true;
         }
         if (GUILayout.Button("Server App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "server");
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "server");
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         if (GUILayout.Button("Client App"))
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + file, "client");
+        {
+            Debug.Log(path);
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "client");
+        }
         if (GUILayout.Button("Client Editor"))
         {
             _Loader.mapSettings.host = false;
@@ -170,14 +196,12 @@ public partial class RTools : InspectorSearch
                     InitLoadPath(scr, pf);
                     CreateEnum(cspath, scr, pf);
                     PathFind(scr, pf);
-                }
-                if (scr.networkView != null && scr.networkView.observed == null)
-                    scr.networkView.stateSynchronization = NetworkStateSynchronization.Off;
-                try
+                }                
+                //try
                 {
                     scr.Init();
                 }
-                catch (Exception e) { Debug.LogError(e); }
+                //catch (Exception e) { Debug.LogError(e); }
             }
         }
 
@@ -188,19 +212,53 @@ public partial class RTools : InspectorSearch
         });
                  
     }
+    class DTR
+    {
+        public Transform transform;
+        public string path = "";
+    }
+    static IEnumerable<DTR> GetTransforms2(DTR ts)
+    {
+        yield return ts;
+        foreach (Transform t in ts.transform)
+        {
+            foreach (var t2 in GetTransforms2(new DTR { path = (ts.path + "/" + t.name), transform = t }))
+                yield return t2;
+        }
+    }
     protected override void SetupLevel()
     {
         List<GameObject> destroy = new List<GameObject>();
-        
+        foreach (var d in GetTransforms2(new DTR { transform = Selection.activeGameObject.transform }))
+        {
+            var g = d.transform.gameObject;
+            var path = d.path.TrimStart(new char[] { '/' });
+            var p = Selection.activeGameObject.transform.parent.Find(path);
+            if (p != null)
+            {
+                p.transform.position = g.transform.position;
+                p.transform.rotation = g.transform.rotation;
+                foreach (var c in g.GetComponents<Component>())
+                    if (!(c is Transform))
+                        DestroyImmediate(c);
+            }
+        }
         foreach (Transform t in Selection.activeGameObject.transform)
         {
             GameObject g = t.gameObject;
-            var p = Selection.activeGameObject.transform.parent.Find(t.name);
-            if (p != null)
+            if (t.name.ToLower() == "path")
             {
-                Debug.Log("found parent " + g.name);
-                //p.transform.position = g.transform.position;
-                destroy.Add(g);
+                Debug.Log(t.name);
+                Debug.Log(t.parent.name);
+                Debug.Log(Selection.activeGameObject);
+                var a = (AstarPath)GameObject.FindObjectOfType(typeof(AstarPath));
+                a.navmesh = t.GetComponent<MeshFilter>().sharedMesh;
+                a.navmeshRotation = (Quaternion.AngleAxis(270, new Vector3(1, 0, 0))).eulerAngles;
+                a.meshGrid.offset = t.position;
+                a.meshGrid.offset.y += .2f;
+                t.renderer.enabled = false;
+                if (t.collider != null)
+                    DestroyImmediate(t.collider);
             }
         }
         foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
@@ -221,29 +279,6 @@ public partial class RTools : InspectorSearch
                 if(c!=null)
                     DestroyImmediate(c);
             }            
-        }
-        foreach (Transform t in Selection.activeGameObject.transform)
-        {
-            GameObject g = t.gameObject;
-            string[] param = g.name.Split(',');
-        
-            if (param[0] == ("coll"))
-            {
-                foreach (var a in g.GetComponentsInChildren<Collider>())
-                    a.gameObject.AddOrGet<Box>();
-            }
-
-            if (param[0].ToLower() == "zombiespawn")
-            {
-                g.renderer.enabled = false;
-                g.collider.isTrigger = true;
-                g.tag = "SpawnZombie";
-            }
-            if (g.name == "path")
-            {
-                g.active = false;                
-                Debug.Log("founded path");                
-            }                      
         }
 
         foreach (var a in destroy)
@@ -266,7 +301,8 @@ public partial class RTools : InspectorSearch
             string name = (atr.name == null) ? pf.Name : atr.name;
             try
             {
-                GameObject g = atr.scene ? GameObject.Find(atr.name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == name).gameObject;
+                GameObject g = atr.scene ? GameObject.Find(name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == name).gameObject;
+                if (g == null) throw new Exception();
                 if (pf.FieldType == typeof(GameObject))
                     pf.SetValue(scr, g);
                 else
@@ -275,22 +311,34 @@ public partial class RTools : InspectorSearch
             catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
         }
     }
+
+    private static object Cast<T>(IEnumerable<T> objectList, Type t)
+    {
+        object a = typeof(Enumerable)
+            .GetMethod("Cast", BindingFlags.Public | BindingFlags.Static)
+            .MakeGenericMethod(t)
+            .Invoke(null, new[] { objectList });
+        var b = typeof(Enumerable)
+            .GetMethod("ToArray", BindingFlags.Public | BindingFlags.Static)
+            .MakeGenericMethod(t)
+            .Invoke(null, new[] { a });
+        return b;
+    }
     private static void InitLoadPath(Base2 scr, FieldInfo pf)
     {
-        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);        
+        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
         if (ap != null)
         {
             string name = (ap.name == null) ? pf.Name : ap.name;
             object value = pf.GetValue(scr);
             if (value is Array)
             {
-                var o = Base2.GetFiles().Where(a => a.Contains(name))
-                                    .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, pf.FieldType))
-                                    .Where(a => a != null).Cast<AudioClip>().ToArray();
-                if (o.Length == 0)
-                    Debug.Log("could not find audioSources " + name);
+                var type = value.GetType().GetElementType();
+                var q = Base2.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
+                if (q.Count() == 0)
+                    Debug.Log("could not find folder " + name);
 
-                pf.SetValue(scr, o);
+                pf.SetValue(scr, Cast(q, type));
             }
             else
                 if ((value == null || value.Equals(null)) || ap.overide)
@@ -309,13 +357,6 @@ public partial class RTools : InspectorSearch
                     if (GUI.Button(p.name + ":" + p.OwnerID))
                         Selection.activeObject = p;
         }        
-       
-        //if (_Loader != null)
-        //{
-        //    _Loader.build = GUI.Toggle(_Loader.build, "build");
-        //    _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable path finding");
-        //    _Loader.dontcheckwin = GUI.Toggle(_Loader.dontcheckwin, "dont check win");
-        //}
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
@@ -341,20 +382,43 @@ public partial class RTools : InspectorSearch
     
     private void Build()
     {
+        var fn = "Game.Exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        file = "Builds/" + DateTime.Now.ToFileTime() + "/";
-        Directory.CreateDirectory(file);
-        File.WriteAllText(file + "Client.bat", "start \"Game.Exe client\"");
-        File.WriteAllText(file + "Server.bat", "start \"Game.Exe server\"");
-        BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (file = file + "Game.Exe"), BuildTarget.StandaloneWindows, BuildOptions.Development);
+        var dt = DateTime.Now.ToFileTime();
+        path = "Builds/" + dt+ "/";
+        Directory.CreateDirectory(path);
+        if (web)
+        {
+            File.WriteAllText(path + "WebClient.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#client");
+            File.WriteAllText(path + "WebServer.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#server");            
+        }
+        else
+        {
+            File.WriteAllText(path + "Client.bat", "start Game.Exe client");
+            File.WriteAllText(path + "Server.bat", "start Game.Exe server");
+        }
+        BuildPipeline.BuildPlayer(new[] { EditorApplication.currentScene }, (path = path + fn), web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment);
+        //BuildPipeline.BuildPlayer(new string[] { }, path + "temp", BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
-    protected override void Update()
-    {        
-        
-        base.Update();
+    
+    [MenuItem("GameObject/LoadSaveMapSettings")]
+    private static void LoadSaveMapSettings()
+    {
+        var ms = _Loader.mapsets;
+        var n = Application.loadedLevelName;
+        if (_Loader.mapSettings.mapName != n)
+            _Loader.mapSettings = _Loader.mapsets.First(a => a.mapName == n);
+        else
+            for (int i = 0; i < _Loader.mapsets.Count; i++)
+                if (ms[i].mapName == n)
+                {
+                    ms[i] = _Loader.mapSettings;
+                    break;
+                }
+        EditorUtility.SetDirty(_Loader);
     }
-    Loader loader ;
-    Loader _Loader
+    public static Loader loader;
+    public static Loader _Loader
     {
         get
         {

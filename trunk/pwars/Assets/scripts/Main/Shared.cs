@@ -39,7 +39,7 @@ public class Shared : Base
         }
         var nw = gameObject.AddOrGet<NetworkView>();
         nw.observed = this;
-        nw.stateSynchronization = NetworkStateSynchronization.Off;
+        
         gameObject.AddOrGet<Rigidbody>();
         gameObject.AddOrGet<AudioSource>();
 
@@ -66,8 +66,10 @@ public class Shared : Base
         for (int i = 0; i < tmsend.Length; i++)
             tmsend[i] += Time.deltaTime;
 
-        if (!_Game.bounds.collider.bounds.Contains(this.transform.position))
+        if (!_Game.bounds.collider.bounds.Contains(this.transform.position) && isController)
+        {            
             ResetSpawn();
+        }
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
             UpdateLightmap();

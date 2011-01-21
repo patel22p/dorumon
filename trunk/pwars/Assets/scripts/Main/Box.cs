@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using doru;
 using System.Text.RegularExpressions;
 using System.Linq;
-
+[AddComponentMenu("Box")]
 public class Box : Shared
 {
 #if(UNITY_EDITOR && UNITY_STANDALONE_WIN)
@@ -14,7 +14,7 @@ public class Box : Shared
     {
         base.Init();
         rigidbody.mass = 5;
-        
+        networkView.stateSynchronization = NetworkStateSynchronization.Off;
         if (collider.sharedMaterial == null)
             collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");
         

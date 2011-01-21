@@ -28,6 +28,8 @@ public class GunBase : Base
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void Init()
     {
+        networkView.stateSynchronization = NetworkStateSynchronization.Off;
+        networkView.observed = null;
         if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         if (GunPicture == null)
             GunPicture = Base2.FindAsset<Texture2D>(name);
@@ -68,7 +70,7 @@ public class GunBase : Base
     protected virtual void Update()
     {
         if (enabled )
-            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .10f);
+            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .15f);
 
         if (isOwner)
         {

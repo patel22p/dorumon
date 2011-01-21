@@ -8,6 +8,7 @@ using System.Collections;
 [Serializable]
 public abstract class Destroible : Shared
 {
+    public bool CanFreeze;
     public float maxLife = 100;
     public float Life;
     float freezedt;
@@ -23,13 +24,18 @@ public abstract class Destroible : Shared
     }    
     //public bool dead { get { return !Alive; } set { Alive = !value; } }
     public bool Alive = true;
+    public void SetLayer(int layer)
+    {
+        foreach (var t in transform.GetTransforms())
+            t.gameObject.layer = layer;
+    }
     public void SetLayer(GameObject g)
     {
         _TimerA.AddMethod(delegate
         {
-            g.layer = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally"); 
-        });
-        
+            foreach (var a in g.transform.GetTransforms())
+                a.gameObject.layer = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally");             
+        });        
     }
     public override void Awake()
     {        
@@ -53,7 +59,7 @@ public abstract class Destroible : Shared
             Box b = collisionInfo.gameObject.GetComponent<Box>();
             if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
             {
-                RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10, b.OwnerID);
+                RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10 * mapSettings.damageFactor, b.OwnerID);
             }
         }
     }
@@ -94,7 +100,7 @@ public abstract class Destroible : Shared
     public virtual void RPCSetLife(float NwLife, int killedby)
     {
         if (!Alive) return;
-        if (isController)
+        //if (isController)
         {
             if (isEnemy(killedby) || NwLife > Life)
             {
@@ -102,10 +108,10 @@ public abstract class Destroible : Shared
                 CallRPC("SetLife", Life, killedby);
                 if (this == _localPlayer)
                 {
-                    if (killedby == _localPlayer.OwnerID && NwLife < Life) _localPlayer.score += Math.Abs(Life - NwLife) / 100;
-                    _GameWindow.Hit(Mathf.Abs(Life - NwLife) * 2);
+                    if(NwLife < Life)
+                        _GameWindow.Hit();
                 }
-                if(killedby!=-1)
+                if(CanFreeze)
                     RPCSetFrozen(true);
             }
             

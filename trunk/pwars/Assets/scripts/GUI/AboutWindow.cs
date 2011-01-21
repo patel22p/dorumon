@@ -13,7 +13,7 @@ public partial class Base2:MonoBehaviour
 public class AboutWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
-	public Texture2D ImageImage2;
+	public Texture ImageImage2;
 	private int wndid1;
 	private Rect Image2;
 	
@@ -43,7 +43,8 @@ public class AboutWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
+		if(ImageImage2!=null)
+			GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
 		GUI.Label(new Rect(111f, 290f, 480f, 176f), @"Copyright PhysxWars Team
 
 
@@ -58,7 +59,7 @@ Igor Levochkin
 :Music producers:
 CentaSpike
 Никита Сафонов", GUI.skin.customStyles[7]);
-		if (GUI.Button(new Rect(715f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("onClose"); }
+		if (GUI.Button(new Rect(715f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}
 
 

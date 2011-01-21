@@ -50,8 +50,6 @@ public class Gun : GunBase
     {        
         base.onShow(enabled);
     }
-
-
     protected override void Update()
     {
         base.Update();
@@ -72,7 +70,6 @@ public class Gun : GunBase
     }    
     protected virtual void LocalUpdate()
     {        
-
         if ((tm -= Time.deltaTime) < 0 && Input.GetMouseButton(0) && lockCursor)
         {
             tm = interval;
@@ -86,7 +83,6 @@ public class Gun : GunBase
         }
     }
     public float RandomFactorTm = 0;
-
     public void RPCShoot() { CallRPC("Shoot"); }
     [RPC]
     public void Shoot()

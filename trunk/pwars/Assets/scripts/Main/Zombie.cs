@@ -55,13 +55,13 @@ public class Zombie : Destroible
     }
     public void CreateZombie(int stage)
     {   
-        zombieType = priority.Random();        
-        var speed = zombieSpeedCurve.Evaluate(stage);
+        zombieType = priority.Random();
+        var speed = zombieSpeedCurve.Evaluate(stage) * mapSettings.zombieSpeedFactor;
         speed = Random.Range(speed, speed / 3 * 2);
-        var life = zombieLifeCurve.Evaluate(stage);
+        var life = zombieLifeCurve.Evaluate(stage)*mapSettings.zombieLifeFactor;
         life = Random.Range(life, life / 3 * 2);
         if (zombieType == ZombieType.Life) life *= 2;
-        if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
+        if (zombieType == ZombieType.Speed) { speed *= 1.3f; life *= .7f; }
         RPCSetup(speed, life, (int)zombieType);
     }
     public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
@@ -76,6 +76,7 @@ public class Zombie : Destroible
         AliveZombie.renderer.enabled = true;
         DeadZombie.renderer.enabled = false;
         zombieType = (ZombieType)priority;
+        CanFreeze = zombieType != ZombieType.Life;
         speed = zombiespeed;        
         maxLife =Life = zombieLife;
         transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 300f, 1f), 3);        
@@ -86,14 +87,13 @@ public class Zombie : Destroible
         if (!Alive) { return; }        
         Sync = false;
         Alive = false;
-        gameObject.layer = LayerMask.NameToLayer("HitLevelOnly");
+        SetLayer(LayerMask.NameToLayer("HitLevelOnly"));        
         if (Game.sendto != null)
             PlayRandSound(gibSound);
         AliveZombie.renderer.enabled = false;
         DeadZombie.renderer.enabled = true;
-
         if (killedby == _localPlayer.OwnerID)
-            _localPlayer.AddFrags(+1, 1);
+            _localPlayer.AddFrags(1, mapSettings.PointsPerZombie);
     }
     public float tiltTm;
     public float spawninTM;
@@ -105,55 +105,76 @@ public class Zombie : Destroible
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
         zombieBite += Time.deltaTime;
-        if (!Alive || selected == -1 || frozen) return;        
+        seekPathtm -= Time.deltaTime;
+        if (!Alive || selected == -1 || frozen) return;
         var ipl = Nearest();
         if (ipl != null)
         {
             Vector3 pathPointDir;
             Vector3 zToPlDir = ipl.transform.position - pos;
-            pathPointDir = (zToPlDir.magnitude < 10 && Mathf.Abs(zToPlDir.y) < 1) ? zToPlDir : (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? zToPlDir);
-            Debug.DrawLine(pos, pos + pathPointDir);
-            pathPointDir.y = 0;
-            rot = Quaternion.LookRotation(pathPointDir.normalized);
-
-            if (zToPlDir.magnitude > zombieBiteDist)
+            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? default(Vector3));
+            if (pathPointDir == default(Vector3))
             {
-                
-                move = true;
+                move = false;
                 tiltTm += Time.deltaTime;
-                if (tiltTm > spawninTM && isController)
-                {
-                    tiltTm = 0;
-                    if (Vector3.Distance(oldpos, pos) / spawninTM < .5f)
-                        ResetSpawn();                        
-                    oldpos = pos;
-                }
             }
             else
             {
-                move = false;
-                tiltTm = 0;
-                if (zombieBite > 1)
+                Debug.DrawLine(pos, pos + pathPointDir);
+                pathPointDir.y = 0;
+                rot = Quaternion.LookRotation(pathPointDir.normalized);
+                if (zToPlDir.magnitude > zombieBiteDist)
                 {
-                    zombieBite = 0;
-                    PlayRandSound(screamSounds);
-                    if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - Math.Min(20, _Game.stage + 1), -1);
+                    move = true;
+                    tiltTm += Time.deltaTime;
                 }
+                else
+                    Bite(ipl);
             }
         }
         else
         {
             move = false;
             tiltTm = 0;
-        }        
+        }
+        
+        if (tiltTm > spawninTM && isController)
+        {
+            tiltTm = 0;
+            if (Vector3.Distance(oldpos, pos) / spawninTM < .3f)
+                ResetSpawn();
+            oldpos = pos;
+        }
+
     }
-    private Vector3? GetRay(Destroible ipl)
+    private void Bite(Destroible ipl)
     {
+        move = false;
+        tiltTm = 0;
+        if (zombieBite > 1)
+        {
+            zombieBite = 0;
+            PlayRandSound(screamSounds);
+            if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - Math.Min(mapSettings.ZombieDamage, _Game.stage + 1), -1);
+        }
+    }
+    public float pwait;
+    private Vector3? GetRay(Destroible ipl)
+    {        
         var r = new Ray(pos, ipl.pos - pos);
-        if (Math.Abs(ipl.posy - posy) > 2) return null;
-        if (Physics.Raycast(r, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
+        //Debug.Log(pwait);
+        RaycastHit h;
+        pwait += Time.deltaTime;
+        if (Physics.Raycast(r, out h, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
+        {
+            pwait = 0;
+            //Debug.Log(h.transform.gameObject.name);
+        }        
+        if (pwait > 3)
+            return ipl.pos - pos;
+        else
             return null;
-        return ipl.pos - pos;
+
     }
     Destroible nearest;
     private Destroible Nearest()
@@ -183,11 +204,12 @@ public class Zombie : Destroible
         }
     }
     private Vector3? GetPlayerPathPoint(Destroible ipl)
-    {
+    {        
         if (ipl is Player)
         {
             var pathPoints = ((Player)ipl).plPathPoints;
-            return FindNextPoint(pathPoints);
+            var np = FindNextPoint(pathPoints);
+            return np;
         }
         return null;
     }
@@ -223,7 +245,7 @@ public class Zombie : Destroible
     private Vector3? GetNextPathFindPoint(Destroible ipl)
     {
         if (_Loader.disablePathFinding) return null;
-        if ((seekPathtm -= Time.deltaTime) < 0)
+        if (seekPathtm < 0)
         {
             seeker.StartPath(this.transform.position, ipl.transform.position);
             seekPathtm = UnityEngine.Random.Range(3f, 6);
@@ -234,6 +256,10 @@ public class Zombie : Destroible
     void PathComplete(Vector3[] points)
     {
         pathPoints = points;
+    }
+    public override void RPCSetFrozen(bool value)
+    {
+        base.RPCSetFrozen(value);
     }
     [RPC]
     public override void SetFrozen(bool value)
@@ -252,9 +278,8 @@ public class Zombie : Destroible
     }
     public override void ResetSpawn()
     {
-        ResetSpawnTm(); 
-        GameObject[] gs = GameObject.FindGameObjectsWithTag("SpawnZombie");
-        
+        ResetSpawnTm();
+        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToLower() == "zombie").ToArray();        
         Destroible pl = Nearest();
         if (pl == null)
         {
@@ -273,7 +298,7 @@ public class Zombie : Destroible
     }
     public void ResetSpawnTm()
     {
-        spawninTM = Random.Range(1f, 10f);
+        spawninTM = Random.Range(5f, 20f);
     }
     protected override void OnCollisionEnter(Collision collisionInfo)
     {
@@ -298,4 +323,6 @@ public class Zombie : Destroible
     {
         base.SetLife(NwLife, killedby);
     }
+    
+    
 }

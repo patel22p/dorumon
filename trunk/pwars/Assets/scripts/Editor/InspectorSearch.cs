@@ -19,14 +19,9 @@ public class InspectorSearch : EditorWindow
     Vector3 oldpos;
     protected virtual void OnGUI()
     {
-        SetPivot = (GUI.Toggle(SetPivot, "Set Pivot") && Selection.activeGameObject != null);
-        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
-
+        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;        
         GUI.BeginHorizontal();       
-        //CopyComponent();
-        
-        //if (GUI.Button("Cap"))
-        //    Cap();
+        SetPivot = (GUI.Toggle(SetPivot, "Pivot",GUI.ExpandWidth(false)) && Selection.activeGameObject != null);        
         if (GUI.Button("Apply"))
             ApplyAll();
         if (GUI.Button("Add"))
@@ -37,7 +32,6 @@ public class InspectorSearch : EditorWindow
         DrawSearch();
     }
     
-
     [MenuItem("GameObject/Capture Screenshot")]
     static void Cap()
     {
@@ -103,7 +97,11 @@ public class InspectorSearch : EditorWindow
             {
                 IEnumerable<Object> array = new Object[] { Selection.activeObject };
                 if (Selection.activeGameObject != null)
-                    array = array.Union(Selection.activeGameObject.GetComponents<Component>());                    
+                {
+                    array = array.Union(Selection.activeGameObject.GetComponents<Component>());
+                    if (Selection.activeGameObject.renderer != null)                        
+                        array = array.Union(new[] { Selection.activeGameObject.renderer.sharedMaterial });
+                }
                 foreach (var m in array)
                 {
                     
@@ -146,11 +144,19 @@ public class InspectorSearch : EditorWindow
             case SerializedPropertyType.Color:
                 MySetValue(m, pr.colorValue, pr.propertyPath, pr.propertyType);
                 break;
+            case SerializedPropertyType.Enum:
+                MySetValue(m, pr.enumValueIndex, pr.propertyPath, pr.propertyType);
+                break;
         }
     }
     void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
     {
         var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
+        if (Selection.activeGameObject.renderer != null && c is Material)
+        {
+            var d = Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials).Distinct();
+            array = array.Union(d.Cast<Object>());
+        }
 
         foreach (var nc in array) //êîìïîíåíòû gameobjectîâ è âûáðàíûå Objectû
         {
@@ -174,6 +180,9 @@ public class InspectorSearch : EditorWindow
                         break;
                     case SerializedPropertyType.Color:
                         pr.colorValue = (Color)value;
+                        break;
+                    case SerializedPropertyType.Enum:
+                        pr.enumValueIndex = (int)value;
                         break;
                 }
 
@@ -206,8 +215,8 @@ public class InspectorSearch : EditorWindow
     {
         foreach (Transform g in Selection.activeGameObject.transform)
         {
-            bool glow = g.name.Contains("glow");
-            if (g.name.Contains("glass") || glow)
+            bool glow = g.tag == "Glow";
+            if (g.tag == "glass" || glow)
             {
                 foreach (var t in g.GetTransforms())
                 {
@@ -250,10 +259,7 @@ public class InspectorSearch : EditorWindow
     }
     private void OnSceneUpdate(SceneView s)
     {
-
         var ago = Selection.activeGameObject;
-
-
         if (SetPivot)
         {
             var move = oldpos - ago.transform.position;
@@ -262,25 +268,30 @@ public class InspectorSearch : EditorWindow
                 t.position += move;
             }
         }
-
         if (ago != null)
             oldpos = ago.transform.position;
-
-
-
         var c = s.camera;
         var e = Event.current;
-        var p = e.mousePosition;        
+        var p = e.mousePosition;
         if (e.keyCode == KeyCode.G && e.type == EventType.KeyUp)
         {
+
             Ray r = HandleUtility.GUIPointToWorldRay(new Vector2(p.x, p.y));
             RaycastHit h;
             if (Physics.Raycast(r, out h))
                 s.LookAt(h.point - 5 * r.direction, c.transform.rotation, 5);
-
+            if (e.modifiers == EventModifiers.Control && Selection.activeGameObject != null)
+            {
+                Undo.RegisterSceneUndo("rtools");
+                var o = (GameObject)EditorUtility.InstantiatePrefab(Selection.activeGameObject);
+                o.transform.localPosition = Vector3.zero;
+                o.transform.position = h.point;
+                o.transform.rotation = Quaternion.AngleAxis(90, Vector3.up) * Quaternion.LookRotation(h.normal);
+                    //* Quaternion.LookRotation(h.point - SceneView.lastActiveSceneView.camera.transform.position);
+            }
         }
     }
-    
+
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
@@ -308,7 +319,6 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         Selection.activeTransform.parent = Selection.activeTransform.parent.parent;
     }
-    
     [MenuItem("RTools/Rtools")]
     static void rtoolsclick()
     {
@@ -347,16 +357,21 @@ public class InspectorSearch : EditorWindow
     static void Dup()
     {
         Undo.RegisterSceneUndo("rtools");
-        foreach (var a in Selection.activeGameObject.GetComponentsInChildren<Renderer>())
+        foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
+        {
+            var p = AssetDatabase.GetAssetPath(m);
+            var nwp = p.Substring(0, p.Length - 4) + "D.mat";
+            AssetDatabase.DeleteAsset(nwp);
+            AssetDatabase.CopyAsset(p, nwp);
+            AssetDatabase.Refresh();
+        }
+        foreach (var a in Selection.gameObjects.Select(a=>a.renderer))
         {
             var ms = a.sharedMaterials;
             for (int i = 0; i < ms.Count(); i++)
             {
                 var p = AssetDatabase.GetAssetPath(ms[i]);
-                var nwp = p.Substring(0, p.Length - 4) + "D.mat";
-                AssetDatabase.DeleteAsset(nwp);
-                AssetDatabase.CopyAsset(p, nwp);
-                AssetDatabase.Refresh();
+                var nwp = p.Substring(0, p.Length - 4) + "D.mat";                
                 ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));
             }
             a.sharedMaterials = ms;
@@ -378,7 +393,27 @@ public class InspectorSearch : EditorWindow
             AssetDatabase.Refresh();
         }
     }
+    [MenuItem("GameObject/Clear")]
+    static void Clear()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var g in Selection.gameObjects)
+        {
+            Clear(g);
+        }
+    }
 
+    public static void Clear(GameObject g)
+    {
+        foreach (var c in g.GetComponents<Component>())
+        {
+            var t = c.GetType();
+            if (t != typeof(Transform) && t != typeof(Collider))
+                DestroyImmediate(c);
+            if (t == typeof(Collider))
+                ((Collider)c).isTrigger = true;
+        }
+    }
     [MenuItem("GameObject/ApplyAll")]
     static void ApplyAll()
     {
@@ -403,17 +438,31 @@ public class InspectorSearch : EditorWindow
             AssetDatabase.SaveAssets();
         }
     }
-
-    [MenuItem("GameObject/Look At")]
-    static void LookAt()
+    static Queue<Transform> trs;
+    [MenuItem("GameObject/PushTransforms")]
+    static void PushTransforms()
     {
         Undo.RegisterSceneUndo("rtools");
-        if (Selection.activeGameObject != null)
+        trs = new Queue<Transform>();
+        foreach (var g in Selection.gameObjects)
+            trs.Enqueue(g.transform);
+        Debug.Log(trs.Count);
+    }
+    [MenuItem("GameObject/PopTransforms")]
+    static void PopTransforms()
+    {
+        Debug.Log(Selection.gameObjects.Length);
+        if (trs != null)
         {
-            Selection.activeGameObject.transform.LookAt(SceneView.lastActiveSceneView.camera.transform.position);
-            //var e = Selection.activeGameObject.transform.rotation.eulerAngles;
-            //e.y += 90;
-            //Selection.activeGameObject.transform.rotation = Quaternion.Euler(e);
+            Undo.RegisterSceneUndo("rtools");
+            foreach (var g in Selection.gameObjects)
+            {
+                if (trs.Count == 0)
+                    break;                
+                var t = trs.Dequeue();
+                g.transform.position = t.position;
+                g.transform.rotation = t.rotation;
+            }
         }
     }
     public TimerA _TimerA = new TimerA();

@@ -35,7 +35,6 @@ public class GameWindow : Base2 {
     public GUITexture life;
     [FindTransform]
     public GUITexture lifeoff;
-
     public GUIText time;
     public GUIText systemMessages;
     public GUIText level;
@@ -58,8 +57,7 @@ public class GameWindow : Base2 {
         foreach(GUIText text in GetComponentsInChildren<GUIText>())
             if (!text.text.StartsWith(" ")) text.text = "";
     }
-
-    public int fps;
+    
     public void SetWidth(GUITexture t, int value)
     {
         var a = t.color;
@@ -70,13 +68,13 @@ public class GameWindow : Base2 {
             t.pixelInset = p;
         }
     }
-
+    
     void Update()
     {
+        
         if (_localPlayer == null) return;
-        if (_TimerA.TimeElapsed(500))
-            fps = (int)_TimerA.GetFps();
-        fpstext.text = "Fps: " + fps + " Errors:" + _Console.exceptionCount;
+
+        fpstext.text = "Fps: " + _Game.fps + " Ping:" + _Game.ping + " Errors:" + _Console.exceptionCount;
 
         var ts = System.TimeSpan.FromMinutes(_Game.timeleft);
         this.time.text = ts.Minutes + ":" + ts.Seconds;
@@ -87,8 +85,7 @@ public class GameWindow : Base2 {
         this.lifeupgrate.text = "Life upgrate: " + _localPlayer.lifeUpgrate;
         this.spotLight.enabled = _localPlayer.haveLight;
         this.clock.enabled = _localPlayer.haveTimeBomb;
-        this.antigrav.enabled = _localPlayer.haveAntiGravitation;
-
+        this.antigrav.enabled = _localPlayer.haveAntiGravitation;        
         if (_localPlayer != null)
         {                        
             SetWidth(life, (int)Mathf.Min(_localPlayer.Life, _localPlayer.maxLife));
@@ -104,14 +101,14 @@ public class GameWindow : Base2 {
             
             this.frags.text = "Frags: " + _localPlayer.frags.ToString();
 
-            this.Score.text = "Points: " + ((int)_localPlayer.score) + "$";
+            this.Score.text = "Points: " + ((int)_localPlayer.Score) + "$";
         }
 
         foreach (GUITexture a in blood)
             if (a.guiTexture.color.a > 0)
                 a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * repair);
     }
-    public void Hit(float hit)
+    public void Hit()
     {
         GUITexture g = blood[Random.Range(0, blood.Count- 1)];
         g.color += new Color(0, 0, 0, .2f);

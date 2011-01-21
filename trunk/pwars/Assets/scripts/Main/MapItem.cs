@@ -15,19 +15,18 @@ public class MapItem : Base, IAim
     {
         get
         {
-            return score * scorefactor * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1);
+            return  (int)(score * _Game.scorefactor.Evaluate(_Game.stage) * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1));
         }
     }
     [FindAsset("checkout", overide = true)]
     public AudioClip opendoor;
     public bool payonce;
-    public bool Hide = true;
+    public bool hide = false;
     public bool lookat;
     public bool autoTake;
-    float scorefactor = .1f;
     public Vector3 Jumper = new Vector3(0, 1000, 0);
     public Vector2 Speed;
-    public float distance = 10;
+    public float Distance = 10;
     public int itemsLeft = 1;
     public bool endless;
     public Transform teleport;
@@ -58,12 +57,11 @@ public class MapItem : Base, IAim
         {
             g.AddComponent<NetworkView>();
             g.AddComponent<AudioSource>();
-            g.AddComponent<Rigidbody>();
-            g.networkView.observed = g.animation;
+            g.AddComponent<Rigidbody>();            
             g.rigidbody.isKinematic = true;
             inited = true;
         }
-
+        this.networkView.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
         foreach (var a in g.GetComponentsInChildren<Animation>())
         {
             a.animatePhysics = true;
@@ -88,8 +86,7 @@ public class MapItem : Base, IAim
             }
             text = "Press F to buy " + gunType;
             endless = true;
-            Hide = true;
-            distance = 3;
+            hide = true;
             switch (gunType.Parse<GunType>())
             {
                 case GunType.ak:
@@ -108,14 +105,14 @@ public class MapItem : Base, IAim
                     score = 160;
                     break;
                 case GunType.physxgun:
-                    score = 80;
-                    bullets = 10;
+                    score = 40;
+                    bullets = 50;
                     break;
                 case GunType.pistol:
                     score = 10;
                     break;
                 case GunType.railgun:
-                    score = 110;
+                    score = 160;
                     break;
                 case GunType.shotgun:
                     score = 30;
@@ -136,7 +133,7 @@ public class MapItem : Base, IAim
         {
             text = "Time Warp, Press T to use";
             endless = true;
-            Hide = true;
+            hide = true;
             score = 70;
         }
         if (itemType == MapItemType.spotlight)
@@ -150,7 +147,7 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.antigravitation)
         {
             endless = true;
-            score = 200;
+            score = 50;
             text = "Take Antigravitation";
         }
         if (itemType == MapItemType.timewarp)
@@ -176,7 +173,7 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.speedupgrate)
         {
             endless = true;
-            score = 400;
+            score = 350;
             text = "Upgrate speed";
         }
         if (itemType == MapItemType.lifeupgrate)
@@ -192,15 +189,15 @@ public class MapItem : Base, IAim
             bullets = 1000;
             endless = true;
             score = 20;
-            Hide = false;
+            hide = false;
             text = "Trap";
         }
         if (itemType == MapItemType.lift)
         {
-            Hide = false;
+            hide = false;
             text = "elevator";
             payonce = true;
-            distance = 0;
+            Distance = 0;
         }
         if (itemType == MapItemType.teleport)
         {
@@ -219,7 +216,7 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.speed)
         {
             opendoor = Base2.FindAsset<AudioClip>("speed");
-            distance = 0;
+            Distance = 0;
             autoTake = false;
             endless = true;
             text = "Speed up";
@@ -227,9 +224,8 @@ public class MapItem : Base, IAim
 
         if (itemType == MapItemType.money)
         {
-            Hide = true;
+            hide = true;
             RespawnTm = 30000;
-            distance = 1;
             if (Score == 0) score = -20;
             text = "Take money";
         }
@@ -238,20 +234,16 @@ public class MapItem : Base, IAim
         {
             text = "Jumper";
             endless = true;
-            distance = 0;
+            Distance = 0;
         }
-
-
-
-
-        foreach (var a in g.GetComponentsInChildren<Renderer>().Distinct())
-        {
-            var go = a.gameObject;
-            if (a.collider != null)
-                DestroyImmediate(a.collider);
-            if (itemType == MapItemType.door || itemType == MapItemType.teleport || itemType == MapItemType.speed || itemType == MapItemType.lift|| itemType == MapItemType.trap)
-                go.AddComponent<BoxCollider>();
-        }
+        //foreach (var a in g.GetComponentsInChildren<Renderer>().Distinct())
+        //{
+        //    var go = a.gameObject;
+        //    if (a.collider != null)
+        //        DestroyImmediate(a.collider);
+        //    if (itemType == MapItemType.door || itemType == MapItemType.teleport || itemType == MapItemType.speed || itemType == MapItemType.lift|| itemType == MapItemType.trap)
+        //        go.AddComponent<BoxCollider>();
+        //}
 
         base.Init();
     }
@@ -330,14 +322,14 @@ public class MapItem : Base, IAim
     //}
     void OnCollisionStay(Collision c)
     {
-        if (itemType == MapItemType.trap && bullets > 0 && animation.isPlaying)
+        if (itemType == MapItemType.trap && bullets > 0)
         {
             var ipl = c.gameObject.GetComponent<Destroible>();
             if (_TimerA.TimeElapsed(100) && ipl != null && ipl.isController)
                 ipl.RPCSetLife(ipl.Life - bullets, -1);
         }
 
-        if (c.gameObject == _localPlayer.gameObject && Check())
+        if (c.transform.GetMonoBehaviorInParrent() == _localPlayer && Check())
         {
             _localPlayer.mapItem = this;
             _localPlayer.mapItemTm = .5f;
@@ -364,7 +356,7 @@ public class MapItem : Base, IAim
             }
 
             _localPlayer.MapItemInterval = 1;
-            _localPlayer.score -= Score;
+            _localPlayer.Score -= Score;
 
             if (itemType == MapItemType.shop)
             {
@@ -421,7 +413,7 @@ public class MapItem : Base, IAim
         if (opendoor != null)
             audio.PlayOneShot(opendoor, 10);
 
-        if (Hide && itemsLeft <= 0)
+        if (hide && itemsLeft <= 0)
         {
             this.Show(false);
             if (RespawnTm > 0) _TimerA.AddMethod(RespawnTm * 1000, delegate { this.Show(true); itemsLeft = 1; });

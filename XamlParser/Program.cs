@@ -1,5 +1,4 @@
-﻿
-using doru;
+﻿using doru;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,42 +18,60 @@ namespace XamlParser
     {
         static readonly string path = @"C:\Users\igolevoc\Documents\New Unity Gui\WpfApplication2\";
         static readonly string output = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\";
-        //static readonly string output = @"C:\Users\igolevoc\Documents\IrcSample";
         [STAThread]
         static void Main(string[] args)
         {
-            
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");            
+
+            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
             Start();
         }
         static string filename;
-        
         static void Start()
         {
             new Program();
         }
-        public Program() 
+        string modPath = "../../data.txt";
+        public Program()
         {
+            
+            IEnumerable<string> l = File.ReadAllLines(modPath);
+            var ar = l.Select(a => a.Split('\t')).ToList();
             foreach (string file in Directory.GetFiles(path, "*.xaml"))
             {
-
+                bool notModified=false;
+                var wrt = File.GetLastWriteTime(file).ToString();
+                for (int i = 0; i < ar.Count(); i++)
+                {
+                    if (ar[i][0] == file)
+                    {                        
+                        if (ar[i][1] == wrt)
+                            notModified = true;
+                        ar.Remove(ar[i]);
+                    }                                            
+                }
+                ar.Add(new[] { file, wrt });
+                if (notModified) continue;
                 filename = Path.GetFileNameWithoutExtension(file);
                 if (filename.Contains("Window"))
                 {
-                    
                     string xaml = File.ReadAllText(file);
                     object o = (Window)XamlReader.Parse(xaml);
                     if (o is Window)
                     {
                         Window w = (Window)o;
+                        w.Left = -1200;
+                        w.Top = -1200;
                         w.Show();
-                        new Parser() { templ = template }.Start(w);
+
+                        new Parser() { templ = template, w = w }.Start(w);
                     }
                 }
             }
+            File.WriteAllLines(modPath, ar.Select(a => a[0] + "\t" + a[1]).ToArray());
         }
         public class Parser
         {
+            public Window w;
             string ongui = "";
             string winfunc = "";
             string privfields = "";
@@ -63,17 +80,13 @@ namespace XamlParser
             string start = "";
             public string templ;
             int fieldi;
-
             public void Start(Window w)
             {
                 templ = templ.Replace("_name_", filename);
                 double cx = w.Width / 2;
                 double cy = w.Height / 2;
-
-                
                 foreach (Canvas c in ((Canvas)w.Content).Children)
-                {                    
-                    
+                {
                     string x1 = "";
                     string y1 = "";
                     if (c.HorizontalAlignment == System.Windows.HorizontalAlignment.Stretch || c.HorizontalAlignment == System.Windows.HorizontalAlignment.Center)
@@ -88,29 +101,28 @@ namespace XamlParser
                         x1 = (-w.Width + c.GetX()) + "f + Screen.width";
                     if (c.VerticalAlignment == System.Windows.VerticalAlignment.Bottom)
                         y1 = (-w.Height + c.GetY()) + "f + Screen.height";
-                    
-                    
+
+
                     fieldi++;
                     start += "\t\twndid" + fieldi + " = UnityEngine.Random.Range(0, 1000);\r\n";
                     WritePrivateField("int wndid" + fieldi + ";");
-                    ongui += "\t\tGUI.Window(wndid" + fieldi + "," + "new Rect(" + x1 + "," + y1 + "," + Width(c) + "f," + Height(c) + "f)" + ", Wnd" + fieldi +",\"\""+ GetStyle(c)+ ");\r\n";
+                    ongui += "\t\tGUI.Window(wndid" + fieldi + "," + "new Rect(" + x1 + "," + y1 + "," + Width(c) + "f," + Height(c) + "f)" + ", Wnd" + fieldi + ",\"\"" + GetStyle(c) + ");\r\n";
                     winfunc += "\tvoid Wnd" + fieldi + "(int id){\r\n";
                     winfunc += "\t\tif (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}\r\n";
                     winfunc += "\t\tfocusWindow = false;\r\n";
                     winfunc += "\t\tbool onMouseOver;\r\n";
                     Draw(c);
                     if (!w.Topmost)
-                        WriteLine("if (GUI.Button(new Rect(" + Width(c) + "f - 25, 5, 20, 15), \"X\")) { enabled = false;onButtonClick();ActionAll(\"onClose\"); }");
+                        WriteLine("if (GUI.Button(new Rect(" + Width(c) + "f - 25, 5, 20, 15), \"X\")) { enabled = false;onButtonClick();Action(\"Close\"); }");
                     //WriteLine(@"if(GUI.tooltip!="""") GUI.Label(new Rect(Input.mousePosition.x+10-rect.x,Screen.height -Input.mousePosition.y+10-rect.y, 100, 200), GUI.tooltip);");
-                    winfunc += "\t}\r\n";                    
-
+                    winfunc += "\t}\r\n";
                 }
-                templ = templ.Replace("_fields_", prefFields+pubfields + privfields, "_funcs_", winfunc, "_start_", start, "_ongui_", ongui);
+                templ = templ.Replace("_fields_", prefFields + pubfields + privfields, "_funcs_", winfunc, "_start_", start, "_ongui_", ongui);
                 File.WriteAllText(output + "scripts/GUI/" + filename + ".cs", templ, System.Text.Encoding.UTF8);
             }
             string GetStyle(FrameworkElement f)
             {
-                
+
                 int i = Panel.GetZIndex(f);
                 //if (f.Tag != null)
                 //{
@@ -130,37 +142,38 @@ namespace XamlParser
 
 
             }
-
             private void Draw(Canvas parent)
             {
                 foreach (FrameworkElement c in parent.Children)
                 {
-
                     bool hasname;
                     if (c.Name == "")
                     {
                         hasname = false;
-                        c.Name = c.GetType().Name + ++fieldi;
+                        fieldi++;
+                        c.Name = c.GetType().Name + fieldi;
                     }
                     else hasname = true;
-
-
                     if (hasname)
                     {
-                        c.Name = char.ToUpper(c.Name[0]) + c.Name.Substring(1);
-                        WritepublicField("bool focus" + c.Name+";");
-                        WriteLine("if(focus"+c.Name+") { focus"+c.Name+" = false; GUI.FocusControl(\""+c.Name+"\");}");
-                        WriteLine("GUI.SetNextControlName(\""+c.Name+"\");");
-                    }
-                    
+                        if (hasname)
+                        {
+                            WriteinternalField("bool v" + c.Name + " = " + (c.Visibility == 0 ? "true" : "false") + ";");
+                            WriteLine("if(v" + c.Name + "){");
+                        }
 
+                        c.Name = char.ToUpper(c.Name[0]) + c.Name.Substring(1);
+                        WriteinternalField("bool focus" + c.Name + ";");
+                        WriteLine("if(focus" + c.Name + ") { focus" + c.Name + " = false; GUI.FocusControl(\"" + c.Name + "\");}");
+                        WriteLine("GUI.SetNextControlName(\"" + c.Name + "\");");
+                    }
                     if (c is TextBox)
                         if (hasname)
-                            TextBox((TextBox)c);                            
+                            TextBox((TextBox)c);
                         else
                             Label((TextBox)c);
                     if (c is Canvas)
-                        Canvas((Canvas)c,hasname);
+                        Canvas((Canvas)c);
                     if (c is Button)
                         Button((Button)c);
                     if (c is TabControl)
@@ -179,66 +192,55 @@ namespace XamlParser
                         ProgressBar((ProgressBar)c);
                     if (c is CheckBox)
                         Button((CheckBox)c);
-                    
-                        
+                    if (hasname)
+                        WriteLine("}");
                 }
             }
-
-            
             float Height(FrameworkElement f)
             {
                 if (f.Height + "" == "NaN")
                 {
-                    if (f.ActualHeight == 0) Debugger.Break();
                     return (float)f.ActualHeight;
                 }
                 return (float)f.Height;
             }
             float Width(FrameworkElement f)
             {
-                if (f.Width+"" == "NaN")
+                if (f.Width + "" == "NaN")
                 {
                     if (f.ActualWidth == 0) Debugger.Break();
                     return (float)f.ActualWidth;
                 }
                 return (float)f.Width;
             }
-            private void Canvas(Canvas c,bool hasname)
+            private void Canvas(Canvas c)
             {
-                if (hasname)
-                {
-                    WritepublicField("bool enabled" + c.Name + " = true;");
-                    WriteLine("if(enabled" + c.Name + "){");
-                }
-                WriteLine("GUI.BeginGroup(new Rect(" + c.GetX() + "f, " + c.GetY() + "f, " + Width(c) + "f, " + Height(c)+ "f), \"\");");
-                WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + "f, " + Height(c)+ "f), \"\");");
+                WriteLine("GUI.BeginGroup(new Rect(" + c.GetX() + "f, " + c.GetY() + "f, " + Width(c) + "f, " + Height(c) + "f), \"\");");
+                WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + "f, " + Height(c) + "f), \"\");");
                 Draw(c);
                 WriteLine("GUI.EndGroup();");
-                if(hasname)
-                    WriteLine("}");
+
             }
             void Slider(Slider c)
             {
-                WritePrefsField("Float", c.Name, c.Value + "f",c.ClipToBounds);
+                WritePrefsField("Float", c.Name, c.Value + "f", c.ClipToBounds);
                 //WritepublicField("float " + c.Name + " = " + c.Value+"f;");
                 WriteLine(c.Name + " = GUI.HorizontalSlider(" + Rect(c) + ", " + c.Name + ", " + c.Minimum + "f, " + c.Maximum + "f);");
-                WriteLine("GUI.Label(new Rect(" + (c.GetX() + Width(c)) + "f," + c.GetY() + "f,40,15),System.Math.Round(" + c.Name + ",1).ToString());");                
+                WriteLine("GUI.Label(new Rect(" + (c.GetX() + Width(c)) + "f," + c.GetY() + "f,40,15),System.Math.Round(" + c.Name + ",1).ToString());");
             }
-
-
-
             private void Button(System.Windows.Controls.Primitives.ButtonBase c)
             {
                 bool toggle = c is CheckBox;
+                var n = c.Name;
                 //WritepublicField("Action on" + c.Name + ";");                
-                WriteBoolField(c.Name, ((toggle && ((CheckBox)c).IsChecked.Value)? true : false), c.ClipToBounds);
-                WriteLine("bool old" + c.Name + " = " + c.Name + ";");
-                WriteLine(c.Name + " = GUI." + (toggle ? "Toggle" : "Button")+"(" + Rect(c) + (toggle ? ","+c.Name : "") + ", new GUIContent(" + GetContent(c.Content) + ",\"" + c.Tag + "\"));");
-                WriteLine("if (" + c.Name + " != old" + c.Name + (toggle ? "" : " && " + c.Name) + " ) {Action" + (c.SnapsToDevicePixels ? "All" : "") + "(\"on" + c.Name + "\");onButtonClick(); }");                
-                WriteLine("onMouseOver = "+Rect(c)+".Contains(Event.current.mousePosition);");
-                WriteLine("if (oldMouseOver"+c.Name+" != onMouseOver && onMouseOver) onOver();");
-                WriteLine("oldMouseOver"+c.Name+" = onMouseOver;");
-                WritePrivateField("bool oldMouseOver"+c.Name+";");
+                WriteBoolField(n, ((toggle && ((CheckBox)c).IsChecked.Value) ? true : false), c.ClipToBounds);
+                WriteLine("bool old" + n + " = " + n + ";");
+                WriteLine(n + " = GUI." + (toggle ? "Toggle" : "Button") + "(" + Rect(c) + (toggle ? "," + n : "") + ", new GUIContent(" + GetContent(c.Content) + ",\"" + c.Tag + "\"));");
+                WriteLine("if (" + n + " != old" + n + (toggle ? "" : " && " + n) + " ) {Action(\"" + n + "\");onButtonClick(); }");
+                WriteLine("onMouseOver = " + Rect(c) + ".Contains(Event.current.mousePosition);");
+                WriteLine("if (oldMouseOver" + n + " != onMouseOver && onMouseOver) onOver();");
+                WriteLine("oldMouseOver" + n + " = onMouseOver;");
+                WritePrivateField("bool oldMouseOver" + n + ";");
 
             }
             private string GetContent(object o)
@@ -250,91 +252,84 @@ namespace XamlParser
             }
             private void StackPanel(StackPanel c)
             {
-                WritepublicField("Action onStackPanelDraw" + ++fieldi + ";");
+                fieldi++;
+                WriteinternalField("Action onStackPanelDraw" + fieldi + ";");
                 WriteLine("GUI.Box(" + Rect(c) + ", \"\");");
                 WriteLine("GUILayout.BeginArea(" + Rect(c) + ");");
                 WriteLine("if(onStackPanelDraw" + fieldi + " != null) onStackPanelDraw" + fieldi + "();");
                 WriteLine("GUILayout.EndArea();");
             }
-
             private void ProgressBar(ProgressBar c)
             {
-                WritepublicField("float " + c.Name + " = " + c.Value+";");
-                WriteLine("GUI.HorizontalScrollbar(" + Rect(c) + ", 0, Mathf.Min(Mathf.Max(0, " + c.Name + "),"+c.Maximum+"), 0, " + c.Maximum + GetStyle(c) +");");
-                WriteLine("GUI.Label(new Rect(" + (c.GetX() + Width(c)/4) + "f," + c.GetY() + "f,100,15),"+c.Name+"+\"/\"+" + c.Maximum + " );");                                
+                WriteinternalField("float " + c.Name + " = " + c.Value + ";");
+                WriteLine("GUI.HorizontalScrollbar(" + Rect(c) + ", 0, Mathf.Min(Mathf.Max(0, " + c.Name + ")," + c.Maximum + "), 0, " + c.Maximum + GetStyle(c) + ");");
+                WriteLine("GUI.Label(new Rect(" + (c.GetX() + Width(c) / 4) + "f," + c.GetY() + "f,100,15)," + c.Name + "+\"/\"+" + c.Maximum + " );");
             }
             private void Line(System.Windows.Shapes.Path c)
             {
-                WriteLine("GUI.Box(" + Rect(c) + ",\"\",GUI.skin.customStyles[4]);");
+                WriteLine("GUI.Box(" + Rect(c) + ",\"\",GUI.skin.customStyles[4]);//line");
             }
             private void ListBox(ListBox c)
-            {                                                
-                pubfields += "\tpublic string[] " + c.Name + " = new string[] {";
+            {
+                var n = c.Name;
+                pubfields += "\tpublic string[] l" + n + ";\r\n";
                 double h = 15;
-                foreach (ListBoxItem lbi in c.Items)
-                {
-                    h = Height(lbi);
-                    pubfields += "\"" + lbi.Content + "\",";
-                }
-                pubfields += "};\r\n";
-                WritePrivateField("Vector2 s" + c.Name + ";");
-                WritePrefsField("Int","i" + c.Name,c.SelectedIndex,c.ClipToBounds);
-                //WritepublicField("int i" + c.Name + ";");
-                string rect = "new Rect(0,0, " + (Width(c) - 20) + "f, " + c.Name + ".Length* "+h+"f)";
+                if (c.Items.Count > 0)
+                    h = Height((ListBoxItem)c.Items[0]);
+                WritePrivateField("Vector2 s" + n + ";");
+                WritePrefsField("Int", "i" + n, c.SelectedIndex, c.ClipToBounds);
+                WritePublicField("string " + n + " { get { if(l" + n + ".Length==0) return \"\"; return l" + n + "[i" + n + "]; } set { i" + n + " = l" + n + ".SelectIndex(value); }}");
+                string rect = "new Rect(0,0, " + (Width(c) - 20) + "f, l" + n + ".Length* " + h + "f)";
                 WriteLine("GUI.Box(" + Rect(c) + ", \"\");");
-                WriteLine("s"+c.Name + " = GUI.BeginScrollView(" + Rect(c) + ", s" + c.Name + ", " + rect + ");");
-                WriteLine("int old" + c.Name + " = i" + c.Name + ";");
-                WriteLine("i" + c.Name + " = GUI.SelectionGrid(" + rect + ", i" + c.Name + ", " + c.Name + ",1,GUI.skin.customStyles[0]);");
-                WriteLine("if (i" + c.Name + " != old" + c.Name + ") Action(\"on" + c.Name + "\"," + c.Name + "[i" + c.Name + "]);");
-                //WritepublicField("Action<string> on" + c.Name + ";");
+                WriteLine("s" + n + " = GUI.BeginScrollView(" + Rect(c) + ", s" + n + ", " + rect + ");");
+                WriteLine("int old" + n + " = i" + n + ";");
+                WriteLine("i" + n + " = GUI.SelectionGrid(" + rect + ", i" + n + ", l" + n + ",1,GUI.skin.customStyles[0]);");
+                WriteLine("if (i" + n + " != old" + n + ") Action(\"" + n + "\");");
+                //WritepublicField("Action<string> on" + n + ";");
                 WriteLine("GUI.EndScrollView();");
             }
-
-            
             private string eval(string s)
             {
                 return "@\"" + s.Replace("\"", "\"\"") + "\"";
             }
             private void Label(TextBox c)
             {
-                WriteLine("GUI.Label(" + Rect(c) + ", " + eval(c.Text) +GetStyle(c) + ");");
+                WriteLine("GUI.Label(" + Rect(c) + ", " + eval(c.Text) + GetStyle(c) + ");");
             }
-
             private void TextBox(TextBox c)
             {
                 int o;
-                bool b =  (int.TryParse(c.Text, out o));
-                WritepublicField("bool isReadOnly" + c.Name + " = " + c.IsReadOnly.ToString().ToLower() + ";");
-                WriteLine("if(isReadOnly" + c.Name + "){");
-                WriteLine("GUI.Label(" + Rect(c) + ", " + c.Name+".ToString()" + GetStyle(c) + ");");
+                var n = c.Name;
+                bool b = (int.TryParse(c.Text, out o));
+                WriteinternalField("bool r" + n + " = " + c.IsReadOnly.ToString().ToLower() + ";");
+                WriteLine("if(r" + n + "){");
+                WriteLine("GUI.Label(" + Rect(c) + ", " + n + ".ToString()" + GetStyle(c) + ");");
                 WriteLine("} else");
-                WriteLine(c.Name + " = " + (b ? "int.Parse(" : "") + 
-                    "GUI.TextField(" + Rect(c) + ", " + c.Name + (b ? ".ToString()" : "") + (c.MaxLength == 0 ? "" : "," + c.MaxLength) + GetStyle(c) + (b? ")":"")+ ");");
-                WritePrefsField((b ? "Int" : "String"), c.Name, (b ? c.Text : eval(c.Text)),c.ClipToBounds);
-                //WritepublicField((b ? "int " : "string ") + c.Name + " = " + (b ? c.Text : eval(c.Text)) + ";");
+                WriteLine(n + " = " + (b ? "int.Parse(" : "") +
+                    "GUI.TextField(" + Rect(c) + ", " + n + (b ? ".ToString()" : "") + (c.MaxLength == 0 ? ",100" : "," + c.MaxLength) + GetStyle(c) + (b ? ")" : "") + ");");
+                WritePrefsField((b ? "Int" : "String"), n, (b ? c.Text : eval(c.Text)), c.ClipToBounds);
+                //WritepublicField((b ? "int " : "string ") + n + " = " + (b ? c.Text : eval(c.Text)) + ";");
             }
-
             string strstr(string s, string a)
             {
                 int i = s.LastIndexOf(a);
                 return s.Substring(i + a.Length, s.Length - i - 1);
             }
-            private void Image(Image c)
+            private void Image(Image a)
             {
-                WritePrivateField("Rect " + c.Name + ";");
-                
-                WriteStart(c.Name + " = " + Rect(c) + ";");
-                WriteLine("GUI.DrawTexture(" + c.Name + "," + GetImage(c) + ", ScaleMode.ScaleToFit);");
-
+                var n = a.Name;
+                WritePrivateField("Rect " + n + ";");
+                WriteStart(n + " = " + Rect(a) + ";");
+                var f = GetImage(a);
+                WriteLine("if(" + f + "!=null)");
+                WriteLine("\tGUI.DrawTexture(" + n + "," + f + ", ScaleMode.ScaleToFit);");
             }
             string GetImage(Image a)
             {
-                string path = new Uri(a.Source.ToString()).LocalPath;
-                string localpath = "Skin/Images/" + Path.GetFileName(path);
-                pubfields += "\t[LoadPath(\""+localpath +"\")]\r\n";
-                WritepublicField("Texture2D Image" + a.Name + ";");
-                File.Copy(path, output + localpath, true);
-                return "Image"+a.Name;
+                if (a.Tag != null)
+                    pubfields += "\t[FindAsset(\"" + a.Tag + "\")]\r\n";
+                WritePublicField("Texture img" + a.Name + ";");
+                return "img" + a.Name;
             }
             private string Rect(FrameworkElement v)
             {
@@ -342,68 +337,59 @@ namespace XamlParser
             }
             private void TabControl(TabControl c)
             {
-                WritepublicField("int tab" + c.Name+";");
+                WriteinternalField("int tab" + c.Name + ";");
                 WriteLine("GUI.BeginGroup(" + Rect(c) + ", \"\");");
                 WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + "f, " + Height(c) + "f), \"\");");
                 int tab = 0;
-                if (c.Items[0] is TabItem)
-                {
-                    string strs = "";
-                    foreach (TabItem i in c.Items)
-                        strs += "\"" + i.Header + "\",";
+                string strs = "";
+                foreach (TabItem i in c.Items)
+                    strs += "\"" + i.Header + "\",";
 
-                    WriteLine("GUILayout.BeginArea(new Rect(0f, 0, " + Width(c) + ", 18));");
-                    WriteLine("tab"+c.Name+" = GUILayout.Toolbar(tab"+c.Name+", new string[] { " + strs + " }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));");
-                    WriteLine("GUILayout.EndArea();");
+                WriteLine("GUILayout.BeginArea(new Rect(0f, 0, " + Width(c) + ", 18));");
+                WriteLine("tab" + c.Name + " = GUILayout.Toolbar(tab" + c.Name + ", new string[] { " + strs + " }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));");
+                WriteLine("GUILayout.EndArea();");
 
-                    WriteLine("GUI.BeginGroup(new Rect(0, 18, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
-                    WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
-                    foreach (TabItem i in c.Items)
-                    {
-                        WriteLine("if(tab" + c.Name + "==" + tab++ + "){");
-                        Draw((Canvas)i.Content);
-                        WriteLine("}");
-                    }
-                    WriteLine("GUI.EndGroup();");
-                }
-                else
+                WriteLine("GUI.BeginGroup(new Rect(0, 18, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
+                WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
+                foreach (TabItem i in c.Items)
                 {
-                    foreach (Canvas i in c.Items)
-                    {
-                        WriteLine("if(tab"+c.Name+"==" + tab++ + "){");
-                        Draw((Canvas)i);
-                        WriteLine("}");
-                    }
+                    WriteLine("if(tab" + c.Name + "==" + tab++ + "){");
+                    Draw((Canvas)i.Content);
+                    WriteLine("}");
                 }
+                WriteLine("GUI.EndGroup();");
                 WriteLine("GUI.EndGroup();");
             }
             void WriteStart(string s)
             {
                 start += "\t\t" + s + "\r\n";
             }
-            enum FT { pub,pref  }
-
+            enum FT { pub, pref }
             void WriteBoolField(string name, bool value, bool save)
             {
                 if (save)
-                    pubfields += "\tpublic bool " + name + " { get { return PlayerPrefs.GetInt(\"" + name + "\", " + (value ? 1 : 0) + ") == 1; } set { PlayerPrefs.SetInt(\"" + name + "\", value?1:0); } }\r\n";
+                    pubfields += "\tinternal bool " + name + " { get { return PlayerPrefs.GetInt(\"" + name + "\", " + (value ? 1 : 0) + ") == 1; } set { PlayerPrefs.SetInt(\"" + name + "\", value?1:0); } }\r\n";
                 else
-                    pubfields += "\tpublic bool " + name + "=" + value.ToString().ToLower() + ";\r\n";
+                    pubfields += "\tinternal bool " + name + "=" + value.ToString().ToLower() + ";\r\n";
             }
-            void WritePrefsField(string type,string name,object def,bool save)
+            void WritePrefsField(string type, string name, object def, bool save)
             {
                 if (save)
-                    prefFields += "\tpublic "+type.ToLower() +" " + name + "{ get { return PlayerPrefs.Get"+type+"(\"" + name + "\", " + def + "); } set { PlayerPrefs.Set"+type+"(\""+name+"\", value); } }\r\n";                    
+                    prefFields += "\tinternal " + type.ToLower() + " " + name + "{ get { return PlayerPrefs.Get" + type + "(\"" + name + "\", " + def + "); } set { PlayerPrefs.Set" + type + "(\"" + name + "\", value); } }\r\n";
                 else
-                    pubfields += "\tpublic " + type.ToLower() + " " + name + " = " + def + ";\r\n";
-                
+                    pubfields += "\tinternal " + type.ToLower() + " " + name + " = " + def + ";\r\n";
+
             }
             void WritePrivateField(string s)
             {
                 privfields += "\tprivate " + s + "\r\n";
             }
+            void WriteinternalField(string s)
+            {
+                pubfields += "\tinternal " + s + "\r\n";
+            }
 
-            void WritepublicField(string s)
+            void WritePublicField(string s)
             {
                 pubfields += "\tpublic " + s + "\r\n";
             }
@@ -411,7 +397,6 @@ namespace XamlParser
             {
                 winfunc += "\t\t" + s + "\r\n";
             }
-
         }
     }
 }

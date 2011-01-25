@@ -86,27 +86,16 @@ public class Cam : Base
         }
         if (lockCursor)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * .02f * mousex;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * mousey;
-        }
-        if (_SettingsWindow.enabled || !loaded)
-        {
-            loaded = true;
-            camx = _SettingsWindow.Camx;
-            camy = _SettingsWindow.Camy;
-            mousex = _SettingsWindow.MouseX;
-            mousey = _SettingsWindow.MouseY;
+            x += Input.GetAxis("Mouse X") * xSpeed * .02f * _SettingsWindow.MouseX;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * _SettingsWindow.MouseY;
         }
     }
-    bool loaded;
-    float mousex, mousey, camx, camy;
     void CamUpdate()
     {
-       
         if (_localPlayer == null) return;
         camera.fieldOfView = _SettingsWindow.Fieldof;
-        xoffset = camx + 0.01f;
-        yoffset = camy + 0.01f;        
+        xoffset = _SettingsWindow.Camx + 0.01f;
+        yoffset = _SettingsWindow.Camy + 0.01f;        
         y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
         Quaternion rot2 = Quaternion.Euler(y, x, 0);
         Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;

@@ -559,7 +559,7 @@ public class Game : Base
         sc.frags += frags;
         sc.deaths += deaths;
         _Menu.SaveScoreBoard(t + "", u.nick, _Loader.password, u.guest, sc.frags, sc.deaths);
-        _ScoreBoardWindow.Scoreboard_ordeby = t + "";        
+        _ScoreBoardWindow.Scoreboard_orderby = t + "";        
     }
     public void AddDecal(DecalTypes t, Vector3 pos, Vector3 normal, Transform addto)
     {

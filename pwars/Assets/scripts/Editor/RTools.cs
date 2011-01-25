@@ -31,7 +31,11 @@ public partial class RTools : InspectorSearch
     
     protected override void OnGUI()
     {
-
+        if (Application.isPlaying && GUI.Button("Win"))
+        {
+            Base2._Game._localPlayer.frags = 10;
+            Base2._Game._localPlayer.RPCSetLife(-20, -1);
+        }
         GUI.BeginHorizontal();
         web = GUI.Toggle(web, "web",GUI.ExpandWidth(false));
         if (GUILayout.Button("Build"))
@@ -39,18 +43,18 @@ public partial class RTools : InspectorSearch
             Build();
             return;
         }
-        GUI.EndHorizontal();
-        BuildButtons();
-        if(GUI.Button("Refresh"))
+        if (GUI.Button("Refresh"))
         {
             for (int i = 0; i < 4; i++)
             {
                 EditorApplication.OpenScene("Assets/scenes/Menu.unity");
                 EditorApplication.OpenScene("Assets/scenes/Pitt.unity");
             }
-            
             return;
         }
+        GUI.EndHorizontal();
+        BuildButtons();
+        
         GUI.BeginHorizontal();                
         _Loader.build = !GUI.Toggle(!_Loader.build, "Debug");
         _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable Path");                

@@ -50,7 +50,7 @@ public class Menu : Base
         onRefresh();
         //_UserWindow.imgBallRender = GameObject.Find("RenderCam").camera.targetTexture;
         _HostWindow.lGameMode = Enum.GetNames(typeof(GameMode));
-        _ScoreBoardWindow.lScoreboard_ordeby = Enum.GetNames(typeof(ScoreBoardTables));
+        _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));
         _ScoreBoardWindow.iScore_table = 0;
         foreach (var s in Enum.GetNames(typeof(ScoreBoardTables)))
             GetScoreBoard(s);        
@@ -72,6 +72,10 @@ public class Menu : Base
     {
         if (_TimerA.TimeElapsed(100))
         {
+            string[] tabble = ScoreBoard[(int)_ScoreBoardWindow.Scoreboard_orderby.Parse<ScoreBoardTables>()];
+            if (tabble != null)
+                _ScoreBoardWindow.lScore_table = tabble;
+
             _UserWindow.imgAvatar = user.Avatar;
             _UserWindow.MaterialName = _Loader.playerTextures[user.MaterialId].name;
             Sphere.renderer.material = _Loader.playerTextures[user.MaterialId];
@@ -129,13 +133,9 @@ public class Menu : Base
                 SaveUser();
             }
         }
-        UpdateScoreBoard();
         return "tabble success";
     }
-    private void UpdateScoreBoard()
-    {
-        _ScoreBoardWindow.lScore_table = ScoreBoard[(int)_ScoreBoardWindow.Scoreboard_ordeby.Parse<ScoreBoardTables>()];
-    }
+    
     public HostData hdf;
     private void onStartServer()
     {
@@ -295,8 +295,6 @@ public class Menu : Base
             PlayerPrefs.SetString("nick", "");
             _LoginWindow.Show(this);
         }
-        if (n == "Scoreboard_ordeby")
-            UpdateScoreBoard();
         if (n == "LoginAsGuest")
             if (_LoginWindow.Nick != "")
             {                

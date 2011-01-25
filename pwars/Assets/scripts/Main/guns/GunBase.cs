@@ -75,8 +75,10 @@ public class GunBase : Base
             if (GunPicture != null && player != null && isOwner)
                 _GameWindow.gunTexture.texture = GunPicture;
         }
-        if(player!=null)
+        if (player != null)
+        {            
             player.UpdateAim();
+        }
     }
     protected virtual void FixedUpdate()
     {

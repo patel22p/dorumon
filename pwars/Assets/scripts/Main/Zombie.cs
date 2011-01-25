@@ -80,7 +80,7 @@ public class Zombie : Destroible
         CanFreeze = zombieType != ZombieType.Life;
         speed = zombiespeed;        
         maxLife =Life = zombieLife;
-        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 300f, 1f), 3);        
+        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 200f, 1f), 3);        
     }
     [RPC]
     public override void Die(int killedby)

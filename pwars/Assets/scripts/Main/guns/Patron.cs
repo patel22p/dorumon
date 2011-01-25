@@ -121,7 +121,7 @@ public class Patron : Base
 
             if (r!= null)
             {
-                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * r.mass * fdt, hit.point);
+                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * fdt, hit.point);
             }
         }
 

@@ -181,11 +181,8 @@ public class Loader : Base
         if (s == "Shadows")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "Reset")
-        {
+        if (s == "Reset")//reset settings
             PlayerPrefs.DeleteAll();
-            _SettingsWindow.Close(); ;
-        }
         if (s == "AtmoSphere")
             if (_Cam != null)
                 _Cam.onEffect();

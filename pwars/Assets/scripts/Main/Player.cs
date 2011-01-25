@@ -4,6 +4,8 @@ using System.Collections;
 using doru;
 using System.Collections.Generic;
 using System;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 public enum Team : int { Red, Blue, None }
 interface IAim { void Aim(Player p); }
 [Serializable]
@@ -339,11 +341,12 @@ public class Player : Destroible, IAim
     }
     public LineRenderer laserRender;
     public void UpdateAim()
-    {
+    {        
         if (Alive)
         {
             if (isOwner) syncRot = _Cam.transform.rotation;
             guntr.rotation = syncRot;
+            
 
             Ray r = gun.GetRay();
             RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
@@ -369,23 +372,23 @@ public class Player : Destroible, IAim
     Vector3 moveForce;
     protected virtual void FixedUpdate()
     {
-        moveForce *= .90f;
+        moveForce *= .80f;
         if (isOwner && lockCursor)
         {
-            Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")); 
             moveDirection = _Cam.transform.TransformDirection(moveDirection);
             if (Physics.gravity == _Game.gravity)
                 moveDirection.y = 0;
-            moveDirection.Normalize();
-            moveForce += moveDirection * Time.deltaTime * 4;
+            moveDirection.Normalize();            
             Vector3 v = this.rigidbody.velocity;
-            if (shift && !frozen)
+            if (shift && !frozen && nitro > 0)
             {
+                moveForce += moveDirection * Time.deltaTime * 8; //forcemove
                 this.rigidbody.angularVelocity = Vector3.zero;
                 this.rigidbody.AddForce(moveForce * fdt * speed * 450);
                 v.x *= 0;
                 v.z *= 0;
-                nitro -= Time.deltaTime * 2;
+                nitro -= Time.deltaTime * 3;
                 if (Physics.gravity != _Game.gravity)
                     v.y *= 0;
                 this.rigidbody.velocity = v;

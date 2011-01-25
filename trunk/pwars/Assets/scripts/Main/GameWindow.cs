@@ -60,7 +60,6 @@ public class GameWindow : Base2 {
     
     public void SetWidth(GUITexture t, int value)
     {
-        var a = t.color;
         var p = t.pixelInset;
         if (p.width != value)
         {

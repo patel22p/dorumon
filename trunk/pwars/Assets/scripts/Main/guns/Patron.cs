@@ -16,7 +16,7 @@ public class Patron : Base
     public int detonatorsize = 8;
     internal float ExpForce = 2000;
     internal int damage = 60;
-    public AnimationCurve ExpDamage;
+    
     internal int probivaemost = 0;
     public bool granate;
     public float gravitate = 0;
@@ -41,6 +41,7 @@ public class Patron : Base
         base.Init();
     }
     public AnimationCurve SamoNavod;
+    public float expDamageFactor = 1;
     protected virtual void Update()
     {
         if (Force != default(Vector3))
@@ -175,8 +176,7 @@ public class Patron : Base
         var e = exp.GetComponent<Explosion>();        
         e.exp = ExpForce;
         e.radius = radius;
-        if (ExpDamage.length != 0)
-            e.damage = ExpDamage;        
+        e.damageFactor = expDamageFactor;        
         e.OwnerID = OwnerID;
         Destroy(gameObject);
         var dt = detonator.GetComponent<Detonator>();

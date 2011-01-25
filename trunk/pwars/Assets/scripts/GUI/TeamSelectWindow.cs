@@ -16,25 +16,15 @@ public class TeamSelectWindow : WindowBase {
 	internal bool focusTeamsView;
 	internal bool vTeams = true;
 	internal bool focusTeams;
-	public string[] Teams = new string[] {"Red Team","Blue Team",};
+	public string[] lTeams;
 	internal int iTeams = 0;
-	internal bool vImages = true;
-	internal bool focusImages;
+	public string Teams { get { if(lTeams.Length==0) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
 	internal bool vred = true;
 	internal bool focusRed;
-	[FindAsset("Image2")]
-	public Texture ImageRed;
-	internal bool vblue = true;
-	internal bool focusBlue;
-	[FindAsset("Image1")]
-	public Texture ImageBlue;
+	public Texture imgRed;
 	internal bool vTeamSelect = true;
 	internal bool focusTeamSelect;
 	internal bool TeamSelect=false;
-	internal bool vfraglimit = true;
-	internal bool focusFraglimit;
-	internal bool isReadOnlyFraglimit = true;
-	internal int Fraglimit = 0;
 	internal bool vGameType = true;
 	internal bool focusGameType;
 	internal bool vZombi = false;
@@ -48,15 +38,13 @@ public class TeamSelectWindow : WindowBase {
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
-	private Rect Blue;
 	private bool oldMouseOverTeamSelect;
 	
     
     
 	void Start () {
 		wndid1 = UnityEngine.Random.Range(0, 1000);
-		Red = new Rect(12f, 2f, 181f, 177f);
-		Blue = new Rect(9.573f, 0f, 183.427f, 179f);
+		Red = new Rect(385f, 39f, 181f, 177f);
 
 	}    
     
@@ -89,33 +77,20 @@ public class TeamSelectWindow : WindowBase {
 		if(vTeams){
 		if(focusTeams) { focusTeams = false; GUI.FocusControl("Teams");}
 		GUI.SetNextControlName("Teams");
-		GUI.Box(new Rect(11f, 20f, 298f, 87f), "");
-		sTeams = GUI.BeginScrollView(new Rect(11f, 20f, 298f, 87f), sTeams, new Rect(0,0, 278f, Teams.Length* 28.9599990844727f));
+		GUI.Box(new Rect(11f, 20f, 298f, 81f), "");
+		sTeams = GUI.BeginScrollView(new Rect(11f, 20f, 298f, 81f), sTeams, new Rect(0,0, 278f, lTeams.Length* 28.9599990844727f));
 		int oldTeams = iTeams;
-		iTeams = GUI.SelectionGrid(new Rect(0,0, 278f, Teams.Length* 28.9599990844727f), iTeams, Teams,1,GUI.skin.customStyles[0]);
-		if (iTeams != oldTeams) Action("Teams",Teams[iTeams]);
+		iTeams = GUI.SelectionGrid(new Rect(0,0, 278f, lTeams.Length* 28.9599990844727f), iTeams, lTeams,1,GUI.skin.customStyles[0]);
+		if (iTeams != oldTeams) Action("Teams");
 		GUI.EndScrollView();
 		}
 		GUI.EndGroup();
 		}
-		if(vImages){
-		if(focusImages) { focusImages = false; GUI.FocusControl("Images");}
-		GUI.SetNextControlName("Images");
-		GUI.BeginGroup(new Rect(358f, 20f, 211f, 195f), "");
-		GUI.Box(new Rect(0, 0, 211f, 195f), "");
 		if(vred){
 		if(focusRed) { focusRed = false; GUI.FocusControl("Red");}
 		GUI.SetNextControlName("Red");
-		if(ImageRed!=null)
-			GUI.DrawTexture(Red,ImageRed, ScaleMode.ScaleToFit);
-		}
-		if(vblue){
-		if(focusBlue) { focusBlue = false; GUI.FocusControl("Blue");}
-		GUI.SetNextControlName("Blue");
-		if(ImageBlue!=null)
-			GUI.DrawTexture(Blue,ImageBlue, ScaleMode.ScaleToFit);
-		}
-		GUI.EndGroup();
+		if(imgRed!=null)
+			GUI.DrawTexture(Red,imgRed, ScaleMode.ScaleToFit);
 		}
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(28f, 263f, 542f, 40f), "");
@@ -129,15 +104,6 @@ public class TeamSelectWindow : WindowBase {
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();
 		oldMouseOverTeamSelect = onMouseOver;
-		}
-		GUI.Label(new Rect(113f, 13.95f, 96f, 21.96f), @"Frag Limit");
-		if(vfraglimit){
-		if(focusFraglimit) { focusFraglimit = false; GUI.FocusControl("Fraglimit");}
-		GUI.SetNextControlName("Fraglimit");
-		if(isReadOnlyFraglimit){
-		GUI.Label(new Rect(213f, 13.95f, 75.333f, 21.96f), Fraglimit.ToString());
-		} else
-		Fraglimit = int.Parse(GUI.TextField(new Rect(213f, 13.95f, 75.333f, 21.96f), Fraglimit.ToString()));
 		}
 		GUI.EndGroup();
 		if(vGameType){

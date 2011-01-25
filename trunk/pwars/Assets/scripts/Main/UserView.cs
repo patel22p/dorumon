@@ -4,32 +4,57 @@ using UnityEngine;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 [Serializable]
+public struct ScoreView
+{
+    public int place;
+    public int frags;
+    public int deaths;
+}
+[Serializable]
 public class UserView
 {
     public static XmlSerializer xml = new XmlSerializer(typeof(UserView));
-    //public Texture2D texture
-    //{
-    //    get
-    //    {
-    //        if (t == null)
-    //        {
-
-    //            t = new Texture2D(256, 256);
-    //            t.LoadImage(data);
-    //        }
-    //        return t;
-    //    }
-    //    set { data = value.EncodeToPNG(); }
-    //}
-    //Texture2D t;
-    //byte[] data;
-    public string first_name = "";
-    public string last_name = "";
-    public string nickname = "";
-    public string nick { get { return nickname == "" ? first_name + " " + last_name : nickname; } set { nickname = value; } }
-    public string photo = "";
-    public int totalZombieKills;
-    public int totalZombieDeaths;
-    public int totalKills;
-    public int totalDeaths;
+    public string _nick;
+    public string nick;
+    public string AvatarUrl;
+    public Texture2D Avatar
+    {
+        get
+        {
+            return LoadTexture(0, ref AvatarUrl);
+        }
+    }
+    public string Desctiption;
+    public string FirstName;
+    [Names("BallImage")]
+    public string BallTextureUrl;    
+    public const string proxy = Game.hosting + "image.php?url=";
+    public Texture2D BallTexture
+    {        
+        get
+        {
+            return LoadTexture(1,ref BallTextureUrl);
+        }
+    }
+    Texture2D[] txt = new Texture2D[2];    
+    private Texture2D LoadTexture(int id,ref string url)
+    {
+        if (txt[id] == null && url != "" && url != null)
+        {
+            var nu = proxy + url;
+            Debug.Log("GettIng texture:" + nu);
+            var w = new WWW(nu);
+            Base2._TimerA.AddMethod(() => w.isDone, delegate
+            {
+                txt[id] = w.texture;
+            });
+            url = "";
+        }
+        return txt[id];
+    }
+    public int MaterialId;    
+    public ScoreView[] scoreboard = new ScoreView[10];
+    public bool guest;
+    
+    
 } 

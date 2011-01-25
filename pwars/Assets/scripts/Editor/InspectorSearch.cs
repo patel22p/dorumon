@@ -16,12 +16,19 @@ public class InspectorSearch : EditorWindow
     List<Object> lastUsed = new List<Object>();
     string search = "";
     public bool SetPivot;
+    public bool SetCam;
     Vector3 oldpos;
+    
     protected virtual void OnGUI()
     {
+
         if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;        
         GUI.BeginHorizontal();       
-        SetPivot = (GUI.Toggle(SetPivot, "Pivot",GUI.ExpandWidth(false)) && Selection.activeGameObject != null);        
+        SetPivot = (GUI.Toggle(SetPivot, "Pivot",GUI.ExpandWidth(false)) && Selection.activeGameObject != null);
+        var old = SetCam;
+        SetCam = (GUI.Toggle(SetCam && Camera.main != null, "Cam", GUI.ExpandHeight(false))); //camset
+        if (SetCam != old && SetCam == false) 
+            ResetCam();
         if (GUI.Button("Apply"))
             ApplyAll();
         if (GUI.Button("Add"))
@@ -31,7 +38,13 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
-    
+
+    public void ResetCam()
+    {
+        SetCam = false;
+        Camera.main.transform.position = Camera.main.transform.parent.position;
+        Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
+    }
     [MenuItem("GameObject/Capture Screenshot")]
     static void Cap()
     {
@@ -117,6 +130,7 @@ public class InspectorSearch : EditorWindow
                             EditorGUILayout.PropertyField(pr);
                         if (so.ApplyModifiedProperties())
                         {
+                            //Debug.Log(pr.name);
                             SetMultiSelect(m, pr);
                         }
                     }
@@ -190,7 +204,6 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-
     private void DrawObjects()
     {        
         List<string> toremove = new List<string>();
@@ -259,6 +272,7 @@ public class InspectorSearch : EditorWindow
     }
     private void OnSceneUpdate(SceneView s)
     {
+        
         var ago = Selection.activeGameObject;
         if (SetPivot)
         {
@@ -271,6 +285,11 @@ public class InspectorSearch : EditorWindow
         if (ago != null)
             oldpos = ago.transform.position;
         var c = s.camera;
+        if (SetCam)
+        {
+            Camera.main.transform.position = s.camera.transform.position;
+            Camera.main.transform.rotation = s.camera.transform.rotation;
+        }
         var e = Event.current;
         var p = e.mousePosition;
         if (e.keyCode == KeyCode.G && e.type == EventType.KeyUp)
@@ -291,13 +310,12 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
         Undo.RegisterSceneUndo("rtools");
         var t = Selection.activeTransform;
-        var nwt = new GameObject(Selection.activeObject.name + "1").transform;
+        var nwt = new GameObject("Child").transform;
         nwt.position = t.position;
         nwt.rotation = t.rotation;
         nwt.parent = t;
@@ -307,7 +325,7 @@ public class InspectorSearch : EditorWindow
     {
         Undo.RegisterSceneUndo("rtools");
         var t = Selection.activeTransform;
-        var t2 = new GameObject(Selection.activeObject.name + "1").transform;
+        var t2 = new GameObject("Parent").transform;
         t2.position = t.position;
         t2.rotation = t.rotation;
         t2.parent = t.parent;
@@ -402,7 +420,6 @@ public class InspectorSearch : EditorWindow
             Clear(g);
         }
     }
-
     public static void Clear(GameObject g)
     {
         foreach (var c in g.GetComponents<Component>())

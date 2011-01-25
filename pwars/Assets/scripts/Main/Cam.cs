@@ -38,7 +38,6 @@ public class Cam : Base
     public ContrastStretchEffect contranStretch;
     public void onEffect()
     {
-
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
         if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
         if (blur.enabled != _SettingsWindow.MotionBlur) { blur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + blur.enabled); }
@@ -55,7 +54,7 @@ public class Cam : Base
             foreach (Light l in GameObject.FindObjectsOfTypeIncludingAssets(typeof(Light)))
                 l.shadows = LightShadows.None;
         }
-        if (_SettingsWindow.iRenderSettings != -1 && _SettingsWindow.iRenderSettings != 2)
+        if (_SettingsWindow.iRenderSettings != -1 && _SettingsWindow.iRenderSettings != (int)RenderingPath.UsePlayerSettings)
         {
             Debug.Log("render type settings chagned" + (RenderingPath)_SettingsWindow.iRenderSettings);
             foreach (Camera c in GameObject.FindObjectsOfTypeIncludingAssets(typeof(Camera)))
@@ -64,6 +63,7 @@ public class Cam : Base
     }
     protected override void Start()
     {
+        camera.GetComponent<GUILayer>().enabled = true;
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;

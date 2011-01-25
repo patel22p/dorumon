@@ -35,7 +35,46 @@ public partial class Base2 : MonoBehaviour
             return sb.ToString();
         }
     }
-    public static string nick { get { return _Loader.userView.nick; } set { _Loader.userView.nick = value; } }
+    
+    //public static void CopyS<T2, T>(T FromObj, T2 ToObj) where T : class, new()
+    //{
+    //    foreach (var fiFrom in FromObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
+    //    {
+    //        var FromV = fiFrom.GetValue(FromObj);
+    //         //if(FromV != null ) Debug.Log(FromV.GetType());
+    //        if (FromV != null && (FromV is string || FromV is IConvertible && Activator.CreateInstance(FromV.GetType()) != FromV)) //FromV.GetType().GetConstructor(new Type[0]) != null && 
+    //        {
+    //            foreach (var fiTo in ToObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
+    //                foreach (var n in getnames(fiFrom))
+    //                    foreach (var n2 in getnames(fiTo))
+    //                        if (n2 == n)
+    //                            if (fiTo != null && fiTo.FieldType == fiFrom.FieldType)
+    //                            {
+    //                                Debug.Log(fiFrom+ " " + fiTo+" "+FromV);
+    //                                fiTo.SetValue(ToObj, FromV);
+    //                                goto Continue;
+    //                            }
+
+    //        }
+    //    Continue: { }
+    //    }
+    //}
+    private static IEnumerable<string> getnames(FieldInfo fi)
+    {
+        var names = fi.GetCustomAttributes(typeof(Names), true).SelectMany(a => ((Names)a).names).Union(new[] { fi.Name }); ;
+        return names;
+    }
+    public static void Copy<T>(T f, T t) where T : class, new()
+    {
+        var ft = f.GetType();
+        var def = new T();
+        foreach (var fi in ft.GetFields(BindingFlags.Instance | BindingFlags.Public))
+        {
+            var v = fi.GetValue(f);
+            if (v != fi.GetValue(def))
+                fi.SetValue(t, v);
+        }
+    }
     //public static Cam _Cam; 
     public static T TakeRandom<T>(IList<T> t)
     {
@@ -60,9 +99,7 @@ public partial class Base2 : MonoBehaviour
     }
 
     static GameWindow __GameWindow;
-    public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }
-    static Irc __Irc;
-    public static Irc _Irc { get { if (__Irc == null) __Irc = (Irc)MonoBehaviour.FindObjectOfType(typeof(Irc)); return __Irc; } }
+    public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }    
     static Game __Game;
     public static Game _Game { get { if (__Game == null) __Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return __Game; } }
     static Cam __Cam;
@@ -202,4 +239,12 @@ public partial class Base2 : MonoBehaviour
     }
 #endif
 
+}
+public class Names : Attribute
+{
+    public string[] names;
+    public Names(params string[] ps)
+    {
+        names = ps;
+    }
 }

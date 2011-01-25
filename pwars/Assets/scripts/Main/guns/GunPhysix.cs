@@ -43,9 +43,9 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, cursor[0].position) < 20);
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 7) < 15);
             float size = boxes.Sum(a => a.collider.bounds.size.magnitude);
-            cursor[0].position = pos + (transform.forward * size / 7) + (transform.forward * 4);
+            cursor[0].position = pos + (transform.forward * size / 10) + (transform.forward * 7);
             foreach (Base b in boxes)
             {
                 if (b.rigidbody.velocity.magnitude < 1)

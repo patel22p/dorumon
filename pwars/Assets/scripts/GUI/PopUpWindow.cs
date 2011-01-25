@@ -14,7 +14,7 @@ public class PopUpWindow : WindowBase {
 		
 	internal bool vtext = true;
 	internal bool focusText;
-	internal bool isReadOnlyText = true;
+	internal bool rText = true;
 	internal string Text = @"";
 	internal bool vok = true;
 	internal bool focusOk;
@@ -50,10 +50,10 @@ public class PopUpWindow : WindowBase {
 		if(vtext){
 		if(focusText) { focusText = false; GUI.FocusControl("Text");}
 		GUI.SetNextControlName("Text");
-		if(isReadOnlyText){
+		if(rText){
 		GUI.Label(new Rect(23f, 25f, 360f, 189f), Text.ToString());
 		} else
-		Text = GUI.TextField(new Rect(23f, 25f, 360f, 189f), Text);
+		Text = GUI.TextField(new Rect(23f, 25f, 360f, 189f), Text,100);
 		}
 		if(vok){
 		if(focusOk) { focusOk = false; GUI.FocusControl("Ok");}

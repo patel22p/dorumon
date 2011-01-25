@@ -285,7 +285,7 @@ public class MapItem : Base, IAim
         if (itemType == MapItemType.spotlight && _localPlayer.haveLight) return false;
         if (itemType == MapItemType.antigravitation && _localPlayer.haveAntiGravitation) return false;
         if (itemType == MapItemType.lifeupgrate && _localPlayer.lifeUpgrate >= 6) return false;
-        if (itemType == MapItemType.speedupgrate && _localPlayer.speedUpgrate >= 3) return false;
+        if (itemType == MapItemType.speedupgrate && _localPlayer.speedUpgrate >= 5) return false;
         if (!endless && itemsLeft <= 0) return false;
         if (_localPlayer.MapItemInterval >= 0) return false;
         if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false;

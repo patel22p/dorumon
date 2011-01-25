@@ -16,23 +16,24 @@ public class ServersWindow : WindowBase {
 	internal int Port{ get { return PlayerPrefs.GetInt("Port", 5300); } set { PlayerPrefs.SetInt("Port", value); } }
 	internal bool vipaddress = true;
 	internal bool focusIpaddress;
-	internal bool isReadOnlyIpaddress = false;
+	internal bool rIpaddress = false;
 	internal bool vport = true;
 	internal bool focusPort;
-	internal bool isReadOnlyPort = false;
+	internal bool rPort = false;
 	internal bool vconnect = true;
 	internal bool focusConnect;
 	internal bool Connect=false;
 	internal bool vServersTable = true;
 	internal bool focusServersTable;
-	public string[] ServersTable = new string[] {};
+	public string[] lServersTable;
 	internal int iServersTable = -1;
+	public string ServersTable { get { if(lServersTable.Length==0) return ""; return lServersTable[iServersTable]; } set { iServersTable = lServersTable.SelectIndex(value); }}
 	internal bool vRefresh = true;
 	internal bool focusRefresh;
 	internal bool Refresh=false;
 	internal bool vserversTitle = true;
 	internal bool focusServersTitle;
-	internal bool isReadOnlyServersTitle = true;
+	internal bool rServersTitle = true;
 	internal string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
 	private int wndid1;
 	private bool oldMouseOverConnect;
@@ -66,23 +67,23 @@ public class ServersWindow : WindowBase {
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
-		GUI.Label(new Rect(21f, 30f, 64.12334f, 21.96f), @"ip address");
+		GUI.Label(new Rect(17f, 30f, 80f, 21.96f), @"ip address");
 		if(vipaddress){
 		if(focusIpaddress) { focusIpaddress = false; GUI.FocusControl("Ipaddress");}
 		GUI.SetNextControlName("Ipaddress");
-		if(isReadOnlyIpaddress){
+		if(rIpaddress){
 		GUI.Label(new Rect(103.3f, 30f, 123f, 14f), Ipaddress.ToString());
 		} else
-		Ipaddress = GUI.TextField(new Rect(103.3f, 30f, 123f, 14f), Ipaddress);
+		Ipaddress = GUI.TextField(new Rect(103.3f, 30f, 123f, 14f), Ipaddress,100);
 		}
 		GUI.Label(new Rect(64.38f, 48f, 32.32333f, 21.96f), @"port");
 		if(vport){
 		if(focusPort) { focusPort = false; GUI.FocusControl("Port");}
 		GUI.SetNextControlName("Port");
-		if(isReadOnlyPort){
+		if(rPort){
 		GUI.Label(new Rect(103.3f, 48f, 123f, 14f), Port.ToString());
 		} else
-		Port = int.Parse(GUI.TextField(new Rect(103.3f, 48f, 123f, 14f), Port.ToString()));
+		Port = int.Parse(GUI.TextField(new Rect(103.3f, 48f, 123f, 14f), Port.ToString(),100));
 		}
 		if(vconnect){
 		if(focusConnect) { focusConnect = false; GUI.FocusControl("Connect");}
@@ -101,10 +102,10 @@ public class ServersWindow : WindowBase {
 		if(focusServersTable) { focusServersTable = false; GUI.FocusControl("ServersTable");}
 		GUI.SetNextControlName("ServersTable");
 		GUI.Box(new Rect(8f, 48f, 586f, 299f), "");
-		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 586f, 299f), sServersTable, new Rect(0,0, 566f, ServersTable.Length* 15f));
+		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 586f, 299f), sServersTable, new Rect(0,0, 566f, lServersTable.Length* 15f));
 		int oldServersTable = iServersTable;
-		iServersTable = GUI.SelectionGrid(new Rect(0,0, 566f, ServersTable.Length* 15f), iServersTable, ServersTable,1,GUI.skin.customStyles[0]);
-		if (iServersTable != oldServersTable) Action("ServersTable",ServersTable[iServersTable]);
+		iServersTable = GUI.SelectionGrid(new Rect(0,0, 566f, lServersTable.Length* 15f), iServersTable, lServersTable,1,GUI.skin.customStyles[0]);
+		if (iServersTable != oldServersTable) Action("ServersTable");
 		GUI.EndScrollView();
 		}
 		GUI.Label(new Rect(0f, 0f, 114.45f, 14f), @"Server List");
@@ -121,15 +122,15 @@ public class ServersWindow : WindowBase {
 		if(vserversTitle){
 		if(focusServersTitle) { focusServersTitle = false; GUI.FocusControl("ServersTitle");}
 		GUI.SetNextControlName("ServersTitle");
-		if(isReadOnlyServersTitle){
+		if(rServersTitle){
 		GUI.Label(new Rect(8f, 30f, 586f, 14f), ServersTitle.ToString(), GUI.skin.customStyles[2]);
 		} else
-		ServersTitle = GUI.TextField(new Rect(8f, 30f, 586f, 14f), ServersTitle, GUI.skin.customStyles[2]);
+		ServersTitle = GUI.TextField(new Rect(8f, 30f, 586f, 14f), ServersTitle,100, GUI.skin.customStyles[2]);
 		}
-		GUI.Box(new Rect(173f, 30f, 1f, 317f),"",GUI.skin.customStyles[4]);
-		GUI.Box(new Rect(282f, 30f, 1f, 318.907f),"",GUI.skin.customStyles[4]);
-		GUI.Box(new Rect(404f, 30f, 1f, 318.511f),"",GUI.skin.customStyles[4]);
-		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);
+		GUI.Box(new Rect(173f, 30f, 1f, 317f),"",GUI.skin.customStyles[4]);//line
+		GUI.Box(new Rect(282f, 30f, 1f, 318.907f),"",GUI.skin.customStyles[4]);//line
+		GUI.Box(new Rect(404f, 30f, 1f, 318.511f),"",GUI.skin.customStyles[4]);//line
+		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);//line
 		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Server");
 		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }

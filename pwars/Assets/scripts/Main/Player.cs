@@ -18,18 +18,18 @@ public class Player : Destroible, IAim
     public float nitro;
     public new Team team = Team.None;
     public float speed;
-    public float Score = 1;    
+    public float Score = 1;
     public bool haveLight;
     public bool haveTimeBomb;
-    internal UserView user = new UserView(); 
+    internal UserView user = new UserView();
     public int speedUpgrate;
     public int lifeUpgrate;
-    public bool haveAntiGravitation;    
+    public bool haveAntiGravitation;
     public int guni;
     public int fps;
     public int ping;
     public int deaths;
-    new public string nick { get { return user.nick; } }
+    public string nick { get { return user.nick; } }
     public bool spawned;
     public int frags;
     public float defMaxLife;
@@ -45,12 +45,14 @@ public class Player : Destroible, IAim
     [FindTransform("Sphere")]
     public GameObject model;
     public override void Init()
-    {        
+    {
         base.Init();
         guns = guntr.GetChild(0).GetComponentsInChildren<GunBase>().ToList();
+        for (int i = 0; i < guns.Count; i++)
+            guns[i].guntype = i;   
         shared = false;
         title = transform.GetComponentInChildren<TextMesh>();
-        laserRender = root.GetComponentInChildren<LineRenderer>();        
+        laserRender = root.GetComponentInChildren<LineRenderer>();
         fanarik = this.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Spot);
         nitro = 10;
     }
@@ -58,28 +60,30 @@ public class Player : Destroible, IAim
     {
         isGrounded = 0;
     }
-    public void RPCSetUserView(byte[] s) { CallRPC("SetUserView",s); }
+    public void RPCSetUserView(byte[] s) { CallRPC("SetUserView", s); }
     [RPC]
     public void SetUserView(byte[] data)
     {
         Debug.Log(data.Length + name);
         user = (UserView)Deserialize(data, UserView.xml);
+        model.renderer.materials[0] = _Loader.playerTextures[user.MaterialId];
     }
     public override void Awake()
     {
         CanFreeze = mapSettings.freezeOnBite;
-        AliveMaterial = model.renderer.sharedMaterial;        
+        AliveMaterial = model.renderer.sharedMaterial;
         Debug.Log("player awake");
         defmass = rigidbody.mass;
-        defMaxLife = maxLife;
+        defMaxLife = maxLife;        
         Score = _Loader.mapSettings.StartMoney + _Game.stage * 10 * _Game.scorefactor.Evaluate(_Game.stage);
         this.rigidbody.maxAngularVelocity = 3000;
         if (networkView.isMine)
         {
             _localPlayer = this;
-            var s = Serialize(_Loader.userView, UserView.xml);            
-            RPCSetUserView(s);
-            RPCSetOwner();            
+            _Game.RPCWriteMessage("Player Connected: " + nick);
+            user = _Loader.UserView;
+            networkView.RPC("SetUserView", RPCMode.Others, Serialize(user, UserView.xml));
+            RPCSetOwner();
             ResetSpawn();
         }
         //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
@@ -92,13 +96,13 @@ public class Player : Destroible, IAim
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         base.OnPlayerConnectedBase(np);
-        RPCSetUserView(Serialize(user,UserView.xml));
-        RPCSetTeam((int)team);           
-        RPCSetAlive( Alive);
+        RPCSetUserView(Serialize(user, UserView.xml));
+        RPCSetTeam((int)team);
+        RPCSetAlive(Alive);
         RPCSetFrags(frags, Score);
         RPCSetDeaths(deaths);
         RPCSetFanarik(fanarik.enabled);
-        RPCSelectGun( selectedgun);
+        RPCSelectGun(selectedgun);
         RPCSetLifeUpgrate(lifeUpgrate);
         RPCSetSpeedUpgrate(speedUpgrate);
         //if (spawned && dead) networkView.RPC("RPCDie", np, -1);
@@ -141,7 +145,7 @@ public class Player : Destroible, IAim
                     selectedgun = i;
                     break;
                 }
-        
+
         RPCSelectGun(selectedgun);
     }
     [FindAsset("change")]
@@ -149,7 +153,7 @@ public class Player : Destroible, IAim
     public void RPCSelectGun(int i) { CallRPC("SelectGun", i); }
     [RPC]
     public void SelectGun(int i)
-    {        
+    {
         PlaySound(changeSound);
         selectedgun = i;
         foreach (GunBase gb in guns)
@@ -161,11 +165,11 @@ public class Player : Destroible, IAim
     }
     protected override void Update()
     {
-     
-        maxLife = defMaxLife + (lifeUpgrate * 100);        
+
+        maxLife = defMaxLife + (lifeUpgrate * 100);
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
-        
+
         if (!isOwner)
             UpdateTitle();
 
@@ -180,8 +184,8 @@ public class Player : Destroible, IAim
                 if (plPathPoints.Count > 20) plPathPoints.RemoveAt(0);
             }
         }
-        
-        
+
+
         multikilltime -= Time.deltaTime;
         if (this.rigidbody.velocity.magnitude > 30)
         {
@@ -192,11 +196,11 @@ public class Player : Destroible, IAim
                 speedparticles.Emit();
             }
         }
-        
+
         if (isOwner)
             LocalUpdate();
         base.Update();
-        //UpdateLightmap(model.renderer.materials);
+        
     }
     public bool shift;
     public void RPCSetStreff(bool value) { CallRPC("SetStreff", value); }
@@ -256,7 +260,7 @@ public class Player : Destroible, IAim
             }
             if ((haveLight || debug) && Input.GetKeyDown(KeyCode.R))
             {
-                RPCSetFanarik(!fanarik.enabled);                
+                RPCSetFanarik(!fanarik.enabled);
             }
         }
     }
@@ -302,10 +306,10 @@ public class Player : Destroible, IAim
     }
     public void Aim(Player p)
     {
-        if(p.isOwner)
+        if (p.isOwner)
             shownicktime = 3;
     }
-    public void RPCSetFanarik(bool v) { CallRPC("SetFanarik",v); }
+    public void RPCSetFanarik(bool v) { CallRPC("SetFanarik", v); }
     [RPC]
     public void SetFanarik(bool value)
     {
@@ -335,7 +339,7 @@ public class Player : Destroible, IAim
     }
     public LineRenderer laserRender;
     public void UpdateAim()
-    {        
+    {
         if (Alive)
         {
             if (isOwner) syncRot = _Cam.transform.rotation;
@@ -362,8 +366,10 @@ public class Player : Destroible, IAim
         else
             laserRender.enabled = false;
     }
+    Vector3 moveForce;
     protected virtual void FixedUpdate()
     {
+        moveForce *= .90f;
         if (isOwner && lockCursor)
         {
             Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -371,25 +377,28 @@ public class Player : Destroible, IAim
             if (Physics.gravity == _Game.gravity)
                 moveDirection.y = 0;
             moveDirection.Normalize();
+            moveForce += moveDirection * Time.deltaTime * 4;
             Vector3 v = this.rigidbody.velocity;
             if (shift && !frozen)
             {
                 this.rigidbody.angularVelocity = Vector3.zero;
-                this.rigidbody.AddForce(moveDirection * fdt * speed * 500 * rigidbody.mass);
+                this.rigidbody.AddForce(moveForce * fdt * speed * 450);
                 v.x *= 0;
                 v.z *= 0;
+                nitro -= Time.deltaTime * 2;
                 if (Physics.gravity != _Game.gravity)
                     v.y *= 0;
                 this.rigidbody.velocity = v;
             }
             else
             {
+                
                 this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed * 5);
             }
             if (frozen) this.rigidbody.velocity *= .85f;
         }
     }
-    
+
     public void RPCJump() { CallRPC("Jump"); }
     [RPC]
     public void Jump()
@@ -410,7 +419,7 @@ public class Player : Destroible, IAim
                 return;
             }
         }
-        for (int i = guns.Count-1; i > 0; i--)
+        for (int i = guns.Count - 1; i > 0; i--)
         {
             if (guns[i].patronsLeft > 0 || debug)
             {
@@ -439,20 +448,20 @@ public class Player : Destroible, IAim
             }
         }
     }
-    public void RPCSetTeam(int t) { CallRPC("SetTeam",t); }
+    public void RPCSetTeam(int t) { CallRPC("SetTeam", t); }
     [RPC]
     public void SetTeam(int t)
     {
-        print(pr);        
+        print(pr);
         team = (Team)t;
     }
     [RPC]
     public void RPCSetDeaths(int d) { deaths = d; }
     protected override void OnCollisionEnter(Collision collisionInfo)
-    {        
+    {
         if (!Alive) return;
-        
-        if (isOwner && collisionInfo.relativeVelocity.y >20)
+
+        if (isOwner && collisionInfo.relativeVelocity.y > 20)
             RPCPowerExp(this.transform.position);
         base.OnCollisionEnter(collisionInfo);
     }
@@ -464,17 +473,16 @@ public class Player : Destroible, IAim
     public AudioClip bowling;
     [FindAsset("nitrojump")]
     public AudioClip nitrojumpSound;
-    
     [FindAsset]
     public AudioClip givemoney;
     [FindAsset]
     public GameObject Explosion;
-    public void RPCPowerExp(Vector3 v) { CallRPC("PowerExp",v); }        
+    public void RPCPowerExp(Vector3 v) { CallRPC("PowerExp", v); }
     [RPC]
     public void PowerExp(Vector3 v)
-    {        
+    {
         PlaySound(powerexpSound, 4);
-        
+
         GameObject g = (GameObject)Instantiate(WavePrefab, v, Quaternion.Euler(90, 0, 0));
         GameObject exp = (GameObject)Instantiate(Explosion, v, Quaternion.identity);
         exp.transform.parent = g.transform;
@@ -483,13 +491,12 @@ public class Player : Destroible, IAim
         e.self = this;
         e.exp = 5000;
         e.radius = 10;
-        
-        if(isOwner)
+
+        if (isOwner)
             _Cam.exp = 2;
-        
+
         Destroy(g, 1.6f);
     }
-        
     [FindAsset("Detonator-Base")]
     public GameObject detonator;
     [RPC]
@@ -524,7 +531,7 @@ public class Player : Destroible, IAim
         if (isOwner)
         {
             if (!mapSettings.zombi) _TimerA.AddMethod(10000, delegate { RPCSetAlive(true); });
-            ResetSpawn();
+            RPCSetAlive(false);
         }
     }
     public Material AliveMaterial;
@@ -533,7 +540,7 @@ public class Player : Destroible, IAim
     [RPC]
     public void SetAlive(bool value)
     {
-        Debug.Log(name + " Alive " + value);        
+        Debug.Log(name + " Alive " + value);
         _TimerA.AddMethod(delegate
         {
             foreach (var t in GetComponentsInChildren<Transform>())
@@ -543,11 +550,11 @@ public class Player : Destroible, IAim
                     t.gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
         });
         Alive = value;
-        
+
         RPCSetFanarik(false);
-        if(value)
+        if (value)
             spawned = true;
-        model.renderer.sharedMaterial = value? AliveMaterial:deadMaterial;                
+        model.renderer.sharedMaterial = value ? AliveMaterial : deadMaterial;
         foreach (GunBase gunBase in guns.Concat(guns))
             gunBase.Reset();
         if (isOwner)
@@ -558,7 +565,7 @@ public class Player : Destroible, IAim
     }
     float multikilltime;
     int multikill;
-    public void AddFrags(int i,float sc)
+    public void AddFrags(int i, float sc)
     {
         if (isOwner)
         {
@@ -595,7 +602,7 @@ public class Player : Destroible, IAim
     public void RPCSetFrags(int i, float score) { CallRPC("SetFrags", i, score); }
     [RPC]
     public void SetFrags(int i, float sc)
-    {        
+    {
         frags = i;
         Score = sc;
     }
@@ -612,7 +619,7 @@ public class Player : Destroible, IAim
     {
         lifeUpgrate = value;
     }
-    public void RPCGiveMoney(int money) { CallRPC("GiveMoney",money); }
+    public void RPCGiveMoney(int money) { CallRPC("GiveMoney", money); }
     [RPC]
     public void GiveMoney(int money)
     {
@@ -623,8 +630,6 @@ public class Player : Destroible, IAim
 
     public static Vector3 Clamp(Vector3 velocityChange, float maxVelocityChange)
     {
-
-
         velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
         velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
         velocityChange.y = Mathf.Clamp(velocityChange.y, -maxVelocityChange, maxVelocityChange);

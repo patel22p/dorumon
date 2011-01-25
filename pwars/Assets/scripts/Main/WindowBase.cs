@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class WindowBase : Base2
 {
-    
+    void Awake()
+    {
+        enabled = false;
+    }
     public void Action(string name, params object[] param)
     {
         controller.SendMessage("Action", name, SendMessageOptions.DontRequireReceiver);
@@ -14,16 +17,7 @@ public class WindowBase : Base2
     {
         controller.SendMessage("Action", name, SendMessageOptions.DontRequireReceiver);
     }
-    //public void ActionAll(string name)
-    //{
-    //    foreach (Base a in GameObject.FindObjectsOfType(typeof(Base)))
-    //        a.SendMessage(name, SendMessageOptions.DontRequireReceiver);
-    //}    
-    //new public bool enabled { get { return base.enabled; } set { if (enabled) Show(); else Hide(); } }
-
     public MonoBehaviour controller;
-
-
     public void Toggle(MonoBehaviour obj)
     {
         
@@ -33,25 +27,29 @@ public class WindowBase : Base2
             Hide();
 
     }
+    public void Close()
+    {
+        Hide();
+        Action("Close");
+    }
     public void Show(MonoBehaviour controller)
     {
+        this.controller = controller;
+        Show();
+    }
+    public void Show()
+    {
         lockCursor = false;
-        SendMessageUpwards("HideWindow", SendMessageOptions.DontRequireReceiver);        
-        enabled = true;
-        this.controller = controller;                
+        foreach(var a in transform.parent.GetComponentsInChildren<Transform>())                        
+            a.gameObject.SendMessage("Hide", SendMessageOptions.DontRequireReceiver);
+
+        enabled = true;        
     }
     public void ShowDontHide(MonoBehaviour controller)
-    {        
+    {
         enabled = true;
         this.controller = controller;
     }
-
-    public void ShowOnTop(MonoBehaviour controller)
-    {        
-        enabled = true;
-        this.controller = controller;
-    }
-
     [FindAsset("mouseover")]
     public AudioClip mouseOver;
     [FindAsset("click")]
@@ -64,12 +62,7 @@ public class WindowBase : Base2
     {
         _Loader.audio.PlayOneShot(mouseclick);
     }
-
     public void Hide()
-    {
-        enabled = false;
-    }
-    void HideWindow()
     {
         enabled = false;
     }

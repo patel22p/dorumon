@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
-    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed, ZombieType.Speed, ZombieType.Speed };
+    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Life, ZombieType.Life, ZombieType.Speed };
     public ZombieType zombieType;
     public float zombieBite;
     public float speed = .3f;
@@ -60,7 +60,7 @@ public class Zombie : Destroible
         speed = Random.Range(speed, speed / 3 * 2);
         var life = zombieLifeCurve.Evaluate(stage)*mapSettings.zombieLifeFactor;
         life = Random.Range(life, life / 3 * 2);
-        if (zombieType == ZombieType.Life) life *= 2;
+        if (zombieType == ZombieType.Life) { speed *= .7f; life *= 2; }
         if (zombieType == ZombieType.Speed) { speed *= 1.3f; life *= .7f; }
         RPCSetup(speed, life, (int)zombieType);
     }
@@ -68,6 +68,7 @@ public class Zombie : Destroible
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
     {
+        
         Alive = true;
         Sync = true;
         ResetSpawn();
@@ -108,11 +109,12 @@ public class Zombie : Destroible
         seekPathtm -= Time.deltaTime;
         if (!Alive || selected == -1 || frozen) return;
         var ipl = Nearest();
-        if (ipl != null)
+        if (ipl != null && ipl.Alive)
         {
             Vector3 pathPointDir;
             Vector3 zToPlDir = ipl.transform.position - pos;
-            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? default(Vector3));
+
+            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? (_Loader.disablePathFinding ? zToPlDir : default(Vector3)));
             if (pathPointDir == default(Vector3))
             {
                 move = false;
@@ -179,8 +181,7 @@ public class Zombie : Destroible
     Destroible nearest;
     private Destroible Nearest()
     {
-        if(nearest == null || _TimerA.TimeElapsed(100))
-            //_Game.towers.Where(a => a != null && Vector3.Distance(a.pos, pos) < 10).Cast<Destroible>().Union(players)
+        if(nearest == null || _TimerA.TimeElapsed(100))            
             nearest = players.Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return nearest;
     }

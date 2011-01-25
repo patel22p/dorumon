@@ -13,6 +13,7 @@ public class Box : Shared
     public override void Init()
     {
         base.Init();
+        Debug.Log(collider.bounds.size.magnitude);
         rigidbody.mass = 5;
         networkView.stateSynchronization = NetworkStateSynchronization.Off;
         if (collider.sharedMaterial == null)

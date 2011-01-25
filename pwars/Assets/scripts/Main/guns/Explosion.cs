@@ -6,6 +6,7 @@ public class Explosion : Base
 
     public Shared self;
     public AnimationCurve damage;
+    public float damageFactor = 1;
     public float exp = 500;
     public float radius = 4;
 

@@ -10,14 +10,14 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-
+using Random = UnityEngine.Random;
 public class Base : Base2
 {    
     public int OwnerID = -1;
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public void ShowPopup(string s)
     {
-        _PopUpWindow.ShowDontHide(null);
+        _PopUpWindow.ShowDontHide(_Loader);
         _PopUpWindow.Text = s;
     }
     bool defenabled;
@@ -28,10 +28,9 @@ public class Base : Base2
         {
             name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
             if (Network.peerType == NetworkPeerType.Disconnected)
-            {                
-                
+            {
                 enabled = false;
-            }            
+            }
         }
     }
     protected virtual void Start(){}
@@ -163,6 +162,23 @@ public class Base : Base2
     
     public virtual void onShow(bool enabled)
     {
+    }
+    public void WWWSend(string s, Action<string> a)
+    {
+        WWWSend(s, null, a);
+    }
+    public void WWWSend(string s, WWWForm form, Action<string> a)
+    {
+        s = s + "&r=" + Random.value;
+        Debug.Log("WWW: " + s);
+        var w = form == null ? new WWW(s) : new WWW(s, form); ;
+        _TimerA.AddMethod(() => w.isDone, delegate
+        {
+            if (w.error == "" || w.error == null)
+                a(w.text);
+            else
+                Debug.Log(w.error);
+        });
     }
     public static NetworkPlayer? sendto;
     public void CallRPC(string name, params object[] obs)

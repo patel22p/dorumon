@@ -25,10 +25,12 @@ public class SettingsWindow : WindowBase {
 	internal float MouseX{ get { return PlayerPrefs.GetFloat("MouseX", 1f); } set { PlayerPrefs.SetFloat("MouseX", value); } }
 	internal bool vGraphicQuality = true;
 	internal bool focusGraphicQuality;
-	public string[] GraphicQuality = new string[] {"Fastest","Fast","Simple","Good","Beautifull","Fantastic",};
+	public string[] lGraphicQuality;
+	public string GraphicQuality { get { if(lGraphicQuality.Length==0) return ""; return lGraphicQuality[iGraphicQuality]; } set { iGraphicQuality = lGraphicQuality.SelectIndex(value); }}
 	internal bool vScreenSize = true;
 	internal bool focusScreenSize;
-	public string[] ScreenSize = new string[] {};
+	public string[] lScreenSize;
+	public string ScreenSize { get { if(lScreenSize.Length==0) return ""; return lScreenSize[iScreenSize]; } set { iScreenSize = lScreenSize.SelectIndex(value); }}
 	internal bool vFullScreen = true;
 	internal bool focusFullScreen;
 	internal bool FullScreen=false;
@@ -55,8 +57,9 @@ public class SettingsWindow : WindowBase {
 	internal bool BloomAndFlares { get { return PlayerPrefs.GetInt("BloomAndFlares", 1) == 1; } set { PlayerPrefs.SetInt("BloomAndFlares", value?1:0); } }
 	internal bool vRenderSettings = true;
 	internal bool focusRenderSettings;
-	public string[] RenderSettings = new string[] {"Vertex Lit","Forward","Deffered",};
+	public string[] lRenderSettings;
 	internal int iRenderSettings = -1;
+	public string RenderSettings { get { if(lRenderSettings.Length==0) return ""; return lRenderSettings[iRenderSettings]; } set { iRenderSettings = lRenderSettings.SelectIndex(value); }}
 	internal bool vcamx = true;
 	internal bool focusCamx;
 	internal bool vcamy = true;
@@ -131,20 +134,20 @@ public class SettingsWindow : WindowBase {
 		if(focusGraphicQuality) { focusGraphicQuality = false; GUI.FocusControl("GraphicQuality");}
 		GUI.SetNextControlName("GraphicQuality");
 		GUI.Box(new Rect(49.5f, 38.833f, 111.013f, 112.167f), "");
-		sGraphicQuality = GUI.BeginScrollView(new Rect(49.5f, 38.833f, 111.013f, 112.167f), sGraphicQuality, new Rect(0,0, 91.013f, GraphicQuality.Length* 15.960000038147f));
+		sGraphicQuality = GUI.BeginScrollView(new Rect(49.5f, 38.833f, 111.013f, 112.167f), sGraphicQuality, new Rect(0,0, 91.013f, lGraphicQuality.Length* 15.960000038147f));
 		int oldGraphicQuality = iGraphicQuality;
-		iGraphicQuality = GUI.SelectionGrid(new Rect(0,0, 91.013f, GraphicQuality.Length* 15.960000038147f), iGraphicQuality, GraphicQuality,1,GUI.skin.customStyles[0]);
-		if (iGraphicQuality != oldGraphicQuality) Action("GraphicQuality",GraphicQuality[iGraphicQuality]);
+		iGraphicQuality = GUI.SelectionGrid(new Rect(0,0, 91.013f, lGraphicQuality.Length* 15.960000038147f), iGraphicQuality, lGraphicQuality,1,GUI.skin.customStyles[0]);
+		if (iGraphicQuality != oldGraphicQuality) Action("GraphicQuality");
 		GUI.EndScrollView();
 		}
 		if(vScreenSize){
 		if(focusScreenSize) { focusScreenSize = false; GUI.FocusControl("ScreenSize");}
 		GUI.SetNextControlName("ScreenSize");
 		GUI.Box(new Rect(182.833f, 38.833f, 114.667f, 112.167f), "");
-		sScreenSize = GUI.BeginScrollView(new Rect(182.833f, 38.833f, 114.667f, 112.167f), sScreenSize, new Rect(0,0, 94.667f, ScreenSize.Length* 15f));
+		sScreenSize = GUI.BeginScrollView(new Rect(182.833f, 38.833f, 114.667f, 112.167f), sScreenSize, new Rect(0,0, 94.667f, lScreenSize.Length* 15f));
 		int oldScreenSize = iScreenSize;
-		iScreenSize = GUI.SelectionGrid(new Rect(0,0, 94.667f, ScreenSize.Length* 15f), iScreenSize, ScreenSize,1,GUI.skin.customStyles[0]);
-		if (iScreenSize != oldScreenSize) Action("ScreenSize",ScreenSize[iScreenSize]);
+		iScreenSize = GUI.SelectionGrid(new Rect(0,0, 94.667f, lScreenSize.Length* 15f), iScreenSize, lScreenSize,1,GUI.skin.customStyles[0]);
+		if (iScreenSize != oldScreenSize) Action("ScreenSize");
 		GUI.EndScrollView();
 		}
 		GUI.Label(new Rect(184.59f, 24.833f, 137.577f, 21.96f), @"Screen Resolution");
@@ -234,10 +237,10 @@ public class SettingsWindow : WindowBase {
 		if(focusRenderSettings) { focusRenderSettings = false; GUI.FocusControl("RenderSettings");}
 		GUI.SetNextControlName("RenderSettings");
 		GUI.Box(new Rect(326.5f, 87f, 129f, 64f), "");
-		sRenderSettings = GUI.BeginScrollView(new Rect(326.5f, 87f, 129f, 64f), sRenderSettings, new Rect(0,0, 109f, RenderSettings.Length* 15.960000038147f));
+		sRenderSettings = GUI.BeginScrollView(new Rect(326.5f, 87f, 129f, 64f), sRenderSettings, new Rect(0,0, 109f, lRenderSettings.Length* 15.960000038147f));
 		int oldRenderSettings = iRenderSettings;
-		iRenderSettings = GUI.SelectionGrid(new Rect(0,0, 109f, RenderSettings.Length* 15.960000038147f), iRenderSettings, RenderSettings,1,GUI.skin.customStyles[0]);
-		if (iRenderSettings != oldRenderSettings) Action("RenderSettings",RenderSettings[iRenderSettings]);
+		iRenderSettings = GUI.SelectionGrid(new Rect(0,0, 109f, lRenderSettings.Length* 15.960000038147f), iRenderSettings, lRenderSettings,1,GUI.skin.customStyles[0]);
+		if (iRenderSettings != oldRenderSettings) Action("RenderSettings");
 		GUI.EndScrollView();
 		}
 		GUI.Label(new Rect(330.5f, 72f, 47.76f, 21.96f), @"Render");

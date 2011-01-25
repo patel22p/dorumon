@@ -43,7 +43,6 @@ public class Gun : GunBase
     }
     protected override void Start()
     {
-
         defPos2 = defPos = transform.localPosition;        
     }
     public override void onShow(bool enabled)

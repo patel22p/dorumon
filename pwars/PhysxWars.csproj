@@ -88,15 +88,17 @@
      <Compile Include="Assets\scripts\GUI\GunType.cs" />
      <Compile Include="Assets\scripts\GUI\HostWindow.cs" />
      <Compile Include="Assets\scripts\GUI\IrcChatWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\KeyboardWindow.cs" />
      <Compile Include="Assets\scripts\GUI\LoginWindow.cs" />
      <Compile Include="Assets\scripts\GUI\MenuWindow.cs" />
      <Compile Include="Assets\scripts\GUI\ParticleTypes.cs" />
      <Compile Include="Assets\scripts\GUI\PopUpWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\ScoreBoardWindow.cs" />
      <Compile Include="Assets\scripts\GUI\ServersWindow.cs" />
      <Compile Include="Assets\scripts\GUI\SettingsWindow.cs" />
      <Compile Include="Assets\scripts\GUI\TeamSelectWindow.cs" />
+     <Compile Include="Assets\scripts\GUI\UserWindow.cs" />
      <Compile Include="Assets\scripts\GUI\Window.cs" />
-     <Compile Include="Assets\scripts\GUI\WindowBase.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Constants.cs" />
      <Compile Include="Assets\scripts\Helpers\ZLib\BZip2\BZip2Exception.cs" />
@@ -169,7 +171,6 @@
      <Compile Include="Assets\scripts\Main\Ext.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
-     <Compile Include="Assets\scripts\Main\Irc.cs" />
      <Compile Include="Assets\scripts\Main\Loader.cs" />
      <Compile Include="Assets\scripts\Main\MapItem.cs" />
      <Compile Include="Assets\scripts\Main\MapSetting.cs" />
@@ -184,6 +185,7 @@
      <Compile Include="Assets\scripts\Main\Timer.cs" />
      <Compile Include="Assets\scripts\Main\Tower.cs" />
      <Compile Include="Assets\scripts\Main\UserView.cs" />
+     <Compile Include="Assets\scripts\Main\WindowBase.cs" />
      <Compile Include="Assets\scripts\Main\Zombie.cs" />
      <Compile Include="Assets\scripts\Other\Generate2DReflection.cs" />
      <Compile Include="Assets\scripts\Other\IslandWater.cs" />

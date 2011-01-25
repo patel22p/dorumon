@@ -13,7 +13,7 @@ public partial class Base2:MonoBehaviour
 public class AboutWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
-	public Texture ImageImage2;
+	public Texture imgImage2;
 	private int wndid1;
 	private Rect Image2;
 	
@@ -43,8 +43,8 @@ public class AboutWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		if(ImageImage2!=null)
-			GUI.DrawTexture(Image2,ImageImage2, ScaleMode.ScaleToFit);
+		if(imgImage2!=null)
+			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit);
 		GUI.Label(new Rect(111f, 290f, 480f, 176f), @"Copyright PhysxWars Team
 
 

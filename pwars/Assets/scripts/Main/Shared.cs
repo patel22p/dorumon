@@ -79,7 +79,7 @@ public class Shared : Base
                 ControllerUpdate();
         }
     }
-    Dictionary<Material, Color> defcolors = new Dictionary<Material, Color>();
+    Dictionary<Material, Color[]> defcolors = new Dictionary<Material, Color[]>();
     public void UpdateLightmap()
     {
         var materials = renderers.SelectMany(a => a.materials);
@@ -98,16 +98,29 @@ public class Shared : Base
                     foreach (var m in materials)
                         if (m != null && !m.shader.name.ToLower().Contains("illu") && m.HasProperty("_Color"))
                         {
-                            Color c;
+                            Color[] c;
+                            bool spec = m.HasProperty("_SpecColor");
                             if (!defcolors.TryGetValue(m, out c))
                             {
+                                c = new Color[2];
+                                Color sc = new Color();
+                                if(spec)    
+                                    sc = m.GetColor("_SpecColor");
                                 if (!m.name.Contains("DefColors"))
+                                {
                                     m.name = "DefColors" + "-" + m.color.r + "-" + m.color.b + "-" + m.color.g + "-" + m.color.a + "-";
-                                var cs = m.name.ToString().Split('-');
-                                c = new Color(float.Parse(cs[1]), float.Parse(cs[3]), float.Parse(cs[2]), float.Parse(cs[4]));
+                                    m.name += sc.r + "-" + sc.b + "-" + sc.g + "-" + sc.a + "-";
+                                }
+                                string[] cs = m.name.ToString().Split('-');
+                                c[0] = new Color(float.Parse(cs[1]), float.Parse(cs[3]), float.Parse(cs[2]), float.Parse(cs[4]));
+                                if (spec)
+                                    c[1] = new Color(float.Parse(cs[5]), float.Parse(cs[6]), float.Parse(cs[7]), float.Parse(cs[8]));
                                 defcolors.Add(m, c);
-                            }                            
-                            m.color = c * a;
+                            }
+                            m.color = c[0] * a;
+                            if (c[1] != default(Color))
+                                if (m.HasProperty("_SpecColor"))
+                                    m.SetColor("_SpecColor", c[1] * a);
                         }
 
                 }
@@ -170,7 +183,6 @@ public class Shared : Base
     [RPC]
     public void AddNetworkView(NetworkViewID id)
     {
-        var ss = networkView.stateSynchronization;
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)GroupNetwork.Shared;
         nw.observed = this;

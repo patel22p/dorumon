@@ -8,8 +8,9 @@ public class GunBase : Base
 {
     public bool laser;
     public float ves;
-    public float patronsDefaultCount;
-    public Texture2D GunPicture;    
+    
+    public Texture2D GunPicture;
+    public int guntype;
     public Player player;
     public List<Transform> cursor = new List<Transform>();
     public int group { get { return int.Parse(transform.parent.name); } }
@@ -30,10 +31,8 @@ public class GunBase : Base
     {
         networkView.stateSynchronization = NetworkStateSynchronization.Off;
         networkView.observed = null;
-        if (patronsLeft == 0) { patronsLeft = -1; patronsDefaultCount = -1; }
         if (GunPicture == null)
             GunPicture = Base2.FindAsset<Texture2D>(name);
-        patronsDefaultCount = patronsLeft;
         player = root.GetComponent<Player>();
         //if (transform.Find("cursor") != null && cursor.Count == 0)
         //    cursor.Add(transform.Find("cursor"));
@@ -64,13 +63,12 @@ public class GunBase : Base
     }
     public void Reset()
     {
-        patronsLeft = patronsDefaultCount;
-        
+        patronsLeft = mapSettings.patrons[guntype];        
     }
     protected virtual void Update()
     {
         if (enabled )
-            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .15f);
+            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .07f);
 
         if (isOwner)
         {

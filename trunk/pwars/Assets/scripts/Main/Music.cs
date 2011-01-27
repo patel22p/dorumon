@@ -7,7 +7,7 @@ using doru;
 using System.IO;
 
 
-public class Music : Base
+public class Music : bs
 {
     string[] s = new string[0];
     bool enableMusic=true;

@@ -7,7 +7,7 @@ using doru;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-public class Shared : Base
+public class Shared : bs
 {
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
     public Vector3 syncPos;
@@ -80,6 +80,7 @@ public class Shared : Base
         }
     }
     Dictionary<Material, Color[]> defcolors = new Dictionary<Material, Color[]>();
+    public static string[] supMats = new string[] { "Bumped Specular", "Specular", "Parallax Specular", "Diffuse" };
     public void UpdateLightmap()
     {
         var materials = renderers.SelectMany(a => a.materials);
@@ -94,9 +95,11 @@ public class Shared : Base
                 var t = LightmapSettings.lightmaps[i].lightmapFar;
                 if (t != null)
                 {
-                    float a = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y).a * 10 + .1f;
+                    Color ac = t.GetPixelBilinear(h.lightmapCoord.x, h.lightmapCoord.y);
+                    float a = ac.a * 10 + .1f;
                     foreach (var m in materials)
-                        if (m != null && !m.shader.name.ToLower().Contains("illu") && m.HasProperty("_Color"))
+                    {
+                        if (m != null && (supMats.Contains(m.shader.name)))
                         {
                             Color[] c;
                             bool spec = m.HasProperty("_SpecColor");
@@ -117,12 +120,12 @@ public class Shared : Base
                                     c[1] = new Color(float.Parse(cs[5]), float.Parse(cs[6]), float.Parse(cs[7]), float.Parse(cs[8]));
                                 defcolors.Add(m, c);
                             }
-                            m.color = c[0] * a;
+                            m.color = c[0] * ac * a;
                             if (c[1] != default(Color))
                                 if (m.HasProperty("_SpecColor"))
-                                    m.SetColor("_SpecColor", c[1] * a);
+                                    m.SetColor("_SpecColor", c[1] * ac * a);
                         }
-
+                    }
                 }
             }
         }
@@ -158,7 +161,7 @@ public class Shared : Base
     public void SetOwner(int owner)
     {        
         SetController(owner);
-        foreach (Base bas in GetComponentsInChildren(typeof(Base)))
+        foreach (bs bas in GetComponentsInChildren(typeof(bs)))
         {
             bas.OwnerID = owner;
             bas.OnSetOwner();
@@ -176,7 +179,7 @@ public class Shared : Base
     {
         Debug.Log("_ResetOwner");
         this.selected = -1;
-        foreach (Base bas in GetComponentsInChildren(typeof(Base)))
+        foreach (bs bas in GetComponentsInChildren(typeof(bs)))
             bas.OwnerID = -1;
 
     }

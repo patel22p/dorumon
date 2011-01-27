@@ -43,17 +43,20 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 7) < 15);
-            float size = boxes.Sum(a => a.collider.bounds.size.magnitude);
-            cursor[0].position = pos + (transform.forward * size / 10) + (transform.forward * 7);
-            foreach (Base b in boxes)
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 8) < 10);
+            float size = boxes.Sum(a => a.collider.bounds.size.sqrMagnitude);
+            cursor[0].position = pos + (transform.forward * size / 70) + (transform.forward * 5);
+            foreach (bs b in boxes)
             {
                 if (b.rigidbody.velocity.magnitude < 1)
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                var f = 600;
-                var d = Vector3.Distance(b.pos, cursor[0].position);
-                b.rigidbody.AddForce((b.pos - cursor[0].position).normalized * b.rigidbody.mass * -gravitaty.Evaluate(d) * f * fdt);
-                b.rigidbody.velocity *= Math.Min(.1f * d, 1);                
+                //if (b.rigidbody.velocity.magnitude < 30)
+                {
+                    var d = Vector3.Distance(b.pos, cursor[0].position);
+                    b.rigidbody.velocity *= .95f;
+                    b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, cursor[0].position, radius, 0, ForceMode.VelocityChange);
+                    b.rigidbody.angularVelocity *= .8f;
+                }
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
             if (!audio.isPlaying) audio.Play();
@@ -86,13 +89,13 @@ public class GunPhysix : GunBase
     public void Shoot()
     {
         bool boxes = false;
-        foreach (Base b in _Game.boxes.Cast<Base>().Where(b => b != null))
+        foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
         {
             var d = Vector3.Distance(b.pos, cursor[0].position) ;
-            if (d < ExpRadius * 20)
+            if (d < ExpRadius * 5)
             {                
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 5000 * b.rigidbody.mass) * fdt);
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 4000 * b.rigidbody.mass) * fdt);
                 boxes = true;
             }
         }

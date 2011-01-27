@@ -12,12 +12,18 @@ public partial class Base2:MonoBehaviour
 
 public class PopUpWindow : WindowBase {
 		
-	internal bool vtext = true;
-	internal bool focusText;
-	internal bool rText = true;
-	internal string Text = @"";
-	internal bool vok = true;
-	internal bool focusOk;
+	[HideInInspector]
+	public bool vtext = true;
+	[HideInInspector]
+	public bool focusText;
+	[HideInInspector]
+	public bool rText = true;
+	[HideInInspector]
+	public string Text = @"";
+	[HideInInspector]
+	public bool vok = true;
+	[HideInInspector]
+	public bool focusOk;
 	internal bool Ok=false;
 	private int wndid1;
 	private bool oldMouseOverOk;

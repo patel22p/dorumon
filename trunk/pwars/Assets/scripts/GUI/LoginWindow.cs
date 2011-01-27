@@ -12,42 +12,69 @@ public partial class Base2:MonoBehaviour
 
 public class LoginWindow : WindowBase {
 		
-	internal string Nick{ get { return PlayerPrefs.GetString("Nick", @""); } set { PlayerPrefs.SetString("Nick", value); } }
-	internal string LoginNick{ get { return PlayerPrefs.GetString("LoginNick", @""); } set { PlayerPrefs.SetString("LoginNick", value); } }
-	internal string LoginPassw{ get { return PlayerPrefs.GetString("LoginPassw", @""); } set { PlayerPrefs.SetString("LoginPassw", value); } }
-	internal string RegNick{ get { return PlayerPrefs.GetString("RegNick", @""); } set { PlayerPrefs.SetString("RegNick", value); } }
-	internal string RegPassw{ get { return PlayerPrefs.GetString("RegPassw", @""); } set { PlayerPrefs.SetString("RegPassw", value); } }
-	internal string Email{ get { return PlayerPrefs.GetString("Email", @""); } set { PlayerPrefs.SetString("Email", value); } }
-	internal int tabTabControl4;
-	internal bool vNick = true;
-	internal bool focusNick;
-	internal bool rNick = false;
-	internal bool vLoginAsGuest = true;
-	internal bool focusLoginAsGuest;
+	public string Nick{ get { return PlayerPrefs.GetString("Nick", @""); } set { PlayerPrefs.SetString("Nick", value); } }
+	public string LoginNick{ get { return PlayerPrefs.GetString("LoginNick", @""); } set { PlayerPrefs.SetString("LoginNick", value); } }
+	public string LoginPassw{ get { return PlayerPrefs.GetString("LoginPassw", @""); } set { PlayerPrefs.SetString("LoginPassw", value); } }
+	public string RegNick{ get { return PlayerPrefs.GetString("RegNick", @""); } set { PlayerPrefs.SetString("RegNick", value); } }
+	public string RegPassw{ get { return PlayerPrefs.GetString("RegPassw", @""); } set { PlayerPrefs.SetString("RegPassw", value); } }
+	public string Email{ get { return PlayerPrefs.GetString("Email", @""); } set { PlayerPrefs.SetString("Email", value); } }
+	[HideInInspector]
+	public int tabTabControl4;
+	[HideInInspector]
+	public bool vNick = true;
+	[HideInInspector]
+	public bool focusNick;
+	[HideInInspector]
+	public bool rNick = false;
+	[HideInInspector]
+	public bool vLoginAsGuest = true;
+	[HideInInspector]
+	public bool focusLoginAsGuest;
 	internal bool LoginAsGuest=false;
-	internal bool vLoginNick = true;
-	internal bool focusLoginNick;
-	internal bool rLoginNick = false;
-	internal bool vLogin = true;
-	internal bool focusLogin;
+	[HideInInspector]
+	public bool vLoginNick = true;
+	[HideInInspector]
+	public bool focusLoginNick;
+	[HideInInspector]
+	public bool rLoginNick = false;
+	[HideInInspector]
+	public bool vLogin = true;
+	[HideInInspector]
+	public bool focusLogin;
 	internal bool Login=false;
-	internal bool vLoginPassw = true;
-	internal bool focusLoginPassw;
-	internal bool rLoginPassw = false;
-	internal bool vRegNick = true;
-	internal bool focusRegNick;
-	internal bool rRegNick = false;
-	internal bool vRegistr = true;
-	internal bool focusRegistr;
+	[HideInInspector]
+	public bool vLoginPassw = true;
+	[HideInInspector]
+	public bool focusLoginPassw;
+	[HideInInspector]
+	public bool rLoginPassw = false;
+	[HideInInspector]
+	public bool vRegNick = true;
+	[HideInInspector]
+	public bool focusRegNick;
+	[HideInInspector]
+	public bool rRegNick = false;
+	[HideInInspector]
+	public bool vRegistr = true;
+	[HideInInspector]
+	public bool focusRegistr;
 	internal bool Registr=false;
-	internal bool vRegPassw = true;
-	internal bool focusRegPassw;
-	internal bool rRegPassw = false;
-	internal bool vEmail = true;
-	internal bool focusEmail;
-	internal bool rEmail = false;
-	internal bool vAutoLogin = true;
-	internal bool focusAutoLogin;
+	[HideInInspector]
+	public bool vRegPassw = true;
+	[HideInInspector]
+	public bool focusRegPassw;
+	[HideInInspector]
+	public bool rRegPassw = false;
+	[HideInInspector]
+	public bool vEmail = true;
+	[HideInInspector]
+	public bool focusEmail;
+	[HideInInspector]
+	public bool rEmail = false;
+	[HideInInspector]
+	public bool vAutoLogin = true;
+	[HideInInspector]
+	public bool focusAutoLogin;
 	internal bool AutoLogin { get { return PlayerPrefs.GetInt("AutoLogin", 1) == 1; } set { PlayerPrefs.SetInt("AutoLogin", value?1:0); } }
 	private int wndid1;
 	private bool oldMouseOverLoginAsGuest;

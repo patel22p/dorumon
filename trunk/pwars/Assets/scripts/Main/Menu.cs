@@ -11,10 +11,10 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using Random = UnityEngine.Random;
 public enum ScoreBoardTables { Zombie_Kill, Played_Time, Player_Kill, Player_Deaths, Custom_Zombie_Survive }
-public class Menu : Base
+public class Menu : bs
 {
     public static UserView user { get { return _Loader.UserView; } }
-    string host = "http://localhost/";
+    public const string host = "http://localhost/";
     public string gameVersionName = "Swiborg3";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
     public bool enableIrc;
@@ -23,8 +23,16 @@ public class Menu : Base
         base.Awake();
         enabled = true;
     }
+    
+    public override void Init()
+    {                
+        base.Init();
+        rt = new RenderTexture(256, 256, 0);
+        
+    }
     protected override void Start()
     {
+        
         lockCursor = false;
         if (_Loader.dedicated)
         {
@@ -32,28 +40,26 @@ public class Menu : Base
             return;
         }
         var nk = PlayerPrefs.GetString("nick");
-
-        if (_LoginWindow.AutoLogin && nk != "")
-        {
-            user.nick = nk;
-            user.guest = PlayerPrefs.GetInt("guest").toBool();
-            _Loader.password = PlayerPrefs.GetString("pass");
-            OnLogin();
-        }
-
         foreach (WindowBase o in Component.FindObjectsOfType(typeof(WindowBase))) 
             o.SendMessage("HideWindow", SendMessageOptions.DontRequireReceiver);
         if (_Loader.loggedin)
             _MenuWindow.Show(this);
         else
+        {
             _LoginWindow.Show(this);
-        onRefresh();
-        //_UserWindow.imgBallRender = GameObject.Find("RenderCam").camera.targetTexture;
+            if (_LoginWindow.AutoLogin && nk != "")
+            {
+                user.nick = nk;
+                user.guest = PlayerPrefs.GetInt("guest").toBool();
+                _Loader.password = PlayerPrefs.GetString("pass");
+                OnLogin();
+            }            
+        }
+        onRefresh();        
         _HostWindow.lGameMode = Enum.GetNames(typeof(GameMode));
         _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));
-        _ScoreBoardWindow.iScore_table = 0;
-        foreach (var s in Enum.GetNames(typeof(ScoreBoardTables)))
-            GetScoreBoard(s);        
+        _ScoreBoardWindow.iScoreboard_orderby = 0;        
+
     }
     private void Dedicated()
     {
@@ -66,15 +72,22 @@ public class Menu : Base
         MasterServer.RegisterHost(gameVersionName, "DedicatedServer", mapSettings.mapName + "," + _HostWindow.GameMode);
         _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
     }
+    public RenderTexture rt;
     public HostData[] hosts { get { return MasterServer.PollHostList(); } }
     public Material customMaterial;
     void Update()
     {
+        
         if (_TimerA.TimeElapsed(100))
         {
-            string[] tabble = ScoreBoard[(int)_ScoreBoardWindow.Scoreboard_orderby.Parse<ScoreBoardTables>()];
-            if (tabble != null)
-                _ScoreBoardWindow.lScore_table = tabble;
+            if (_ScoreBoardWindow.iScoreboard_orderby != -1)
+            {
+                string[] table = ScoreBoard[(int)_ScoreBoardWindow.Scoreboard_orderby.Parse<ScoreBoardTables>()];
+                if (table != null)
+                    _ScoreBoardWindow.lScore_table = table;
+                else
+                    _ScoreBoardWindow.lScore_table = new string[] { };
+            }            
 
             _UserWindow.imgAvatar = user.Avatar;
             _UserWindow.MaterialName = _Loader.playerTextures[user.MaterialId].name;
@@ -97,7 +110,24 @@ public class Menu : Base
     {
         WWWSend(host + "stats.php?game=" + gamename + "&find=" + _ScoreBoardWindow.FindUserName, TableParse);
     }
-    
+
+    public void WWWSend(string s, Action<string> a)
+    {
+        WWWSend(s, null, a);
+    }
+    public void WWWSend(string s, WWWForm form, Action<string> a)
+    {
+        s = s + "&r=" + Random.value;
+        Debug.Log("WWW: " + s);
+        var w = form == null ? new WWW(s) : new WWW(s, form); ;
+        _TimerA.AddMethod(() => w.isDone, delegate
+        {
+            if (w.error == "" || w.error == null)
+                a(w.text);
+            else
+                Debug.Log(w.error);
+        });
+    }
     public void SaveScoreBoard(string gamename,string user,string passw,bool guest, int frags,int deaths)
     {
         WWWSend(host + "stats.php?user=" + user + "&guest=" + (guest ? "1" : "") + "&passw=" + passw + "&frags=" + frags + "&deaths=" + deaths + "&game=" + gamename, TableParse);
@@ -116,40 +146,50 @@ public class Menu : Base
         var sa = p.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         if (sa.Length == 0)
             return "table length is zero";
-        Match m = Regex.Match(sa[0], @"tabble:(\w+)");
+        Match m = Regex.Match(sa[0], @"table:(\w+)");
         if (!m.Success)
-            return "error " + sa[0];
-        ScoreBoardTables sc = m.Groups[1].Value.Parse<ScoreBoardTables>();
-        ScoreBoard[(int)sc] = sa.Skip(1).ToArray();
-        foreach (var a in sa)
+            return "error : " + p;
+        ScoreBoardTables scType = m.Groups[1].Value.Parse<ScoreBoardTables>();
+        List<string> table = new List<string>();
+        var tableTitle = GenerateTable(_ScoreBoardWindow.TableHeader);
+        foreach (var row in sa.Skip(1))
+        {
+            var cell = row.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            table.Add(string.Format(tableTitle, "", cell[0], cell[1], cell[2], cell[3], "", ""));
+        }
+        ScoreBoard[(int)scType] = table.ToArray();
+        foreach (var a in sa) //check if user in tabble
         {
             //                         1     2       3     4
-            var r = Regex.Match(a,@"(\d+)\t(.+?)\t(\d+)\t(\d+)");
+            var r = Regex.Match(a, @"(\d+)\t(.+?)\t(\d+)\t(\d+)");
             if (r.Success && r.Groups[2].Value == user.nick)
             {
-                user.scoreboard[(int)sc].frags = int.Parse(r.Groups[3].Value);
-                user.scoreboard[(int)sc].place = int.Parse(r.Groups[1].Value);
-                user.scoreboard[(int)sc].deaths = int.Parse(r.Groups[4].Value);
+                user.scoreboard[(int)scType].frags = int.Parse(r.Groups[3].Value);
+                user.scoreboard[(int)scType].place = int.Parse(r.Groups[1].Value);
+                user.scoreboard[(int)scType].deaths = int.Parse(r.Groups[4].Value);
+                UpdateUserScores();
                 SaveUser();
+                break;
             }
-        }
+        }        
         return "tabble success";
     }
     
     public HostData hdf;
-    private void onStartServer()
-    {
+    public void StartServer()
+    {        
         if (_HostWindow.Name.Length < 4) ShowPopup("Game name is to short");
         else
         {
-            mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);
+            _TimerA.Clear();
+            mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);                        
             mapSettings.gameMode = _HostWindow.GameMode.Parse<GameMode>();
             mapSettings.fragLimit = _HostWindow.MaxFrags;
             mapSettings.maxPlayers = _HostWindow.MaxPlayers;
             mapSettings.kickIfAfk = _HostWindow.Kick_if_AFK;
             mapSettings.kickIfErrors = _HostWindow.KickIfErrors;            
             mapSettings.timeLimit = _HostWindow.MaxTime;
-            mapSettings.PointsPerZombie = _HostWindow.Money_per_frag;
+            mapSettings.pointsPerZombie = _HostWindow.Money_per_frag;
             _Loader.port = _HostWindow.Port;
             _Loader.host = true;
             if (mapSettings.gameMode == GameMode.CustomZombieSurvive)
@@ -162,6 +202,7 @@ public class Menu : Base
                 mapSettings.zombieSpeedFactor = _HostWindow.Zombie_Speed;
             }
             bool useNat = !Network.HavePublicAddress();
+            
             Network.InitializeServer(mapSettings.maxPlayers, _Loader.port, useNat);
             MasterServer.RegisterHost(gameVersionName, _HostWindow.Name, mapSettings.mapName + "," + _HostWindow.GameMode);
             _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
@@ -221,11 +262,11 @@ public class Menu : Base
 
         _UserWindow.vRefreshUserInfo = false;
         _UserWindow.UserNick = nick;
-        WWWSend(host + "user.php?user=" + nick,delegate(string text)
+        WWWSend(host + "user.php?user=" + nick, delegate(string text)
         {
             _UserWindow.vRefreshUserInfo = true;
-            //try
-            //{
+            try
+            {
                 if (text == "") throw new Exception("UserView not Set");
                 using (StringReader sr = new StringReader(text))
                 {
@@ -234,7 +275,7 @@ public class Menu : Base
                     _UserWindow.AvatarUrl = user.AvatarUrl;
                     _UserWindow.Desctiption = user.Desctiption;
                     _UserWindow.FirstName = user.FirstName;
-                    _UserWindow.BallImage = user.BallTextureUrl;                    
+                    _UserWindow.BallImage = user.BallTextureUrl;
                     bool own = _Loader.UserView.nick == user.nick;
                     _Loader.UserView = user;
                     _UserWindow.vAvatarUrl = own;
@@ -242,10 +283,24 @@ public class Menu : Base
                     _UserWindow.rDesctiption = !own;
                     _UserWindow.rBallImage = !own;
                     if (own) _Loader.UserView = user;
-                }
-            //}
-            //catch { Debug.Log("Cannot Load UserView " + text); }
+                }                
+            }
+            catch (Exception e) { Debug.Log("Cannot Load UserView " + e); }
         });
+    }
+
+    private static void UpdateUserScores()
+    {
+        var h = GenerateTable(_UserWindow.Tableheader);
+        var us = new List<string>();
+        var nms = Enum.GetNames(typeof(ScoreBoardTables));
+        for (int i = 0; i < nms.Length; i++)
+        {
+            var a = user.scoreboard[i];
+            us.Add(string.Format(h, "", a.place == 0 ? "" : "" + a.place, nms[i], a.frags, a.deaths, "", ""));
+            _UserWindow.lUserScores = us.ToArray();
+        }
+        
     }
     public void SaveUser() //usersave
     {
@@ -254,9 +309,8 @@ public class Menu : Base
         {
             UserView.xml.Serialize(sw, user);
             var form = new WWWForm();
-            form.AddField("xml", sw.ToString());
-            Debug.Log(user.nick);
-            WWWSend(host + "user.php?user=" + user.nick + "&passw=" + Ext.CalculateMD5Hash(_Loader.password),form, delegate(string text)
+            form.AddField("xml", sw.ToString(), Encoding.UTF8);
+            WWWSend(host + "user.php?user=" + user.nick + "&passw=" + _Loader.passwordHash,form, delegate(string text)
             {
                 _UserWindow.vSaveUser = true;
                 if (text != "Success")
@@ -273,8 +327,10 @@ public class Menu : Base
         PlayerPrefs.SetInt("guest", user.guest.toInt());
         _Loader.loggedin = true;
         _MenuWindow.Show(this);
-
         GetUserInfo(user.nick);
+        UpdateUserScores();
+        foreach (var s in Enum.GetNames(typeof(ScoreBoardTables)))
+            GetScoreBoard(s);
     }
     public void Action(string n)
     {
@@ -287,13 +343,16 @@ public class Menu : Base
         if (n == "Prev")
             user.MaterialId--;
         user.MaterialId = Math.Max(0, Math.Min(pt.Length-1, user.MaterialId));
-        
+        Debug.Log(user.MaterialId);
         if (n == "About")
             _AboutWindow.Show(this);
         if (n == "LogOut")
         {
             PlayerPrefs.SetString("nick", "");
             _LoginWindow.Show(this);
+        }
+        if (n == "Scoreboard_orderby")
+        {
         }
         if (n == "LoginAsGuest")
             if (_LoginWindow.Nick != "")
@@ -355,7 +414,7 @@ public class Menu : Base
         if (n == "Score_Board")
             _ScoreBoardWindow.Show(this);
         if (n == "RefreshScoreBoard")
-            GetScoreBoard(_ScoreBoardWindow.Score_table);
+            GetScoreBoard(_ScoreBoardWindow.Scoreboard_orderby);
         if (n == "Close")
             _MenuWindow.Show();
         if (n == "Create")
@@ -375,7 +434,7 @@ public class Menu : Base
                 _HostWindow.vums = false;
         }
         if (n == "StartServer")
-            onStartServer();
+            StartServer();
         if (n == "Connect")
             onConnect();
         if (n == "Settings")

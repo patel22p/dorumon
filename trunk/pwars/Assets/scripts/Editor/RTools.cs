@@ -21,23 +21,46 @@ public partial class RTools : InspectorSearch
     float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
     float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
-
     public bool bake;
     public bool web;
     public override void Awake()
     {
-        base.Awake();        
+        base.Awake();
     }
-    
     protected override void OnGUI()
     {
-        if (Application.isPlaying && GUI.Button("Win"))
+        if (GUI.Button("Win"))
         {
-            Base2._Game._localPlayer.frags = 10;
-            Base2._Game._localPlayer.RPCSetLife(-20, -1);
+            //Base2.StartServer()
+            int i = 0;
+            int small = 100;
+            int norm = 1000;
+            int big = 2000;
+            _TimerA.AddMethod(i += norm, delegate
+            {
+                bs._Menu.Action("Create");
+            });
+            _TimerA.AddMethod(i += small, delegate
+            {
+                bs._HostWindow.iMap = 1;
+                bs._HostWindow.Name = "server";
+                bs._Menu.Action("StartServer");
+            });
+            _TimerA.AddMethod(i += small, delegate
+            {
+                bs._Game.Action("TeamSelect");
+            });
+
+            _TimerA.AddMethod(i += big, delegate
+            {
+                bs._Game._localPlayer.frags = 10;
+                bs._Game._localPlayer.RPCSetLife(-20, -1);
+            });
+
+
         }
         GUI.BeginHorizontal();
-        web = GUI.Toggle(web, "web",GUI.ExpandWidth(false));
+        web = GUI.Toggle(web, "web", GUI.ExpandWidth(false));
         if (GUILayout.Button("Build"))
         {
             Build();
@@ -45,23 +68,26 @@ public partial class RTools : InspectorSearch
         }
         if (GUI.Button("Refresh"))
         {
+            var c = EditorApplication.currentScene;
+            EditorApplication.SaveScene(c);
             for (int i = 0; i < 4; i++)
             {
                 EditorApplication.OpenScene("Assets/scenes/Menu.unity");
                 EditorApplication.OpenScene("Assets/scenes/Pitt.unity");
             }
+            EditorApplication.OpenScene(c);
             return;
         }
         GUI.EndHorizontal();
         BuildButtons();
-        
-        GUI.BeginHorizontal();                
+
+        GUI.BeginHorizontal();
         _Loader.build = !GUI.Toggle(!_Loader.build, "Debug");
-        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable Path");                
+        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable Path");
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
-        
+
         lfactor = EditorGUILayout.FloatField(lfactor);
         dfactor = EditorGUILayout.FloatField(dfactor);
         if (GUI.Button("SetupLevel"))
@@ -70,12 +96,12 @@ public partial class RTools : InspectorSearch
             var Level = GameObject.Find("Level");
             var oldl = Level.transform.Find("level");
             if (oldl != null)
-                DestroyImmediate(oldl);
+                DestroyImmediate(oldl.gameObject);
             string path = EditorApplication.currentScene.Split('.')[0] + "/";
             path = path.Substring("Assets/".Length);
             Debug.Log("setup level: " + path);
             var nl = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
-            nl.transform.parent = Level.transform;            
+            nl.transform.parent = Level.transform;
             nl.name = "level";
             Selection.activeGameObject = nl;
             SetupLevel();
@@ -90,12 +116,12 @@ public partial class RTools : InspectorSearch
                     var q = new Queue<float>();
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
                     {
-                        
+
                         q.Enqueue(a.intensity);
                         en.Enqueue(a.shadows);
                         if (a.type == LightType.Directional)
                             a.intensity = dfactor;
-                        a.shadows = LightShadows.Soft;                        
+                        a.shadows = LightShadows.Soft;
                     }
                     Lightmapping.BakeAsync();
                     foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
@@ -127,37 +153,35 @@ public partial class RTools : InspectorSearch
     }
     private void BuildButtons()
     {
-
         GUI.BeginHorizontal();
-
         if (GUILayout.Button("Server Editor"))
         {
-            ResetCam(); 
+            ResetCam();
             _Loader.host = true;
             EditorUtility.SetDirty(_Loader);
             EditorApplication.isPlaying = true;
         }
         if (GUILayout.Button("Server App"))
         {
-            ResetCam(); 
+            ResetCam();
             System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "server");
         }
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         if (GUILayout.Button("Client App"))
         {
-            ResetCam(); 
+            ResetCam();
             Debug.Log(path);
             System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "client");
         }
         if (GUILayout.Button("Client Editor"))
         {
-            ResetCam(); 
+            ResetCam();
             _Loader.host = false;
             EditorUtility.SetDirty(_Loader);
             EditorApplication.isPlaying = true;
         }
-        GUI.EndHorizontal();        
+        GUI.EndHorizontal();
     }
     static Color NormalizeColor(Color c, float procent, float a)
     {
@@ -172,7 +196,7 @@ public partial class RTools : InspectorSearch
         {
             Cubemap cb = (Cubemap)Selection.activeObject;
             var pos = SceneView.lastActiveSceneView.camera.transform.position;
-            var c =new GameObject("cam", typeof(Camera)).GetComponent<Camera>();
+            var c = new GameObject("cam", typeof(Camera)).GetComponent<Camera>();
             c.transform.position = pos;
             c.RenderToCubemap(cb);
             DestroyImmediate(c);
@@ -205,7 +229,7 @@ public partial class RTools : InspectorSearch
                 m.color = NormalizeColor(m.color, .8f, .2f);
                 if (isSpec)
                     m.SetColor("_SpecColor", NormalizeColor(m.color, .3f, .2f));
-            }            
+            }
         }
     }
     private void Inits(string cspath)
@@ -221,7 +245,7 @@ public partial class RTools : InspectorSearch
                     InitLoadPath(scr, pf);
                     CreateEnum(cspath, scr, pf);
                     PathFind(scr, pf);
-                }                
+                }
                 //try
                 {
                     scr.Init();
@@ -235,7 +259,7 @@ public partial class RTools : InspectorSearch
             foreach (var au in Selection.activeGameObject.GetComponentsInChildren<AudioSource>())
                 au.minDistance = 10;
         });
-                 
+
     }
     class DTR
     {
@@ -296,10 +320,10 @@ public partial class RTools : InspectorSearch
             {
                 f.gameObject.isStatic = false;
                 f.gameObject.layer = LayerMask.NameToLayer("Default");
-                var c =  f.gameObject.GetComponent<Collider>();
-                if(c!=null)
+                var c = f.gameObject.GetComponent<Collider>();
+                if (c != null)
                     DestroyImmediate(c);
-            }            
+            }
         }
 
         foreach (var a in destroy)
@@ -322,7 +346,7 @@ public partial class RTools : InspectorSearch
             string name = (atr.name == null) ? pf.Name : atr.name;
             try
             {
-                GameObject g = atr.scene ? GameObject.Find(name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a=>a.name == name).gameObject;
+                GameObject g = atr.scene ? GameObject.Find(name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
                 if (g == null) throw new Exception();
                 if (pf.FieldType == typeof(GameObject))
                     pf.SetValue(scr, g);
@@ -332,7 +356,6 @@ public partial class RTools : InspectorSearch
             catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
         }
     }
-
     private static object Cast<T>(IEnumerable<T> objectList, Type t)
     {
         object a = typeof(Enumerable)
@@ -372,17 +395,17 @@ public partial class RTools : InspectorSearch
     private void BuildGUI()
     {
         GUI.Space(10);
-        if (Application.isPlaying && Base2._Game!=null)
+        if (Application.isPlaying && Base2._Game != null)
         {
             foreach (Player p in Base2._Game.players)
                 if (p != null)
                     if (GUI.Button(p.name + ":" + p.OwnerID))
                         Selection.activeObject = p;
-        }        
+        }
     }
     private static void CreateEnum(string cspath, Base2 g, FieldInfo f)
     {
-        
+
         GenerateEnums ge = (GenerateEnums)f.GetCustomAttributes(true).FirstOrDefault(a => a is GenerateEnums);
         if (ge != null)
         {
@@ -401,18 +424,17 @@ public partial class RTools : InspectorSearch
             File.WriteAllText(cspath + ge.name + ".cs", cs);
         }
     }
-    
     private void Build()
-    {                
+    {
         var fn = "Game.Exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         var dt = DateTime.Now.ToFileTime();
-        path = "Builds/" + dt+ "/";
+        path = "Builds/" + dt + "/";
         Directory.CreateDirectory(path);
         if (web)
         {
             File.WriteAllText(path + "WebClient.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#client");
-            File.WriteAllText(path + "WebServer.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#server");            
+            File.WriteAllText(path + "WebServer.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#server");
         }
         else
         {
@@ -443,5 +465,25 @@ public partial class RTools : InspectorSearch
         }
     }
 }
-class MyMeshPostprocessor : AssetPostprocessor {    }
+class MyMeshPostprocessor : AssetPostprocessor
+{
+    //Material OnAssignMaterialModel(Material material, Renderer renderer)
+    //{
+        
+    //    //var materialPath = AssetDatabase.GetAssetPath(renderer.gameObject) + "/Materials/";
+    //    //if (AssetDatabase.LoadAssetAtPath(materialPath, typeof(Material)))
+    //    //    return (Material)AssetDatabase.LoadAssetAtPath(materialPath, typeof(Material));
+    //    var c = material.color;
+    //    c.a = 0;
+    //    material.color = c;
+    //    //AssetDatabase.CreateAsset(material, Path.GetDirectoryName(assetPath) + "/" + material.name + ".mat");
+    //    return material;
+    //}
+    void OnPreprocessTexture()
+    {
+        TextureImporter textureImporter = (TextureImporter)assetImporter;
+        textureImporter.maxTextureSize = 512;
+    }
+
+}
 #endif

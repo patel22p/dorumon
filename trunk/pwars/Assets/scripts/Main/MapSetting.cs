@@ -11,7 +11,7 @@ public class MapSetting
     public static XmlSerializer xml = new XmlSerializer(typeof(MapSetting));
     public float damageFactor = 1;
     public bool freezeOnBite;
-    public float PointsPerZombie = 1;
+    public float pointsPerZombie = 2;
     public int StartMoney = 1;
     public float ZombieDamage = 5;
     public int zombiesAtStart = 10;

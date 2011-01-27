@@ -56,11 +56,11 @@ namespace doru
             {
                 _List.Remove(select);
                 
-                try
+                //try
                 {
                     select._Action2();
                 }
-                catch (Exception e) { Debug.LogError("Timer:" + e.Message + "\r\n\r\n" + select.stacktrace + "\r\n\r\n"); }
+                //catch (Exception e) { Debug.LogError("Timer:" + e.Message + "\r\n\r\n" + select.stacktrace + "\r\n\r\n"); }
             }
         }
         public int _MilisecondsElapsed = 0;

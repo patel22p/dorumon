@@ -27,8 +27,8 @@ public class UserView
     public string Desctiption;
     public string FirstName;
     [Names("BallImage")]
-    public string BallTextureUrl;    
-    public const string proxy = Game.hosting + "image.php?url=";
+    public string BallTextureUrl;
+    public const string proxy = Menu.host + "image.php?url=";
     public Texture2D BallTexture
     {        
         get
@@ -41,7 +41,7 @@ public class UserView
     {
         if (txt[id] == null && url != "" && url != null)
         {
-            var nu = proxy + url;
+            var nu = url;
             Debug.Log("GettIng texture:" + nu);
             var w = new WWW(nu);
             Base2._TimerA.AddMethod(() => w.isDone, delegate

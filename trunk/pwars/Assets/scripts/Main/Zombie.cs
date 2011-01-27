@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
-    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Life, ZombieType.Life, ZombieType.Speed };
+    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed };
     public ZombieType zombieType;
     public float zombieBite;
     public float speed = .3f;
@@ -24,6 +24,10 @@ public class Zombie : Destroible
     public GameObject AliveZombie;
     [FindTransform("zombieDead")]
     public GameObject DeadZombie;
+    [FindTransform("zombieBig")]
+    public GameObject BigZombie;
+    [FindTransform("zombieBigDead")]
+    public GameObject BigDeadZombie;
     public Seeker seeker;
     float zombieBiteDist = 3;
     Vector3[] pathPoints;
@@ -57,10 +61,10 @@ public class Zombie : Destroible
     {   
         zombieType = priority.Random();
         var speed = zombieSpeedCurve.Evaluate(stage) * mapSettings.zombieSpeedFactor;
-        speed = Random.Range(speed, speed / 3 * 2);
-        var life = zombieLifeCurve.Evaluate(stage)*mapSettings.zombieLifeFactor;
-        life = Random.Range(life, life / 3 * 2);
-        if (zombieType == ZombieType.Life) { speed *= .7f; life *= 2; }
+        speed = Random.Range(speed, speed * .8f);
+        var life = zombieLifeCurve.Evaluate(stage) * mapSettings.zombieLifeFactor;
+        life = Random.Range(life, life * .8f);
+        if (zombieType == ZombieType.Life) { speed *= .7f; life *= 5; }
         if (zombieType == ZombieType.Speed) { speed *= 1.3f; life *= .7f; }
         RPCSetup(speed, life, (int)zombieType);
     }
@@ -73,14 +77,26 @@ public class Zombie : Destroible
         Sync = true;
         ResetSpawn();
         SetLayer(gameObject);
-        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
-        AliveZombie.renderer.enabled = true;
-        DeadZombie.renderer.enabled = false;
+        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);        
         zombieType = (ZombieType)priority;
+        SetAliveModel(zombieType, true);     
         CanFreeze = zombieType != ZombieType.Life;
         speed = zombiespeed;        
         maxLife =Life = zombieLife;
         transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 200f, 1f), 3);        
+    }
+
+    private void SetAliveModel(ZombieType zt, bool v)
+    {
+        bool big = zt == ZombieType.Life;
+        foreach (var a in DeadZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = !v && !big;
+        foreach (var a in AliveZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = !big && v;
+        foreach (var a in BigZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = big && v;
+        foreach (var a in BigDeadZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = big && !v;
     }
     [RPC]
     public override void Die(int killedby)
@@ -91,10 +107,9 @@ public class Zombie : Destroible
         SetLayer(LayerMask.NameToLayer("HitLevelOnly"));        
         if (Game.sendto != null)
             PlayRandSound(gibSound);
-        AliveZombie.renderer.enabled = false;
-        DeadZombie.renderer.enabled = true;
+        SetAliveModel(zombieType, false);        
         if (killedby == _localPlayer.OwnerID)
-            _localPlayer.AddFrags(1, mapSettings.PointsPerZombie);
+            _localPlayer.AddFrags(1, mapSettings.pointsPerZombie );
     }
     public float tiltTm;
     public float spawninTM;
@@ -280,7 +295,7 @@ public class Zombie : Destroible
     public override void ResetSpawn()
     {
         ResetSpawnTm();
-        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToLower() == "zombie").ToArray();        
+        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToLower() == ""+SpawnType.zombie).ToArray();        
         Destroible pl = Nearest();
         if (pl == null)
         {

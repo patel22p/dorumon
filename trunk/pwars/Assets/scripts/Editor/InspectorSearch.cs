@@ -9,7 +9,7 @@ using GUI = UnityEngine.GUILayout;
 using Object = UnityEngine.Object;
 using System.IO;
 using doru;
-
+using Random = UnityEngine.Random;
 public class InspectorSearch : EditorWindow
 {
     public List<string> instances = new List<string>();
@@ -42,8 +42,11 @@ public class InspectorSearch : EditorWindow
     public void ResetCam()
     {
         SetCam = false;
-        Camera.main.transform.position = Camera.main.transform.parent.position;
-        Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
+        if (Camera.main != null)
+        {
+            Camera.main.transform.position = Camera.main.transform.parent.position;
+            Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
+        }
     }
     [MenuItem("GameObject/Capture Screenshot")]
     static void Cap()
@@ -166,7 +169,7 @@ public class InspectorSearch : EditorWindow
     void MySetValue(Object c, object value, string prName, SerializedPropertyType type)
     {
         var array = Selection.gameObjects.Select(a => a.GetComponent(c.GetType())).Cast<Object>().Union(Selection.objects.Where(a => !(a is GameObject)));
-        if (Selection.activeGameObject.renderer != null && c is Material)
+        if (c is Material)
         {
             var d = Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials).Distinct();
             array = array.Union(d.Cast<Object>());
@@ -270,9 +273,12 @@ public class InspectorSearch : EditorWindow
             GUI.Space(10);
         }
     }
-    private void OnSceneUpdate(SceneView s)
+    void OnInspectorGUI()
     {
         
+    }
+    private void OnSceneUpdate(SceneView s)
+    {
         var ago = Selection.activeGameObject;
         if (SetPivot)
         {
@@ -337,7 +343,7 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         Selection.activeTransform.parent = Selection.activeTransform.parent.parent;
     }
-    [MenuItem("RTools/Rtools")]
+    [MenuItem("Window/Rtools", false, 0)]
     static void rtoolsclick()
     {
         EditorWindow.GetWindow<RTools>();
@@ -444,6 +450,47 @@ public class InspectorSearch : EditorWindow
         }
         AssetDatabase.SaveAssets();
     }
+    static Object[] tocopy;
+    static bool move;
+    [MenuItem("Assets/Copy #c")]
+    static void CopyAsset()
+    {
+        tocopy = Selection.objects;
+        move = false;
+    }
+    [MenuItem("Assets/Paste #v")]
+    static void PasteAsset()
+    {        
+        if (tocopy == null) Debug.Log("null");
+        var to = AssetDatabase.GetAssetPath(Selection.activeObject);
+        if (to == "") to = "Assets/";
+        else
+            to = to + "/";
+        foreach (var a in tocopy.Select(a => AssetDatabase.GetAssetPath(a)))
+        {
+            if (!Directory.Exists(to)) to = Path.GetDirectoryName(to);
+            var b = to + Path.GetFileName(a);
+            if (File.Exists(b))
+                b = to + Path.GetFileNameWithoutExtension(a) + Random.Range(10, 99) + Path.GetExtension(a);
+            Debug.Log("moving " + a + " to " + b + ":" + CopyAsset(a, b, move));
+        }
+        AssetDatabase.Refresh();
+    }
+
+    private static string CopyAsset(string a, string b, bool move)
+    {
+        
+        if (move)
+            return AssetDatabase.MoveAsset(a, b);
+        else            
+            return AssetDatabase.CopyAsset(a, b) ? "success" : "failed";
+    }
+    [MenuItem("Assets/Move #x")]
+    static void MoveAsset()
+    {        
+        tocopy = Selection.objects;
+        move = true;
+    }
     [MenuItem("GameObject/ReconnectAll")]
     static void ReconnectAll()
     {
@@ -482,17 +529,23 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    public TimerA _TimerA = new TimerA();
+    public TimerA _TimerA = new TimerA();    
     protected virtual void Update()
-    {
+    {        
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
-        if (_TimerA.TimeElapsed(320 * 1000))
+        bool isi=!EditorApplication.isPlaying && !EditorApplication.isPaused && !EditorApplication.isCompiling && !EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.currentScene.Contains(".unity");
+
+        if (_TimerA.TimeElapsed(320 * 1000) && isi)
         {
-            if (!EditorApplication.isPlaying && !EditorApplication.isPaused && EditorApplication.currentScene.Contains(".unity"))
-            {
-                EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
-            }
+            EditorApplication.SaveAssets();
+            EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
+        }
+
+        if (_TimerA.TimeElapsed(320 * 1000) && isi)
+        {
+            var cs = EditorApplication.currentScene;
+            EditorApplication.SaveScene(Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + DateTime.Now.ToString("y-M-d h-m") + Path.GetExtension(cs));
         }
         var ao = Selection.activeObject;
         if (ao != null && !lastUsed.Contains(ao))
@@ -501,6 +554,7 @@ public class InspectorSearch : EditorWindow
         if (_TimerA.TimeElapsed(3000))
             this.Repaint();
     }
+    
     
 }
 #endif

@@ -12,29 +12,48 @@ public partial class Base2:MonoBehaviour
 
 public class TeamSelectWindow : WindowBase {
 		
-	internal bool vTeamsView = true;
-	internal bool focusTeamsView;
-	internal bool vTeams = true;
-	internal bool focusTeams;
+	[HideInInspector]
+	public bool vTeamsView = true;
+	[HideInInspector]
+	public bool focusTeamsView;
+	[HideInInspector]
+	public bool vTeams = true;
+	[HideInInspector]
+	public bool focusTeams;
 	public string[] lTeams;
-	internal int iTeams = 0;
+	[HideInInspector]
+	public int iTeams = 0;
 	public string Teams { get { if(lTeams.Length==0) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
-	internal bool vred = true;
-	internal bool focusRed;
+	[HideInInspector]
+	public bool vred = true;
+	[HideInInspector]
+	public bool focusRed;
 	public Texture imgRed;
-	internal bool vTeamSelect = true;
-	internal bool focusTeamSelect;
+	[HideInInspector]
+	public bool vTeamSelect = true;
+	[HideInInspector]
+	public bool focusTeamSelect;
 	internal bool TeamSelect=false;
-	internal bool vGameType = true;
-	internal bool focusGameType;
-	internal bool vZombi = false;
-	internal bool focusZombi;
-	internal bool vZombiTeam = false;
-	internal bool focusZombiTeam;
-	internal bool vDeathmatch = false;
-	internal bool focusDeathmatch;
-	internal bool vTeamDeathMatch = false;
-	internal bool focusTeamDeathMatch;
+	[HideInInspector]
+	public bool vGameType = true;
+	[HideInInspector]
+	public bool focusGameType;
+	[HideInInspector]
+	public bool vZombi = false;
+	[HideInInspector]
+	public bool focusZombi;
+	[HideInInspector]
+	public bool vZombiTeam = false;
+	[HideInInspector]
+	public bool focusZombiTeam;
+	[HideInInspector]
+	public bool vDeathmatch = false;
+	[HideInInspector]
+	public bool focusDeathmatch;
+	[HideInInspector]
+	public bool vTeamDeathMatch = false;
+	[HideInInspector]
+	public bool focusTeamDeathMatch;
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;

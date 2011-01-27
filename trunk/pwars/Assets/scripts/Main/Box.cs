@@ -29,7 +29,7 @@ public class Box : Shared
     }
     protected virtual void OnCollisionStay(Collision collisionInfo)
     {
-        if (collisionInfo.impactForceSum.magnitude > 10 && _TimerA.TimeElapsed(10))
+        if (collisionInfo.impactForceSum.magnitude > 30 && _TimerA.TimeElapsed(10))
             foreach (ContactPoint cp in collisionInfo.contacts)
                 _Game.particles[(int)ParticleTypes.particle_metal].Emit(cp.point, Quaternion.identity, -rigidbody.velocity / 4);
     }

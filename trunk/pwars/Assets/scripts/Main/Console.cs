@@ -4,7 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-public class Console : Base
+public class Console : bs
 {
     public static StringBuilder log = new StringBuilder();
     Rect r;

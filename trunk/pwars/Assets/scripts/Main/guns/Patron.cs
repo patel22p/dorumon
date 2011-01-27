@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Patron : Base
+public class Patron : bs
 {    
     public bool decalhole = true;
     public Vector3 Force = new Vector3(0, 0, 80);
@@ -93,7 +93,7 @@ public class Patron : Base
                 p.Force += (pos - p.pos).normalized * gravitate * 500 * Time.deltaTime * p.Force.sqrMagnitude / Vector3.Distance(p.pos, pos) / 2000;
         }
 
-        foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<Base>().Union(_Game.boxes.Cast<Base>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<Base>()).Union(_Game.zombies.Cast<Base>()))
+        foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<bs>().Union(_Game.boxes.Cast<bs>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<bs>()).Union(_Game.zombies.Cast<bs>()))
             if (b != null && b != this && Vector3.Distance(pos, b.pos) < radius)
             {
                 if (b is Zombie)

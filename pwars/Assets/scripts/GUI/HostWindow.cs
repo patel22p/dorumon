@@ -12,81 +12,140 @@ public partial class Base2:MonoBehaviour
 
 public class HostWindow : WindowBase {
 		
-	internal string Name{ get { return PlayerPrefs.GetString("Name", @""); } set { PlayerPrefs.SetString("Name", value); } }
-	internal float Startup_Level{ get { return PlayerPrefs.GetFloat("Startup_Level", 0f); } set { PlayerPrefs.SetFloat("Startup_Level", value); } }
-	internal float Startup_Money{ get { return PlayerPrefs.GetFloat("Startup_Money", 0f); } set { PlayerPrefs.SetFloat("Startup_Money", value); } }
-	internal float Zombie_Speed{ get { return PlayerPrefs.GetFloat("Zombie_Speed", 1f); } set { PlayerPrefs.SetFloat("Zombie_Speed", value); } }
-	internal float Zombie_Damage{ get { return PlayerPrefs.GetFloat("Zombie_Damage", 1f); } set { PlayerPrefs.SetFloat("Zombie_Damage", value); } }
-	internal float Zombie_Life{ get { return PlayerPrefs.GetFloat("Zombie_Life", 1f); } set { PlayerPrefs.SetFloat("Zombie_Life", value); } }
-	internal float ZombiesAtStart{ get { return PlayerPrefs.GetFloat("ZombiesAtStart", 5f); } set { PlayerPrefs.SetFloat("ZombiesAtStart", value); } }
-	internal float Money_per_frag{ get { return PlayerPrefs.GetFloat("Money_per_frag", 0f); } set { PlayerPrefs.SetFloat("Money_per_frag", value); } }
-	internal bool vname = true;
-	internal bool focusName;
-	internal bool rName = false;
-	internal bool vport = true;
-	internal bool focusPort;
-	internal bool rPort = false;
-	internal int Port = 5300;
-	internal bool vmaxPlayers = true;
-	internal bool focusMaxPlayers;
-	internal bool rMaxPlayers = false;
-	internal int MaxPlayers = 6;
-	internal bool vmaxTime = true;
-	internal bool focusMaxTime;
-	internal bool rMaxTime = false;
-	internal int MaxTime = 15;
-	internal bool vKick_if_AFK = true;
-	internal bool focusKick_if_AFK;
+	public string Name{ get { return PlayerPrefs.GetString("Name", @""); } set { PlayerPrefs.SetString("Name", value); } }
+	public float Startup_Level{ get { return PlayerPrefs.GetFloat("Startup_Level", 0f); } set { PlayerPrefs.SetFloat("Startup_Level", value); } }
+	public float Startup_Money{ get { return PlayerPrefs.GetFloat("Startup_Money", 0f); } set { PlayerPrefs.SetFloat("Startup_Money", value); } }
+	public float Zombie_Speed{ get { return PlayerPrefs.GetFloat("Zombie_Speed", 1f); } set { PlayerPrefs.SetFloat("Zombie_Speed", value); } }
+	public float Zombie_Damage{ get { return PlayerPrefs.GetFloat("Zombie_Damage", 1f); } set { PlayerPrefs.SetFloat("Zombie_Damage", value); } }
+	public float Zombie_Life{ get { return PlayerPrefs.GetFloat("Zombie_Life", 1f); } set { PlayerPrefs.SetFloat("Zombie_Life", value); } }
+	public float ZombiesAtStart{ get { return PlayerPrefs.GetFloat("ZombiesAtStart", 5f); } set { PlayerPrefs.SetFloat("ZombiesAtStart", value); } }
+	public float Money_per_frag{ get { return PlayerPrefs.GetFloat("Money_per_frag", 0f); } set { PlayerPrefs.SetFloat("Money_per_frag", value); } }
+	[HideInInspector]
+	public bool vname = true;
+	[HideInInspector]
+	public bool focusName;
+	[HideInInspector]
+	public bool rName = false;
+	[HideInInspector]
+	public bool vport = true;
+	[HideInInspector]
+	public bool focusPort;
+	[HideInInspector]
+	public bool rPort = false;
+	[HideInInspector]
+	public int Port = 5300;
+	[HideInInspector]
+	public bool vmaxPlayers = true;
+	[HideInInspector]
+	public bool focusMaxPlayers;
+	[HideInInspector]
+	public bool rMaxPlayers = false;
+	[HideInInspector]
+	public int MaxPlayers = 6;
+	[HideInInspector]
+	public bool vmaxTime = true;
+	[HideInInspector]
+	public bool focusMaxTime;
+	[HideInInspector]
+	public bool rMaxTime = false;
+	[HideInInspector]
+	public int MaxTime = 15;
+	[HideInInspector]
+	public bool vKick_if_AFK = true;
+	[HideInInspector]
+	public bool focusKick_if_AFK;
 	internal bool Kick_if_AFK=false;
-	internal bool vkickIfErrors = true;
-	internal bool focusKickIfErrors;
+	[HideInInspector]
+	public bool vkickIfErrors = true;
+	[HideInInspector]
+	public bool focusKickIfErrors;
 	internal bool KickIfErrors=false;
-	internal bool vmaxPing = true;
-	internal bool focusMaxPing;
-	internal bool rMaxPing = false;
-	internal int MaxPing = 0;
-	internal bool vfragCanvas = true;
-	internal bool focusFragCanvas;
-	internal bool vfragLimitText = true;
-	internal bool focusFragLimitText;
-	internal bool rFragLimitText = true;
-	internal string FragLimitText = @"Frag Limit";
-	internal bool vmaxFrags = true;
-	internal bool focusMaxFrags;
-	internal bool rMaxFrags = false;
-	internal int MaxFrags = 20;
-	internal bool vGameImage = true;
-	internal bool focusGameImage;
+	[HideInInspector]
+	public bool vmaxPing = true;
+	[HideInInspector]
+	public bool focusMaxPing;
+	[HideInInspector]
+	public bool rMaxPing = false;
+	[HideInInspector]
+	public int MaxPing = 0;
+	[HideInInspector]
+	public bool vfragCanvas = true;
+	[HideInInspector]
+	public bool focusFragCanvas;
+	[HideInInspector]
+	public bool vfragLimitText = true;
+	[HideInInspector]
+	public bool focusFragLimitText;
+	[HideInInspector]
+	public bool rFragLimitText = true;
+	[HideInInspector]
+	public string FragLimitText = @"Frag Limit";
+	[HideInInspector]
+	public bool vmaxFrags = true;
+	[HideInInspector]
+	public bool focusMaxFrags;
+	[HideInInspector]
+	public bool rMaxFrags = false;
+	[HideInInspector]
+	public int MaxFrags = 20;
+	[HideInInspector]
+	public bool vGameImage = true;
+	[HideInInspector]
+	public bool focusGameImage;
 	public Texture imgGameImage;
-	internal bool vGameMode = true;
-	internal bool focusGameMode;
+	[HideInInspector]
+	public bool vGameMode = true;
+	[HideInInspector]
+	public bool focusGameMode;
 	public string[] lGameMode;
-	internal int iGameMode = 0;
+	[HideInInspector]
+	public int iGameMode = 0;
 	public string GameMode { get { if(lGameMode.Length==0) return ""; return lGameMode[iGameMode]; } set { iGameMode = lGameMode.SelectIndex(value); }}
-	internal bool vMap = true;
-	internal bool focusMap;
+	[HideInInspector]
+	public bool vMap = true;
+	[HideInInspector]
+	public bool focusMap;
 	public string[] lMap;
-	internal int iMap = 0;
+	[HideInInspector]
+	public int iMap = 0;
 	public string Map { get { if(lMap.Length==0) return ""; return lMap[iMap]; } set { iMap = lMap.SelectIndex(value); }}
-	internal bool vStartServer = true;
-	internal bool focusStartServer;
+	[HideInInspector]
+	public bool vStartServer = true;
+	[HideInInspector]
+	public bool focusStartServer;
 	internal bool StartServer=false;
-	internal bool vums = true;
-	internal bool focusUms;
-	internal bool vStartup_Level = true;
-	internal bool focusStartup_Level;
-	internal bool vStartup_Money = true;
-	internal bool focusStartup_Money;
-	internal bool vZombie_Speed = true;
-	internal bool focusZombie_Speed;
-	internal bool vZombie_Damage = true;
-	internal bool focusZombie_Damage;
-	internal bool vZombie_Life = true;
-	internal bool focusZombie_Life;
-	internal bool vzombiesAtStart = true;
-	internal bool focusZombiesAtStart;
-	internal bool vMoney_per_frag = true;
-	internal bool focusMoney_per_frag;
+	[HideInInspector]
+	public bool vums = true;
+	[HideInInspector]
+	public bool focusUms;
+	[HideInInspector]
+	public bool vStartup_Level = true;
+	[HideInInspector]
+	public bool focusStartup_Level;
+	[HideInInspector]
+	public bool vStartup_Money = true;
+	[HideInInspector]
+	public bool focusStartup_Money;
+	[HideInInspector]
+	public bool vZombie_Speed = true;
+	[HideInInspector]
+	public bool focusZombie_Speed;
+	[HideInInspector]
+	public bool vZombie_Damage = true;
+	[HideInInspector]
+	public bool focusZombie_Damage;
+	[HideInInspector]
+	public bool vZombie_Life = true;
+	[HideInInspector]
+	public bool focusZombie_Life;
+	[HideInInspector]
+	public bool vzombiesAtStart = true;
+	[HideInInspector]
+	public bool focusZombiesAtStart;
+	[HideInInspector]
+	public bool vMoney_per_frag = true;
+	[HideInInspector]
+	public bool focusMoney_per_frag;
 	private int wndid1;
 	private bool oldMouseOverKick_if_AFK;
 	private bool oldMouseOverKickIfErrors;

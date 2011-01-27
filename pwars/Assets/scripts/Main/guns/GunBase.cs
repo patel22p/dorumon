@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-public class GunBase : Base
+public class GunBase : bs
 {
     public bool laser;
     public float ves;

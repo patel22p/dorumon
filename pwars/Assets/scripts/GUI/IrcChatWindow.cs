@@ -12,21 +12,34 @@ public partial class Base2:MonoBehaviour
 
 public class IrcChatWindow : WindowBase {
 		
-	internal bool vmsgs = true;
-	internal bool focusMsgs;
-	internal bool rMsgs = true;
-	internal string Msgs = @"";
-	internal bool vinput = true;
-	internal bool focusInput;
-	internal bool rInput = false;
-	internal string Input = @"";
-	internal bool vUsers = true;
-	internal bool focusUsers;
+	[HideInInspector]
+	public bool vmsgs = true;
+	[HideInInspector]
+	public bool focusMsgs;
+	[HideInInspector]
+	public bool rMsgs = true;
+	[HideInInspector]
+	public string Msgs = @"";
+	[HideInInspector]
+	public bool vinput = true;
+	[HideInInspector]
+	public bool focusInput;
+	[HideInInspector]
+	public bool rInput = false;
+	[HideInInspector]
+	public string Input = @"";
+	[HideInInspector]
+	public bool vUsers = true;
+	[HideInInspector]
+	public bool focusUsers;
 	public string[] lUsers;
-	internal int iUsers = -1;
+	[HideInInspector]
+	public int iUsers = -1;
 	public string Users { get { if(lUsers.Length==0) return ""; return lUsers[iUsers]; } set { iUsers = lUsers.SelectIndex(value); }}
-	internal bool vircSend = true;
-	internal bool focusIrcSend;
+	[HideInInspector]
+	public bool vircSend = true;
+	[HideInInspector]
+	public bool focusIrcSend;
 	internal bool IrcSend=false;
 	private int wndid1;
 	private Vector2 sUsers;

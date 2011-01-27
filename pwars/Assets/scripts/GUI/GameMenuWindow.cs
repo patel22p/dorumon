@@ -14,19 +14,29 @@ public class GameMenuWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
 	public Texture imgImage2;
-	internal bool vTeamSelectButton = true;
-	internal bool focusTeamSelectButton;
+	[HideInInspector]
+	public bool vTeamSelectButton = true;
+	[HideInInspector]
+	public bool focusTeamSelectButton;
 	internal bool TeamSelectButton=false;
-	internal bool voptions = true;
-	internal bool focusOptions;
+	[HideInInspector]
+	public bool voptions = true;
+	[HideInInspector]
+	public bool focusOptions;
 	internal bool Options=false;
-	internal bool vdisconnect = true;
-	internal bool focusDisconnect;
+	[HideInInspector]
+	public bool vdisconnect = true;
+	[HideInInspector]
+	public bool focusDisconnect;
 	internal bool Disconnect=false;
-	internal bool vfraglimit = true;
-	internal bool focusFraglimit;
-	internal bool rFraglimit = true;
-	internal int Fraglimit = 0;
+	[HideInInspector]
+	public bool vfraglimit = true;
+	[HideInInspector]
+	public bool focusFraglimit;
+	[HideInInspector]
+	public bool rFraglimit = true;
+	[HideInInspector]
+	public int Fraglimit = 0;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverTeamSelectButton;

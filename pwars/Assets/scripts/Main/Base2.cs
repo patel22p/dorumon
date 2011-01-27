@@ -123,7 +123,7 @@ public partial class Base2 : MonoBehaviour
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
     public long memorystart = 0;    
-    public static string GenerateTable(string source)
+    public static string GenerateTable(string source) //create table parse table
     {
         string table = "";
         MatchCollection m = Regex.Matches(source, @"\w*\s*");

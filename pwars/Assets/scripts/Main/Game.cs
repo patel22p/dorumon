@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 using System.Runtime.Serialization.Formatters.Binary;
 public enum GameMode { ZombieSurive, DotA, DeathMatch, TeamDeathMatch, CustomZombieSurvive }
 
-public class Game : Base
+public class Game : bs
 {
     public AnimationCurve scorefactor;
     new public Player[] players = new Player[36];
@@ -58,8 +58,10 @@ public class Game : Base
     [FindAsset]
     public AudioClip timewarp;
 
+ 
+
     public override void Awake()
-    {
+    {        
         gravity = Physics.gravity;
         fixedDeltaTime = Time.fixedDeltaTime;
         base.Awake();
@@ -72,7 +74,7 @@ public class Game : Base
             else
                 Network.Connect(_Loader.ipaddress, _Loader.port);
         else
-            foreach (Base o in Component.FindObjectsOfType(typeof(Base))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
+            foreach (bs o in Component.FindObjectsOfType(typeof(bs))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
     }
 
     protected override void Enable()
@@ -259,8 +261,8 @@ public class Game : Base
         .Union(GameObject.FindObjectsOfType(typeof(Destroible)))
         .Union(GameObject.FindObjectsOfType(typeof(Box)))
         .Union(GameObject.FindObjectsOfType(typeof(MapItem)))
-        .Union(GameObject.FindObjectsOfType(typeof(Base)));
-        foreach (Base b in sorted)
+        .Union(GameObject.FindObjectsOfType(typeof(bs)));
+        foreach (bs b in sorted)
             b.OnPlayerConnectedBase(np);
         sendto = null;
     }
@@ -474,7 +476,7 @@ public class Game : Base
         if (live == 0 && HasAny() || TimeEnd)
         {
             RPCWriteMessage(String.Format("You survived until {0} level.", stage));
-            ShowEndStats();
+            RPCShowEndStats();
         }
     }
     bool TimeEnd { get { return timeleft < 0; } }
@@ -486,7 +488,7 @@ public class Game : Base
                 if (!win && pl.frags >= mapSettings.fragLimit || TimeEnd)
                 {
                     RPCWriteMessage(pl.nick + " Win");
-                    ShowEndStats();
+                    RPCShowEndStats();
                 }
             }
     }
@@ -497,17 +499,19 @@ public class Game : Base
         if ((BlueFrags >= mapSettings.fragLimit || RedFrags >= mapSettings.fragLimit || TimeEnd))
         {
             RPCWriteMessage((BlueFrags > RedFrags ? "Red" : "Blue") + " Team Win");
-            ShowEndStats();
+            RPCShowEndStats();
         }
     }
     [FindAsset]
     public AudioClip endmusic;
+    public void RPCShowEndStats() { CallRPC("ShowEndStats"); }
+    [RPC]
     void ShowEndStats()
     {
         win = true;
         _GameStatsWindow.Show(this);
         audio.PlayOneShot(endmusic);
-        _TimerA.AddMethod(15000, WinGameEndScore);
+        _TimerA.AddMethod(build ? 15000 : 100, WinGameEndScore);
     }
     private void ZombiTDMCheck()
     {
@@ -527,17 +531,21 @@ public class Game : Base
         if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive) || TimeEnd)
         {
             RPCWriteMessage((!RedteamLive ? "Blue" : "Red") + " Team Win");
-            ShowEndStats();
+            RPCShowEndStats();
         }
     }
     private void WinGameEndScore()
-    {        
+    {
+        Debug.Log("disconnect");
         Network.Disconnect();
     }
     void OnDisconnectedFromServer(NetworkDisconnection nd)
-    {
+    {        
+        Debug.Log("OnDisconnectedFromServer");
+        _TimerA.Clear();
         _TimerA.AddMethod(2000, delegate
         {
+            Debug.Log("Save Scores");
             SaveScores(ScoreBoardTables.Player_Deaths, _localPlayer.deaths, 0);
             SaveScores(ScoreBoardTables.Played_Time, (int)Time.timeSinceLevelLoad,0);
             if (mapSettings.gameMode == GameMode.CustomZombieSurvive)
@@ -546,8 +554,7 @@ public class Game : Base
                 SaveScores(ScoreBoardTables.Zombie_Kill,_localPlayer.frags,_localPlayer.deaths);
             if (mapSettings.DM)
                 SaveScores(ScoreBoardTables.Player_Kill, _localPlayer.frags,_localPlayer.deaths);
-            _ScoreBoardWindow.Show(_Menu);
-            
+            _ScoreBoardWindow.Show(_Menu);            
         });
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
     }
@@ -558,7 +565,7 @@ public class Game : Base
         var sc = u.scoreboard[(int)t];
         sc.frags += frags;
         sc.deaths += deaths;
-        _Menu.SaveScoreBoard(t + "", u.nick, _Loader.password, u.guest, sc.frags, sc.deaths);
+        _Menu.SaveScoreBoard(t + "", u.nick, _Loader.passwordHash, u.guest, sc.frags, sc.deaths);
         _ScoreBoardWindow.Scoreboard_orderby = t + "";        
     }
     public void AddDecal(DecalTypes t, Vector3 pos, Vector3 normal, Transform addto)

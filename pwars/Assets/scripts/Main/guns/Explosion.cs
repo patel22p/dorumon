@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Explosion : Base
+public class Explosion : bs
 {
 
     public Shared self;

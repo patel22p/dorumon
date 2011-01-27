@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, trap, spotlight, timewarp, teleport, speedupgrate, lifeupgrate, antigravitation, energy, life }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 [AddComponentMenu("MapItem")]
-public class MapItem : Base, IAim
+public class MapItem : bs, IAim
 {
     public float score;
     public float Score

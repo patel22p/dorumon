@@ -17,7 +17,7 @@ using UnityEditor;
 #endif
 using System.Runtime.Serialization.Formatters.Binary;
 public enum Level { z1login, z2menu, z4game }
-public class Loader : Base
+public class Loader : bs
 {
     
     public string version;
@@ -35,6 +35,7 @@ public class Loader : Base
     public bool disablePathFinding= true;
     public bool loggedin;
     internal string password;
+    internal string passwordHash { get { return Ext.CalculateMD5Hash(password); } }
     public bool host;
     public UserView UserView;//{ get { return userView; } set { CopyS(value, userView); } }
     new public Level _Level;
@@ -74,26 +75,27 @@ public class Loader : Base
         {
             for (int i = 0; i < a.patrons.Length; i++)
                 a.patrons[i] = -1;
-            a.patrons[(int)GunType.physxgun] = 50;
-            a.patrons[(int)GunType.pistol] = 20;
-            a.patrons[(int)GunType.shotgun] = 20;
+            a.patrons[(int)GunType.physxgun] = 40;
+            a.patrons[(int)GunType.pistol] = 30;            
         }
 
         version = DateTime.Now.ToString();
         base.Init();
     }
 #endif
-    string curdir { get { return Directory.GetCurrentDirectory(); } }
+    public string curdir { get { return Application.isWebPlayer ? Application.absoluteUrl : Directory.GetCurrentDirectory(); } } 
     protected override void Start()
     {
         print("Version " + version);
+        Debug.Log("App Path" + Application.absoluteUrl);
+        
         _SettingsWindow.lScreenSize = ToString(Screen.resolutions).ToArray();
         _SettingsWindow.lGraphicQuality = Enum.GetNames(typeof(QualityLevel));
         _SettingsWindow.lRenderSettings = Enum.GetNames(typeof(RenderingPath));
-        Action("onGraphicQuality");
+        Action("GraphicQuality");
         if (!isWebPlayer)
         {
-            Action("onScreenSize");            
+            Action("ScreenSize");            
             Directory.CreateDirectory(curdir + "/ScreenShots");
             foreach (var a in Directory.GetFiles(curdir + "/ScreenShots").Reverse().Skip(100))
                 File.Delete(a);
@@ -131,8 +133,7 @@ public class Loader : Base
 
     }
     void OnLevelWasLoaded(int level)
-    {
-        _TimerA.Clear();
+    {        
         foreach (Ping p in hdps.Values)
             p.DestroyPing();
         hdps.Clear();

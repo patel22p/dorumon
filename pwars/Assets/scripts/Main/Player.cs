@@ -66,9 +66,11 @@ public class Player : Destroible, IAim
     [RPC]
     public void SetUserView(byte[] data)
     {
-        Debug.Log(data.Length + name);
-        user = (UserView)Deserialize(data, UserView.xml);
-        model.renderer.materials[0] = _Loader.playerTextures[user.MaterialId];
+        if (!isOwner)
+            user = (UserView)Deserialize(data, UserView.xml);
+
+        AliveMaterial = _Loader.playerTextures[user.MaterialId];
+        Debug.Log("dsdsdsds" + model.renderer.material.name);
     }
     public override void Awake()
     {
@@ -82,17 +84,16 @@ public class Player : Destroible, IAim
         if (networkView.isMine)
         {
             _localPlayer = this;
-            _Game.RPCWriteMessage("Player Connected: " + nick);
-            user = _Loader.UserView;
-            networkView.RPC("SetUserView", RPCMode.Others, Serialize(user, UserView.xml));
+            _Game.RPCWriteMessage("Player Connected: " + nick);            
             RPCSetOwner();
+            user = _Loader.UserView;
+            RPCSetUserView(Serialize(user, UserView.xml));
             ResetSpawn();
-        }
-        //speedparticles = transform.Find("speedparticles").GetComponent<ParticleEmitter>();
+        }        
         base.Awake();
     }
     protected override void Start()
-    {
+    {        
         base.Start();
     }
     public override void OnPlayerConnectedBase(NetworkPlayer np)
@@ -166,8 +167,7 @@ public class Player : Destroible, IAim
             guns[selectedgun].EnableGun();
     }
     protected override void Update()
-    {
-
+    {        
         maxLife = defMaxLife + (lifeUpgrate * 100);
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
@@ -381,14 +381,14 @@ public class Player : Destroible, IAim
                 moveDirection.y = 0;
             moveDirection.Normalize();            
             Vector3 v = this.rigidbody.velocity;
-            if (shift && !frozen && nitro > 0)
+            if (shift && !frozen && (nitro > 0 || !build))
             {
                 moveForce += moveDirection * Time.deltaTime * 8; //forcemove
                 this.rigidbody.angularVelocity = Vector3.zero;
                 this.rigidbody.AddForce(moveForce * fdt * speed * 450);
                 v.x *= 0;
                 v.z *= 0;
-                nitro -= Time.deltaTime * 3;
+                nitro -= Time.deltaTime * 1.5f;
                 if (Physics.gravity != _Game.gravity)
                     v.y *= 0;
                 this.rigidbody.velocity = v;

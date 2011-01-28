@@ -15,10 +15,9 @@ public enum GameMode { ZombieSurive, DotA, DeathMatch, TeamDeathMatch, CustomZom
 public class Game : bs
 {
     public AnimationCurve scorefactor;
-    new public Player[] players = new Player[36];
+    new internal Player[] players = new Player[maxConId];
     public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
-    public float[] timers = new float[20];
     public IEnumerable<MapTag> spawns { get { return GameObject.FindObjectsOfType(typeof(MapTag)).Cast<MapTag>(); } }
     public List<Patron> patrons = new List<Patron>();
     private float fixedDeltaTime;
@@ -46,9 +45,9 @@ public class Game : bs
     public Vector3 gravity;
     public int maxzombies = 0;
     [GenerateEnums("ParticleTypes")]
-    public List<Particles> particles = new List<Particles>();
+    public Particles[] particles;
     [GenerateEnums("DecalTypes")]
-    public List<Decal> decalPresets = new List<Decal>();
+    public Decal[] decalPresets;
     public int zombiespawnindex = 0;
     public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [FindAsset("Player")]
@@ -58,10 +57,9 @@ public class Game : bs
     [FindAsset]
     public AudioClip timewarp;
 
- 
-
     public override void Awake()
-    {        
+    {
+        _Loader.loggedin = true;
         gravity = Physics.gravity;
         fixedDeltaTime = Time.fixedDeltaTime;
         base.Awake();
@@ -96,7 +94,7 @@ public class Game : bs
     public override void Init()
     {
         Physics.gravity = new Vector3(0, -20, 0);
-        particles = new List<Particles>(FindObjectsOfType(typeof(Particles)).Cast<Particles>());                    
+        //particles = FindObjectsOfType(typeof(Particles)).Cast<Particles>().ToArray();                    
     }
 
 
@@ -506,12 +504,12 @@ public class Game : bs
     public AudioClip endmusic;
     public void RPCShowEndStats() { CallRPC("ShowEndStats"); }
     [RPC]
-    void ShowEndStats()
+    public void ShowEndStats()
     {
         win = true;
         _GameStatsWindow.Show(this);
-        audio.PlayOneShot(endmusic);
-        _TimerA.AddMethod(build ? 15000 : 100, WinGameEndScore);
+        //audio.PlayOneShot(endmusic);
+        _TimerA.AddMethod(build ? 15000 : 1000, WinGameEndScore);
     }
     private void ZombiTDMCheck()
     {
@@ -543,19 +541,18 @@ public class Game : bs
     {        
         Debug.Log("OnDisconnectedFromServer");
         _TimerA.Clear();
-        _TimerA.AddMethod(2000, delegate
+        if (!_localPlayer.user.guest)
         {
-            Debug.Log("Save Scores");
-            SaveScores(ScoreBoardTables.Player_Deaths, _localPlayer.deaths, 0);
-            SaveScores(ScoreBoardTables.Played_Time, (int)Time.timeSinceLevelLoad,0);
-            if (mapSettings.gameMode == GameMode.CustomZombieSurvive)
-                SaveScores(ScoreBoardTables.Custom_Zombie_Survive, _localPlayer.frags,_localPlayer.deaths);
-            if (mapSettings.ZombiSurvive)
-                SaveScores(ScoreBoardTables.Zombie_Kill,_localPlayer.frags,_localPlayer.deaths);
-            if (mapSettings.DM)
-                SaveScores(ScoreBoardTables.Player_Kill, _localPlayer.frags,_localPlayer.deaths);
-            _ScoreBoardWindow.Show(_Menu);            
-        });
+            _TimerA.AddMethod(2000, delegate
+            {
+                SaveScores(ScoreBoardTables.Played_Time, (int)Time.timeSinceLevelLoad, 0);
+                if (mapSettings.ZombiSurvive)
+                    SaveScores(ScoreBoardTables.Zombie_Kill, _localPlayer.frags, _localPlayer.deaths);
+                if (mapSettings.DM)
+                    SaveScores(ScoreBoardTables.Player_Kill, _localPlayer.frags, _localPlayer.deaths);
+                _ScoreBoardWindow.Show(_Menu);
+            });
+        }
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
     }
 

@@ -12,48 +12,48 @@ public partial class Base2:MonoBehaviour
 
 public class TeamSelectWindow : WindowBase {
 		
-	[HideInInspector]
-	public bool vTeamsView = true;
-	[HideInInspector]
-	public bool focusTeamsView;
-	[HideInInspector]
-	public bool vTeams = true;
-	[HideInInspector]
-	public bool focusTeams;
+	
+	internal bool vTeamsView = true;
+	
+	internal bool focusTeamsView;
+	
+	internal bool vTeams = true;
+	
+	internal bool focusTeams;
 	public string[] lTeams;
 	[HideInInspector]
 	public int iTeams = 0;
 	public string Teams { get { if(lTeams.Length==0) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vred = true;
-	[HideInInspector]
-	public bool focusRed;
+	
+	internal bool vred = true;
+	
+	internal bool focusRed;
 	public Texture imgRed;
-	[HideInInspector]
-	public bool vTeamSelect = true;
-	[HideInInspector]
-	public bool focusTeamSelect;
+	
+	internal bool vTeamSelect = true;
+	
+	internal bool focusTeamSelect;
 	internal bool TeamSelect=false;
-	[HideInInspector]
-	public bool vGameType = true;
-	[HideInInspector]
-	public bool focusGameType;
-	[HideInInspector]
-	public bool vZombi = false;
-	[HideInInspector]
-	public bool focusZombi;
-	[HideInInspector]
-	public bool vZombiTeam = false;
-	[HideInInspector]
-	public bool focusZombiTeam;
-	[HideInInspector]
-	public bool vDeathmatch = false;
-	[HideInInspector]
-	public bool focusDeathmatch;
-	[HideInInspector]
-	public bool vTeamDeathMatch = false;
-	[HideInInspector]
-	public bool focusTeamDeathMatch;
+	
+	internal bool vGameType = true;
+	
+	internal bool focusGameType;
+	
+	internal bool vZombi = false;
+	
+	internal bool focusZombi;
+	
+	internal bool vZombiTeam = false;
+	
+	internal bool focusZombiTeam;
+	
+	internal bool vDeathmatch = false;
+	
+	internal bool focusDeathmatch;
+	
+	internal bool vTeamDeathMatch = false;
+	
+	internal bool focusTeamDeathMatch;
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
@@ -73,7 +73,11 @@ public class TeamSelectWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iTeams = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -109,7 +113,7 @@ public class TeamSelectWindow : WindowBase {
 		if(focusRed) { focusRed = false; GUI.FocusControl("Red");}
 		GUI.SetNextControlName("Red");
 		if(imgRed!=null)
-			GUI.DrawTexture(Red,imgRed, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Red,imgRed, ScaleMode.ScaleToFit, imgRed is RenderTexture?false:true);
 		}
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(28f, 263f, 542f, 40f), "");

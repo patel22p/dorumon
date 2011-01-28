@@ -1,3 +1,4 @@
+#pragma warning disable 0169, 0414,649,168
 //    � Copyright 2010 Aron Granberg
 //    AstarPath.cs script is licenced under a Creative Commons Attribution-Noncommercial 3.0 Unported License.
 //    If you want to use the script in commercial projects, please contact me at aron.g@me.com

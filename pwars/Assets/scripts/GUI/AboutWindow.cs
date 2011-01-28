@@ -31,7 +31,10 @@ public class AboutWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -44,7 +47,7 @@ public class AboutWindow : WindowBase {
 		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
-			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);
 		GUI.Label(new Rect(111f, 290f, 480f, 176f), @"Copyright PhysxWars Team
 
 

@@ -37,7 +37,7 @@ public class WindowBase : Base2
         this.controller = controller;
         Show();
     }
-    public void Show()
+    public virtual void Show()
     {
         lockCursor = false;
         foreach(var a in transform.parent.GetComponentsInChildren<Transform>())                        

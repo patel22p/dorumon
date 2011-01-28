@@ -28,7 +28,7 @@ public class Explosion : bs
         foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
             if (b != self && (!(b is Player) || ((Player)b).Alive))
             {
-                b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * fdt, transform.position, radius);
+                b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass / b.GetComponentInChildren<Collider>().bounds.size.sqrMagnitude * 3 * fdt, transform.position, radius);
             }
         //});
     }

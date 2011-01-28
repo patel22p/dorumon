@@ -114,24 +114,19 @@ public class Patron : bs
 
         transform.position = hit.point + transform.rotation * Vector3.forward;
         bool glass = g.tag == "glass";
-        
+
+        var m = t.GetMonoBehaviorInParrent();        
         if (!explodeOnDestroy)
         {
-            var  r = t.transform.GetComponentInParrent<Rigidbody>();
-
+            var r = hit.rigidbody;
             if (r!= null)
-            {
-                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce) * fdt, hit.point);
-            }
+                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.sqrMagnitude * 10) * fdt, hit.point);
         }
-
+        Destroible destroible = m as Destroible;
         if (g.layer == LayerMask.NameToLayer("Level") || g.layer == LayerMask.NameToLayer("Glass"))
             _Game.AddDecal(glass ? DecalTypes.glass : (decalhole ? DecalTypes.Hole : DecalTypes.Decal),
                 hit.point - rot * Vector3.forward * 0.12f, hit.normal, t);
-
-        Destroible destroible = t.GetMonoBehaviorInParrent() as Destroible;
         
-
         if (destroible is Zombie && _SettingsWindow.Blood)
         {
             _Game.particles[(int)ParticleTypes.BloodSplatters].Emit(hit.point, transform.rotation);

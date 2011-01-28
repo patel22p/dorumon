@@ -118,8 +118,6 @@ public partial class Base2 : MonoBehaviour
     }
     static Menu __Menu;
     public static Menu _Menu { get { if (__Menu == null) __Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return __Menu; } }
-    static Music __Music;
-    public static Music _Music { get { if (__Music == null) __Music = (Music)MonoBehaviour.FindObjectOfType(typeof(Music)); return __Music; } }
     static Console __Console;
     public static Console _Console { get { if (__Console == null) __Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return __Console; } }
     public long memorystart = 0;    

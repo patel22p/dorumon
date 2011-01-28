@@ -12,127 +12,127 @@ public partial class Base2:MonoBehaviour
 
 public class SettingsWindow : WindowBase {
 		
-	public int iGraphicQuality{ get { return PlayerPrefs.GetInt("iGraphicQuality", -1); } set { PlayerPrefs.SetInt("iGraphicQuality", value); } }
-	public int iScreenSize{ get { return PlayerPrefs.GetInt("iScreenSize", -1); } set { PlayerPrefs.SetInt("iScreenSize", value); } }
-	public float Camx{ get { return PlayerPrefs.GetFloat("Camx", 6f); } set { PlayerPrefs.SetFloat("Camx", value); } }
-	public float Camy{ get { return PlayerPrefs.GetFloat("Camy", 4f); } set { PlayerPrefs.SetFloat("Camy", value); } }
-	public float Fieldof{ get { return PlayerPrefs.GetFloat("Fieldof", 100f); } set { PlayerPrefs.SetFloat("Fieldof", value); } }
-	public float CamSmooth{ get { return PlayerPrefs.GetFloat("CamSmooth", 1f); } set { PlayerPrefs.SetFloat("CamSmooth", value); } }
-	public float MusicVolume{ get { return PlayerPrefs.GetFloat("MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat("MusicVolume", value); } }
-	public float SoundVolume{ get { return PlayerPrefs.GetFloat("SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat("SoundVolume", value); } }
-	public float NetworkSendRate{ get { return PlayerPrefs.GetFloat("NetworkSendRate", 15f); } set { PlayerPrefs.SetFloat("NetworkSendRate", value); } }
-	public float MouseY{ get { return PlayerPrefs.GetFloat("MouseY", 1f); } set { PlayerPrefs.SetFloat("MouseY", value); } }
-	public float MouseX{ get { return PlayerPrefs.GetFloat("MouseX", 1f); } set { PlayerPrefs.SetFloat("MouseX", value); } }
-	[HideInInspector]
-	public bool vGraphicQuality = true;
-	[HideInInspector]
-	public bool focusGraphicQuality;
+	public int iGraphicQuality{ get { return PlayerPrefs.GetInt(Application.platform +"iGraphicQuality", -1); } set { PlayerPrefs.SetInt(Application.platform +"iGraphicQuality", value); } }
+	public int iScreenSize{ get { return PlayerPrefs.GetInt(Application.platform +"iScreenSize", -1); } set { PlayerPrefs.SetInt(Application.platform +"iScreenSize", value); } }
+	public float Camx{ get { return PlayerPrefs.GetFloat(Application.platform +"Camx", 6f); } set { PlayerPrefs.SetFloat(Application.platform +"Camx", value); } }
+	public float Camy{ get { return PlayerPrefs.GetFloat(Application.platform +"Camy", 4f); } set { PlayerPrefs.SetFloat(Application.platform +"Camy", value); } }
+	public float Fieldof{ get { return PlayerPrefs.GetFloat(Application.platform +"Fieldof", 100f); } set { PlayerPrefs.SetFloat(Application.platform +"Fieldof", value); } }
+	public float CamSmooth{ get { return PlayerPrefs.GetFloat(Application.platform +"CamSmooth", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"CamSmooth", value); } }
+	public float MusicVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat(Application.platform +"MusicVolume", value); } }
+	public float SoundVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat(Application.platform +"SoundVolume", value); } }
+	public float NetworkSendRate{ get { return PlayerPrefs.GetFloat(Application.platform +"NetworkSendRate", 15f); } set { PlayerPrefs.SetFloat(Application.platform +"NetworkSendRate", value); } }
+	public float MouseY{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseY", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseY", value); } }
+	public float MouseX{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseX", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseX", value); } }
+	
+	internal bool vGraphicQuality = true;
+	
+	internal bool focusGraphicQuality;
 	public string[] lGraphicQuality;
 	public string GraphicQuality { get { if(lGraphicQuality.Length==0) return ""; return lGraphicQuality[iGraphicQuality]; } set { iGraphicQuality = lGraphicQuality.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vScreenSize = true;
-	[HideInInspector]
-	public bool focusScreenSize;
+	
+	internal bool vScreenSize = true;
+	
+	internal bool focusScreenSize;
 	public string[] lScreenSize;
 	public string ScreenSize { get { if(lScreenSize.Length==0) return ""; return lScreenSize[iScreenSize]; } set { iScreenSize = lScreenSize.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vFullScreen = true;
-	[HideInInspector]
-	public bool focusFullScreen;
+	
+	internal bool vFullScreen = true;
+	
+	internal bool focusFullScreen;
 	internal bool FullScreen=false;
-	[HideInInspector]
-	public bool vBlood = true;
-	[HideInInspector]
-	public bool focusBlood;
+	
+	internal bool vBlood = true;
+	
+	internal bool focusBlood;
 	internal bool Blood { get { return PlayerPrefs.GetInt("Blood", 1) == 1; } set { PlayerPrefs.SetInt("Blood", value?1:0); } }
-	[HideInInspector]
-	public bool vdecals = true;
-	[HideInInspector]
-	public bool focusDecals;
+	
+	internal bool vdecals = true;
+	
+	internal bool focusDecals;
 	internal bool Decals { get { return PlayerPrefs.GetInt("Decals", 1) == 1; } set { PlayerPrefs.SetInt("Decals", value?1:0); } }
-	[HideInInspector]
-	public bool vatmoSphere = true;
-	[HideInInspector]
-	public bool focusAtmoSphere;
+	
+	internal bool vatmoSphere = true;
+	
+	internal bool focusAtmoSphere;
 	internal bool AtmoSphere { get { return PlayerPrefs.GetInt("AtmoSphere", 1) == 1; } set { PlayerPrefs.SetInt("AtmoSphere", value?1:0); } }
-	[HideInInspector]
-	public bool vsao = true;
-	[HideInInspector]
-	public bool focusSao;
+	
+	internal bool vsao = true;
+	
+	internal bool focusSao;
 	internal bool Sao { get { return PlayerPrefs.GetInt("Sao", 1) == 1; } set { PlayerPrefs.SetInt("Sao", value?1:0); } }
-	[HideInInspector]
-	public bool vshadows = true;
-	[HideInInspector]
-	public bool focusShadows;
+	
+	internal bool vshadows = true;
+	
+	internal bool focusShadows;
 	internal bool Shadows { get { return PlayerPrefs.GetInt("Shadows", 1) == 1; } set { PlayerPrefs.SetInt("Shadows", value?1:0); } }
-	[HideInInspector]
-	public bool vmotionBlur = true;
-	[HideInInspector]
-	public bool focusMotionBlur;
+	
+	internal bool vmotionBlur = true;
+	
+	internal bool focusMotionBlur;
 	internal bool MotionBlur { get { return PlayerPrefs.GetInt("MotionBlur", 1) == 1; } set { PlayerPrefs.SetInt("MotionBlur", value?1:0); } }
-	[HideInInspector]
-	public bool vbloomAndFlares = true;
-	[HideInInspector]
-	public bool focusBloomAndFlares;
+	
+	internal bool vbloomAndFlares = true;
+	
+	internal bool focusBloomAndFlares;
 	internal bool BloomAndFlares { get { return PlayerPrefs.GetInt("BloomAndFlares", 1) == 1; } set { PlayerPrefs.SetInt("BloomAndFlares", value?1:0); } }
-	[HideInInspector]
-	public bool vRenderSettings = true;
-	[HideInInspector]
-	public bool focusRenderSettings;
+	
+	internal bool vRenderSettings = true;
+	
+	internal bool focusRenderSettings;
 	public string[] lRenderSettings;
 	[HideInInspector]
 	public int iRenderSettings = -1;
 	public string RenderSettings { get { if(lRenderSettings.Length==0) return ""; return lRenderSettings[iRenderSettings]; } set { iRenderSettings = lRenderSettings.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vcamx = true;
-	[HideInInspector]
-	public bool focusCamx;
-	[HideInInspector]
-	public bool vcamy = true;
-	[HideInInspector]
-	public bool focusCamy;
-	[HideInInspector]
-	public bool vfieldof = true;
-	[HideInInspector]
-	public bool focusFieldof;
-	[HideInInspector]
-	public bool vcamSmooth = true;
-	[HideInInspector]
-	public bool focusCamSmooth;
-	[HideInInspector]
-	public bool vContrast = true;
-	[HideInInspector]
-	public bool focusContrast;
+	
+	internal bool vcamx = true;
+	
+	internal bool focusCamx;
+	
+	internal bool vcamy = true;
+	
+	internal bool focusCamy;
+	
+	internal bool vfieldof = true;
+	
+	internal bool focusFieldof;
+	
+	internal bool vcamSmooth = true;
+	
+	internal bool focusCamSmooth;
+	
+	internal bool vContrast = true;
+	
+	internal bool focusContrast;
 	internal bool Contrast { get { return PlayerPrefs.GetInt("Contrast", 1) == 1; } set { PlayerPrefs.SetInt("Contrast", value?1:0); } }
-	[HideInInspector]
-	public bool vMusicVolume = true;
-	[HideInInspector]
-	public bool focusMusicVolume;
-	[HideInInspector]
-	public bool vSoundVolume = true;
-	[HideInInspector]
-	public bool focusSoundVolume;
-	[HideInInspector]
-	public bool vReset = true;
-	[HideInInspector]
-	public bool focusReset;
+	
+	internal bool vMusicVolume = true;
+	
+	internal bool focusMusicVolume;
+	
+	internal bool vSoundVolume = true;
+	
+	internal bool focusSoundVolume;
+	
+	internal bool vReset = true;
+	
+	internal bool focusReset;
 	internal bool Reset=false;
-	[HideInInspector]
-	public bool vNetworkSendRate = true;
-	[HideInInspector]
-	public bool focusNetworkSendRate;
-	[HideInInspector]
-	public bool vMouseY = true;
-	[HideInInspector]
-	public bool focusMouseY;
-	[HideInInspector]
-	public bool vMouseX = true;
-	[HideInInspector]
-	public bool focusMouseX;
-	[HideInInspector]
-	public bool vShowKeyboard = true;
-	[HideInInspector]
-	public bool focusShowKeyboard;
+	
+	internal bool vNetworkSendRate = true;
+	
+	internal bool focusNetworkSendRate;
+	
+	internal bool vMouseY = true;
+	
+	internal bool focusMouseY;
+	
+	internal bool vMouseX = true;
+	
+	internal bool focusMouseX;
+	
+	internal bool vShowKeyboard = true;
+	
+	internal bool focusShowKeyboard;
 	internal bool ShowKeyboard=false;
 	private int wndid1;
 	private Vector2 sGraphicQuality;
@@ -163,7 +163,13 @@ public class SettingsWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iGraphicQuality = -1;
+	iScreenSize = -1;
+	iRenderSettings = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;

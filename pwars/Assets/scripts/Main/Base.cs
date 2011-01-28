@@ -12,11 +12,14 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using Random = UnityEngine.Random;
 public class bs : Base2
-{    
+{
+    public const int maxConId= 100; 
+    public float mass { get { return rigidbody.mass / collider.bounds.size.magnitude; } }
     public int OwnerID = -1;
     public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     public void ShowPopup(string s)
     {
+        Debug.Log("PopUp: " + s);
         _PopUpWindow.ShowDontHide(_Loader);
         _PopUpWindow.Text = s;
     }
@@ -53,7 +56,8 @@ public class bs : Base2
             if (b.owner == pl) return b;
         return null;
     }
-    public const string hosting = "http://physxwars.rh10.ru/";
+    
+    //public const string hosting = "http://physxwars.rh10.ru/";
     public static bool build { get { return _Loader.build; } }
     public static bool debug { get { return !_Loader.build; } }
     public static bool skip { get { return _Loader.skip; } }
@@ -171,7 +175,7 @@ public class bs : Base2
         if (sendto == null)
         {
             networkView.RPC(name, RPCMode.Others, obs);
-            this.GetType().GetMethod(name).Invoke(this, obs); // make method public !!!!
+            this.GetType().GetMethod(name).Invoke(this, obs); // public
         }
         else
             networkView.RPC(name, sendto.Value, obs);

@@ -70,7 +70,6 @@ public class Player : Destroible, IAim
             user = (UserView)Deserialize(data, UserView.xml);
 
         AliveMaterial = _Loader.playerTextures[user.MaterialId];
-        Debug.Log("dsdsdsds" + model.renderer.material.name);
     }
     public override void Awake()
     {
@@ -78,8 +77,8 @@ public class Player : Destroible, IAim
         AliveMaterial = model.renderer.sharedMaterial;
         Debug.Log("player awake");
         defmass = rigidbody.mass;
-        defMaxLife = maxLife;        
-        Score = _Loader.mapSettings.StartMoney + _Game.stage * 10 * _Game.scorefactor.Evaluate(_Game.stage);
+        defMaxLife = maxLife;
+        Score = _Loader.mapSettings.StartMoney + _Game.stage * 50 * _Game.scorefactor.Evaluate(_Game.stage);
         this.rigidbody.maxAngularVelocity = 3000;
         if (networkView.isMine)
         {
@@ -125,9 +124,8 @@ public class Player : Destroible, IAim
     {
         Debug.Log(name + "Reset Spawn");
         base.ResetSpawn();
-        Debug.Log((team + "spawn"));
         RPCSetAlive(false);
-        transform.position = _Game.spawns.Where(a => a.SpawnType.ToLower() == (team + "spawn").ToLower()).Random().transform.position;
+        transform.position = _Game.spawns.Where(a => a.SpawnType.ToString().ToLower() == (team + "spawn").ToLower()).Random().transform.position;
         transform.rotation = Quaternion.identity;
     }
     public void LocalSelectGun(int id)
@@ -295,9 +293,9 @@ public class Player : Destroible, IAim
     private void UpdateTitle()
     {
         if (OwnerID != -1 && (team == Team.Red || team == Team.Blue))
-            title.renderer.material.color = (team == Team.Red ? Color.red : Color.blue) * 1f;
+            title.renderer.material.color = (team == Team.Red ? Color.red : Color.blue) * .5f;
         else
-            title.renderer.material.color = Color.white * 1;
+            title.renderer.material.color = Color.white * .5f;
 
         if (shownicktime > 0 || !_localPlayer.isEnemy(OwnerID))
             title.text = nick + ":" + Life;

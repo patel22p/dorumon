@@ -19,7 +19,10 @@ public static class Ext
     {
         return v ? 1 : 0;
     }
-
+    //public static float Mass(this GameObject g)
+    //{
+    //    return g.rigidbody.mass / g.collider.bounds.size.magnitude;
+    //}
     public static string CalculateMD5Hash(string input)
     {
         MD5 md5 = System.Security.Cryptography.MD5.Create();
@@ -27,9 +30,7 @@ public static class Ext
         byte[] hash = md5.ComputeHash(inputBytes);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < hash.Length; i++)
-        {
             sb.Append(hash[i].ToString("X2"));
-        }
         return sb.ToString();
     }
 
@@ -136,9 +137,10 @@ public class FindTransform : Attribute
 }
 public class GenerateEnums : Attribute
 {
+    public bool overide;
     public string name;
     public GenerateEnums(string enumName)
-    {
+    {        
         name = enumName;
     }
 }

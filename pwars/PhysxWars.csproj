@@ -176,7 +176,6 @@
      <Compile Include="Assets\scripts\Main\MapSetting.cs" />
      <Compile Include="Assets\scripts\Main\MapTag.cs" />
      <Compile Include="Assets\scripts\Main\Menu.cs" />
-     <Compile Include="Assets\scripts\Main\Music.cs" />
      <Compile Include="Assets\scripts\Main\Particles.cs" />
      <Compile Include="Assets\scripts\Main\Player.cs" />
      <Compile Include="Assets\scripts\Main\Shared.cs" />

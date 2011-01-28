@@ -54,8 +54,7 @@ namespace doru
             }
             if (select != null)
             {
-                _List.Remove(select);
-                
+                _List.Remove(select);                
                 //try
                 {
                     select._Action2();
@@ -116,6 +115,7 @@ namespace doru
         }
         public void Clear()
         {
+            Debug.Log("Timer Clear");
             _List.Clear();
         }
         List<CA> _List = new List<CA>();

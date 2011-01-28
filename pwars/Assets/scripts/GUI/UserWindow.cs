@@ -12,99 +12,99 @@ public partial class Base2:MonoBehaviour
 
 public class UserWindow : WindowBase {
 		
-	[HideInInspector]
-	public bool vSaveUser = true;
-	[HideInInspector]
-	public bool focusSaveUser;
+	
+	internal bool vSaveUser = true;
+	
+	internal bool focusSaveUser;
 	internal bool SaveUser=false;
-	[HideInInspector]
-	public bool vUserNick = true;
-	[HideInInspector]
-	public bool focusUserNick;
-	[HideInInspector]
-	public bool rUserNick = true;
+	
+	internal bool vUserNick = true;
+	
+	internal bool focusUserNick;
+	
+	internal bool rUserNick = true;
 	[HideInInspector]
 	public string UserNick = @"";
-	[HideInInspector]
-	public bool vFirstName = true;
-	[HideInInspector]
-	public bool focusFirstName;
-	[HideInInspector]
-	public bool rFirstName = false;
+	
+	internal bool vFirstName = true;
+	
+	internal bool focusFirstName;
+	
+	internal bool rFirstName = false;
 	[HideInInspector]
 	public string FirstName = @"";
-	[HideInInspector]
-	public bool vAvatarUrl = true;
-	[HideInInspector]
-	public bool focusAvatarUrl;
-	[HideInInspector]
-	public bool rAvatarUrl = false;
+	
+	internal bool vAvatarUrl = true;
+	
+	internal bool focusAvatarUrl;
+	
+	internal bool rAvatarUrl = false;
 	[HideInInspector]
 	public string AvatarUrl = @"";
-	[HideInInspector]
-	public bool vDesctiption = true;
-	[HideInInspector]
-	public bool focusDesctiption;
-	[HideInInspector]
-	public bool rDesctiption = false;
+	
+	internal bool vDesctiption = true;
+	
+	internal bool focusDesctiption;
+	
+	internal bool rDesctiption = false;
 	[HideInInspector]
 	public string Desctiption = @"";
-	[HideInInspector]
-	public bool vBallRender = true;
-	[HideInInspector]
-	public bool focusBallRender;
+	
+	internal bool vBallRender = true;
+	
+	internal bool focusBallRender;
 	public Texture imgBallRender;
-	[HideInInspector]
-	public bool vPrev = true;
-	[HideInInspector]
-	public bool focusPrev;
+	
+	internal bool vPrev = true;
+	
+	internal bool focusPrev;
 	internal bool Prev=false;
-	[HideInInspector]
-	public bool vNext = true;
-	[HideInInspector]
-	public bool focusNext;
+	
+	internal bool vNext = true;
+	
+	internal bool focusNext;
 	internal bool Next=false;
-	[HideInInspector]
-	public bool vBallImage = true;
-	[HideInInspector]
-	public bool focusBallImage;
-	[HideInInspector]
-	public bool rBallImage = false;
+	
+	internal bool vBallImage = true;
+	
+	internal bool focusBallImage;
+	
+	internal bool rBallImage = false;
 	[HideInInspector]
 	public string BallImage = @"";
-	[HideInInspector]
-	public bool vMaterialName = true;
-	[HideInInspector]
-	public bool focusMaterialName;
-	[HideInInspector]
-	public bool rMaterialName = true;
+	
+	internal bool vMaterialName = true;
+	
+	internal bool focusMaterialName;
+	
+	internal bool rMaterialName = true;
 	[HideInInspector]
 	public string MaterialName = @"name";
-	[HideInInspector]
-	public bool vUserScores = true;
-	[HideInInspector]
-	public bool focusUserScores;
+	
+	internal bool vUserScores = true;
+	
+	internal bool focusUserScores;
 	public string[] lUserScores;
 	[HideInInspector]
 	public int iUserScores = -1;
 	public string UserScores { get { if(lUserScores.Length==0) return ""; return lUserScores[iUserScores]; } set { iUserScores = lUserScores.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vtableheader = true;
-	[HideInInspector]
-	public bool focusTableheader;
-	[HideInInspector]
-	public bool rTableheader = false;
+	
+	internal bool vtableheader = true;
+	
+	internal bool focusTableheader;
+	
+	internal bool rTableheader = false;
 	[HideInInspector]
 	public string Tableheader = @" Place  Game_Type                        score           Deaths";
-	[HideInInspector]
-	public bool vRefreshUserInfo = true;
-	[HideInInspector]
-	public bool focusRefreshUserInfo;
+	
+	internal bool vRefreshUserInfo = true;
+	
+	internal bool focusRefreshUserInfo;
 	internal bool RefreshUserInfo=false;
-	[HideInInspector]
-	public bool vAvatar = true;
-	[HideInInspector]
-	public bool focusAvatar;
+	
+	internal bool vAvatar = true;
+	
+	internal bool focusAvatar;
 	public Texture imgAvatar;
 	private int wndid1;
 	private bool oldMouseOverSaveUser;
@@ -130,7 +130,11 @@ public class UserWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iUserScores = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -198,7 +202,7 @@ public class UserWindow : WindowBase {
 		if(focusBallRender) { focusBallRender = false; GUI.FocusControl("BallRender");}
 		GUI.SetNextControlName("BallRender");
 		if(imgBallRender!=null)
-            GUI.DrawTexture(BallRender, imgBallRender, ScaleMode.ScaleToFit, false);
+			GUI.DrawTexture(BallRender,imgBallRender, ScaleMode.ScaleToFit, imgBallRender is RenderTexture?false:true);
 		}
 		if(vPrev){
 		if(focusPrev) { focusPrev = false; GUI.FocusControl("Prev");}
@@ -277,7 +281,7 @@ public class UserWindow : WindowBase {
 		if(focusAvatar) { focusAvatar = false; GUI.FocusControl("Avatar");}
 		GUI.SetNextControlName("Avatar");
 		if(imgAvatar!=null)
-			GUI.DrawTexture(Avatar,imgAvatar, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Avatar,imgAvatar, ScaleMode.ScaleToFit, imgAvatar is RenderTexture?false:true);
 		}
 		GUI.EndGroup();
 		if (GUI.Button(new Rect(676f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }

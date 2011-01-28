@@ -1,9 +1,13 @@
 ﻿using System;
 using UnityEngine;
-enum SpawnType { zombie }
+public enum SpawnType { zombie, RedSpawn, NoneSpawn, BlueSpawn ,none}
 [AddComponentMenu("MapTag")]
 public class MapTag : MonoBehaviour
 {
     public bool glass;
-    public string SpawnType;
+    public SpawnType SpawnType;
+    public void Init()
+    {
+        tag = "glass";
+    }
 }

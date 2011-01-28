@@ -34,10 +34,10 @@ public class Loader : bs
     public bool debugPath;
     public bool disablePathFinding= true;
     public bool loggedin;
-    internal string password;
-    internal string passwordHash { get { return Ext.CalculateMD5Hash(password); } }
+    
+    internal string passwordHash { get { return Ext.CalculateMD5Hash(prefpass); } }
     public bool host;
-    public UserView UserView;//{ get { return userView; } set { CopyS(value, userView); } }
+    internal UserView UserView = new UserView();//{ get { return userView; } set { CopyS(value, userView); } }
     new public Level _Level;
     new public TimerA _TimerA = new TimerA();
     public List<MapSetting> mapsets = new List<MapSetting>();
@@ -83,17 +83,20 @@ public class Loader : bs
         base.Init();
     }
 #endif
-    public string curdir { get { return Application.isWebPlayer ? Application.absoluteUrl : Directory.GetCurrentDirectory(); } } 
+    public string curdir { get { return Application.isWebPlayer ? Application.absoluteURL : Directory.GetCurrentDirectory(); } }
+    public string prefnick { get { return PlayerPrefs.GetString(Application.platform + "nick"); } set { PlayerPrefs.SetString(Application.platform + "nick", value); } }
+    public string prefpass { get { return PlayerPrefs.GetString(Application.platform + "passw"); } set { PlayerPrefs.SetString(Application.platform + "passw", value); } }
+    public bool prefguest { get { return PlayerPrefs.GetInt(Application.platform + "guest").toBool(); } set { PlayerPrefs.SetInt(Application.platform + "guest", value.toInt()); } }
     protected override void Start()
     {
         print("Version " + version);
-        Debug.Log("App Path" + Application.absoluteUrl);
-        
+        Debug.Log("App Path" + curdir);        
         _SettingsWindow.lScreenSize = ToString(Screen.resolutions).ToArray();
         _SettingsWindow.lGraphicQuality = Enum.GetNames(typeof(QualityLevel));
         _SettingsWindow.lRenderSettings = Enum.GetNames(typeof(RenderingPath));
-        Action("GraphicQuality");
-        if (!isWebPlayer)
+        if (_Cam != null)
+            _Cam.onEffect();
+        if (!isWebPlayer && !Application.isEditor)
         {
             Action("ScreenSize");            
             Directory.CreateDirectory(curdir + "/ScreenShots");
@@ -109,9 +112,12 @@ public class Loader : bs
 
         AudioListener.volume = _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (!isWebPlayer && Input.GetKeyDown(KeyCode.E))
-            Application.CaptureScreenshot(curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg");
-
+        if (!isWebPlayer && Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg";
+            Debug.Log("sceenshot saved " + path);
+            Application.CaptureScreenshot(path);
+        }
         _TimerA.Update();
         //WWW2.Update();
     }
@@ -169,9 +175,7 @@ public class Loader : bs
         Debug.Log("Loader Action: " + s);
         if (s == "FullScreen")
             Screen.fullScreen = _SettingsWindow.FullScreen;
-        if (s == "GraphicQuality")
-            if (_Cam != null)
-                _Cam.onEffect();
+        
         if (s == "ScreenSize")
             if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
             {
@@ -182,8 +186,8 @@ public class Loader : bs
         if (s == "Shadows")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "Reset")//reset settings
-            PlayerPrefs.DeleteAll();
+        //if (s == "Reset")//reset settings
+        //    PlayerPrefs.DeleteAll();
         if (s == "AtmoSphere")
             if (_Cam != null)
                 _Cam.onEffect();

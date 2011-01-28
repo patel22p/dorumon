@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System;
 using System.Collections.Generic;
-
+using Random = UnityEngine.Random;
 using UnityEngine;
 
 public class GunPhysix : GunBase
@@ -27,6 +27,41 @@ public class GunPhysix : GunBase
     {
         base.Awake();
     }
+    public void RPCShoot() { CallRPC("Shoot"); }
+    [RPC]
+    public void Shoot()
+    {
+        bool boxes = false;
+        foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
+        {
+            var d = Vector3.Distance(b.pos, cursor[0].position);
+            if (d < ExpRadius * 10)
+            {
+                b.OwnerID = this.root.GetComponent<Player>().OwnerID;
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 2000 * b.rigidbody.mass) * fdt);
+                boxes = true;
+            }
+        }
+        var v = cursor[0].position;
+        if (!boxes)
+        {
+            RaycastHit h;
+            var ray = new Ray(pos, rot * new Vector3(0, 0, 1));
+            if (Physics.Raycast(ray, out h, 10, 1 << LayerMask.NameToLayer("Level")))
+            {
+                var d = 20 - h.distance;
+                if (d > 0)
+                {
+                    v = h.point;
+                    player.rigidbody.AddForce(ray.direction * -25 * d * fdt);
+                }
+            }
+        }
+        root.audio.PlayOneShot(superphys_launch3);
+        Destroy(Instantiate(wavePrefab, v, transform.rotation), 1.36f);
+
+
+    }
     protected override void FixedUpdate()
     {
         if (power)
@@ -43,20 +78,17 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 8) < 10);
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 12) < 15);
             float size = boxes.Sum(a => a.collider.bounds.size.sqrMagnitude);
-            cursor[0].position = pos + (transform.forward * size / 70) + (transform.forward * 5);
+            cursor[0].position = pos + (transform.forward * size / 120) + (transform.forward * 6);
             foreach (bs b in boxes)
             {
                 if (b.rigidbody.velocity.magnitude < 1)
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                //if (b.rigidbody.velocity.magnitude < 30)
-                {
-                    var d = Vector3.Distance(b.pos, cursor[0].position);
-                    b.rigidbody.velocity *= .95f;
-                    b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, cursor[0].position, radius, 0, ForceMode.VelocityChange);
-                    b.rigidbody.angularVelocity *= .8f;
-                }
+                b.rigidbody.velocity *= .95f;
+                b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, cursor[0].position, radius, 0, ForceMode.VelocityChange);
+                b.rigidbody.angularVelocity *= .90f;
+                b.rigidbody.angularVelocity += Vector3.one / 2; //physrot gunphys physgun
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
             if (!audio.isPlaying) audio.Play();
@@ -84,41 +116,7 @@ public class GunPhysix : GunBase
     {
         this.power = power;
     }
-    public void RPCShoot() { CallRPC("Shoot"); }
-    [RPC]
-    public void Shoot()
-    {
-        bool boxes = false;
-        foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
-        {
-            var d = Vector3.Distance(b.pos, cursor[0].position) ;
-            if (d < ExpRadius * 5)
-            {                
-                b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 4000 * b.rigidbody.mass) * fdt);
-                boxes = true;
-            }
-        }
-        var v = cursor[0].position;
-        if (!boxes)
-        {
-            RaycastHit h;
-            var ray = new Ray(pos, rot * new Vector3(0, 0, 1));            
-            if (Physics.Raycast(ray, out h, 10, 1 << LayerMask.NameToLayer("Level")))
-            {
-                var d = 20 - h.distance;
-                if (d > 0)
-                {
-                    v = h.point;
-                    player.rigidbody.AddForce(ray.direction * -50 * d * fdt);
-                }
-            }
-        }
-        root.audio.PlayOneShot(superphys_launch3);
-        Destroy(Instantiate(wavePrefab, v, transform.rotation), 1.36f);
-
-
-    }
+    
     protected override void Update()
     {
         if (isOwner && enabled && lockCursor)

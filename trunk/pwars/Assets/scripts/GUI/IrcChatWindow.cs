@@ -12,34 +12,34 @@ public partial class Base2:MonoBehaviour
 
 public class IrcChatWindow : WindowBase {
 		
-	[HideInInspector]
-	public bool vmsgs = true;
-	[HideInInspector]
-	public bool focusMsgs;
-	[HideInInspector]
-	public bool rMsgs = true;
+	
+	internal bool vmsgs = true;
+	
+	internal bool focusMsgs;
+	
+	internal bool rMsgs = true;
 	[HideInInspector]
 	public string Msgs = @"";
-	[HideInInspector]
-	public bool vinput = true;
-	[HideInInspector]
-	public bool focusInput;
-	[HideInInspector]
-	public bool rInput = false;
+	
+	internal bool vinput = true;
+	
+	internal bool focusInput;
+	
+	internal bool rInput = false;
 	[HideInInspector]
 	public string Input = @"";
-	[HideInInspector]
-	public bool vUsers = true;
-	[HideInInspector]
-	public bool focusUsers;
+	
+	internal bool vUsers = true;
+	
+	internal bool focusUsers;
 	public string[] lUsers;
 	[HideInInspector]
 	public int iUsers = -1;
 	public string Users { get { if(lUsers.Length==0) return ""; return lUsers[iUsers]; } set { iUsers = lUsers.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vircSend = true;
-	[HideInInspector]
-	public bool focusIrcSend;
+	
+	internal bool vircSend = true;
+	
+	internal bool focusIrcSend;
 	internal bool IrcSend=false;
 	private int wndid1;
 	private Vector2 sUsers;
@@ -58,7 +58,11 @@ public class IrcChatWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iUsers = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;

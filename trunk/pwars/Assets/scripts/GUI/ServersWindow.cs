@@ -12,44 +12,44 @@ public partial class Base2:MonoBehaviour
 
 public class ServersWindow : WindowBase {
 		
-	public string Ipaddress{ get { return PlayerPrefs.GetString("Ipaddress", @""); } set { PlayerPrefs.SetString("Ipaddress", value); } }
-	public int Port{ get { return PlayerPrefs.GetInt("Port", 5300); } set { PlayerPrefs.SetInt("Port", value); } }
-	[HideInInspector]
-	public bool vipaddress = true;
-	[HideInInspector]
-	public bool focusIpaddress;
-	[HideInInspector]
-	public bool rIpaddress = false;
-	[HideInInspector]
-	public bool vport = true;
-	[HideInInspector]
-	public bool focusPort;
-	[HideInInspector]
-	public bool rPort = false;
-	[HideInInspector]
-	public bool vconnect = true;
-	[HideInInspector]
-	public bool focusConnect;
+	public string Ipaddress{ get { return PlayerPrefs.GetString(Application.platform +"Ipaddress", @""); } set { PlayerPrefs.SetString(Application.platform +"Ipaddress", value); } }
+	public int Port{ get { return PlayerPrefs.GetInt(Application.platform +"Port", 5300); } set { PlayerPrefs.SetInt(Application.platform +"Port", value); } }
+	
+	internal bool vipaddress = true;
+	
+	internal bool focusIpaddress;
+	
+	internal bool rIpaddress = false;
+	
+	internal bool vport = true;
+	
+	internal bool focusPort;
+	
+	internal bool rPort = false;
+	
+	internal bool vconnect = true;
+	
+	internal bool focusConnect;
 	internal bool Connect=false;
-	[HideInInspector]
-	public bool vServersTable = true;
-	[HideInInspector]
-	public bool focusServersTable;
+	
+	internal bool vServersTable = true;
+	
+	internal bool focusServersTable;
 	public string[] lServersTable;
 	[HideInInspector]
 	public int iServersTable = -1;
 	public string ServersTable { get { if(lServersTable.Length==0) return ""; return lServersTable[iServersTable]; } set { iServersTable = lServersTable.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vRefresh = true;
-	[HideInInspector]
-	public bool focusRefresh;
+	
+	internal bool vRefresh = true;
+	
+	internal bool focusRefresh;
 	internal bool Refresh=false;
-	[HideInInspector]
-	public bool vserversTitle = true;
-	[HideInInspector]
-	public bool focusServersTitle;
-	[HideInInspector]
-	public bool rServersTitle = true;
+	
+	internal bool vserversTitle = true;
+	
+	internal bool focusServersTitle;
+	
+	internal bool rServersTitle = true;
 	[HideInInspector]
 	public string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
 	private int wndid1;
@@ -70,7 +70,11 @@ public class ServersWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iServersTable = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;

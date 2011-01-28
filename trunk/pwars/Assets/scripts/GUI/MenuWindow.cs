@@ -14,40 +14,40 @@ public class MenuWindow : WindowBase {
 		
 	[FindAsset("1")]
 	public Texture imgImage2;
-	[HideInInspector]
-	public bool vServers = true;
-	[HideInInspector]
-	public bool focusServers;
+	
+	internal bool vServers = true;
+	
+	internal bool focusServers;
 	internal bool Servers=false;
-	[HideInInspector]
-	public bool vCreate = true;
-	[HideInInspector]
-	public bool focusCreate;
+	
+	internal bool vCreate = true;
+	
+	internal bool focusCreate;
 	internal bool Create=false;
-	[HideInInspector]
-	public bool vsettings = true;
-	[HideInInspector]
-	public bool focusSettings;
+	
+	internal bool vsettings = true;
+	
+	internal bool focusSettings;
 	internal bool Settings=false;
-	[HideInInspector]
-	public bool vabout = true;
-	[HideInInspector]
-	public bool focusAbout;
+	
+	internal bool vabout = true;
+	
+	internal bool focusAbout;
 	internal bool About=false;
-	[HideInInspector]
-	public bool vLogOut = true;
-	[HideInInspector]
-	public bool focusLogOut;
+	
+	internal bool vLogOut = true;
+	
+	internal bool focusLogOut;
 	internal bool LogOut=false;
-	[HideInInspector]
-	public bool vScore_Board = true;
-	[HideInInspector]
-	public bool focusScore_Board;
+	
+	internal bool vScore_Board = true;
+	
+	internal bool focusScore_Board;
 	internal bool Score_Board=false;
-	[HideInInspector]
-	public bool vAccountInfo = true;
-	[HideInInspector]
-	public bool focusAccountInfo;
+	
+	internal bool vAccountInfo = true;
+	
+	internal bool focusAccountInfo;
 	internal bool AccountInfo=false;
 	private int wndid1;
 	private Rect Image2;
@@ -73,7 +73,10 @@ public class MenuWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -86,7 +89,7 @@ public class MenuWindow : WindowBase {
 		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
-			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);
 		if(vServers){
 		if(focusServers) { focusServers = false; GUI.FocusControl("Servers");}
 		GUI.SetNextControlName("Servers");

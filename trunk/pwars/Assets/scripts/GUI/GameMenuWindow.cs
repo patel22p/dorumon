@@ -14,27 +14,27 @@ public class GameMenuWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
 	public Texture imgImage2;
-	[HideInInspector]
-	public bool vTeamSelectButton = true;
-	[HideInInspector]
-	public bool focusTeamSelectButton;
+	
+	internal bool vTeamSelectButton = true;
+	
+	internal bool focusTeamSelectButton;
 	internal bool TeamSelectButton=false;
-	[HideInInspector]
-	public bool voptions = true;
-	[HideInInspector]
-	public bool focusOptions;
+	
+	internal bool voptions = true;
+	
+	internal bool focusOptions;
 	internal bool Options=false;
-	[HideInInspector]
-	public bool vdisconnect = true;
-	[HideInInspector]
-	public bool focusDisconnect;
+	
+	internal bool vdisconnect = true;
+	
+	internal bool focusDisconnect;
 	internal bool Disconnect=false;
-	[HideInInspector]
-	public bool vfraglimit = true;
-	[HideInInspector]
-	public bool focusFraglimit;
-	[HideInInspector]
-	public bool rFraglimit = true;
+	
+	internal bool vfraglimit = true;
+	
+	internal bool focusFraglimit;
+	
+	internal bool rFraglimit = true;
 	[HideInInspector]
 	public int Fraglimit = 0;
 	private int wndid1;
@@ -57,7 +57,10 @@ public class GameMenuWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -70,7 +73,7 @@ public class GameMenuWindow : WindowBase {
 		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
-			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);
 		if(vTeamSelectButton){
 		if(focusTeamSelectButton) { focusTeamSelectButton = false; GUI.FocusControl("TeamSelectButton");}
 		GUI.SetNextControlName("TeamSelectButton");

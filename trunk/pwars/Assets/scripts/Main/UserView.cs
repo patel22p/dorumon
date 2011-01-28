@@ -3,6 +3,7 @@ using System.Xml.Serialization;
 using UnityEngine;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
+using Random = System.Random;
 [Serializable]
 public struct ScoreView
 {
@@ -15,7 +16,7 @@ public class UserView
 {
     public static XmlSerializer xml = new XmlSerializer(typeof(UserView));
     public string _nick;
-    public string nick;
+    public string nick = "guest" + new Random().Next(10);    
     public string AvatarUrl;
     public Texture2D Avatar
     {
@@ -28,7 +29,7 @@ public class UserView
     public string FirstName;
     [Names("BallImage")]
     public string BallTextureUrl;
-    public const string proxy = Menu.host + "image.php?url=";
+    public const string proxy = Menu.webserver + "image.php?url=";
     public Texture2D BallTexture
     {        
         get
@@ -54,7 +55,7 @@ public class UserView
     }
     public int MaterialId;    
     public ScoreView[] scoreboard = new ScoreView[10];
-    public bool guest;
+    public bool guest = true;
     
     
 } 

@@ -31,12 +31,11 @@ public abstract class Destroible : Shared
     }
     public void SetLayer(GameObject g)
     {
-        _TimerA.AddMethod(delegate
-        {
-            foreach (var a in g.transform.GetTransforms())
-                a.gameObject.layer = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally");             
-        });        
+        var l = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally");
+        foreach (var a in g.transform.GetTransforms())
+            a.gameObject.layer = l;
     }
+
     public override void Awake()
     {        
         base.Awake();
@@ -100,7 +99,7 @@ public abstract class Destroible : Shared
     public virtual void RPCSetLife(float NwLife, int killedby)
     {
         if (!Alive) return;
-        //if (isController)
+        if (isController)
         {
             if (isEnemy(killedby) || NwLife > Life)
             {
@@ -133,7 +132,7 @@ public abstract class Destroible : Shared
         if (id != -1 && players[id] != null && players[id].team != team) return true;        
         return false;    
     }
-    public void RPCDie(int killedby) { CallRPC("Die", killedby); }
+    public virtual void RPCDie(int killedby) { CallRPC("Die", killedby); }
     [RPC]
     public abstract void Die(int killedby);
 }

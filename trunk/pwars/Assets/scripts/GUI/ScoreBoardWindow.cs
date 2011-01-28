@@ -12,41 +12,41 @@ public partial class Base2:MonoBehaviour
 
 public class ScoreBoardWindow : WindowBase {
 		
-	[HideInInspector]
-	public bool vScore_table = true;
-	[HideInInspector]
-	public bool focusScore_table;
+	
+	internal bool vScore_table = true;
+	
+	internal bool focusScore_table;
 	public string[] lScore_table;
 	[HideInInspector]
 	public int iScore_table = -1;
 	public string Score_table { get { if(lScore_table.Length==0) return ""; return lScore_table[iScore_table]; } set { iScore_table = lScore_table.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vtableHeader = true;
-	[HideInInspector]
-	public bool focusTableHeader;
-	[HideInInspector]
-	public bool rTableHeader = false;
+	
+	internal bool vtableHeader = true;
+	
+	internal bool focusTableHeader;
+	
+	internal bool rTableHeader = false;
 	[HideInInspector]
 	public string TableHeader = @" Place        Name       score           deaths";
-	[HideInInspector]
-	public bool vscoreboard_orderby = true;
-	[HideInInspector]
-	public bool focusScoreboard_orderby;
+	
+	internal bool vscoreboard_orderby = true;
+	
+	internal bool focusScoreboard_orderby;
 	public string[] lScoreboard_orderby;
 	[HideInInspector]
 	public int iScoreboard_orderby = -1;
 	public string Scoreboard_orderby { get { if(lScoreboard_orderby.Length==0) return ""; return lScoreboard_orderby[iScoreboard_orderby]; } set { iScoreboard_orderby = lScoreboard_orderby.SelectIndex(value); }}
-	[HideInInspector]
-	public bool vRefreshScoreBoard = true;
-	[HideInInspector]
-	public bool focusRefreshScoreBoard;
+	
+	internal bool vRefreshScoreBoard = true;
+	
+	internal bool focusRefreshScoreBoard;
 	internal bool RefreshScoreBoard=false;
-	[HideInInspector]
-	public bool vfindUserName = true;
-	[HideInInspector]
-	public bool focusFindUserName;
-	[HideInInspector]
-	public bool rFindUserName = true;
+	
+	internal bool vfindUserName = true;
+	
+	internal bool focusFindUserName;
+	
+	internal bool rFindUserName = true;
 	[HideInInspector]
 	public string FindUserName = @"";
 	private int wndid1;
@@ -67,7 +67,12 @@ public class ScoreBoardWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        	iScore_table = -1;
+	iScoreboard_orderby = -1;
+
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -110,7 +115,7 @@ public class ScoreBoardWindow : WindowBase {
 		if (iScoreboard_orderby != oldScoreboard_orderby) Action("Scoreboard_orderby");
 		GUI.EndScrollView();
 		}
-		GUI.Label(new Rect(462f, 57f, 83f, 21.96f), @"ScoreBoards");
+		GUI.Label(new Rect(444f, 57f, 111f, 21.96f), @"Order by");
 		if(vRefreshScoreBoard){
 		if(focusRefreshScoreBoard) { focusRefreshScoreBoard = false; GUI.FocusControl("RefreshScoreBoard");}
 		GUI.SetNextControlName("RefreshScoreBoard");

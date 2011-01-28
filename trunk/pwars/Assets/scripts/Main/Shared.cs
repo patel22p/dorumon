@@ -19,7 +19,7 @@ public class Shared : bs
     public Quaternion spawnrot;
     public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     public int selected = -1;
-    public float[] tmsend = new float[10];
+    internal float[] tmsend = new float[maxConId];
     public AnimationCurve SendPackets;
     public bool shared = true;
     public Renderer[] renderers;

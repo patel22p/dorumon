@@ -30,7 +30,10 @@ public class KeyboardWindow : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
@@ -43,7 +46,7 @@ public class KeyboardWindow : WindowBase {
 		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage3!=null)
-			GUI.DrawTexture(Image3,imgImage3, ScaleMode.ScaleToFit);
+			GUI.DrawTexture(Image3,imgImage3, ScaleMode.ScaleToFit, imgImage3 is RenderTexture?false:true);
 		if (GUI.Button(new Rect(775f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}
 

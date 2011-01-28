@@ -27,7 +27,10 @@ public class Window : WindowBase {
     {
         focusWindow = true;
     }
-    
+    public void ResetValues()
+    {
+        
+    }
     void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;

@@ -18,7 +18,11 @@ public class InspectorSearch : EditorWindow
     public bool SetPivot;
     public bool SetCam;
     Vector3 oldpos;
-    
+    public static string datetime { get { return DateTime.Now.ToString("yyyy-MM-dd hh-mm"); } }
+    public virtual void Awake()
+    {
+        instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
     protected virtual void OnGUI()
     {
 
@@ -38,107 +42,42 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
-
-    public void ResetCam()
-    {
-        SetCam = false;
-        if (Camera.main != null)
-        {
-            Camera.main.transform.position = Camera.main.transform.parent.position;
-            Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
-        }
-    }
-    [MenuItem("GameObject/Capture Screenshot")]
-    static void Cap()
-    {
-        if (Selection.activeGameObject == null) return;
-        Undo.RegisterSceneUndo("rtools");
-        int size = 256;
-        var sc = SceneView.lastActiveSceneView.camera;
-        GameObject co = (GameObject)Instantiate(Base2.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
-        Camera c = co.GetComponentInChildren<Camera>();
-        RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
-        c.targetTexture = rt;
-        var output = new Texture2D(size, size, TextureFormat.ARGB32, false);
-        RenderTexture.active = rt;
-        var g = Selection.activeGameObject;
-        var g2 = (GameObject)Instantiate(g, g.transform.position, g.transform.rotation);
-        c.cullingMask = 1 << co.layer;
-        foreach (var a in g2.GetComponentsInChildren<Transform>())
-            a.gameObject.layer = co.layer;
-        var r = g2.GetComponentInChildren<Renderer>();
-
-        if (r == null) { Debug.Log("Render is null " + r.name); return; }
-        g2.active = true;
-        c.Render();
-        output.ReadPixels(new Rect(0, 0, size, size), 0, 0);
-        output.Apply();
-        Color? bk = null;
-        for (int x = 0; x < output.width; x++)
-            for (int y = 0; y < output.height; y++)
-            {
-                var px = output.GetPixel(x, y);
-                if (bk == null) bk = px;
-                px.a = px == bk.Value ? 0 : .6f;
-                output.SetPixel(x, y, px);
-            }
-        var p = AssetDatabase.GetAssetPath(g);
-
-
-        p = (p == "" ? Application.dataPath + "/materials/Icons/" : Path.GetDirectoryName(p)) + "/" + g.name + ".png";
-
-        File.WriteAllBytes(p, output.EncodeToPNG());
-        Debug.Log("Saved: " + p);
-        RenderTexture.ReleaseTemporary(rt);
-        RenderTexture.active = null;
-        c.targetTexture = null;
-        DestroyImmediate(g2);
-        DestroyImmediate(co);
-    }
-    public virtual void Awake()
-    {
-        instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-    }
-    protected virtual void SaveParams()
-    {
-        EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
-    }
+    Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
     private void DrawSearch()
     {
-        search = EditorGUILayout.TextField(search);        
+        search = EditorGUILayout.TextField(search);
         EditorGUIUtility.LookLikeInspector();
-        if (search.Length > 0)
+        var ago = Selection.activeGameObject;
+        var ao = Selection.activeObject;
+        if (types.Contains(ao.GetType()) && ao != null && !(ago != null && ago.camera != null) && search.Length > 0)
         {
-            if ((Selection.activeGameObject != null && Selection.activeGameObject.camera == null) || Selection.activeObject != null)
+            IEnumerable<Object> array = new Object[] { ao };
+            if (ago != null)
             {
-                IEnumerable<Object> array = new Object[] { Selection.activeObject };
-                if (Selection.activeGameObject != null)
+                array = array.Union(ago.GetComponents<Component>());
+                if (ago.renderer != null)
+                    array = array.Union(new[] { ago.renderer.sharedMaterial });
+            }
+            foreach (var m in array)
+            {
+
+                SerializedObject so = new SerializedObject(m);
+                SerializedProperty pr = so.GetIterator();
+                pr.NextVisible(true);
+                do
                 {
-                    array = array.Union(Selection.activeGameObject.GetComponents<Component>());
-                    if (Selection.activeGameObject.renderer != null)                        
-                        array = array.Union(new[] { Selection.activeGameObject.renderer.sharedMaterial });
-                }
-                foreach (var m in array)
-                {
-                    
-                    SerializedObject so = new SerializedObject(m);                    
-                    SerializedProperty pr = so.GetIterator();
-                    pr.NextVisible(true);
-                    do
+                    if (pr.propertyPath.ToLower().Contains(search.ToLower())
+                        || (pr.propertyType == SerializedPropertyType.String && pr.stringValue.ToLower().Contains(search.ToLower()))
+                        || (pr.propertyType == SerializedPropertyType.Enum && pr.enumNames.Length >= 0 && pr.enumNames[pr.enumValueIndex].ToLower().Contains(search.ToLower()))
+                        && pr.editable)
+                        EditorGUILayout.PropertyField(pr);
+                    if (so.ApplyModifiedProperties())
                     {
-                        if (pr.propertyPath.ToLower().Contains(search.ToLower()) 
-                            || (pr.propertyType == SerializedPropertyType.String && pr.stringValue.ToLower().Contains(search.ToLower()))
-                            || (pr.propertyType == SerializedPropertyType.Enum && pr.enumNames.Length >= 0 && pr.enumNames[pr.enumValueIndex].ToLower().Contains(search.ToLower()))
-                            && pr.editable)
-                            EditorGUILayout.PropertyField(pr);
-                        if (so.ApplyModifiedProperties())
-                        {
-                            //Debug.Log(pr.name);
-                            SetMultiSelect(m, pr);
-                        }
+                        //Debug.Log(pr.name);
+                        SetMultiSelect(m, pr);
                     }
-                    while (pr.NextVisible(true));
                 }
+                while (pr.NextVisible(true));
             }
         }
     }
@@ -207,6 +146,31 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
+    public void ResetCam()
+    {
+        SetCam = false;
+        if (Camera.main != null)
+        {
+            Camera.main.transform.position = Camera.main.transform.parent.position;
+            Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
+        }
+    }
+    [MenuItem("Edit/Capture Screenshot %e")]
+    static void Capture()
+    {        
+        var c = EditorApplication.currentScene;
+        var dir = Path.GetDirectoryName(c) + "/" + Path.GetFileNameWithoutExtension(c) + "/ScreenShots/";
+        Directory.CreateDirectory(dir);
+        var file = dir + datetime + ".jpg";
+        Debug.Log("saved to: " + file);
+        Application.CaptureScreenshot(file);
+    }
+    
+    protected virtual void SaveParams()
+    {
+        EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
+    }
+    
     private void DrawObjects()
     {        
         List<string> toremove = new List<string>();
@@ -277,8 +241,10 @@ public class InspectorSearch : EditorWindow
     {
         
     }
+    public DateTime idletime;
     private void OnSceneUpdate(SceneView s)
     {
+        if (Event.current.isMouse) idletime = DateTime.Now;
         var ago = Selection.activeGameObject;
         if (SetPivot)
         {
@@ -476,7 +442,6 @@ public class InspectorSearch : EditorWindow
         }
         AssetDatabase.Refresh();
     }
-
     private static string CopyAsset(string a, string b, bool move)
     {
         
@@ -529,23 +494,20 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    public TimerA _TimerA = new TimerA();    
+    public TimerA _TimerA = new TimerA();
+    float autosavetm = 0;
+
     protected virtual void Update()
-    {        
-        _TimerA.Update();
+    {
+        autosavetm += 0.01f;
+        _TimerA.Update();        
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
-        bool isi=!EditorApplication.isPlaying && !EditorApplication.isPaused && !EditorApplication.isCompiling && !EditorApplication.isPlayingOrWillChangePlaymode && EditorApplication.currentScene.Contains(".unity");
+        bool autosave = (DateTime.Now - idletime) < TimeSpan.FromMinutes(10) && autosavetm >360;
 
-        if (_TimerA.TimeElapsed(320 * 1000) && isi)
+        if (autosave)
         {
-            EditorApplication.SaveAssets();
-            EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
-        }
-
-        if (_TimerA.TimeElapsed(320 * 1000) && isi)
-        {
-            var cs = EditorApplication.currentScene;
-            EditorApplication.SaveScene(Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + DateTime.Now.ToString("y-M-d h-m") + Path.GetExtension(cs));
+            autosavetm = 0;
+            Backup();
         }
         var ao = Selection.activeObject;
         if (ao != null && !lastUsed.Contains(ao))
@@ -554,7 +516,67 @@ public class InspectorSearch : EditorWindow
         if (_TimerA.TimeElapsed(3000))
             this.Repaint();
     }
+    public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
+    [MenuItem("File/Backup")]
+    private static void Backup()
+    {
+        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
+        {            
+            EditorApplication.SaveAssets();
+            EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
+            var cs = EditorApplication.currentScene;
+            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Materials/";
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            EditorApplication.SaveScene(dir + Path.GetFileNameWithoutExtension(cs) +datetime+ Path.GetExtension(cs));
+        }
+    }
     
-    
+    [MenuItem("Edit/Capture Screenshot Custom")]
+    static void Cap()
+    {
+        if (Selection.activeGameObject == null) return;
+        Undo.RegisterSceneUndo("rtools");
+        int size = 256;
+        var sc = SceneView.lastActiveSceneView.camera;
+        GameObject co = (GameObject)Instantiate(Base2.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
+        Camera c = co.GetComponentInChildren<Camera>();
+        RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
+        c.targetTexture = rt;
+        var output = new Texture2D(size, size, TextureFormat.ARGB32, false);
+        RenderTexture.active = rt;
+        var g = Selection.activeGameObject;
+        var g2 = (GameObject)Instantiate(g, g.transform.position, g.transform.rotation);
+        c.cullingMask = 1 << co.layer;
+        foreach (var a in g2.GetComponentsInChildren<Transform>())
+            a.gameObject.layer = co.layer;
+        var r = g2.GetComponentInChildren<Renderer>();
+
+        if (r == null) { Debug.Log("Render is null " + r.name); return; }
+        g2.active = true;
+        c.Render();
+        output.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+        output.Apply();
+        Color? bk = null;
+        for (int x = 0; x < output.width; x++)
+            for (int y = 0; y < output.height; y++)
+            {
+                var px = output.GetPixel(x, y);
+                if (bk == null) bk = px;
+                px.a = px == bk.Value ? 0 : .6f;
+                output.SetPixel(x, y, px);
+            }
+        var p = AssetDatabase.GetAssetPath(g);
+
+
+        p = (p == "" ? Application.dataPath + "/materials/Icons/" : Path.GetDirectoryName(p)) + "/" + g.name + ".png";
+
+        File.WriteAllBytes(p, output.EncodeToPNG());
+        Debug.Log("Saved: " + p);
+        RenderTexture.ReleaseTemporary(rt);
+        RenderTexture.active = null;
+        c.targetTexture = null;
+        DestroyImmediate(g2);
+        DestroyImmediate(co);
+    }
 }
 #endif

@@ -348,15 +348,15 @@ public class MapItem : bs, IAim
             }
             if (itemType == MapItemType.jumper && isbought)
             {
-                _localPlayer.gun.patronsLeft -= 10;
                 _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass * fdt);
                 GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
                 PlaySound(superphys_launch3);
                 Destroy(g, 1.6f);
+                
             }
 
             _localPlayer.MapItemInterval = 1;
-            _localPlayer.Score -= Score;
+            _localPlayer.Score = Math.Max(_localPlayer.Score - Score, 0);
 
             if (itemType == MapItemType.shop)
             {

@@ -10,6 +10,7 @@ public class Zombie : Destroible
     public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed };
     public ZombieType zombieType;
     public float zombieBite;
+    public static bool stopZombies;
     public float speed = .3f;
     public float up = 1f;
     float seekPathtm;
@@ -28,6 +29,11 @@ public class Zombie : Destroible
     public GameObject BigZombie;
     [FindTransform("zombieBigDead")]
     public GameObject BigDeadZombie;
+    [FindTransform("zombieFastDead")]
+    public GameObject FastDeadZombie;
+    [FindTransform("zombieFast")]
+    public GameObject FastZombie;
+
     public Seeker seeker;
     float zombieBiteDist = 3;
     Vector3[] pathPoints;
@@ -63,9 +69,9 @@ public class Zombie : Destroible
         var speed = zombieSpeedCurve.Evaluate(stage) * mapSettings.zombieSpeedFactor;
         speed = Random.Range(speed, speed * .8f);
         var life = zombieLifeCurve.Evaluate(stage) * mapSettings.zombieLifeFactor;
-        life = Random.Range(life, life * .8f);
+        life = Random.Range(life, life * .3f);
         if (zombieType == ZombieType.Life) { speed *= .7f; life *= 5; }
-        if (zombieType == ZombieType.Speed) { speed *= 1.3f; life *= .7f; }
+        if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
         RPCSetup(speed, life, (int)zombieType);
     }
     public void RPCSetup(float zombiespeed, float zombieLife, int priority) { CallRPC("Setup", zombiespeed, zombieLife, priority); }
@@ -77,26 +83,36 @@ public class Zombie : Destroible
         Sync = true;
         ResetSpawn();
         SetLayer(gameObject);
-        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);        
+        _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         zombieType = (ZombieType)priority;
-        SetAliveModel(zombieType, true);     
+        SetAliveModel(zombieType, true);
         CanFreeze = zombieType != ZombieType.Life;
-        speed = zombiespeed;        
-        maxLife =Life = zombieLife;
-        transform.localScale = Vector3.one * Math.Min(Mathf.Max(zombieLife / 200f, 1f), 3);        
+        speed = zombiespeed;
+        maxLife = Life = zombieLife;
+        transform.localScale = Vector3.one * Math.Min(Mathf.Max(Mathf.Sqrt(zombieLife) / 10, 1f), 3);
     }
 
-    private void SetAliveModel(ZombieType zt, bool v)
+    private void SetAliveModel(ZombieType zt, bool alive)
     {
         bool big = zt == ZombieType.Life;
+        bool fast = zt == ZombieType.Speed;
+        bool norm = zt == ZombieType.Normal;
         foreach (var a in DeadZombie.GetComponentsInChildren<Renderer>())
-            a.enabled = !v && !big;
+            a.enabled = norm && !alive;
         foreach (var a in AliveZombie.GetComponentsInChildren<Renderer>())
-            a.enabled = !big && v;
+            a.enabled = norm && alive;
         foreach (var a in BigZombie.GetComponentsInChildren<Renderer>())
-            a.enabled = big && v;
+            a.enabled = big && alive;
         foreach (var a in BigDeadZombie.GetComponentsInChildren<Renderer>())
-            a.enabled = big && !v;
+            a.enabled = big && !alive;
+        foreach (var a in FastZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = fast && alive;
+        foreach (var a in FastDeadZombie.GetComponentsInChildren<Renderer>())
+            a.enabled = fast && !alive;
+    }
+    public override void RPCDie(int killedby)
+    {
+        base.RPCDie(killedby);
     }
     [RPC]
     public override void Die(int killedby)
@@ -104,8 +120,11 @@ public class Zombie : Destroible
         if (!Alive) { return; }        
         Sync = false;
         Alive = false;
-        SetLayer(LayerMask.NameToLayer("HitLevelOnly"));        
-        if (Game.sendto != null)
+        _TimerA.AddMethod(delegate
+        {
+            SetLayer(LayerMask.NameToLayer("HitLevelOnly"));
+        });
+        if (Game.sendto == null)
             PlayRandSound(gibSound);
         SetAliveModel(zombieType, false);        
         if (killedby == _localPlayer.OwnerID)
@@ -172,7 +191,7 @@ public class Zombie : Destroible
         {
             zombieBite = 0;
             PlayRandSound(screamSounds);
-            if ((build || ipl is Tower) && isController) ipl.RPCSetLife(ipl.Life - Math.Min(mapSettings.ZombieDamage, _Game.stage + 1), -1);
+            ipl.RPCSetLife(ipl.Life - Math.Min(mapSettings.ZombieDamage, _Game.stage + 1), -1);
         }
     }
     public float pwait;
@@ -202,7 +221,7 @@ public class Zombie : Destroible
     }
     void FixedUpdate()
     {
-        if (Alive && !frozen)
+        if (Alive && !frozen && !stopZombies)
         {
             transform.rotation = rot;
             if (move)
@@ -287,15 +306,16 @@ public class Zombie : Destroible
     {
         if (this != null && Alive)
         {
-            _TimerA.AddMethod(UnityEngine.Random.Range(5000, 50000), PlayRandom);            
-            PlayRandSound(ZombieSound);
+            _TimerA.AddMethod(UnityEngine.Random.Range(2000, 15000), PlayRandom);
+            audio.pitch = 1.3f / transform.localScale.x;
+            PlayRandSound(ZombieSound, transform.localScale.x);
             
         }
     }
     public override void ResetSpawn()
     {
         ResetSpawnTm();
-        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToLower() == ""+SpawnType.zombie).ToArray();        
+        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToString().ToLower() == ""+SpawnType.zombie).ToArray();        
         Destroible pl = Nearest();
         if (pl == null)
         {

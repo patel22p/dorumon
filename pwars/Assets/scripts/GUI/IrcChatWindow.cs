@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static IrcChatWindow __IrcChatWindow;
     public static IrcChatWindow _IrcChatWindow { get { if (__IrcChatWindow == null) __IrcChatWindow = (IrcChatWindow)MonoBehaviour.FindObjectOfType(typeof(IrcChatWindow)); return __IrcChatWindow; } }
 }
-
+public enum IrcChatWindowEnum { Users,IrcSend,Close, }
 public class IrcChatWindow : WindowBase {
 		
 	
@@ -35,7 +35,7 @@ public class IrcChatWindow : WindowBase {
 	public string[] lUsers;
 	[HideInInspector]
 	public int iUsers = -1;
-	public string Users { get { if(lUsers.Length==0) return ""; return lUsers[iUsers]; } set { iUsers = lUsers.SelectIndex(value); }}
+	public string Users { get { if(lUsers.Length==0 || iUsers == -1) return ""; return lUsers[iUsers]; } set { iUsers = lUsers.SelectIndex(value); }}
 	
 	internal bool vircSend = true;
 	
@@ -58,7 +58,7 @@ public class IrcChatWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iUsers = -1;
 

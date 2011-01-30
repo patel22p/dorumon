@@ -35,7 +35,7 @@ public class Zombie : Destroible
     public GameObject FastZombie;
 
     public Seeker seeker;
-    float zombieBiteDist = 3;
+    
     Vector3[] pathPoints;
     public Vector3 oldpos;
     public AnimationCurve zombieSpeedCurve;
@@ -56,7 +56,7 @@ public class Zombie : Destroible
         seeker.debugPath = _Loader.debugPath;
         base.Awake();        
     }
-    protected override void Start()
+    public override void Start()
     {        
         ResetSpawnTm();
         _Game.zombies.Add(this);
@@ -139,6 +139,8 @@ public class Zombie : Destroible
         if(isController)
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
+        if (stopZombies && _TimerA.TimeElapsed(100)) RPCSetFrozen(true);
+        
         zombieBite += Time.deltaTime;
         seekPathtm -= Time.deltaTime;
         if (!Alive || selected == -1 || frozen) return;
@@ -159,7 +161,7 @@ public class Zombie : Destroible
                 Debug.DrawLine(pos, pos + pathPointDir);
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
-                if (zToPlDir.magnitude > zombieBiteDist)
+                if (zToPlDir.magnitude > 1.5f)
                 {
                     move = true;
                     tiltTm += Time.deltaTime;
@@ -221,7 +223,7 @@ public class Zombie : Destroible
     }
     void FixedUpdate()
     {
-        if (Alive && !frozen && !stopZombies)
+        if (Alive && !frozen)
         {
             transform.rotation = rot;
             if (move)
@@ -315,18 +317,19 @@ public class Zombie : Destroible
     public override void ResetSpawn()
     {
         ResetSpawnTm();
-        MapTag[] gs = _Game.spawns.Where(a => a.SpawnType.ToString().ToLower() == ""+SpawnType.zombie).ToArray();        
+        MapTag[] loc = _Game.spawns.Where(a => a.SpawnType == SpawnType.ZombieSpawnLocation).ToArray();
+        MapTag[] spawns = _Game.spawns.Where(a => a.SpawnType == SpawnType.zombie).ToArray();        
+        
         Destroible pl = Nearest();
         if (pl == null)
         {
-            pos = gs.First().transform.position;
+            pos = spawns.First().transform.position;
         }
         else
         {
-            //var neargs  = gs.Where(a => Vector3.Distance(a.transform.position, pl.pos) < 100 && Math.Abs(a.transform.position.y - pl.pos.y) < 3).ToList();
-            var b = gs.Where(a => a.collider == null || a.collider.bounds.Contains(pl.pos)).Random();
-            var o = gs.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
-            pos = (b ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
+            var spawn = spawns.Where(a => loc.Any(b => b.collider.bounds.Contains(pl.pos) && b.collider.bounds.Contains(a.transform.position))).Random();
+            var o = spawns.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
+            pos = (spawn ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
                 ).transform.position;
         }
         rot = Quaternion.identity;

@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static HostWindow __HostWindow;
     public static HostWindow _HostWindow { get { if (__HostWindow == null) __HostWindow = (HostWindow)MonoBehaviour.FindObjectOfType(typeof(HostWindow)); return __HostWindow; } }
 }
-
+public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Close, }
 public class HostWindow : WindowBase {
 		
 	public string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
@@ -100,7 +100,7 @@ public class HostWindow : WindowBase {
 	public string[] lGameMode;
 	[HideInInspector]
 	public int iGameMode = 0;
-	public string GameMode { get { if(lGameMode.Length==0) return ""; return lGameMode[iGameMode]; } set { iGameMode = lGameMode.SelectIndex(value); }}
+	public string GameMode { get { if(lGameMode.Length==0 || iGameMode == -1) return ""; return lGameMode[iGameMode]; } set { iGameMode = lGameMode.SelectIndex(value); }}
 	
 	internal bool vMap = true;
 	
@@ -108,7 +108,7 @@ public class HostWindow : WindowBase {
 	public string[] lMap;
 	[HideInInspector]
 	public int iMap = 0;
-	public string Map { get { if(lMap.Length==0) return ""; return lMap[iMap]; } set { iMap = lMap.SelectIndex(value); }}
+	public string Map { get { if(lMap.Length==0 || iMap == -1) return ""; return lMap[iMap]; } set { iMap = lMap.SelectIndex(value); }}
 	
 	internal bool vStartServer = true;
 	
@@ -168,7 +168,7 @@ public class HostWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iGameMode = -1;
 	iMap = -1;

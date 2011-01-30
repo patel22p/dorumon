@@ -6,12 +6,11 @@ public class Explosion : bs
 
     public Shared self;
     public AnimationCurve damage;
-    public float damageFactor = 1;
     public float exp = 500;
     public float radius = 4;
+    public float DamageFactor = 1;
 
-
-    protected override void Start()
+    public void Start()
     {
         foreach (Destroible ip in GameObject.FindObjectsOfType(typeof(Destroible)))
         {
@@ -20,7 +19,7 @@ public class Explosion : bs
             {
                 if (ip.isOwner)
                     _Cam.exp = 1;
-                ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * mapSettings.damageFactor, OwnerID);
+                ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * DamageFactor / 5 * mapSettings.damageFactor, OwnerID);
             }
         }
         //_TimerA.AddMethod(delegate

@@ -18,6 +18,7 @@ public class Game : bs
     new internal Player[] players = new Player[maxConId];
     public List<Shared> shareds = new List<Shared>();
     public List<Zombie> zombies = new List<Zombie>();
+    new public MapSetting mapSettings;
     public IEnumerable<MapTag> spawns { get { return GameObject.FindObjectsOfType(typeof(MapTag)).Cast<MapTag>(); } }
     public List<Patron> patrons = new List<Patron>();
     private float fixedDeltaTime;
@@ -59,7 +60,14 @@ public class Game : bs
 
     public override void Awake()
     {
-        _Loader.loggedin = true;
+        if (!_Loader.loaded)
+        {
+            var u = _Loader.UserView;
+            u.nick = "a";
+            _Loader.passpref = "a";
+            u.guest = false;
+            _Loader.loggedin = true;
+        }
         gravity = Physics.gravity;
         fixedDeltaTime = Time.fixedDeltaTime;
         base.Awake();
@@ -74,11 +82,12 @@ public class Game : bs
         else
             foreach (bs o in Component.FindObjectsOfType(typeof(bs))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
     }
-
+    [FindAsset]
+    public GameObject cube;
     protected override void Enable()
     {
         if (Network.isServer)
-            RPCGameSettings(_Console.version, Serialize(mapSettings, MapSetting.xml));
+            RPCGameSettings(_Console.version, Serialize(_Loader.mapSettings, MapSetting.xml));
         ((GameObject)Network.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, (int)GroupNetwork.Player)).GetComponent<Player>();
         base.Enable();
     }
@@ -93,15 +102,10 @@ public class Game : bs
     }
     public override void Init()
     {
+
         Physics.gravity = new Vector3(0, -20, 0);
         //particles = FindObjectsOfType(typeof(Particles)).Cast<Particles>().ToArray();                    
-    }
-
-
-    protected override void Start() //GameSettings
-    {
-
-    }
+    }        
 
     bool chatEnabled;
     public void addChatAlfa(float value, bool set)
@@ -252,7 +256,7 @@ public class Game : bs
         Debug.Log("On Player Connected ");
         sendto = np;
         RPCSetTimeLeft(timeleft);
-        RPCGameSettings(_Console.version, Serialize(mapSettings, MapSetting.xml));
+        RPCGameSettings(_Console.version, Serialize(_Loader.mapSettings, MapSetting.xml));
         if (mapSettings.zombi) RPCNextStage(stage);
         var sorted = GameObject.FindObjectsOfType(typeof(Player))
         .Union(GameObject.FindObjectsOfType(typeof(Gun)))
@@ -545,12 +549,13 @@ public class Game : bs
         {
             _TimerA.AddMethod(2000, delegate
             {
+                _ScoreBoardWindow.Show(_Menu);
                 SaveScores(ScoreBoardTables.Played_Time, (int)Time.timeSinceLevelLoad, 0);
                 if (mapSettings.ZombiSurvive)
                     SaveScores(ScoreBoardTables.Zombie_Kill, _localPlayer.frags, _localPlayer.deaths);
                 if (mapSettings.DM)
                     SaveScores(ScoreBoardTables.Player_Kill, _localPlayer.frags, _localPlayer.deaths);
-                _ScoreBoardWindow.Show(_Menu);
+                
             });
         }
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);
@@ -581,3 +586,36 @@ public class Game : bs
 
 }
 public enum GroupNetwork { PlView, RPCSetID, Default, Shared, staticfield, Spawn, Nick, Gun, SetMovement, Player, Zombie, Tower }
+
+//using UnityEngine;
+//using System.Collections;
+
+//public class NewBehaviourScript : MonoBehaviour {
+
+//    // Use this for initialization
+//    public GameObject cube;
+//    void Reset()
+//    {
+//        var cubes = new GameObject("cubes");
+//        int w = 2;
+//        var cw = .9f;
+//        for (int y = -w; y < w; y++)
+//        {
+//            for (int z = -w; z < w; z++)
+//            {
+//                for (int x = -w; x < w; x++)
+//                {
+//                    //if (y < -2)
+//                    {
+//                        GameObject g = (GameObject)Instantiate(cube, new Vector3(cw * x, cw * y, cw * z), Quaternion.identity);
+//                        g.transform.parent = cubes.transform;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    // Update is called once per frame
+//    void Update () {
+	
+//    }
+//}

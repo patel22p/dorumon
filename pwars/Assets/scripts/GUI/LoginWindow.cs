@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static LoginWindow __LoginWindow;
     public static LoginWindow _LoginWindow { get { if (__LoginWindow == null) __LoginWindow = (LoginWindow)MonoBehaviour.FindObjectOfType(typeof(LoginWindow)); return __LoginWindow; } }
 }
-
+public enum LoginWindowEnum { LoginAsGuest,Login,Registr,AutoLogin, }
 public class LoginWindow : WindowBase {
 		
 	public string Nick{ get { return PlayerPrefs.GetString(Application.platform +"Nick", @""); } set { PlayerPrefs.SetString(Application.platform +"Nick", value); } }
@@ -95,7 +95,7 @@ public class LoginWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

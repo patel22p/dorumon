@@ -21,7 +21,7 @@ public class Box : Shared
     }
 #endif
 
-    protected override void Start()
+    public override void Start()
     {        
         _Game.boxes.Add(this);
         base.Start();

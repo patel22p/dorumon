@@ -11,9 +11,9 @@ interface IAim { void Aim(Player p); }
 [Serializable]
 public class Player : Destroible, IAim
 {
-    public MapItem mapItem;
-    public float mapItemTm;
-    public float MapItemInterval;
+    internal MapItem mapItem;
+    internal float mapItemTm;
+    internal float MapItemInterval;
     float shownicktime;
     public List<Vector3> plPathPoints = new List<Vector3>();
     public TextMesh title;
@@ -23,7 +23,7 @@ public class Player : Destroible, IAim
     public float Score = 1;
     public bool haveLight;
     public bool haveTimeBomb;
-    internal UserView user = new UserView();
+    public UserView user = new UserView();
     public int speedUpgrate;
     public int lifeUpgrate;
     public bool haveAntiGravitation;
@@ -39,13 +39,12 @@ public class Player : Destroible, IAim
     public ParticleEmitter speedparticles;
     [FindTransform("Guns")]
     public Transform guntr;
+    public GameObject staticField;
     [GenerateEnums("GunType")]
     public List<GunBase> guns = new List<GunBase>();
     public int selectedgun;
     public GunBase gun { get { return guns[selectedgun]; } }
-    public float defmass;
-    [FindTransform("Sphere")]
-    public GameObject model;
+    public float defmass;        
     public override void Init()
     {
         base.Init();
@@ -64,17 +63,26 @@ public class Player : Destroible, IAim
     }
     public void RPCSetUserView(byte[] s) { CallRPC("SetUserView", s); }
     [RPC]
-    public void SetUserView(byte[] data)
+    public void SetUserView(byte[] data) //userinfo
     {
         if (!isOwner)
             user = (UserView)Deserialize(data, UserView.xml);
-
-        AliveMaterial = _Loader.playerTextures[user.MaterialId];
+        AliveMaterial = new Material(_Loader.playerTextures[user.MaterialId]);
+        if (user.MaterialId == 1)
+        {
+            Debug.Log("loading texture" + user.BallTextureUrl);
+            var w = new WWW(Menu.webserver + "image.php?image=" + user.BallTextureUrl);
+            _TimerA.AddMethod(() => w.isDone, delegate
+            {
+                AliveMaterial.SetTexture("_MainTex", w.texture);
+                if (Alive) model.renderer.sharedMaterial = AliveMaterial;
+            });
+        }
     }
     public override void Awake()
     {
+        SetActive(staticField, false);        
         CanFreeze = mapSettings.freezeOnBite;
-        AliveMaterial = model.renderer.sharedMaterial;
         Debug.Log("player awake");
         defmass = rigidbody.mass;
         defMaxLife = maxLife;
@@ -84,14 +92,14 @@ public class Player : Destroible, IAim
         {
             _localPlayer = this;
             _Game.RPCWriteMessage("Player Connected: " + nick);            
-            RPCSetOwner();
-            user = _Loader.UserView;
+            RPCSetOwner();            
+            user = _Loader.UserView;            
             RPCSetUserView(Serialize(user, UserView.xml));
             ResetSpawn();
         }        
         base.Awake();
     }
-    protected override void Start()
+    public override void Start()
     {        
         base.Start();
     }
@@ -202,13 +210,6 @@ public class Player : Destroible, IAim
         base.Update();
         
     }
-    public bool shift;
-    public void RPCSetStreff(bool value) { CallRPC("SetStreff", value); }
-    [RPC]
-    public void SetStreff(bool value)
-    {
-        shift = value;
-    }
     private void LocalUpdate()
     {
 
@@ -225,8 +226,15 @@ public class Player : Destroible, IAim
             if (_TimerA.TimeElapsed(500) && Input.GetKey(KeyCode.H))
                 foreach (var a in Nearest())
                     if (Input.GetKey(KeyCode.H) && a.Life < a.maxLife)
+                    {
                         a.RPCHeal(20);
-
+                        break;
+                    }
+            if (Input.GetKeyDown(KeyCode.Q) && (nitro > 20 || !build))
+            {
+                nitro -= 20;
+                RPCSetShield();
+            }
             foreach (var a in Nearest())
                 if (Input.GetKeyDown(KeyCode.G) && a is Player)
                 {
@@ -235,6 +243,7 @@ public class Player : Destroible, IAim
                     {
                         p.RPCGiveMoney(1);
                         Score -= 1;
+                        break;
                     }
                 }
             SelectGun();
@@ -265,11 +274,14 @@ public class Player : Destroible, IAim
         }
     }
 
-    private IEnumerable<Destroible> Nearest()
+    public void RPCSetShield() { CallRPC("SetShield"); }
+    [RPC]
+    public void SetShield()
     {
-        return players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10);
+        var g = (GameObject)Instantiate(staticField, pos, rot);
+        g.transform.parent = this.transform;
+        Destroy(g, 15);
     }
-
     private void UpdateMapItems()
     {
         var mi = _Game.mapitems.Where(a => Vector3.Distance(a.pos, pos) < a.Distance && a.enabled).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
@@ -280,10 +292,10 @@ public class Player : Destroible, IAim
         }
         MapItemInterval -= Time.deltaTime;
         mapItemTm -= Time.deltaTime;
-        if (mapItemTm > 0 && MapItemInterval < 0)
+        if (mapItemTm > 0 && MapItemInterval < 0 && mapItem.Check())
         {
             _GameWindow.CenterText.text = mapItem.text + (mapItem.Score > 0 ? (", costs " + mapItem.Score + " Money") : "");
-            if ((Input.GetKeyDown(KeyCode.F) || mapItem.autoTake) && (Score >= mapItem.Score - 1 || debug) && mapItem.Check())
+            if ((Input.GetKeyDown(KeyCode.F) || mapItem.autoTake) && (Score >= mapItem.Score - 1 || debug))
                 mapItem.LocalCheckOut();
         }
         else
@@ -304,6 +316,21 @@ public class Player : Destroible, IAim
 
         shownicktime -= Time.deltaTime;
     }
+    public bool shift;
+    public void RPCSetStreff(bool value) { CallRPC("SetStreff", value); }
+    [RPC]
+    public void SetStreff(bool value)
+    {
+        shift = value;
+    }
+    
+
+    private IEnumerable<Destroible> Nearest()
+    {
+        return players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10);
+    }
+
+    
     public void Aim(Player p)
     {
         if (p.isOwner)
@@ -544,11 +571,11 @@ public class Player : Destroible, IAim
         Debug.Log(name + " Alive " + value);
         _TimerA.AddMethod(delegate
         {
-            foreach (var t in GetComponentsInChildren<Transform>())
-                if (value)
-                    SetLayer(t.gameObject);
-                else
-                    t.gameObject.layer = LayerMask.NameToLayer("DeadPlayer");
+            //foreach (var t in GetComponentsInChildren<Transform>())
+            if (value)
+                SetLayer(model);
+            else
+                SetLayer(model,LayerMask.NameToLayer("DeadPlayer"));                
         });
         Alive = value;
 
@@ -556,6 +583,7 @@ public class Player : Destroible, IAim
         if (value)
             spawned = true;
         model.renderer.sharedMaterial = value ? AliveMaterial : deadMaterial;
+
         foreach (GunBase gunBase in guns.Concat(guns))
             gunBase.Reset();
         if (isOwner)
@@ -570,7 +598,7 @@ public class Player : Destroible, IAim
     {
         if (isOwner)
         {
-            if (multikilltime > 0)
+            if (multikilltime > 0) //double score
                 multikill += i;
             else
                 multikill = 0;
@@ -578,7 +606,7 @@ public class Player : Destroible, IAim
 
             if (multikill >= 1)
             {
-                if (gun is GunPhysix)
+                if (gun is GunPhysix && multikill >= 5)
                 {
                     if (!audio.isPlaying)
                     {

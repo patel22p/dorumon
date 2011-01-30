@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static GameStatsWindow __GameStatsWindow;
     public static GameStatsWindow _GameStatsWindow { get { if (__GameStatsWindow == null) __GameStatsWindow = (GameStatsWindow)MonoBehaviour.FindObjectOfType(typeof(GameStatsWindow)); return __GameStatsWindow; } }
 }
-
+public enum GameStatsWindowEnum { Close, }
 public class GameStatsWindow : WindowBase {
 		
 	
@@ -43,7 +43,7 @@ public class GameStatsWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

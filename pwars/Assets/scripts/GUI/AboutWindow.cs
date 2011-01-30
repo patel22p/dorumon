@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static AboutWindow __AboutWindow;
     public static AboutWindow _AboutWindow { get { if (__AboutWindow == null) __AboutWindow = (AboutWindow)MonoBehaviour.FindObjectOfType(typeof(AboutWindow)); return __AboutWindow; } }
 }
-
+public enum AboutWindowEnum { Close, }
 public class AboutWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
@@ -31,7 +31,7 @@ public class AboutWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

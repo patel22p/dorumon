@@ -19,13 +19,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 public enum Level { z1login, z2menu, z4game }
 public class Loader : bs
 {
-    
+    internal bool loaded;
     public string version;
     public string cmd="";    
     public int lastLevelPrefix;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
-    new public bool skip;    
     public bool dontcheckwin;
     [FindAsset]
     public Material[] playerTextures;
@@ -33,11 +32,11 @@ public class Loader : bs
     public int port = 5300;
     public bool debugPath;
     public bool disablePathFinding= true;
-    public bool loggedin;
-    
-    internal string passwordHash { get { return Ext.CalculateMD5Hash(prefpass); } }
+    public bool loggedin;    
+    internal string passwordHash { get { return Ext.CalculateMD5Hash(passpref); } }
     public bool host;
-    internal UserView UserView = new UserView();//{ get { return userView; } set { CopyS(value, userView); } }
+    UserView userView = new UserView();
+    internal UserView UserView { get { return userView; } set { userView = value; } }
     new public Level _Level;
     new public TimerA _TimerA = new TimerA();
     public List<MapSetting> mapsets = new List<MapSetting>();
@@ -47,17 +46,16 @@ public class Loader : bs
     [FindAsset("Skin/Skin.guiskin")]
     public GUISkin Skin;
     public override void Awake()
-    {
-        
+    {        
         Debug.Log("loader Awake");
         base.Awake();
         enabled = true;
         Application.targetFrameRate = 60;                
         for (int i = 0; i < mapsets.Count; i++)
-        {
             if (mapsets[i].mapName == Application.loadedLevelName)
-                currentmap = i;
-        }
+            {
+                currentmap = i; break;
+            }
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
         if (!isWebPlayer)
@@ -84,11 +82,14 @@ public class Loader : bs
     }
 #endif
     public string curdir { get { return Application.isWebPlayer ? Application.absoluteURL : Directory.GetCurrentDirectory(); } }
-    public string prefnick { get { return PlayerPrefs.GetString(Application.platform + "nick"); } set { PlayerPrefs.SetString(Application.platform + "nick", value); } }
-    public string prefpass { get { return PlayerPrefs.GetString(Application.platform + "passw"); } set { PlayerPrefs.SetString(Application.platform + "passw", value); } }
-    public bool prefguest { get { return PlayerPrefs.GetInt(Application.platform + "guest").toBool(); } set { PlayerPrefs.SetInt(Application.platform + "guest", value.toInt()); } }
-    protected override void Start()
+    public string nickpref { get { return PlayerPrefs.GetString(Application.platform + "nick"); } set { PlayerPrefs.SetString(Application.platform + "nick", value); } }
+    string pass;
+    public string passpref { get { return pass ?? PlayerPrefs.GetString(Application.platform + "passw"); } set { PlayerPrefs.SetString(Application.platform + "passw", value); pass = value; } }
+
+    public bool guestpref { get { return PlayerPrefs.GetInt(Application.platform + "guest").toBool(); } set { PlayerPrefs.SetInt(Application.platform + "guest", value.toInt()); } }
+    public void Start()
     {
+        _TimerA.AddMethod(100, delegate { loaded = true; });
         print("Version " + version);
         Debug.Log("App Path" + curdir);        
         _SettingsWindow.lScreenSize = ToString(Screen.resolutions).ToArray();
@@ -104,15 +105,15 @@ public class Loader : bs
                 File.Delete(a);
         }
     }
-    
+    public bool disableSounds;
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
             _Console.enabled = !_Console.enabled;
 
-        AudioListener.volume = _SettingsWindow.SoundVolume;
+        AudioListener.volume = disableSounds ? 0 : _SettingsWindow.SoundVolume;
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (!isWebPlayer && Input.GetKeyDown(KeyCode.LeftControl))
+        if (!isWebPlayer && Input.GetKeyDown(KeyCode.E))
         {
             var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg";
             Debug.Log("sceenshot saved " + path);
@@ -186,8 +187,8 @@ public class Loader : bs
         if (s == "Shadows")
             if (_Cam != null)
                 _Cam.onEffect();
-        //if (s == "Reset")//reset settings
-        //    PlayerPrefs.DeleteAll();
+        if (s == "Reset")//reset settings
+            PlayerPrefs.DeleteAll();
         if (s == "AtmoSphere")
             if (_Cam != null)
                 _Cam.onEffect();

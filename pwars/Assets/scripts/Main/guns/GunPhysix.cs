@@ -35,10 +35,10 @@ public class GunPhysix : GunBase
         foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
         {
             var d = Vector3.Distance(b.pos, cursor[0].position);
-            if (d < ExpRadius * 10)
+            if (d < ExpRadius * 15)
             {
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
-                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, release.Evaluate(d) * 2000 * b.rigidbody.mass) * fdt);
+                b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, 3000 * b.rigidbody.mass) * fdt);
                 boxes = true;
             }
         }
@@ -78,7 +78,7 @@ public class GunPhysix : GunBase
                     b2.rigidbody.angularVelocity = Vector3.zero;
                 }
             }
-            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 12) < 15);
+            var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 14) < 15);
             float size = boxes.Sum(a => a.collider.bounds.size.sqrMagnitude);
             cursor[0].position = pos + (transform.forward * size / 120) + (transform.forward * 6);
             foreach (bs b in boxes)
@@ -87,8 +87,8 @@ public class GunPhysix : GunBase
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                 b.rigidbody.velocity *= .95f;
                 b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, cursor[0].position, radius, 0, ForceMode.VelocityChange);
-                b.rigidbody.angularVelocity *= .90f;
-                b.rigidbody.angularVelocity += Vector3.one / 2; //physrot gunphys physgun
+                b.rigidbody.angularVelocity *= .95f;
+                b.rigidbody.angularVelocity += Vector3.one / 4; //physrot gunphys physgun
             }
             audio.pitch = Math.Min(0.1f + (holdtm / 200), .2f);
             if (!audio.isPlaying) audio.Play();

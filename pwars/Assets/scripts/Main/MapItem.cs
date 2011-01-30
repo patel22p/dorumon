@@ -115,7 +115,7 @@ public class MapItem : bs, IAim
                     score = 160;
                     break;
                 case GunType.shotgun:
-                    score = 30;
+                    score = 50;
                     break;
                 case GunType.staticField:
                     score = 100;
@@ -262,7 +262,7 @@ public class MapItem : bs, IAim
 
         base.Awake();
     }
-    protected override void Start()
+    public void Start()
     {
         if (animation != null && animation.clip != null && animation.clip.name == "Take 001" && Network.isServer)
             animation.Stop();

@@ -367,39 +367,43 @@ public class InspectorSearch : EditorWindow
             a.sharedMaterials = ms;
         }
     }
-    [MenuItem("GameObject/Create Prefab")]
-    static void CreatePrefabs()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        foreach (GameObject g in Selection.gameObjects)
-        {
-            if (!AssetDatabase.IsMainAsset(g))
-            {
-                Directory.CreateDirectory(Application.dataPath + "/" + g.transform.parent.name);
-                var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.transform.parent.name + "/" + g.name + ".prefab");
-                EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
-                EditorUtility.SetDirty(g);
-            }
-            AssetDatabase.Refresh();
-        }
-    }
+    //[MenuItem("GameObject/Create Prefab")]
+    //static void CreatePrefabs()
+    //{
+    //    Undo.RegisterSceneUndo("rtools");
+    //    foreach (GameObject g in Selection.gameObjects)
+    //    {
+    //        if (!AssetDatabase.IsMainAsset(g))
+    //        {
+    //            Directory.CreateDirectory(Application.dataPath + "/" + g.transform.parent.name);
+    //            var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.transform.parent.name + "/" + g.name + ".prefab");
+    //            EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
+    //            EditorUtility.SetDirty(g);
+    //        }
+    //        AssetDatabase.Refresh();
+    //    }
+    //}
     [MenuItem("GameObject/Clear")]
     static void Clear()
     {
         Undo.RegisterSceneUndo("rtools");
         foreach (var g in Selection.gameObjects)
-        {
-            Clear(g);
-        }
+            Clear(g, false);
     }
-    public static void Clear(GameObject g)
+    [MenuItem("GameObject/ClearAll")]
+    static void ClearAll()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var g in Selection.gameObjects)
+            Clear(g, true);
+    }
+    public static void Clear(GameObject g, bool all)
     {
         foreach (var c in g.GetComponents<Component>())
         {
-            var t = c.GetType();
-            if (t != typeof(Transform) && t != typeof(Collider))
+            if (!(c is Transform || (c is Collider && !all)))
                 DestroyImmediate(c);
-            if (t == typeof(Collider))
+            else if (c is Collider)
                 ((Collider)c).isTrigger = true;
         }
     }
@@ -420,31 +424,31 @@ public class InspectorSearch : EditorWindow
     static bool move;
     [MenuItem("Assets/Copy #c")]
     static void CopyAsset()
-    {
+    {        
         tocopy = Selection.objects;
         move = false;
     }
     [MenuItem("Assets/Paste #v")]
     static void PasteAsset()
-    {        
+    {
+        Undo.RegisterSceneUndo("rtools");
         if (tocopy == null) Debug.Log("null");
         var to = AssetDatabase.GetAssetPath(Selection.activeObject);
-        if (to == "") to = "Assets/";
-        else
-            to = to + "/";
+        if (to == "") to = "Assets/";        
         foreach (var a in tocopy.Select(a => AssetDatabase.GetAssetPath(a)))
         {
-            if (!Directory.Exists(to)) to = Path.GetDirectoryName(to);
-            var b = to + Path.GetFileName(a);
+            if (!Directory.Exists(to))
+                to = Path.GetDirectoryName(to);            
+            var b = to + "/" + Path.GetFileName(a);
             if (File.Exists(b))
-                b = to + Path.GetFileNameWithoutExtension(a) + Random.Range(10, 99) + Path.GetExtension(a);
+                b = to + "/" + Path.GetFileNameWithoutExtension(a) + Random.Range(10, 99) + Path.GetExtension(a);
             Debug.Log("moving " + a + " to " + b + ":" + CopyAsset(a, b, move));
         }
         AssetDatabase.Refresh();
     }
     private static string CopyAsset(string a, string b, bool move)
     {
-        
+                
         if (move)
             return AssetDatabase.MoveAsset(a, b);
         else            

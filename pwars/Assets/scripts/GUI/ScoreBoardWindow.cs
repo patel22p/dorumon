@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static ScoreBoardWindow __ScoreBoardWindow;
     public static ScoreBoardWindow _ScoreBoardWindow { get { if (__ScoreBoardWindow == null) __ScoreBoardWindow = (ScoreBoardWindow)MonoBehaviour.FindObjectOfType(typeof(ScoreBoardWindow)); return __ScoreBoardWindow; } }
 }
-
+public enum ScoreBoardWindowEnum { Score_table,Scoreboard_orderby,RefreshScoreBoard,Close, }
 public class ScoreBoardWindow : WindowBase {
 		
 	
@@ -19,15 +19,15 @@ public class ScoreBoardWindow : WindowBase {
 	public string[] lScore_table;
 	[HideInInspector]
 	public int iScore_table = -1;
-	public string Score_table { get { if(lScore_table.Length==0) return ""; return lScore_table[iScore_table]; } set { iScore_table = lScore_table.SelectIndex(value); }}
+	public string Score_table { get { if(lScore_table.Length==0 || iScore_table == -1) return ""; return lScore_table[iScore_table]; } set { iScore_table = lScore_table.SelectIndex(value); }}
 	
 	internal bool vtableHeader = true;
 	
 	internal bool focusTableHeader;
 	
-	internal bool rTableHeader = false;
+	internal bool rTableHeader = true;
 	[HideInInspector]
-	public string TableHeader = @" Place        Name       score           deaths";
+	public string TableHeader = @" Place        Name               score    deaths";
 	
 	internal bool vscoreboard_orderby = true;
 	
@@ -35,7 +35,7 @@ public class ScoreBoardWindow : WindowBase {
 	public string[] lScoreboard_orderby;
 	[HideInInspector]
 	public int iScoreboard_orderby = -1;
-	public string Scoreboard_orderby { get { if(lScoreboard_orderby.Length==0) return ""; return lScoreboard_orderby[iScoreboard_orderby]; } set { iScoreboard_orderby = lScoreboard_orderby.SelectIndex(value); }}
+	public string Scoreboard_orderby { get { if(lScoreboard_orderby.Length==0 || iScoreboard_orderby == -1) return ""; return lScoreboard_orderby[iScoreboard_orderby]; } set { iScoreboard_orderby = lScoreboard_orderby.SelectIndex(value); }}
 	
 	internal bool vRefreshScoreBoard = true;
 	
@@ -46,7 +46,7 @@ public class ScoreBoardWindow : WindowBase {
 	
 	internal bool focusFindUserName;
 	
-	internal bool rFindUserName = true;
+	internal bool rFindUserName = false;
 	[HideInInspector]
 	public string FindUserName = @"";
 	private int wndid1;
@@ -67,7 +67,7 @@ public class ScoreBoardWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iScore_table = -1;
 	iScoreboard_orderby = -1;

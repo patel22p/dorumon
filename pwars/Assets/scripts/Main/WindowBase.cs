@@ -35,8 +35,10 @@ public class WindowBase : Base2
     public void Show(MonoBehaviour controller)
     {
         this.controller = controller;
+        ResetValues();
         Show();
     }
+    public virtual void ResetValues() { }
     public virtual void Show()
     {
         lockCursor = false;

@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 public enum ScoreBoardTables { Zombie_Kill, Played_Time, Player_Kill }
 public class Menu : bs
 {
-    public static UserView user { get { return _Loader.UserView; } }
+    public static UserView LocalUser { get { return _Loader.UserView; } }
     public const string webserver = "http://192.168.30.113/";
     public string gameVersionName = "Swiborg3";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
@@ -29,7 +29,7 @@ public class Menu : bs
     {
         base.Init();
     }
-    protected override void Start()
+    public void Start()
     {
 
         lockCursor = false;
@@ -44,28 +44,26 @@ public class Menu : bs
         if (_Loader.loggedin)
         {
             _MenuWindow.Show(this);
-            if (user.guest)
+            if (LocalUser.guest)
                 _MenuWindow.vAccountInfo = false;
         }
         else
         {
             _LoginWindow.Show(this);
-            if (_LoginWindow.AutoLogin && _Loader.prefnick != "")
+            if (_LoginWindow.AutoLogin && _Loader.nickpref != "")
             {
-                user.nick = _Loader.prefnick;
-                user.guest = _Loader.prefguest;
+                LocalUser.nick = _Loader.nickpref;
+                LocalUser.guest = _Loader.guestpref;
                 OnLogin();
             }
         }
         onRefresh();
         _HostWindow.lGameMode = Enum.GetNames(typeof(GameMode));
-        _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));
-        _ScoreBoardWindow.iScoreboard_orderby = 0;
-
+        _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));        
     }
     private void Dedicated()
     {
-        user.nick = "Server";
+        LocalUser.nick = "Server";
         mapSettings = TakeRandom(_Loader.mapsets);
         mapSettings.gameMode = TakeRandom(mapSettings.supportedModes);
         bool useNat = !Network.HavePublicAddress();
@@ -78,7 +76,7 @@ public class Menu : bs
     public Material customMaterial;
     void Update()
     {
-
+        _UserWindow.vSaveUser = _UserWindow.UserNick == LocalUser.nick;
         if (_TimerA.TimeElapsed(100))
         {
             if (_ScoreBoardWindow.iScoreboard_orderby != -1)
@@ -90,11 +88,9 @@ public class Menu : bs
                     _ScoreBoardWindow.lScore_table = new string[] { };
             }
 
-            _UserWindow.imgAvatar = user.Avatar;
-            _UserWindow.MaterialName = _Loader.playerTextures[user.MaterialId].name;
-            Sphere.renderer.material = _Loader.playerTextures[user.MaterialId];
-            if (user.BallTexture != null)
-                customMaterial.SetTexture("_MainTex", user.BallTexture);
+            _UserWindow.MaterialName = _Loader.playerTextures[LocalUser.MaterialId].name;
+            Sphere.renderer.material = _Loader.playerTextures[LocalUser.MaterialId];
+            
         }
         if (_TimerA.TimeElapsed(100) && _HostWindow.Map != "")
             _HostWindow.imgGameImage = (Texture)Resources.Load(_HostWindow.Map);
@@ -105,25 +101,27 @@ public class Menu : bs
     public GameObject Sphere;
     public string[][] ScoreBoard = new string[10][];
 
-    public void GetScoreBoard(string gamename)
+    public void GetScoreBoard(string gamename, string find, string user)
     {
         _ScoreBoardWindow.vRefreshScoreBoard = false;
-        WWWSend("stats.php?game=" + gamename + "&find=" + _ScoreBoardWindow.FindUserName, TableParse);
+        WWWSend("stats.php?game=" + gamename + "&find=" + find + "&user=" + user, TableParse);
     }
 
     public void WWWSend(string s, Action<string> a)
     {
-        WWWSend(s, new WWWForm(), a);
+        WWWSend(s, null, a);
     }
-    public void WWWSend(string s, WWWForm form, Action<string> a)
+    public void WWWSend(string s, string xml,Action<string> a)
     {
         s = s + "&r=" + Random.value;
-        form.AddField("hash", Ext.CalculateMD5Hash("/" + s + "er54s4"));
+        WWWForm form = new WWWForm();
+        form.AddField("hash", Ext.CalculateMD5Hash("/" + s + xml + "er54s4"));
+        if (xml!=null)
+            form.AddField("xml", xml);
         Debug.Log("WWW Sended: " + s);
         var w = new WWW(webserver + s, form);
         _TimerA.AddMethod(() => w.isDone, delegate
         {
-
             if (w.error == "" || w.error == null)
             {
                 Debug.Log("WWW Received: " + w.text);
@@ -135,6 +133,7 @@ public class Menu : bs
     }
     public void SaveScoreBoard(string gamename, string user, string passw, bool guest, int frags, int deaths)
     {
+        Debug.Log("SaveScoreBoard");
         WWWSend("stats.php?user=" + user + "&guest=" + (guest ? "1" : "") + "&passw=" + passw + "&frags=" + frags + "&deaths=" + deaths + "&game=" + gamename, TableParse);
     }
 
@@ -147,15 +146,16 @@ public class Menu : bs
         }
         catch (Exception e) { Debug.Log(e.Message); }
     }
-    private string ParseTable(string p)
+    private string ParseTable(string text) //scoreboard
     {
-        var sa = p.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        var sa = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         if (sa.Length == 0)
             return "table length is zero";
         Match m = Regex.Match(sa[0], @"table:(\w+)");
         if (!m.Success)
-            return "error : " + p;
+            return "error : " + text;
         ScoreBoardTables scType = m.Groups[1].Value.Parse<ScoreBoardTables>();
+        _ScoreBoardWindow.Scoreboard_orderby = scType.ToString();
         List<string> table = new List<string>();
         var tableTitle = GenerateTable(_ScoreBoardWindow.TableHeader);
         foreach (var row in sa.Skip(1))
@@ -168,21 +168,21 @@ public class Menu : bs
         {
             //                         1     2       3     4
             var r = Regex.Match(a, @"(\d+)\t(.+?)\t(\d+)\t(\d+)");
-            if (r.Success && r.Groups[2].Value == user.nick)
+            if (r.Success && r.Groups[2].Value == LocalUser.nick)
             {
-                user.scoreboard[(int)scType].frags = int.Parse(r.Groups[3].Value);
-                user.scoreboard[(int)scType].place = int.Parse(r.Groups[1].Value);
-                user.scoreboard[(int)scType].deaths = int.Parse(r.Groups[4].Value);
-                UpdateUserScores();
-                SaveUser();
+                LocalUser.scoreboard[(int)scType].frags = int.Parse(r.Groups[3].Value);
+                LocalUser.scoreboard[(int)scType].place = int.Parse(r.Groups[1].Value);
+                LocalUser.scoreboard[(int)scType].deaths = int.Parse(r.Groups[4].Value);
+                UpdateUserScores(_Loader.UserView);                
+                _TimerA.AddMethod(100, SaveUser);
                 break;
             }
-        }
+        }        
         return "tabble success";
     }
 
     public HostData hdf;
-    public void StartServer()
+    public void StartServer() //createserver
     {
         var maps = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);
         if (_HostWindow.Name.Length < 1 || maps == null)
@@ -276,36 +276,47 @@ public class Menu : bs
     private void GetUserInfo(string nick)
     {
 
-        _UserWindow.vRefreshUserInfo = false;
-        _UserWindow.UserNick = nick;
-        WWWSend("user.php?user=" + nick, delegate(string text)
-        {
-            _UserWindow.vRefreshUserInfo = true;
-            try
-            {
-                if (text == "") throw new Exception("UserView not Set");
-                using (StringReader sr = new StringReader(text))
-                {
-                    var user = (UserView)UserView.xml.Deserialize(sr);
-                    //CopyS(_UserWindow, user);
-                    _UserWindow.AvatarUrl = user.AvatarUrl;
-                    _UserWindow.Desctiption = user.Desctiption;
-                    _UserWindow.FirstName = user.FirstName;
-                    _UserWindow.BallImage = user.BallTextureUrl;
-                    bool own = _Loader.UserView.nick == user.nick;
-                    _Loader.UserView = user;
-                    _UserWindow.vAvatarUrl = own;
-                    _UserWindow.vSaveUser = own;
-                    _UserWindow.rDesctiption = !own;
-                    _UserWindow.rBallImage = !own;
-                    if (own) _Loader.UserView = user;
-                }
-            }
-            catch (Exception e) { Debug.Log("Cannot Load UserView " + e); }
-        });
+        WWWSend("user.php?user=" + nick, ParseUser);
     }
 
-    private static void UpdateUserScores()
+    private void ParseUser(string text)
+    {        
+        if (text == "") throw new Exception("UserView not Set");
+        using (StringReader sr = new StringReader(text))
+        {
+            try
+            {
+                UserView user = (UserView)UserView.xml.Deserialize(sr);
+                //CopyS(_UserWindow, user);
+                _UserWindow.AvatarUrl = user.AvatarUrl;
+                _UserWindow.Desctiption = user.Desctiption;
+                _UserWindow.FirstName = user.FirstName;
+                _UserWindow.BallImage = user.BallTextureUrl;
+                _UserWindow.UserNick = user.nick;
+                bool own = _Loader.UserView.nick == user.nick;
+                _UserWindow.vAvatarUrl = own;
+                _UserWindow.vBallImage = own;
+                UpdateImage(user);
+                if (own)
+                {
+                    _Loader.UserView = user;
+                }
+                UpdateUserScores(user);
+            }
+            catch (Exception e) { Debug.Log("Cannot Parse UserView " + text + "\r\n" + e); }
+        }
+
+    }
+
+    private void UpdateImage(UserView user)
+    {
+        var w = new WWW(Menu.webserver + "image.php?image=" + user.BallTextureUrl);
+        _TimerA.AddMethod(() => w.isDone, delegate { customMaterial.SetTexture("_MainTex", w.texture); });
+        var wn = new WWW(Menu.webserver + "image.php?image=" + user.AvatarUrl);
+        _TimerA.AddMethod(() => wn.isDone, delegate { _UserWindow.imgAvatar = wn.texture; });
+    }
+
+    private static void UpdateUserScores(UserView user)
     {
         var h = GenerateTable(_UserWindow.Tableheader);
         var us = new List<string>();
@@ -320,34 +331,19 @@ public class Menu : bs
     }
     public void SaveUser() //usersave
     {
-        _UserWindow.vSaveUser = false;
-        using (StringWriter sw = new StringWriter())
-        {
-            UserView.xml.Serialize(sw, user);
-            var form = new WWWForm();
-            form.AddField("xml", sw.ToString(), Encoding.UTF8);
-            WWWSend("user.php?user=" + user.nick + "&passw=" + _Loader.passwordHash, form, delegate(string text)
-            {
-                _UserWindow.vSaveUser = true;
-                if (text != "Success")
-                    Debug.Log("Could not Save User data" + text);
-                else
-                    Debug.Log("Save success");
-            });
-        }
+        WWWSend("user.php?user=" + LocalUser.nick + "&passw=" + _Loader.passwordHash, SerializeToStr(LocalUser, UserView.xml), delegate { UpdateImage(LocalUser); });
     }
     private void OnLogin()
     {
-        Debug.Log("isguest: " + user.guest);
-        _Loader.prefnick = user.nick;
-        _Loader.prefguest = user.guest;
+        Debug.Log("isguest: " + LocalUser.guest);
+        _Loader.nickpref = LocalUser.nick;
+        _Loader.guestpref = LocalUser.guest;
         _Loader.loggedin = true;
         _MenuWindow.Show(this);
-        if (!user.guest)
-            GetUserInfo(user.nick);
+        if (!LocalUser.guest)
+            GetUserInfo(LocalUser.nick);
         else
             _MenuWindow.vAccountInfo = false;
-        UpdateUserScores();
         //foreach (var s in Enum.GetNames(typeof(ScoreBoardTables)))
         //    GetScoreBoard(s);
     }
@@ -358,15 +354,15 @@ public class Menu : bs
         if (n == "ShowKeyboard")
             _KeyboardWindow.Show(this);
         if (n == "Next")
-            user.MaterialId++;
+            LocalUser.MaterialId++;
         if (n == "Prev")
-            user.MaterialId--;
-        user.MaterialId = Math.Max(0, Math.Min(pt.Length - 1, user.MaterialId));
+            LocalUser.MaterialId--;
+        LocalUser.MaterialId = Math.Max(0, Math.Min(pt.Length - 1, LocalUser.MaterialId));
         if (n == "About")
             _AboutWindow.Show(this);
         if (n == "LogOut")
         {
-            _Loader.prefnick = "";
+            _Loader.nickpref = "";
             _LoginWindow.Show(this);
         }
         if (n == "Scoreboard_orderby")
@@ -375,23 +371,23 @@ public class Menu : bs
         if (n == "LoginAsGuest")
             if (_LoginWindow.Nick != "")
             {
-                user.nick = _LoginWindow.Nick;
-                user.guest = true;
+                LocalUser.nick = _LoginWindow.Nick;
+                LocalUser.guest = true;
                 OnLogin();
             }
         if (n == "Login")
         {
             _LoginWindow.vLogin = false;
-            WWWSend("login.php?user=" + _LoginWindow.LoginNick + "&passw=" + _LoginWindow.LoginPassw,
+            WWWSend("user.php?login=1&user=" + _LoginWindow.LoginNick + "&passw=" + Ext.CalculateMD5Hash(_LoginWindow.LoginPassw),
             delegate(string text)
             {
                 if (text == "Success")
                 {
                     Debug.Log("Login Success");
-                    user.guest = false;
-                    _Loader.prefpass = _LoginWindow.LoginPassw;
-                    user.nick = _LoginWindow.LoginNick;
-                    Debug.Log(user.nick);
+                    LocalUser.guest = false;
+                    _Loader.passpref = _LoginWindow.LoginPassw;
+                    LocalUser.nick = _LoginWindow.LoginNick;
+                    Debug.Log(LocalUser.nick);
                     _MenuWindow.vAccountInfo = true;
                     OnLogin();
                 }
@@ -400,9 +396,9 @@ public class Menu : bs
                 _LoginWindow.vLogin = true;
             });
         }
-        if (n == "Registr")
+        if (n == LoginWindowEnum.Registr + "")
         {
-            WWWSend("registr.php?user=" + _LoginWindow.RegNick + "&email=" + _LoginWindow.Email + "&passw=" + Ext.CalculateMD5Hash(_LoginWindow.RegPassw),
+            WWWSend("user.php?reg=1&user=" + _LoginWindow.RegNick + "&email=" + _LoginWindow.Email + "&passw=" + Ext.CalculateMD5Hash(_LoginWindow.RegPassw), SerializeToStr(new UserView() { nick = _LoginWindow.RegNick }, UserView.xml),
             delegate(string text)
             {
                 if (text == "Success")
@@ -412,37 +408,48 @@ public class Menu : bs
             });
         }
 
-        if (n == "SaveUser")
+        if (n == UserWindowEnum.SaveUser + "")
         {
-            //CopyS(_UserWindow, user);
-            user.AvatarUrl = _UserWindow.AvatarUrl;
-            user.Desctiption = _UserWindow.Desctiption;
-            user.FirstName = _UserWindow.FirstName;
-            user.BallTextureUrl = _UserWindow.BallImage;
+            LocalUser.AvatarUrl = _UserWindow.AvatarUrl;
+            LocalUser.Desctiption = _UserWindow.Desctiption;
+            LocalUser.FirstName = _UserWindow.FirstName;
+            LocalUser.BallTextureUrl = _UserWindow.BallImage;
             SaveUser();
         }
         if (n == "AccountInfo")
             _UserWindow.Show(this);
         if (n == "RefreshUserInfo")
         {
-            Debug.Log(user.nick);
-            GetUserInfo(user.nick);
+            GetUserInfo(LocalUser.nick);
         }
         if (n == "Score_Board")
         {
-            _ScoreBoardWindow.ResetValues();
-            _ScoreBoardWindow.Show(this);
+            _ScoreBoardWindow.Show(this);                        
+            
         }
         if (n == "RefreshScoreBoard")
-            GetScoreBoard(_ScoreBoardWindow.Scoreboard_orderby);
+            if (_ScoreBoardWindow.iScoreboard_orderby != -1)
+                GetScoreBoard(_ScoreBoardWindow.Scoreboard_orderby, _ScoreBoardWindow.FindUserName, "");
+            else
+                ShowPopup("select order first");
+        if (n == ScoreBoardWindowEnum.Score_table + "")
+        {
+            GetUserInfo(_ScoreBoardWindow.Score_table.Split(" ")[1]);
+            _UserWindow.Show(this);
+        }
+        if (n == UserWindowEnum.UserScores + "")
+        {
+            _ScoreBoardWindow.Show(this);
+            GetScoreBoard(Regex.Match(_UserWindow.UserScores, @"[^\d ]+").Value, "", _UserWindow.UserNick);           
+        }
         if (n == "Close")
             _MenuWindow.Show();
-        if (n == "Create")
+        if (n == "Create")//createServer
         {
-            _HostWindow.Show(this);
+            _HostWindow.Show(this); 
             Action("GameMode");
         }
-        if (n == "GameMode")
+        if (n == "GameMode" && _HostWindow.GameMode!="")
         {
             var g = _HostWindow.GameMode.Parse<GameMode>();
             _HostWindow.lMap = GetMapsByMode(g).ToArray();
@@ -466,6 +473,8 @@ public class Menu : bs
         }
         if (n == "Refresh")
             onRefresh();
+        
+
         if (n == "ServersTable")
         {
             var sv = hosts[_ServersWindow.iServersTable];

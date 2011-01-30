@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static TeamSelectWindow __TeamSelectWindow;
     public static TeamSelectWindow _TeamSelectWindow { get { if (__TeamSelectWindow == null) __TeamSelectWindow = (TeamSelectWindow)MonoBehaviour.FindObjectOfType(typeof(TeamSelectWindow)); return __TeamSelectWindow; } }
 }
-
+public enum TeamSelectWindowEnum { Teams,TeamSelect,Close, }
 public class TeamSelectWindow : WindowBase {
 		
 	
@@ -23,7 +23,7 @@ public class TeamSelectWindow : WindowBase {
 	public string[] lTeams;
 	[HideInInspector]
 	public int iTeams = 0;
-	public string Teams { get { if(lTeams.Length==0) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
+	public string Teams { get { if(lTeams.Length==0 || iTeams == -1) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
 	
 	internal bool vred = true;
 	
@@ -73,7 +73,7 @@ public class TeamSelectWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iTeams = -1;
 
@@ -89,7 +89,7 @@ public class TeamSelectWindow : WindowBase {
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
 		focusWindow = false;
 		bool onMouseOver;
-		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Game Menu");
+		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Team Select");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");
 		GUI.Box(new Rect(0, 0, 596f, 297f), "");
 		if(vTeamsView){

@@ -8,10 +8,15 @@ public class Console : bs
 {
     public static StringBuilder log = new StringBuilder();
     Rect r;
+    public Console()
+    {
+
+    }
     public override void Awake()
     {
-        base.Awake();
         Application.RegisterLogCallback(onLog);                
+        base.Awake();
+        
     }
     public int errorcount;
     public int exceptionCount;
@@ -46,7 +51,7 @@ public class Console : bs
     void Window(int id)
     {        
         //GUI.Box(r, "");                
-        GUILayout.Label("Version " + _Loader.version + " Warning Count:" + errorcount + " Error Count:" + exceptionCount);        
+        GUILayout.Label("Warnings:" + errorcount + " Errors:" + exceptionCount + " " + "Version " + _Loader.version);        
         GUI.TextField(new Rect(0, 50, r.width, r.height - 50), log.ToString(), GUI.skin.customStyles[8]);
         GUI.BringWindowToFront(-1);
         GUI.FocusWindow(-1);

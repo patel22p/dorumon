@@ -88,6 +88,15 @@ public partial class Base2 : MonoBehaviour
             return xml.Deserialize(sr);
         }
     }
+
+    public static string SerializeToStr(object t, XmlSerializer xml)
+    {
+        using (StringWriter sw = new StringWriter())
+        {
+            UserView.xml.Serialize(sw, t);
+            return sw.ToString();
+        }
+    }
     public static byte[] Serialize(object t, XmlSerializer xml)
     {
         using (MemoryStream ms = new MemoryStream())

@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static GameMenuWindow __GameMenuWindow;
     public static GameMenuWindow _GameMenuWindow { get { if (__GameMenuWindow == null) __GameMenuWindow = (GameMenuWindow)MonoBehaviour.FindObjectOfType(typeof(GameMenuWindow)); return __GameMenuWindow; } }
 }
-
+public enum GameMenuWindowEnum { TeamSelectButton,Options,Disconnect,Close, }
 public class GameMenuWindow : WindowBase {
 		
 	[FindAsset("physx_wars_title")]
@@ -57,7 +57,7 @@ public class GameMenuWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

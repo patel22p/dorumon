@@ -36,12 +36,15 @@ public class bs : Base2
             }
         }
     }
-    protected virtual void Start(){}
+    //protected virtual void Start(){}
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
     protected virtual void Enable() { if (networkView != null) enabled = defenabled; }
 
-    
+    public virtual void InitValues()
+    {
+        
+    }
     public virtual void OnPlayerConnectedBase(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
@@ -60,7 +63,6 @@ public class bs : Base2
     //public const string hosting = "http://physxwars.rh10.ru/";
     public static bool build { get { return _Loader.build; } }
     public static bool debug { get { return !_Loader.build; } }
-    public static bool skip { get { return _Loader.skip; } }
     public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static bool DebugKey(KeyCode key)

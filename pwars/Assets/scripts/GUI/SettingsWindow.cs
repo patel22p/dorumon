@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static SettingsWindow __SettingsWindow;
     public static SettingsWindow _SettingsWindow { get { if (__SettingsWindow == null) __SettingsWindow = (SettingsWindow)MonoBehaviour.FindObjectOfType(typeof(SettingsWindow)); return __SettingsWindow; } }
 }
-
+public enum SettingsWindowEnum { GraphicQuality,ScreenSize,FullScreen,Blood,Decals,AtmoSphere,Sao,Shadows,MotionBlur,BloomAndFlares,RenderSettings,Contrast,Reset,ShowKeyboard,Close, }
 public class SettingsWindow : WindowBase {
 		
 	public int iGraphicQuality{ get { return PlayerPrefs.GetInt(Application.platform +"iGraphicQuality", -1); } set { PlayerPrefs.SetInt(Application.platform +"iGraphicQuality", value); } }
@@ -28,13 +28,13 @@ public class SettingsWindow : WindowBase {
 	
 	internal bool focusGraphicQuality;
 	public string[] lGraphicQuality;
-	public string GraphicQuality { get { if(lGraphicQuality.Length==0) return ""; return lGraphicQuality[iGraphicQuality]; } set { iGraphicQuality = lGraphicQuality.SelectIndex(value); }}
+	public string GraphicQuality { get { if(lGraphicQuality.Length==0 || iGraphicQuality == -1) return ""; return lGraphicQuality[iGraphicQuality]; } set { iGraphicQuality = lGraphicQuality.SelectIndex(value); }}
 	
 	internal bool vScreenSize = true;
 	
 	internal bool focusScreenSize;
 	public string[] lScreenSize;
-	public string ScreenSize { get { if(lScreenSize.Length==0) return ""; return lScreenSize[iScreenSize]; } set { iScreenSize = lScreenSize.SelectIndex(value); }}
+	public string ScreenSize { get { if(lScreenSize.Length==0 || iScreenSize == -1) return ""; return lScreenSize[iScreenSize]; } set { iScreenSize = lScreenSize.SelectIndex(value); }}
 	
 	internal bool vFullScreen = true;
 	
@@ -82,7 +82,7 @@ public class SettingsWindow : WindowBase {
 	public string[] lRenderSettings;
 	[HideInInspector]
 	public int iRenderSettings = -1;
-	public string RenderSettings { get { if(lRenderSettings.Length==0) return ""; return lRenderSettings[iRenderSettings]; } set { iRenderSettings = lRenderSettings.SelectIndex(value); }}
+	public string RenderSettings { get { if(lRenderSettings.Length==0 || iRenderSettings == -1) return ""; return lRenderSettings[iRenderSettings]; } set { iRenderSettings = lRenderSettings.SelectIndex(value); }}
 	
 	internal bool vcamx = true;
 	
@@ -163,7 +163,7 @@ public class SettingsWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iGraphicQuality = -1;
 	iScreenSize = -1;

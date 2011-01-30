@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class Patron : bs
 {    
     public bool decalhole = true;
-    public Vector3 Force = new Vector3(0, 0, 80);
+    internal Vector3 Force = new Vector3(0, 0, 80);
     [FindAsset("Detonator-Base")]
     public GameObject detonator;    
     [FindAsset(overide = true)]
@@ -16,21 +16,19 @@ public class Patron : bs
     public int detonatorsize = 8;
     internal float ExpForce = 2000;
     internal int damage = 60;
-    
     internal int probivaemost = 0;
     public bool granate;
     public float gravitate = 0;
     public float radius = 6;
     public bool breakwall;
-    public float timeToDestroy = 5;
+    internal float timeToDestroy = 5;
     public float tm;
     protected Vector3 previousPosition;
-    protected override void Start()
+    public void Start()
     {
         _Game.patrons.Add(this);
         Force = transform.rotation * Force;
-        previousPosition = transform.position;
-        base.Start();
+        previousPosition = transform.position;        
     }
     void OnDisable()
     {
@@ -40,8 +38,11 @@ public class Patron : bs
     {
         base.Init();
     }
+    public override void InitValues()
+    {        
+        base.InitValues();
+    }
     public AnimationCurve SamoNavod;
-    public float expDamageFactor = 1;
     protected virtual void Update()
     {
         if (Force != default(Vector3))
@@ -82,9 +83,10 @@ public class Patron : bs
     public bool hit;
     private int GetMask()
     {
-        int mask = 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
+        int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
-    }    
+    }
+    
     private void GravitateMagnet()
     {
         foreach (Patron p in _Game.patrons)
@@ -119,8 +121,12 @@ public class Patron : bs
         if (!explodeOnDestroy)
         {
             var r = hit.rigidbody;
-            if (r!= null)
-                r.AddForceAtPosition(transform.rotation * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.sqrMagnitude * 10) * fdt, hit.point);
+            var rt = transform.rotation;
+            _TimerA.AddMethod(delegate
+            {
+                if (r != null && r.velocity.magnitude < 20)
+                    r.AddForceAtPosition(rt * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.sqrMagnitude * 10) * fdt, hit.point);
+            });
         }
         Destroible destroible = m as Destroible;
         if (g.layer == LayerMask.NameToLayer("Level") || g.layer == LayerMask.NameToLayer("Glass"))
@@ -170,8 +176,8 @@ public class Patron : bs
         exp.transform.parent = o.transform;
         var e = exp.GetComponent<Explosion>();        
         e.exp = ExpForce;
+        e.DamageFactor = damage / 60;
         e.radius = radius;
-        e.damageFactor = expDamageFactor;        
         e.OwnerID = OwnerID;
         Destroy(gameObject);
         var dt = detonator.GetComponent<Detonator>();

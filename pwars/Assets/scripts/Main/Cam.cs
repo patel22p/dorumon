@@ -61,7 +61,7 @@ public class Cam : bs
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
         }
     }
-    protected override void Start()
+    public void Start()
     {
         camera.GetComponent<GUILayer>().enabled = true;
         Vector3 angles = transform.eulerAngles;

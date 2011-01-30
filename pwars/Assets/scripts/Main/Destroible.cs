@@ -11,6 +11,7 @@ public abstract class Destroible : Shared
     public bool CanFreeze;
     public float maxLife = 100;
     public float Life;
+    public GameObject model;
     float freezedt;
     [FindAsset]
     public AudioClip heal;
@@ -29,11 +30,21 @@ public abstract class Destroible : Shared
         foreach (var t in transform.GetTransforms())
             t.gameObject.layer = layer;
     }
+    public void SetActive(GameObject g, bool value)
+    {
+        foreach (var a in g.transform.GetTransforms())
+            a.gameObject.active= value;
+    }
     public void SetLayer(GameObject g)
     {
-        var l = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally");
+        var la = LayerMask.NameToLayer(_localPlayer.isEnemy(OwnerID) ? "Enemy" : "Ally");
         foreach (var a in g.transform.GetTransforms())
-            a.gameObject.layer = l;
+            a.gameObject.layer = la;
+    }
+    public void SetLayer(GameObject g, LayerMask la)
+    {        
+        foreach (var a in g.transform.GetTransforms())
+            a.gameObject.layer = la;
     }
 
     public override void Awake()
@@ -45,9 +56,9 @@ public abstract class Destroible : Shared
         if (Life == 0) Life = 100;
         base.Init();
     }
-    protected override void Start()
+    public override void Start()
     {
-        SetLayer(gameObject);
+        //SetLayer(model);
         base.Start();
     }
     public float isGrounded;
@@ -103,13 +114,11 @@ public abstract class Destroible : Shared
         {
             if (isEnemy(killedby) || NwLife > Life)
             {
+                if (this == _localPlayer && NwLife < Life)
+                    _GameWindow.Hit();
                 Life = Math.Min(NwLife, maxLife);                
                 CallRPC("SetLife", Life, killedby);
-                if (this == _localPlayer)
-                {
-                    if(NwLife < Life)
-                        _GameWindow.Hit();
-                }
+                
                 if(CanFreeze)
                     RPCSetFrozen(true);
             }

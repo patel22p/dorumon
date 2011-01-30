@@ -52,13 +52,13 @@ public class Shared : bs
         rigidbody.angularDrag = .5f;
         base.Init();
     }
-    protected override void Start()
+    public virtual void Start()
     {
         spawnpos = transform.position;
         spawnrot = transform.rotation;
         if (shared)
             networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
-        base.Start();
+        
     }
     public int updateLightmapInterval = 100;
     protected virtual void Update()
@@ -73,7 +73,7 @@ public class Shared : bs
 
         if (_TimerA.TimeElapsed(updateLightmapInterval))
             UpdateLightmap();
-        if (_TimerA.TimeElapsed(500))
+        if (_TimerA.TimeElapsed(200))
         {
             if (shared && Network.isServer)
                 ControllerUpdate();

@@ -107,7 +107,6 @@ namespace doru
                 ca = new CA();
                 _List.Add(ca);
             }
-
             ca.stacktrace = UnityEngine.StackTraceUtility.ExtractStackTrace();
             ca._Action2 = _Action2;
             ca._Miliseconds = _Miliseconds;

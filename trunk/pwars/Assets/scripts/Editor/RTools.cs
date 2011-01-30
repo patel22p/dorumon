@@ -25,8 +25,10 @@ public partial class RTools : InspectorSearch
     public bool web;
     public override void Awake()
     {
+        
         base.Awake();
     }
+    public bool stopZombies, disableSounds, disablePathFinding;
     protected override void OnGUI()
     {
         
@@ -57,58 +59,46 @@ public partial class RTools : InspectorSearch
 
         GUI.BeginHorizontal();
         _Loader.build = !GUI.Toggle(!_Loader.build, "Debug");
-        _Loader.disablePathFinding = GUI.Toggle(_Loader.disablePathFinding, "disable Path");
-        Zombie.stopZombies = GUI.Toggle(Zombie.stopZombies, "stop Zombies");
+        disablePathFinding = GUI.Toggle(disablePathFinding, "DPath");
+        _Loader.disablePathFinding = disablePathFinding;
+        disableSounds = GUI.Toggle(disableSounds, "Dsounds");
+        _Loader.disableSounds = disableSounds;
+        stopZombies = GUI.Toggle(stopZombies, "DZombies");
+        Zombie.stopZombies = stopZombies;
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
+        
+        lfactor = EditorGUILayout.FloatField(lfactor,GUI.Width(20));
+        dfactor = EditorGUILayout.FloatField(dfactor,GUI.Width(20));
 
-        lfactor = EditorGUILayout.FloatField(lfactor);
-        dfactor = EditorGUILayout.FloatField(dfactor);
         if (GUI.Button("SetupLevel"))
         {
-
-            var Level = GameObject.Find("Level");             
-            var oldl = Level.transform.Find("level");
-            if (oldl != null)
-                DestroyImmediate(oldl.gameObject);
-            string path = EditorApplication.currentScene.Split('.')[0] + "/";
-            path = path.Substring("Assets/".Length);
-            Debug.Log("setup level: " + path);
-            var nl = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
-            nl.transform.parent = Level.transform;
-            nl.name = "level";
-            Selection.activeGameObject = nl;
-            SetupLevel();
-            Inits(cspath);
-            _TimerA.AddMethod(delegate
-            {
-                if (bake)
-                {
-                    var old = RenderSettings.ambientLight;
-                    RenderSettings.ambientLight = Color.white * lfactor;
-                    var en = new Queue<LightShadows>();
-                    var q = new Queue<float>();
-                    foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
-                    {
-
-                        q.Enqueue(a.intensity);
-                        en.Enqueue(a.shadows);
-                        if (a.type == LightType.Directional)
-                            a.intensity = dfactor;
-                        a.shadows = LightShadows.Soft;
-                    }
-                    Lightmapping.BakeAsync();
-                    foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
-                    {
-                        a.intensity = q.Dequeue();
-                        a.shadows = en.Dequeue();
-                    }
-                    RenderSettings.ambientLight = old;
-
-                }
-            });
+            LevelSetup();
         }
+        if (GUI.Button("InitV"))
+            foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
+            {
+
+                if (AssetDatabase.IsMainAsset(a))
+                {
+                    bool mod=false;
+                    var ar = a.transform.GetTransforms().ToArray();
+                    foreach (var b in ar)
+                    {
+                        var bs = b.GetComponent<bs>();
+                        if (bs != null)
+                        {
+                            bs.InitValues();
+                            mod = true;
+                        }
+                    }
+                    if (mod)
+                        EditorUtility.SetDirty(a);                    
+                }
+                else if (EditorApplication.isPlaying)
+                    a.SendMessage("InitValues", SendMessageOptions.DontRequireReceiver);                
+            }
 
         if (GUI.Button("Init"))
         {
@@ -129,8 +119,52 @@ public partial class RTools : InspectorSearch
         //}
         base.OnGUI();
     }
-    protected override void Update()
+
+    private void LevelSetup()
     {
+        var Level = GameObject.Find("Level");
+        var oldl = Level.transform.Find("level");
+        if (oldl != null)
+            DestroyImmediate(oldl.gameObject);
+        string path = EditorApplication.currentScene.Split('.')[0] + "/";
+        path = path.Substring("Assets/".Length);
+        Debug.Log("setup level: " + path);
+        var nl = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
+        nl.transform.parent = Level.transform;
+        nl.name = "level";
+        Selection.activeGameObject = nl;
+        SetupLevel();
+        Inits(cspath);
+        _TimerA.AddMethod(delegate
+        {
+            if (bake)
+            {
+                var old = RenderSettings.ambientLight;
+                RenderSettings.ambientLight = Color.white * lfactor;
+                var en = new Queue<LightShadows>();
+                var q = new Queue<float>();
+                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                {
+
+                    q.Enqueue(a.intensity);
+                    en.Enqueue(a.shadows);
+                    if (a.type == LightType.Directional)
+                        a.intensity = dfactor;
+                    a.shadows = LightShadows.Soft;
+                }
+                Lightmapping.BakeAsync();
+                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                {
+                    a.intensity = q.Dequeue();
+                    a.shadows = en.Dequeue();
+                }
+                RenderSettings.ambientLight = old;
+
+            }
+        });
+    }
+    protected override void Update()
+    {            
         _Loader.SerializedObject.ApplyModifiedProperties();
         base.Update();
     }
@@ -270,9 +304,7 @@ public partial class RTools : InspectorSearch
             {
                 p.transform.position = g.transform.position;
                 p.transform.rotation = g.transform.rotation;
-                foreach (var c in g.GetComponents<Component>())
-                    if (!(c is Transform))
-                        DestroyImmediate(c);
+                Clear(g,true);
             }
         }
         foreach (Transform t in Selection.activeGameObject.transform)
@@ -430,7 +462,7 @@ public partial class RTools : InspectorSearch
         get
         {
             if (loader == null)
-                loader = Base2.FindAsset<Loader>("loader"); //(Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();
+                loader = ((Loader)GameObject.FindObjectOfType(typeof(Loader))) ?? Base2.FindAsset<Loader>("loader"); //(Loader)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Loader)).First();
             return loader;
         }
     }

@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static KeyboardWindow __KeyboardWindow;
     public static KeyboardWindow _KeyboardWindow { get { if (__KeyboardWindow == null) __KeyboardWindow = (KeyboardWindow)MonoBehaviour.FindObjectOfType(typeof(KeyboardWindow)); return __KeyboardWindow; } }
 }
-
+public enum KeyboardWindowEnum { Close, }
 public class KeyboardWindow : WindowBase {
 		
 	public Texture imgImage3;
@@ -30,7 +30,7 @@ public class KeyboardWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

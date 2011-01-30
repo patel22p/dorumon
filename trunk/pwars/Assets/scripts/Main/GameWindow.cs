@@ -109,8 +109,8 @@ public class GameWindow : Base2 {
     }
     public void Hit()
     {
-        GUITexture g = blood[Random.Range(0, blood.Count- 1)];
-        g.color += new Color(0, 0, 0, .2f);
+        GUITexture g = blood[Random.Range(0, blood.Count- 1)];        
+        g.color = new Color(1, 1, 1, .2f);
     }
 
 }

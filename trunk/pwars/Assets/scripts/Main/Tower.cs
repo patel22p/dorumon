@@ -18,9 +18,8 @@ public class Tower : Destroible
         if (Life == 0) Life = 100;
         model = GetComponentInChildren(typeof(Renderer)).gameObject;
         base.Init();
-    }
-    public GameObject model;
-    protected override void Start()
+    }    
+    public override void Start()
     {
         base.Start();
         _Game.towers.Add(this);

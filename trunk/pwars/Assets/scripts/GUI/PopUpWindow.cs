@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static PopUpWindow __PopUpWindow;
     public static PopUpWindow _PopUpWindow { get { if (__PopUpWindow == null) __PopUpWindow = (PopUpWindow)MonoBehaviour.FindObjectOfType(typeof(PopUpWindow)); return __PopUpWindow; } }
 }
-
+public enum PopUpWindowEnum { Ok, }
 public class PopUpWindow : WindowBase {
 		
 	
@@ -41,7 +41,7 @@ public class PopUpWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

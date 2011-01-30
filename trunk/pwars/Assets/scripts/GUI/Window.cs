@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static Window __Window;
     public static Window _Window { get { if (__Window == null) __Window = (Window)MonoBehaviour.FindObjectOfType(typeof(Window)); return __Window; } }
 }
-
+public enum WindowEnum { Close, }
 public class Window : WindowBase {
 		
 	private int wndid1;
@@ -27,7 +27,7 @@ public class Window : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-public enum SpawnType { zombie, RedSpawn, NoneSpawn, BlueSpawn ,none}
+public enum SpawnType { zombie, RedSpawn, NoneSpawn, BlueSpawn ,none,ZombieSpawnLocation}
 [AddComponentMenu("MapTag")]
 public class MapTag : MonoBehaviour
 {

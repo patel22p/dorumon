@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static ServersWindow __ServersWindow;
     public static ServersWindow _ServersWindow { get { if (__ServersWindow == null) __ServersWindow = (ServersWindow)MonoBehaviour.FindObjectOfType(typeof(ServersWindow)); return __ServersWindow; } }
 }
-
+public enum ServersWindowEnum { Connect,ServersTable,Refresh,Close, }
 public class ServersWindow : WindowBase {
 		
 	public string Ipaddress{ get { return PlayerPrefs.GetString(Application.platform +"Ipaddress", @""); } set { PlayerPrefs.SetString(Application.platform +"Ipaddress", value); } }
@@ -38,7 +38,7 @@ public class ServersWindow : WindowBase {
 	public string[] lServersTable;
 	[HideInInspector]
 	public int iServersTable = -1;
-	public string ServersTable { get { if(lServersTable.Length==0) return ""; return lServersTable[iServersTable]; } set { iServersTable = lServersTable.SelectIndex(value); }}
+	public string ServersTable { get { if(lServersTable.Length==0 || iServersTable == -1) return ""; return lServersTable[iServersTable]; } set { iServersTable = lServersTable.SelectIndex(value); }}
 	
 	internal bool vRefresh = true;
 	
@@ -70,7 +70,7 @@ public class ServersWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iServersTable = -1;
 

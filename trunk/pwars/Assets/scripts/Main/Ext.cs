@@ -19,10 +19,10 @@ public static class Ext
     {
         return v ? 1 : 0;
     }
-    //public static float Mass(this GameObject g)
-    //{
-    //    return g.rigidbody.mass / g.collider.bounds.size.magnitude;
-    //}
+    public static string[] Split(this string s,string d)
+    {
+        return s.Split(new string[] { d }, StringSplitOptions.RemoveEmptyEntries);
+    }
     public static string CalculateMD5Hash(string input)
     {
         MD5 md5 = System.Security.Cryptography.MD5.Create();

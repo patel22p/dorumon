@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static UserWindow __UserWindow;
     public static UserWindow _UserWindow { get { if (__UserWindow == null) __UserWindow = (UserWindow)MonoBehaviour.FindObjectOfType(typeof(UserWindow)); return __UserWindow; } }
 }
-
+public enum UserWindowEnum { SaveUser,Prev,Next,UserScores,RefreshUserInfo,Close, }
 public class UserWindow : WindowBase {
 		
 	
@@ -87,7 +87,7 @@ public class UserWindow : WindowBase {
 	public string[] lUserScores;
 	[HideInInspector]
 	public int iUserScores = -1;
-	public string UserScores { get { if(lUserScores.Length==0) return ""; return lUserScores[iUserScores]; } set { iUserScores = lUserScores.SelectIndex(value); }}
+	public string UserScores { get { if(lUserScores.Length==0 || iUserScores == -1) return ""; return lUserScores[iUserScores]; } set { iUserScores = lUserScores.SelectIndex(value); }}
 	
 	internal bool vtableheader = true;
 	
@@ -130,7 +130,7 @@ public class UserWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         	iUserScores = -1;
 
@@ -184,7 +184,7 @@ public class UserWindow : WindowBase {
 		} else
 		AvatarUrl = GUI.TextField(new Rect(115f, 54.04f, 175f, 14f), AvatarUrl,100);
 		}
-		GUI.Label(new Rect(28f, 84f, 70.25333f, 21.96f), @"Description");
+		GUI.Label(new Rect(19f, 84f, 92f, 21.96f), @"Description");
 		if(vDesctiption){
 		if(focusDesctiption) { focusDesctiption = false; GUI.FocusControl("Desctiption");}
 		GUI.SetNextControlName("Desctiption");

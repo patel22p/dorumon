@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static MenuWindow __MenuWindow;
     public static MenuWindow _MenuWindow { get { if (__MenuWindow == null) __MenuWindow = (MenuWindow)MonoBehaviour.FindObjectOfType(typeof(MenuWindow)); return __MenuWindow; } }
 }
-
+public enum MenuWindowEnum { Servers,Create,Settings,About,LogOut,Score_Board,AccountInfo, }
 public class MenuWindow : WindowBase {
 		
 	[FindAsset("1")]
@@ -73,7 +73,7 @@ public class MenuWindow : WindowBase {
     {
         focusWindow = true;
     }
-    public void ResetValues()
+    public override void ResetValues()
     {
         
     }

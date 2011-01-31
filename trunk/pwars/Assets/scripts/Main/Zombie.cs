@@ -7,10 +7,9 @@ using Random = UnityEngine.Random;
 public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
-    public ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed };
+    internal ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed, ZombieType.Speed };
     public ZombieType zombieType;
-    public float zombieBite;
-    public static bool stopZombies;
+    public float zombieBite;    
     public float speed = .3f;
     public float up = 1f;
     float seekPathtm;
@@ -126,20 +125,30 @@ public class Zombie : Destroible
         });
         if (Game.sendto == null)
             PlayRandSound(gibSound);
-        SetAliveModel(zombieType, false);        
+        SetAliveModel(zombieType, false);
         if (killedby == _localPlayer.OwnerID)
             _localPlayer.AddFrags(1, mapSettings.pointsPerZombie );
     }
     public float tiltTm;
     public float spawninTM;
     public new Quaternion rot;
+    float ztpltm;
+    int oldf;
+    Vector3? zToPl(Destroible ipl)
+    {        
+        if (oldf != Time.frameCount - 1) ztpltm = 0;
+        oldf = Time.frameCount;
+        ztpltm += Time.deltaTime;
+        if (ztpltm > 3) return ipl.transform.position - pos;        
+        return null;
+    }
     protected override void Update()
     {
         base.Update();
         if(isController)
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
-        if (stopZombies && _TimerA.TimeElapsed(100)) RPCSetFrozen(true);
+        if (_Loader.stopZombies && _TimerA.TimeElapsed(100)) RPCSetFrozen(true);
         
         zombieBite += Time.deltaTime;
         seekPathtm -= Time.deltaTime;
@@ -148,9 +157,8 @@ public class Zombie : Destroible
         if (ipl != null && ipl.Alive)
         {
             Vector3 pathPointDir;
-            Vector3 zToPlDir = ipl.transform.position - pos;
-
-            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? (_Loader.disablePathFinding ? zToPlDir : default(Vector3)));
+            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? zToPl(ipl) ?? default(Vector3));
+            
             if (pathPointDir == default(Vector3))
             {
                 move = false;
@@ -161,7 +169,7 @@ public class Zombie : Destroible
                 Debug.DrawLine(pos, pos + pathPointDir);
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
-                if (zToPlDir.magnitude > 1.5f)
+                if (Vector3.Distance( ipl.transform.position , pos) > 1.5f)
                 {
                     move = true;
                     tiltTm += Time.deltaTime;
@@ -200,14 +208,11 @@ public class Zombie : Destroible
     private Vector3? GetRay(Destroible ipl)
     {        
         var r = new Ray(pos, ipl.pos - pos);
-        //Debug.Log(pwait);
         RaycastHit h;
         pwait += Time.deltaTime;
         if (Physics.Raycast(r, out h, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
-        {
             pwait = 0;
-            //Debug.Log(h.transform.gameObject.name);
-        }        
+
         if (pwait > 3)
             return ipl.pos - pos;
         else

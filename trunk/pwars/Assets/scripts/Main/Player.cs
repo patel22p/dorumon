@@ -8,7 +8,6 @@ using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 public enum Team : int { Red, Blue, None }
 interface IAim { void Aim(Player p); }
-[Serializable]
 public class Player : Destroible, IAim
 {
     internal MapItem mapItem;
@@ -17,9 +16,8 @@ public class Player : Destroible, IAim
     float shownicktime;
     public List<Vector3> plPathPoints = new List<Vector3>();
     public TextMesh title;
-    public float nitro;
-    public new Team team = Team.None;
-    public float speed;
+    internal float nitro;
+    public new Team team = Team.None;    
     public float Score = 1;
     public bool haveLight;
     public bool haveTimeBomb;
@@ -28,8 +26,8 @@ public class Player : Destroible, IAim
     public int lifeUpgrate;
     public bool haveAntiGravitation;
     public int guni;
-    public int fps;
-    public int ping;
+    internal int fps;
+    internal int ping;
     public int deaths;
     public string nick { get { return user.nick; } }
     public bool spawned;
@@ -39,8 +37,8 @@ public class Player : Destroible, IAim
     public ParticleEmitter speedparticles;
     [FindTransform("Guns")]
     public Transform guntr;
-    public GameObject staticField;
-    [GenerateEnums("GunType")]
+    public GameObject staticField;    
+    [GenerateEnums("GunType",overide =true)]
     public List<GunBase> guns = new List<GunBase>();
     public int selectedgun;
     public GunBase gun { get { return guns[selectedgun]; } }
@@ -86,21 +84,23 @@ public class Player : Destroible, IAim
         Debug.Log("player awake");
         defmass = rigidbody.mass;
         defMaxLife = maxLife;
-        Score = _Loader.mapSettings.StartMoney + _Game.stage * 50 * _Game.scorefactor.Evaluate(_Game.stage);
+        
         this.rigidbody.maxAngularVelocity = 3000;
         if (networkView.isMine)
         {
             _localPlayer = this;
-            _Game.RPCWriteMessage("Player Connected: " + nick);            
             RPCSetOwner();            
             user = _Loader.UserView;            
             RPCSetUserView(Serialize(user, UserView.xml));
+            _Game.RPCWriteMessage("Player Connected: " + nick);            
             ResetSpawn();
         }        
         base.Awake();
     }
     public override void Start()
-    {        
+    {
+        if (mapSettings.zombi)
+            Score = _Loader.mapSettings.StartMoney + _Game.stage * 50 * _Game.scorefactor.Evaluate(_Game.stage);
         base.Start();
     }
     public override void OnPlayerConnectedBase(NetworkPlayer np)
@@ -210,18 +210,21 @@ public class Player : Destroible, IAim
         base.Update();
         
     }
+    float scrolintrvl;
     private void LocalUpdate()
     {
 
         UpdateMapItems();
-
+        if (DebugKey(KeyCode.L))
+            RPCSetFrags(30, 10);
         nitro += Time.deltaTime / 5;
+        scrolintrvl += Time.deltaTime;
         if (lockCursor && Alive)
         {
             bool sh = Input.GetKey(KeyCode.LeftShift);
             if (sh != shift) RPCSetStreff(sh);
-            if (Input.GetAxis("Mouse ScrollWheel") > 0) PrevGun();
-            if (Input.GetAxis("Mouse ScrollWheel") < 0) NextGun();
+            if (Input.GetAxis("Mouse ScrollWheel") > 0 && scrolintrvl > .1f) { PrevGun(); scrolintrvl = 0; }
+            if (Input.GetAxis("Mouse ScrollWheel") < 0 && scrolintrvl > .1f) { NextGun(); scrolintrvl = 0; }
 
             if (_TimerA.TimeElapsed(500) && Input.GetKey(KeyCode.H))
                 foreach (var a in Nearest())
@@ -410,7 +413,7 @@ public class Player : Destroible, IAim
             {
                 moveForce += moveDirection * Time.deltaTime * 8; //forcemove
                 this.rigidbody.angularVelocity = Vector3.zero;
-                this.rigidbody.AddForce(moveForce * fdt * speed * 450);
+                this.rigidbody.AddForce(moveForce * fdt * 1 * 450);
                 v.x *= 0;
                 v.z *= 0;
                 nitro -= Time.deltaTime * 1.5f;
@@ -421,7 +424,7 @@ public class Player : Destroible, IAim
             else
             {
                 
-                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * speed * 5);
+                this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * 1 * 5);
             }
             if (frozen) this.rigidbody.velocity *= .85f;
         }
@@ -488,7 +491,6 @@ public class Player : Destroible, IAim
     protected override void OnCollisionEnter(Collision collisionInfo)
     {
         if (!Alive) return;
-
         if (isOwner && collisionInfo.relativeVelocity.y > 20)
             RPCPowerExp(this.transform.position);
         base.OnCollisionEnter(collisionInfo);
@@ -558,7 +560,12 @@ public class Player : Destroible, IAim
 
         if (isOwner)
         {
-            if (!mapSettings.zombi) _TimerA.AddMethod(10000, delegate { RPCSetAlive(true); });
+            if (!mapSettings.zombi) _TimerA.AddMethod(10000, delegate
+                {
+                    ResetSpawn();
+                    RPCSetAlive(true);
+                });
+
             RPCSetAlive(false);
         }
     }
@@ -573,9 +580,9 @@ public class Player : Destroible, IAim
         {
             //foreach (var t in GetComponentsInChildren<Transform>())
             if (value)
-                SetLayer(model);
+                SetLayer(gameObject);
             else
-                SetLayer(model,LayerMask.NameToLayer("DeadPlayer"));                
+                SetLayer(gameObject, LayerMask.NameToLayer("DeadPlayer"));                
         });
         Alive = value;
 
@@ -587,9 +594,13 @@ public class Player : Destroible, IAim
         foreach (GunBase gunBase in guns.Concat(guns))
             gunBase.Reset();
         if (isOwner)
+        {
             LocalSelectGun(1);
+            RPCSetFrozen(false);
+            RPCSetTeam((int)team);
+        }
         Life = maxLife;
-        RPCSetFrozen(false);
+        
 
     }
     float multikilltime;
@@ -684,4 +695,5 @@ public class Player : Destroible, IAim
     {
         base.SetLife(NwLife, killedby);
     }
+
 }

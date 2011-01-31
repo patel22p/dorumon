@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Random = UnityEngine.Random;
 public class bs : Base2
 {
+    public const string webserver = "http://192.168.30.113/";
     public const int maxConId= 100; 
     public float mass { get { return rigidbody.mass / collider.bounds.size.magnitude; } }
     public int OwnerID = -1;
@@ -137,6 +138,7 @@ public class bs : Base2
             r.onShow(value);
         }
     }
+
     public static void Show(GameObject g, bool value)
     {
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())

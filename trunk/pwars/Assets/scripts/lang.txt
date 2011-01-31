@@ -24,14 +24,14 @@
  Убил себя | Killed self 
  Убил | kill 
  Умер | died 
-Вы умерли дожив до {0} раунда|You survived until {0} level.
+Вы умерли дожив до {0} раунда|You Survivald until {0} level.
 Выбрать команду|Select Team
 Ирк Чат|Irc Chat
 Опции|Options
 Выйти|Exit
        Имя_Игрока               Команда   Очки   Фраги Смерти  Фпс   Пинг|       Player Name              Team      Score  Frags Deaths  FPS   Ping
 Таблиьа очков|Scores
-Зомби Выживание|Zombie Survive
+Зомби Выживание|Zombie Survival
 Зомби Командная игра|Zombie Team Game
 Выживание|DeathMatch
 Командная игра|Team Game

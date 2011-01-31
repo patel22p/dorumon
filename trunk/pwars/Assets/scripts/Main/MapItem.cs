@@ -52,6 +52,8 @@ public class MapItem : bs, IAim
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
+        //foreach (var a in gameObject.GetComponentsInChildren<Animation>())
+        //    a.wrapMode = WrapMode.Once;
         var g = gameObject;
         if (!inited)
         {
@@ -65,14 +67,12 @@ public class MapItem : bs, IAim
         foreach (var a in g.GetComponentsInChildren<Animation>())
         {
             a.animatePhysics = true;
-            a.playAutomatically = true;
-            //a.clip.wrapMode = WrapMode.Loop;
-            //foreach (AnimationState b in a)
-            //    b.wrapMode = WrapMode.Loop;            
+            a.playAutomatically = true;        
         }
       
         if (itemType == MapItemType.shop)
         {
+
             var gun = playerPrefab.GetComponent<Player>().guns[guni];
             var cur = transform.Find("cursor");
             if (cur != null && cur.childCount == 0)
@@ -84,6 +84,14 @@ public class MapItem : bs, IAim
             {
                 //bullets = (int)(20 / ((Gun)gun).interval);
             }
+        }
+        base.Init();
+    }
+    public override void InitValues()
+    {
+        if (itemType == MapItemType.shop)
+        {
+          
             text = "Press F to buy " + gunType;
             endless = true;
             hide = true;
@@ -116,9 +124,6 @@ public class MapItem : bs, IAim
                     break;
                 case GunType.shotgun:
                     score = 50;
-                    break;
-                case GunType.staticField:
-                    score = 100;
                     break;
                 case GunType.uzi:
                     score = 80;
@@ -236,23 +241,16 @@ public class MapItem : bs, IAim
             endless = true;
             Distance = 0;
         }
-        //foreach (var a in g.GetComponentsInChildren<Renderer>().Distinct())
-        //{
-        //    var go = a.gameObject;
-        //    if (a.collider != null)
-        //        DestroyImmediate(a.collider);
-        //    if (itemType == MapItemType.door || itemType == MapItemType.teleport || itemType == MapItemType.speed || itemType == MapItemType.lift|| itemType == MapItemType.trap)
-        //        go.AddComponent<BoxCollider>();
-        //}
 
-        base.Init();
+        base.InitValues();
     }
+
 #endif
     public override void Awake()
     {        
-        _Game.mapitems.Add(this);
-        foreach (var a in gameObject.GetComponentsInChildren<Animation>())
-            a.wrapMode = WrapMode.Once;
+        _Game.mapitems.Add(this);        
+        //if (animation != null && animation.clip != null && Network.isServer)
+        //    animation.Stop();
 
         if (itemType == MapItemType.shop)
         {
@@ -262,11 +260,7 @@ public class MapItem : bs, IAim
 
         base.Awake();
     }
-    public void Start()
-    {
-        if (animation != null && animation.clip != null && animation.clip.name == "Take 001" && Network.isServer)
-            animation.Stop();
-    }
+    
     public void Aim(Player p)
     {        
         if (lookat && Check() && p.isOwner)
@@ -302,24 +296,11 @@ public class MapItem : bs, IAim
         if (isCheckOutCalled)
         {
             RPCCheckOut(itemsLeft);
-
             if (animation != null && animation.clip.name == "Take 001")
-            {
                 animation.Play();
-            }
         }
-
-        //if (animation != null && animation["Take 001"] != null)
-        //    RPCSetTime(animation["Take 001"].time);
         base.OnPlayerConnectedBase(np);
     }
-    //public void RPCSetTime(float time) { CallRPC("SetTime", time); }
-    //[RPC]
-    //private void SetTime(float time)
-    //{
-    //    if (time != 0) Debug.Log(name + " animation" + time);
-    //    animation["Take 001"].time = time;
-    //}
     void OnCollisionStay(Collision c)
     {
         if (itemType == MapItemType.trap && bullets > 0)
@@ -400,8 +381,6 @@ public class MapItem : bs, IAim
     {
         animation.Play();
     }
-
-
     public void RPCCheckOut(int i) { CallRPC("CheckOut", i); }
     [RPC]
     public void CheckOut(int i)

@@ -35,7 +35,7 @@ public class GunPhysix : GunBase
         foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
         {
             var d = Vector3.Distance(b.pos, cursor[0].position);
-            if (d < ExpRadius * 15)
+            if (d < ExpRadius * 7)
             {
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                 b.rigidbody.AddForce(this.transform.rotation * new Vector3(0, 0, 3000 * b.rigidbody.mass) * fdt);

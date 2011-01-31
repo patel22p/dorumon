@@ -10,11 +10,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Random = UnityEngine.Random;
-public enum ScoreBoardTables { Zombie_Kill, Played_Time, Player_Kill }
+public enum ScoreBoardTables { ZombieSurvival, Time, DeathMatch, TeamDeathMatch, CustomZombie }
 public class Menu : bs
 {
     public static UserView LocalUser { get { return _Loader.UserView; } }
-    public const string webserver = "http://192.168.30.113/";
     public string gameVersionName = "Swiborg3";
     public string ip { get { return _ServersWindow.Ipaddress; } set { _ServersWindow.Ipaddress = value; } }
     public override void Awake()
@@ -24,14 +23,12 @@ public class Menu : bs
         base.Awake();
         enabled = true;
     }
-
     public override void Init()
     {
         base.Init();
     }
     public void Start()
     {
-
         lockCursor = false;
         if (_Loader.dedicated)
         {
@@ -57,9 +54,10 @@ public class Menu : bs
                 OnLogin();
             }
         }
-        onRefresh();
+        
         _HostWindow.lGameMode = Enum.GetNames(typeof(GameMode));
-        _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));        
+        _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));
+        RefreshMasterServer();        
     }
     private void Dedicated()
     {
@@ -72,7 +70,7 @@ public class Menu : bs
         MasterServer.RegisterHost(gameVersionName, "DedicatedServer", mapSettings.mapName + "," + _HostWindow.GameMode);
         _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
     }
-    public HostData[] hosts { get { return MasterServer.PollHostList(); } }
+    public HostData[] hosts ;//{ get { return MasterServer.PollHostList(); } }
     public Material customMaterial;
     void Update()
     {
@@ -94,49 +92,22 @@ public class Menu : bs
         }
         if (_TimerA.TimeElapsed(100) && _HostWindow.Map != "")
             _HostWindow.imgGameImage = (Texture)Resources.Load(_HostWindow.Map);
-        if (_TimerA.TimeElapsed(1000))
+        if (_TimerA.TimeElapsed(1000) && hosts != null)
             _ServersWindow.lServersTable = ParseHosts(hosts).ToArray();
     }
     [FindTransform(scene = true)]
     public GameObject Sphere;
     public string[][] ScoreBoard = new string[10][];
-
     public void GetScoreBoard(string gamename, string find, string user)
     {
         _ScoreBoardWindow.vRefreshScoreBoard = false;
         WWWSend("stats.php?game=" + gamename + "&find=" + find + "&user=" + user, TableParse);
-    }
-
-    public void WWWSend(string s, Action<string> a)
-    {
-        WWWSend(s, null, a);
-    }
-    public void WWWSend(string s, string xml,Action<string> a)
-    {
-        s = s + "&r=" + Random.value;
-        WWWForm form = new WWWForm();
-        form.AddField("hash", Ext.CalculateMD5Hash("/" + s + xml + "er54s4"));
-        if (xml!=null)
-            form.AddField("xml", xml);
-        Debug.Log("WWW Sended: " + s);
-        var w = new WWW(webserver + s, form);
-        _TimerA.AddMethod(() => w.isDone, delegate
-        {
-            if (w.error == "" || w.error == null)
-            {
-                Debug.Log("WWW Received: " + w.text);
-                a(w.text);
-            }
-            else
-                Debug.Log(w.error);
-        });
     }
     public void SaveScoreBoard(string gamename, string user, string passw, bool guest, int frags, int deaths)
     {
         Debug.Log("SaveScoreBoard");
         WWWSend("stats.php?user=" + user + "&guest=" + (guest ? "1" : "") + "&passw=" + passw + "&frags=" + frags + "&deaths=" + deaths + "&game=" + gamename, TableParse);
     }
-
     private void TableParse(string s)
     {
         _ScoreBoardWindow.vRefreshScoreBoard = true;
@@ -180,7 +151,6 @@ public class Menu : bs
         }        
         return "tabble success";
     }
-
     public HostData hdf;
     public void StartServer() //createserver
     {
@@ -197,11 +167,11 @@ public class Menu : bs
             mapSettings.kickIfAfk = _HostWindow.Kick_if_AFK;
             mapSettings.kickIfErrors = _HostWindow.KickIfErrors;
             mapSettings.timeLimit = _HostWindow.MaxTime;
-            mapSettings.pointsPerZombie = _HostWindow.Money_per_frag;
             _Loader.port = _HostWindow.Port;
             _Loader.host = true;
-            if (mapSettings.gameMode == GameMode.CustomZombieSurvive)
+            if (mapSettings.gameMode == GameMode.CustomZombieSurvival)
             {
+                mapSettings.pointsPerZombie = _HostWindow.Money_per_frag;
                 mapSettings.zombiesAtStart = (int)_HostWindow.ZombiesAtStart;
                 mapSettings.StartMoney = (int)_HostWindow.Startup_Money;
                 mapSettings.stage = (int)_HostWindow.Startup_Level;
@@ -238,12 +208,6 @@ public class Menu : bs
             _ServersWindow.Hide();
         }
     }
-    private void onRefresh()
-    {
-        MasterServer.ClearHostList();
-        MasterServer.RequestHostList(gameVersionName);
-    }
-
     IEnumerable<string> GetMapsByMode(GameMode gamemode)
     {
         foreach (MapSetting m in _Loader.mapsets)
@@ -252,33 +216,22 @@ public class Menu : bs
     }
     IEnumerable<string> ParseHosts(HostData[] hosts)
     {
-        foreach (HostData host in hosts)
+        foreach (var hdp in hosts.Select(a => new { host = a, ping = _Loader.GetPing(a.ip[0]) }).OrderBy(a => a.ping == -1 ? 999 : a.ping))
         {
+            var host = hdp.host;
             string[] data = host.comment.Split(',');
-            yield return string.Format(GenerateTable(_ServersWindow.ServersTitle), "", host.gameName, data[0], data[1], host.connectedPlayers + "/" + host.playerLimit, _Loader.GetPing(host.ip[0]));
+            yield return string.Format(GenerateTable(_ServersWindow.ServersTitle), "", host.gameName, data[0], data[1], host.connectedPlayers + "/" + host.playerLimit, hdp.ping);
         }
     }
-
     void OnFailedToConnect(NetworkConnectionError error)
     {
         ShowPopup("Could not connect to server: " + error);
     }
-
-    //WWW Send(string s, params string[] f)
-    //{
-    //    Debug.Log("WWW: " + s);
-    //    WWWForm form = new WWWForm();
-    //    for (int i = 0; i < f.Length; i+=2)
-    //        form.AddField(f[i], f[i + 1]);
-    //    var w = new WWW(s, form);
-    //    return w;
-    //}
     private void GetUserInfo(string nick)
     {
 
         WWWSend("user.php?user=" + nick, ParseUser);
     }
-
     private void ParseUser(string text)
     {        
         if (text == "") throw new Exception("UserView not Set");
@@ -307,7 +260,6 @@ public class Menu : bs
         }
 
     }
-
     private void UpdateImage(UserView user)
     {
         var w = new WWW(Menu.webserver + "image.php?image=" + user.BallTextureUrl);
@@ -315,7 +267,6 @@ public class Menu : bs
         var wn = new WWW(Menu.webserver + "image.php?image=" + user.AvatarUrl);
         _TimerA.AddMethod(() => wn.isDone, delegate { _UserWindow.imgAvatar = wn.texture; });
     }
-
     private static void UpdateUserScores(UserView user)
     {
         var h = GenerateTable(_UserWindow.Tableheader);
@@ -346,6 +297,11 @@ public class Menu : bs
             _MenuWindow.vAccountInfo = false;
         //foreach (var s in Enum.GetNames(typeof(ScoreBoardTables)))
         //    GetScoreBoard(s);
+    }
+    void OnMasterServerEvent(MasterServerEvent msEvent)
+    {
+        if (msEvent == MasterServerEvent.HostListReceived)
+            hosts = MasterServer.PollHostList();            
     }
     public void Action(string n)
     {
@@ -454,8 +410,8 @@ public class Menu : bs
             var g = _HostWindow.GameMode.Parse<GameMode>();
             _HostWindow.lMap = GetMapsByMode(g).ToArray();
             _HostWindow.iMap = 0;
-            //if (g == GameMode.ZombieSurive || g == GameMode.CustomZombieSurvive)
-            if (g == GameMode.CustomZombieSurvive)
+            //if (g == GameMode.ZombieSurive || g == GameMode.CustomZombieSurvival)
+            if (g == GameMode.CustomZombieSurvival)
                 _HostWindow.vums = true;
             else
                 _HostWindow.vums = false;
@@ -472,7 +428,9 @@ public class Menu : bs
             _ServersWindow.Show(this);
         }
         if (n == "Refresh")
-            onRefresh();
+        {
+            RefreshMasterServer();
+        }
         
 
         if (n == "ServersTable")
@@ -485,6 +443,35 @@ public class Menu : bs
             _ServersWindow.Hide();
             //_ServersWindow.Ipaddress = _ServersWindow.ServersTable[_ServersWindow.iServersTable];
         }
+    }
+    private void RefreshMasterServer()
+    {
+        MasterServer.ClearHostList();
+        MasterServer.RequestHostList(gameVersionName);
+    }
+    public void WWWSend(string s, Action<string> a)
+    {
+        WWWSend(s, null, a);
+    }
+    public void WWWSend(string s, string xml, Action<string> a)
+    {
+        s = s + "&r=" + Random.value;
+        WWWForm form = new WWWForm();
+        form.AddField("hash", Ext.CalculateMD5Hash("/" + s + xml + "er54s4"));
+        if (xml != null)
+            form.AddField("xml", xml);
+        Debug.Log("WWW Sended: " + s);
+        var w = new WWW(webserver + s, form);
+        _TimerA.AddMethod(() => w.isDone, delegate
+        {
+            if (w.error == "" || w.error == null)
+            {
+                Debug.Log("WWW Received: " + w.text);
+                a(w.text);
+            }
+            else
+                Debug.Log(w.error);
+        });
     }
 }
 

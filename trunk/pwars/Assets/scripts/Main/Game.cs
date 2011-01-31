@@ -10,56 +10,63 @@ using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using System.Runtime.Serialization.Formatters.Binary;
-public enum GameMode { ZombieSurive, DotA, DeathMatch, TeamDeathMatch, CustomZombieSurvive }
+public enum GameMode { ZombieSurvival, DotA, DeathMatch, TeamDeathMatch, CustomZombieSurvival }
 
 public class Game : bs
 {
+    List<string> chat = new List<string>();
     public AnimationCurve scorefactor;
     new internal Player[] players = new Player[maxConId];
-    public List<Shared> shareds = new List<Shared>();
-    public List<Zombie> zombies = new List<Zombie>();
+    internal List<Shared> shareds = new List<Shared>();
+    internal List<Zombie> zombies = new List<Zombie>();
     new public MapSetting mapSettings;
-    public IEnumerable<MapTag> spawns { get { return GameObject.FindObjectsOfType(typeof(MapTag)).Cast<MapTag>(); } }
-    public List<Patron> patrons = new List<Patron>();
+    internal IEnumerable<MapTag> spawns { get { return GameObject.FindObjectsOfType(typeof(MapTag)).Cast<MapTag>(); } }
+    internal List<Patron> patrons = new List<Patron>();
     private float fixedDeltaTime;
-    public List<Tower> towers = new List<Tower>();
-    public List<Shared> boxes = new List<Shared>();
-    public List<MapItem> mapitems = new List<MapItem>();
-    public IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
-    public IEnumerable<Zombie> deadZombies { get { return zombies.Where(a => a.Alive == false); } }
+    internal List<Tower> towers = new List<Tower>();
+    internal List<Shared> boxes = new List<Shared>();
+    internal List<MapItem> mapitems = new List<MapItem>();
+    internal IEnumerable<Zombie> AliveZombies { get { return zombies.Where(a => a.Alive == true); } }
+    internal IEnumerable<Zombie> deadZombies { get { return zombies.Where(a => a.Alive == false); } }
     [FindTransform("bounds", true)]
     public GameObject bounds;
-    public GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
-    public new Player _localPlayer;
+    internal GameMode gameMode { get { return mapSettings.gameMode; } set { mapSettings.gameMode = value; } }
+    internal new Player _localPlayer;
     [FindTransform("GameEffects", true)]
     public GameObject effects;    
     [FindTransform("GameEffects/decals", true)]
     public GameObject decals;
-    public int ping;
-    public int fps;
+    internal int ping;
+    internal int fps;
     internal int stage { get { return mapSettings.stage; } set { mapSettings.stage = value; } }
-    public float timeleft { get { return mapSettings.timeLimit; } set { mapSettings.timeLimit = value; } }
+    internal float timeleft { get { return mapSettings.timeLimit; } set { mapSettings.timeLimit = value; } }
     public bool wait;
     public bool win;
     public float afk;
     public int RedFrags = 0, BlueFrags = 0;
-    public Vector3 gravity;
+    internal Vector3 gravity;
     public int maxzombies = 0;
     [GenerateEnums("ParticleTypes")]
     public Particles[] particles;
     [GenerateEnums("DecalTypes")]
     public Decal[] decalPresets;
+    [FindAsset("chat")]
+    public AudioClip[] chatSounds;
     public int zombiespawnindex = 0;
-    public bool cameraActive { get { return _Cam.camera.gameObject.active; } }
+    internal bool cameraActive { get { return _Cam.camera.gameObject.active; } }
     [FindAsset("Player")]
     public GameObject playerPrefab;
     [FindAsset]
     public AudioClip antigrav;
     [FindAsset]
     public AudioClip timewarp;
+    [GenerateEnums("GameTypeIconsEnum")]
+    [FindAsset("gamemode")]
+    public Texture2D[] GameModeIcons;
 
     public override void Awake()
     {
+        Debug.Log("game Awake");
         if (!_Loader.loaded)
         {
             var u = _Loader.UserView;
@@ -72,8 +79,6 @@ public class Game : bs
         fixedDeltaTime = Time.fixedDeltaTime;
         base.Awake();
         _Level = Level.z4game;
-        Debug.Log("cmdserver:" + _Loader.cmd.Contains("client"));
-        print("_Loader.host " + _Loader.host);
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((_Loader.host && Application.isEditor) || _Loader.cmd.Contains("server"))
                 Network.InitializeServer(mapSettings.maxPlayers, _Loader.port, false);
@@ -82,8 +87,10 @@ public class Game : bs
         else
             foreach (bs o in Component.FindObjectsOfType(typeof(bs))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
     }
-    [FindAsset]
-    public GameObject cube;
+    public void Start()
+    {
+        _Music.Play("game");
+    }
     protected override void Enable()
     {
         if (Network.isServer)
@@ -105,8 +112,17 @@ public class Game : bs
 
         Physics.gravity = new Vector3(0, -20, 0);
         //particles = FindObjectsOfType(typeof(Particles)).Cast<Particles>().ToArray();                    
-    }        
+    }
+    public override void InitValues()
+    {
+        _Loader.mapsets = new MapSetting[]
+        {
+            new MapSetting(){ title = "Jamo map", mapName = "Pitt"},
+            new MapSetting(){ title = "Test map", mapName = "Test"}
+        };
 
+        base.InitValues();
+    }
     bool chatEnabled;
     public void addChatAlfa(float value, bool set)
     {
@@ -117,12 +133,14 @@ public class Game : bs
     }
     void Update()
     {
+        
         if (Input.GetKeyDown(KeyCode.Return))
         {
             chatEnabled = !chatEnabled;
             Screen.lockCursor = !chatEnabled;
         }
         addChatAlfa(-Time.deltaTime, false);
+
         if (chatEnabled)
         {
             _GameWindow.chatInput.text += Input.inputString;
@@ -151,16 +169,15 @@ public class Game : bs
             _GameStatsWindow.PlayerStats = "";
 
             string table = GenerateTable(_GameStatsWindow.PlayerStatsTitle);
-            foreach (Player pl in players)
-                if (pl != null)
-                    _GameStatsWindow.PlayerStats += string.Format(table, "", pl.nick, pl.team, (int)pl.Score, pl.frags, pl.deaths, pl.fps, pl.ping) + "\r\n";
+            foreach (Player pl in players.Where(a => a != null).OrderByDescending(a => a.Score))
+                _GameStatsWindow.PlayerStats += string.Format(table, "", pl.nick, pl.team, (int)pl.Score, pl.frags, pl.deaths, pl.fps, pl.ping) + "\r\n";
         }
 
         if (Input.GetMouseButtonDown(1)) lockCursor = !lockCursor;
 
         if (!_Loader.dontcheckwin) CheckWin();
 
-        if (mapSettings.TeamZombiSurvive || mapSettings.ZombiSurvive)
+        if (mapSettings.TeamZombiSurvival || mapSettings.ZombiSurvival)
             ZUpdate();
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -212,41 +229,40 @@ public class Game : bs
             _GameStatsWindow.Show(this);
         if (s == "TeamSelect")
         {
-            _TeamSelectWindow.Hide();
-            _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvive) ? Team.None : _TeamSelectWindow.Teams.Parse<Team>();
-            if (!_localPlayer.spawned)
-                _localPlayer.RPCSetAlive(true);
-            lockCursor = true;
+            if (_TeamSelectWindow.iTeams == -1 && mapSettings.Team) ShowPopup("Select team first");
+            else
+            {
+                _TeamSelectWindow.Hide();
+                _localPlayer.team = (mapSettings.DM || mapSettings.ZombiSurvival) ? Team.None : _TeamSelectWindow.Teams.Parse<Team>();
+                if (!_localPlayer.spawned)
+                {
+                    if (!mapSettings.zombi) _localPlayer.ResetSpawn();
+                    _localPlayer.RPCSetAlive(true);
+                }
+                lockCursor = true;
+            }
         }
     }
-    [FindAsset]
-    public Texture2D idm;
-    [FindAsset]
-    public Texture2D itdm;
-    [FindAsset]
-    public Texture2D iz;
-    [FindAsset]
-    public Texture2D izc;
+
 
     public void RPCGameSettings(string version, byte[] s) { CallRPC("GameSettings", version, s); }
     [RPC]
     public void GameSettings(string version, byte[] s)
     {
-
         var tw = _TeamSelectWindow;
-        Debug.Log("game" + s.Length);
         mapSettings = (MapSetting)Deserialize(s, MapSetting.xml);
         if (!mapSettings.Team) tw.vTeamsView = false;
         tw.lTeams = new string[] { Team.Blue + "", Team.Red + "" };
+        var gmi = GameModeIcons;
         switch (mapSettings.gameMode)
         {
-            case GameMode.ZombieSurive: tw.vZombi = true; tw.imgRed = iz; break;
-            case GameMode.DeathMatch: tw.vDeathmatch = true; tw.imgRed = idm; break;
-            case GameMode.TeamDeathMatch: tw.vTeamDeathMatch = true; tw.imgRed = itdm; break;
-            case GameMode.CustomZombieSurvive: tw.vZombi = true; tw.imgRed = izc; break;
+            case GameMode.ZombieSurvival: tw.vZombi = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.iz]; break;
+            case GameMode.DeathMatch: tw.vDeathmatch = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.idm]; break;
+            case GameMode.TeamDeathMatch: tw.vTeamDeathMatch = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.itdm]; break;
+            case GameMode.CustomZombieSurvival: tw.vZombi = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.izc]; break;
         }
 
-        if (mapSettings.gameMode != GameMode.ZombieSurive)
+        if (mapSettings.gameMode == GameMode.ZombieSurvival)
             _GameMenuWindow.vfraglimit = false;
         _GameMenuWindow.Fraglimit = mapSettings.fragLimit;
         tw.Show(this);
@@ -268,8 +284,6 @@ public class Game : bs
             b.OnPlayerConnectedBase(np);
         sendto = null;
     }
-
-
     public void RPCSetTimeLeft(float time) { CallRPC("SetTimeLeft", time); }
     [RPC]
     public void SetTimeLeft(float time)
@@ -327,7 +341,6 @@ public class Game : bs
     {
         Debug.Break();
     }
-
     bool HasAny() { return players.Count(a => a != null && a.spawned) > 0; }
     [FindAsset("Zombie")]
     public GameObject ZombiePrefab;
@@ -352,21 +365,17 @@ public class Game : bs
             }
             if (AliveZombies.Count() == 0 && zombiespawnindex == maxzombies && !wait)
             {
-
                 wait = true;
-                _TimerA.AddMethod(build ? 10000 : 0, delegate { RPCNextStage(stage + 1); });
+                _TimerA.AddMethod(build ? 10000 : 0, delegate { if(HasAny()) RPCNextStage(stage + 1); });
             }
         }
     }
-
     public void RPCWriteMessage(string s) { CallRPC("WriteMessage", s); }
     [RPC]
     public void WriteMessage(string s)
     {
         _GameWindow.AppendSystemMessage(s);
     }
-
-
     public void RPCPingFps(int id, int ping, int fps) { CallRPC("PingFps", id, ping, fps); }
     [RPC]
     public void PingFps(int id, int ping, int fps)
@@ -374,8 +383,6 @@ public class Game : bs
         players[id].fps = fps;
         players[id].ping = ping;
     }
-
-
     [FindAsset("nextLevel")]
     public AudioClip[] stageSound;
     public void RPCNextStage(int stage) { CallRPC("NextStage", stage); }
@@ -395,27 +402,15 @@ public class Game : bs
                     p.RPCSetAlive(true);
     }
     public void RPCSendChantMessage(string msg, int userid) { CallRPC("ChantMessage", msg, userid); }
-    List<string> chat = new List<string>();
     [RPC]
-    public void ChantMessage(string s, int id)
+    public void ChantMessage(string s, int id) //writechat
     {
         addChatAlfa(6, true);
         string d = players[id] + ": " + s;
         chat.Add(d);
+        PlayRandSound(chatSounds);
         _GameWindow.chatOutput.text = string.Join("\r\n", chat.TakeLast(7).ToArray());
     }
-
-    //public void Spectator()
-    //{
-    //    lockCursor = true;
-    //    _TeamSelectWindow.Hide();
-    //    if (_localPlayer != null && _localPlayer.car == null)
-    //    {                         
-    //        _localPlayer.RPCSetTeam((int)Team.None);
-    //        _localPlayer.RPCSetAlive(false);
-    //    }
-    //}
-    
     void OnPlayerDisconnected(NetworkPlayer player)
     {
         int playerid = player.GetHashCode();
@@ -433,7 +428,6 @@ public class Game : bs
         Network.DestroyPlayerObjects(player);
         Network.RemoveRPCs(player);
     }
-
     public void RPCDestroy(NetworkViewID v) { CallRPC("Destroy", v); }
     [RPC]
     public void Destroy(NetworkViewID v)
@@ -443,7 +437,6 @@ public class Game : bs
         nw.enabled = false;
         Component.Destroy(nw);
     }
-
     void CheckWin()
     {
         if (_TimerA.TimeElapsed(1000))
@@ -459,17 +452,13 @@ public class Game : bs
             {
                 if (mapSettings.DM)
                     DMCheck();
-                else if (mapSettings.TeamZombiSurvive)
-                    ZombiTDMCheck();
                 else if (mapSettings.TDM)
                     TDMCheck();
-                else if (mapSettings.ZombiSurvive)
+                else if (mapSettings.ZombiSurvival)
                     ZombieSuriveCheck();
             }
         }
     }
-
-
     private void ZombieSuriveCheck()
     {
         int live = 0;
@@ -477,7 +466,7 @@ public class Game : bs
             if (p != null && (p.Alive || !p.spawned)) live++;
         if (live == 0 && HasAny() || TimeEnd)
         {
-            RPCWriteMessage(String.Format("You survived until {0} level.", stage));
+            RPCWriteMessage(String.Format("You Survivald until {0} level.", stage));
             RPCShowEndStats();
         }
     }
@@ -496,8 +485,6 @@ public class Game : bs
     }
     private void TDMCheck()
     {
-
-
         if ((BlueFrags >= mapSettings.fragLimit || RedFrags >= mapSettings.fragLimit || TimeEnd))
         {
             RPCWriteMessage((BlueFrags > RedFrags ? "Red" : "Blue") + " Team Win");
@@ -512,29 +499,8 @@ public class Game : bs
     {
         win = true;
         _GameStatsWindow.Show(this);
-        //audio.PlayOneShot(endmusic);
+        _Music.Play("end");
         _TimerA.AddMethod(build ? 15000 : 1000, WinGameEndScore);
-    }
-    private void ZombiTDMCheck()
-    {
-        bool BlueteamLive = false, RedteamLive = false;
-        int rcount = 0, bcount = 0;
-        foreach (Player p in TP(Team.Blue))
-        {
-            rcount++;
-            if (p.Alive) BlueteamLive = true;
-        }
-        foreach (Player p in TP(Team.Red))
-        {
-            bcount++;
-            if (p.Alive) RedteamLive = true;
-        }
-
-        if (Network.isServer && rcount > 0 && bcount > 0 && (!RedteamLive || !BlueteamLive) || TimeEnd)
-        {
-            RPCWriteMessage((!RedteamLive ? "Blue" : "Red") + " Team Win");
-            RPCShowEndStats();
-        }
     }
     private void WinGameEndScore()
     {
@@ -550,11 +516,14 @@ public class Game : bs
             _TimerA.AddMethod(2000, delegate
             {
                 _ScoreBoardWindow.Show(_Menu);
-                SaveScores(ScoreBoardTables.Played_Time, (int)Time.timeSinceLevelLoad, 0);
-                if (mapSettings.ZombiSurvive)
-                    SaveScores(ScoreBoardTables.Zombie_Kill, _localPlayer.frags, _localPlayer.deaths);
+                SaveScores(ScoreBoardTables.Time, (int)Time.timeSinceLevelLoad, 0);
+                if (mapSettings.ZombiSurvival)
+                    SaveScores(ScoreBoardTables.ZombieSurvival, _localPlayer.frags, _localPlayer.deaths);
                 if (mapSettings.DM)
-                    SaveScores(ScoreBoardTables.Player_Kill, _localPlayer.frags, _localPlayer.deaths);
+                    SaveScores(ScoreBoardTables.DeathMatch, _localPlayer.frags, _localPlayer.deaths);
+                if (mapSettings.TDM)
+                    SaveScores(ScoreBoardTables.TeamDeathMatch, _localPlayer.frags, _localPlayer.deaths);
+
                 
             });
         }

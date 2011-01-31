@@ -19,9 +19,15 @@ public class Patron : bs
     internal int probivaemost = 0;
     public bool granate;
     public float gravitate = 0;
-    public float radius = 6;
+    internal float Radius = 1;
     public bool breakwall;
     internal float timeToDestroy = 5;
+    public float damageFactor(Object o)
+    {
+        return mapSettings.damageFactor * (o is Zombie ? zmDamageFactor : 1) * (o is Player ? plDamageFactor : 1);
+    }
+    internal float plDamageFactor = 1;
+    internal float zmDamageFactor = 1;
     public float tm;
     protected Vector3 previousPosition;
     public void Start()
@@ -83,10 +89,10 @@ public class Patron : bs
     public bool hit;
     private int GetMask()
     {
-        int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
+        int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
     }
-    
+
     private void GravitateMagnet()
     {
         foreach (Patron p in _Game.patrons)
@@ -96,7 +102,7 @@ public class Patron : bs
         }
 
         foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<bs>().Union(_Game.boxes.Cast<bs>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<bs>()).Union(_Game.zombies.Cast<bs>()))
-            if (b != null && b != this && Vector3.Distance(pos, b.pos) < radius)
+            if (b != null && b != this && Vector3.Distance(pos, b.pos) < Radius)
             {
                 if (b is Zombie)
                 {
@@ -104,13 +110,14 @@ public class Patron : bs
                     z.ResetSpawnTm();                    
                     z.RPCSetFrozen(true);
                 }
-                b.rigidbody.AddExplosionForce(-gravitate * 300 * b.rigidbody.mass * fdt, transform.position, 15);
+                b.rigidbody.AddExplosionForce(-gravitate * 200 * b.rigidbody.mass * fdt, transform.position, 15);
                 b.rigidbody.velocity *= .97f;
             }
 
     }
     protected virtual void ExplodeOnHit(RaycastHit hit)
     {
+
         var g = hit.collider.gameObject;
         var t = hit.collider.transform;
 
@@ -151,7 +158,7 @@ public class Patron : bs
         }
         if (destroible != null && destroible.isController && destroible.Alive)
         {
-            destroible.RPCSetLife(destroible.Life - damage * mapSettings.damageFactor, OwnerID);
+            destroible.RPCSetLife(destroible.Life - damage * damageFactor(destroible), OwnerID);
         }
         
         bool staticfield = g.name.ToLower().StartsWith("staticfield");
@@ -171,13 +178,13 @@ public class Patron : bs
     {
         Vector3 vector3 = pos - this.transform.rotation * new Vector3(0, 0, 2);
         GameObject o;
-        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), .4f);
+        Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), .6f);
         GameObject exp = (GameObject)Instantiate(Explosion, o.transform.position, Quaternion.identity);
         exp.transform.parent = o.transform;
         var e = exp.GetComponent<Explosion>();        
         e.exp = ExpForce;
         e.DamageFactor = damage / 60;
-        e.radius = radius;
+        e.radius = Radius;
         e.OwnerID = OwnerID;
         Destroy(gameObject);
         var dt = detonator.GetComponent<Detonator>();

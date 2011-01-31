@@ -9,8 +9,6 @@ public class Gun : GunBase
     public float tm;
     public int howmuch = 1;
     public GameObject patronPrefab;
-    public GameObject towerPrefab;
-    public GameObject staticFieldPrefab;
     public Vector3 random;        
     public Transform barrel;
     public float expOttalkivanie = 1;
@@ -20,8 +18,11 @@ public class Gun : GunBase
     public int probivaemost = 0;
     public float otbrasivanie;
     public float BulletForce =1;
+    public float radius = 1;
     public float soundVolume;
     public float timeToDestroy = 5;
+    public float plDamageFactor = 1;
+    public float zmDamageFactor = 1;
     Vector3 defPos,defPos2;
     [FindAsset("noammo")]
     public AudioClip noammoSound;
@@ -54,9 +55,13 @@ public class Gun : GunBase
             timeToDestroy = 2;
             BulletForce = .08f;
             interval = 1;
+            
         }
-        if (new[] { GunType.gravitygranate }.Contains(gt))
+        if (new[] { GunType.gravitygranate }.Contains(gt)) //garvitationgranate
+        {
             timeToDestroy = 5;
+            expOttalkivanie = 30;
+        }      
 
         if (new[] { GunType.shotgun }.Contains(gt))
         {
@@ -64,6 +69,7 @@ public class Gun : GunBase
             expOttalkivanie = .3f; 
             damage = 6;            
         }
+        zmDamageFactor = .8f;
     }
     public override void Awake()
     {
@@ -121,63 +127,42 @@ public class Gun : GunBase
             player.rigidbody.AddForce(rot * new Vector3(0, 0, -otbrasivanie) * fdt);
 
         var t = cursor[cursorid].transform;
-        if (staticFieldPrefab != null)
+        _Game.particles[(int)ParticleTypes.fire].Emit(t.position, rot);
+        _Game.particles[(int)ParticleTypes.fire1].Emit(t.position, rot);
+        _Game.particles[(int)ParticleTypes.patrons].Emit(t.position, rot);
+        for (int i = 0; i < howmuch; i++)
         {
-            RaycastHit h;
-            if (Physics.Raycast(new Ray(cursor[0].position, cursor[0].rotation * Vector3.forward), out h, 1000, 1 << LayerMask.NameToLayer("Level")) && isOwner)
-                RPCCreateField(h.point);
-        }
-        else if (towerPrefab != null)
-        {
-            Debug.Log("gun set owner" + OwnerID);
-
-            if(isOwner)
-                ((GameObject)Network.Instantiate(towerPrefab, cursor[0].position, cursor[0].rotation, (int)GroupNetwork.Tower)).GetComponent<Tower>().RPCSetOwner(OwnerID);
-        }
-        else
-        {
-            _Game.particles[(int)ParticleTypes.fire].Emit(t.position, rot);
-            _Game.particles[(int)ParticleTypes.fire1].Emit(t.position, rot);
-            _Game.particles[(int)ParticleTypes.patrons].Emit(t.position, rot);
-            for (int i = 0; i < howmuch; i++)
+            Vector3 r;
+            r.x = Random.Range(-random.x, random.x);
+            r.y = Random.Range(-random.y, random.y);
+            r.z = Random.Range(-random.z, random.z);
+            cursorid++;
+            if (cursorid >= cursor.Count) cursorid = 0;
+            if (fireLight != null && !fireLight.enabled)
             {
-                Vector3 r;
-                r.x = Random.Range(-random.x, random.x);
-                r.y = Random.Range(-random.y, random.y);
-                r.z = Random.Range(-random.z, random.z);
-                cursorid++;
-                if (cursorid >= cursor.Count) cursorid = 0;
-                if (fireLight != null && !fireLight.enabled)
+                fireLight.enabled = true;
+                _TimerA.AddMethod(20, delegate
                 {
-                    fireLight.enabled = true;
-                    _TimerA.AddMethod(20, delegate
-                    {
-                        fireLight.enabled = false;
-                    });
-                }
-                if (barrel != null) barrelVell += 10;
-
-                var p2 = cursor[cursorid].position;
-                Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
-                Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back, r2))).GetComponent<Patron>();
-                patron.OwnerID = OwnerID;
-                patron.timeToDestroy = timeToDestroy;
-                patron.damage = this.damage;
-                patron.ExpForce = expOttalkivanie * 200;
-                patron.Force = new Vector3(0, 0, 300 * BulletForce);
-                patron.probivaemost = this.probivaemost;                
+                    fireLight.enabled = false;
+                });
             }
+            if (barrel != null) barrelVell += 10;
+
+            var p2 = cursor[cursorid].position;
+            Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
+            Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back * 2, r2))).GetComponent<Patron>();
+            patron.OwnerID = OwnerID;
+            patron.timeToDestroy = timeToDestroy;
+            patron.damage = this.damage;
+            patron.ExpForce = expOttalkivanie * 200;
+            patron.Force = new Vector3(0, 0, 300 * BulletForce);
+            patron.probivaemost = this.probivaemost;
+            patron.plDamageFactor = plDamageFactor;
+            patron.Radius = radius;
+            patron.zmDamageFactor = zmDamageFactor;
         }
         RandomFactorTm = Mathf.Min(RandomFactorTm + .2f, 1);
         this.pos -= rot * new Vector3(0, 0, vibration);
 
     }
-    public void RPCCreateField(Vector3 pos ) { CallRPC("CreateField", pos); }
-    [RPC]
-    public void CreateField(Vector3 pos)
-    {
-        GameObject g = (GameObject)Instantiate(staticFieldPrefab, pos, Quaternion.identity);
-        _TimerA.AddMethod(25000, delegate { Destroy(g); });
-    }        
-    
 }

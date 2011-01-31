@@ -15,17 +15,29 @@ using AstarClasses;
 using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
 [assembly: AssemblyVersion("1.0.*")]
-public partial class RTools : InspectorSearch
+public partial class ETools : InspectorSearch
 {
-    string path { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
+    static string p { get { return Path.GetDirectoryName(EditorApplication.currentScene); } }
+    string[] scenes
+    {
+        get
+        {
+            return new[] { EditorApplication.currentScene }.Union(new string[] { 
+            //p + "/Menu.unity",
+            //p + "/test.unity",
+            //p + "/Pitt.unity",
+        }).ToArray();
+        }
+    }
+
+    string dir { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
     float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
     float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public bool bake;
     public bool web;
     public override void Awake()
-    {
-        
+    {        
         base.Awake();
     }
     public bool stopZombies, disableSounds, disablePathFinding;
@@ -64,7 +76,7 @@ public partial class RTools : InspectorSearch
         disableSounds = GUI.Toggle(disableSounds, "Dsounds");
         _Loader.disableSounds = disableSounds;
         stopZombies = GUI.Toggle(stopZombies, "DZombies");
-        Zombie.stopZombies = stopZombies;
+        _Loader.stopZombies = stopZombies;
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake");
@@ -181,15 +193,15 @@ public partial class RTools : InspectorSearch
         if (GUILayout.Button("Server App"))
         {
             ResetCam();
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "server");
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + dir, "server");
         }
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         if (GUILayout.Button("Client App"))
         {
             ResetCam();
-            Debug.Log(path);
-            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "client");
+            Debug.Log(dir);
+            System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + dir, "client");
         }
         if (GUILayout.Button("Client Editor"))
         {
@@ -391,20 +403,23 @@ public partial class RTools : InspectorSearch
         {
             string name = (ap.name == null) ? pf.Name : ap.name;
             object value = pf.GetValue(scr);
-            if (value is Array)
+            if (ap.overide || (value == null || value.Equals(null)) || (value is IEnumerable && ((IEnumerable)value).Cast<object>().Count() == 0))
             {
-                Debug.Log("FindAsset " + name);
-                var type = value.GetType().GetElementType();
-                var q = Base2.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
-                if (q.Count() == 0)
-                    Debug.Log("could not find folder " + name);
+                if (value is Array)
+                {
+                    Debug.Log("FindAsset " + name);
+                    var type = value.GetType().GetElementType();
+                    var q = Base2.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
+                    if (q.Count() == 0)
+                        Debug.Log("could not find folder " + name);
 
-                pf.SetValue(scr, Cast(q, type));
-            }
-            else if ((value == null || value.Equals(null)) || ap.overide)
-            {
-                Debug.Log("FindAsset " + name);
-                pf.SetValue(scr, Base2.FindAsset(name, pf.FieldType));
+                    pf.SetValue(scr, Cast(q, type));
+                }
+                else
+                {
+                    Debug.Log("FindAsset " + name);
+                    pf.SetValue(scr, Base2.FindAsset(name, pf.FieldType));
+                }
             }
         }
     }
@@ -420,10 +435,10 @@ public partial class RTools : InspectorSearch
             {
                 cs += "public enum " + ge.name + ":int{none = -1,";
                 var ie = (IEnumerable)f.GetValue(g);
-                foreach (object o in ie)
+                foreach (Object o in ie)
                 {
                     if (o != null)
-                        cs += o + ",";
+                        cs += o.name + ",";
                 }
                 cs = cs.Trim(new[] { ',' });
                 cs += "}";
@@ -434,27 +449,37 @@ public partial class RTools : InspectorSearch
     }
     private void Build()
     {
+        Debug.Log("build");
         var fn = "Game.Exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         var dt = DateTime.Now.ToFileTime();
-        path = "Builds/" + dt + "/";
-        Directory.CreateDirectory(path);
+        var d = "Builds/" + dt + "/";
+        var p = d + fn;
+
+        Directory.CreateDirectory(d);
+        BuildPipeline.BuildPlayer(scenes, p, web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment);
+        
         if (web)
         {
-            File.WriteAllText(path + "WebClient.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#client");
-            File.WriteAllText(path + "WebServer.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#server");
+            File.WriteAllText(d + "WebClient.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#client");
+            File.WriteAllText(d + "WebServer.bat", "start file://contentmine-14/builds/" + dt + "/Game.Exe/Game.unity3d#server");
         }
         else
         {
-            File.WriteAllText(path + "Client.bat", "start Game.Exe client");
-            File.WriteAllText(path + "Server.bat", "start Game.Exe server");
+            string batcopy = "";
+            foreach (var a in Directory.GetDirectories(d, "*", SearchOption.AllDirectories).Union(new[] { d }))
+            {                
+                var lp = a.Substring(d.Length);
+                batcopy += @"md c:\physxwars\" + lp + " \r\n" + @"copy .\" + lp + @" c:\physxwars\" + lp + "\r\n";
+            }
+            batcopy = batcopy.Replace('/', '\\');
+            File.WriteAllText(d + "Client.bat", batcopy + @"start c:\physxwars\Game.Exe client");
+            File.WriteAllText(d + "Server.bat", batcopy + @"start c:\physxwars\Game.Exe server");
         }
+        
+        
+        //if (web) BuildPipeline.BuildPlayer(new[] { "" }, "", BuildTarget.StandaloneWindows, BuildOptions.Development);
 
-        var scenes = new[] { EditorApplication.currentScene }.Union(new []{Path.GetDirectoryName(EditorApplication.currentScene) + "/Menu.unity"}).ToArray();
-        foreach(var ai in scenes)
-            Debug.Log("build "+ai);
-        BuildPipeline.BuildPlayer(scenes, (path = path + fn), web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment);
-        //BuildPipeline.BuildPlayer(new string[] { }, path + "temp", BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
     public static Loader loader;
     public static Loader _Loader

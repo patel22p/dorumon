@@ -67,7 +67,7 @@ public class Shared : bs
             tmsend[i] += Time.deltaTime;
 
         if (!_Game.bounds.collider.bounds.Contains(this.transform.position) && isController)
-        {            
+        {               
             ResetSpawn();
         }
 

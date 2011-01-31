@@ -49,7 +49,7 @@ public class HostWindow : WindowBase {
 	
 	internal bool rMaxTime = false;
 	[HideInInspector]
-	public int MaxTime = 15;
+	public int MaxTime = 999;
 	
 	internal bool vKick_if_AFK = true;
 	

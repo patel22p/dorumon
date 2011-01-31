@@ -12,6 +12,7 @@ public partial class Base2:MonoBehaviour
 public enum KeyboardWindowEnum { Close, }
 public class KeyboardWindow : WindowBase {
 		
+	[FindAsset("keyboard")]
 	public Texture imgImage3;
 	private int wndid1;
 	private Rect Image3;

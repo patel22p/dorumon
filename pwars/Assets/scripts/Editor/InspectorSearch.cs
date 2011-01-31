@@ -155,22 +155,11 @@ public class InspectorSearch : EditorWindow
             Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
         }
     }
-    [MenuItem("Edit/Capture Screenshot %e")]
-    static void Capture()
-    {        
-        var c = EditorApplication.currentScene;
-        var dir = Path.GetDirectoryName(c) + "/" + Path.GetFileNameWithoutExtension(c) + "/ScreenShots/";
-        Directory.CreateDirectory(dir);
-        var file = dir + datetime + ".jpg";
-        Debug.Log("saved to: " + file);
-        Application.CaptureScreenshot(file);
-    }
     
     protected virtual void SaveParams()
     {
         EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
     }
-    
     private void DrawObjects()
     {        
         List<string> toremove = new List<string>();
@@ -282,6 +271,16 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
+    [MenuItem("Edit/Capture Screenshot %e")]
+    static void Capture()
+    {
+        var c = EditorApplication.currentScene;
+        var dir = Path.GetDirectoryName(c) + "/" + Path.GetFileNameWithoutExtension(c) + "/ScreenShots/";
+        Directory.CreateDirectory(dir);
+        var file = dir + datetime + ".jpg";
+        Debug.Log("saved to: " + file);
+        Application.CaptureScreenshot(file);
+    }
     [MenuItem("GameObject/Child")]
     static void CreateChild()
     {
@@ -312,9 +311,9 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Window/Rtools", false, 0)]
     static void rtoolsclick()
     {
-        EditorWindow.GetWindow<RTools>();
+        EditorWindow.GetWindow<ETools>();
     }
-    [MenuItem("Assets/Add Labels")]
+    [MenuItem("Assets/Add Labels %t")]
     static void ApplyLabels()
     {
         Undo.RegisterSceneUndo("rtools");

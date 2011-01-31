@@ -5,7 +5,6 @@ using doru;
 using System.Collections;
 
 
-[Serializable]
 public abstract class Destroible : Shared
 {
     public bool CanFreeze;
@@ -67,14 +66,12 @@ public abstract class Destroible : Shared
         if (Alive && isController)
         {
             Box b = collisionInfo.gameObject.GetComponent<Box>();
-            if (b != null && isEnemy(b.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
-            {
+            if (b != null && (this.isEnemy(b.OwnerID) || OwnerID == _localPlayer.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
                 RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10 * mapSettings.damageFactor, b.OwnerID);
-            }
         }
     }
     public bool frozen;
-
+    
     public virtual void RPCSetFrozen(bool value)
     {
         if(value)
@@ -112,7 +109,7 @@ public abstract class Destroible : Shared
         if (!Alive) return;
         if (isController)
         {
-            if (isEnemy(killedby) || NwLife > Life)
+            //if (isEnemy(killedby) || NwLife > Life)
             {
                 if (this == _localPlayer && NwLife < Life)
                     _GameWindow.Hit();

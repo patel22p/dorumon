@@ -23,6 +23,7 @@ public class Loader : bs
     public string version;
     public string cmd="";    
     public int lastLevelPrefix;
+    public bool stopZombies;
     public Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
     new public bool build;
     public bool dontcheckwin;
@@ -39,7 +40,7 @@ public class Loader : bs
     internal UserView UserView { get { return userView; } set { userView = value; } }
     new public Level _Level;
     new public TimerA _TimerA = new TimerA();
-    public List<MapSetting> mapsets = new List<MapSetting>();
+    public MapSetting[] mapsets = new MapSetting[1];
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     new public MapSetting mapSettings { get { return mapsets[currentmap]; } set { mapsets[currentmap] = value; } }
     public int currentmap;
@@ -51,7 +52,7 @@ public class Loader : bs
         base.Awake();
         enabled = true;
         Application.targetFrameRate = 60;                
-        for (int i = 0; i < mapsets.Count; i++)
+        for (int i = 0; i < mapsets.Length; i++)
             if (mapsets[i].mapName == Application.loadedLevelName)
             {
                 currentmap = i; break;
@@ -67,16 +68,19 @@ public class Loader : bs
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     SerializedObject serializedObject;
     public SerializedObject SerializedObject { get { if (serializedObject == null) serializedObject = new SerializedObject(this); return serializedObject; } }
-    public override void Init()
+    public override void InitValues()
     {
         foreach (var a in mapsets)
         {
             for (int i = 0; i < a.patrons.Length; i++)
                 a.patrons[i] = -1;
             a.patrons[(int)GunType.physxgun] = 40;
-            a.patrons[(int)GunType.pistol] = 30;            
+            a.patrons[(int)GunType.pistol] = 30;
         }
-
+        base.InitValues();
+    }
+    public override void Init()
+    {  
         version = DateTime.Now.ToString();
         base.Init();
     }
@@ -108,12 +112,14 @@ public class Loader : bs
     public bool disableSounds;
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C))
             _Console.enabled = !_Console.enabled;
 
+        _Music.audio.volume = _SettingsWindow.MusicVolume;
         AudioListener.volume = disableSounds ? 0 : _SettingsWindow.SoundVolume;
+        
         if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (!isWebPlayer && Input.GetKeyDown(KeyCode.E))
+        if (!isWebPlayer && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E))
         {
             var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg";
             Debug.Log("sceenshot saved " + path);
@@ -202,6 +208,8 @@ public class Loader : bs
             _Cam.onEffect();
         if (s == "Ok")
             _PopUpWindow.Hide();
+        if (s == "ShowKeyboard")
+            _KeyboardWindow.Show(this);
         if (s == "Close" && _Menu != null)
             _MenuWindow.Show();
     }

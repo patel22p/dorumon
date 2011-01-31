@@ -28,10 +28,10 @@ public class MapSetting
     public int maxPlayers = 4;
     public float timeLimit = 15;
     public int stage;
-    public bool TeamZombiSurvive { get { return gameMode == GameMode.DotA; } }
+    public bool TeamZombiSurvival { get { return gameMode == GameMode.DotA; } }
     public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
     public bool DM { get { return gameMode == GameMode.DeathMatch; } }
-    public bool ZombiSurvive { get { return gameMode == GameMode.ZombieSurive; } }
-    public bool Team { get { return TeamZombiSurvive || TDM; } }
-    public bool zombi { get { return ZombiSurvive || TeamZombiSurvive; } }
+    public bool ZombiSurvival { get { return gameMode == GameMode.ZombieSurvival; } }
+    public bool Team { get { return TeamZombiSurvival || TDM; } }
+    public bool zombi { get { return ZombiSurvival || TeamZombiSurvival; } }
 }

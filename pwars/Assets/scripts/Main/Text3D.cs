@@ -3,12 +3,10 @@ using System.Collections;
 public class Text3D : Base2
 {
     public bool unrotate;
-
     void LateUpdate()
     {
         Unrotate();
     }
-
     private void Unrotate()
     {
         if (unrotate)
@@ -20,6 +18,4 @@ public class Text3D : Base2
     {
         Unrotate();
     }
-
-
 }

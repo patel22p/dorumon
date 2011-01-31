@@ -1,0 +1,59 @@
+"General"
+{
+"ProjectType" = "local"
+"AutoLoadTemplate" = "%s.php;class.%s.php;"
+"IncludeDirs" = ""
+}
+"Configurations"
+{
+    "Local|PHP 5"
+    {
+    }
+    "Staging|PHP 5"
+    {
+    }
+    "Production|PHP 5"
+    {
+    }
+}
+"Files"
+{
+    "user.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "stats.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "users.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "music.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "ips.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "common.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "image.php"
+    {
+    "ProjRelPath" = "T"
+    }
+}
+"ProjStartupServices"
+{
+}
+"Globals"
+{
+}
+"References"
+{
+"PhpReference" = "pcre"
+}

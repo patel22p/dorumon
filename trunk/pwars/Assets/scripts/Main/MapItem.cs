@@ -10,14 +10,7 @@ public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, t
 [AddComponentMenu("MapItem")]
 public class MapItem : bs, IAim
 {
-    public float score;
-    public float Score
-    {
-        get
-        {
-            return  (int)(score * _Game.scorefactor.Evaluate(_Game.stage) * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1));
-        }
-    }
+    bool isCheckOutCalled;
     [FindAsset("checkout", overide = true)]
     public AudioClip opendoor;
     public bool payonce;
@@ -31,10 +24,7 @@ public class MapItem : bs, IAim
     public bool endless;
     public Transform teleport;
     public string itemtype;
-    MapItemType itemType { get { return itemtype.Parse<MapItemType>(); } }
     public string gunType;
-    public int guni { get { return (int)gunType.Parse<GunType>(); } }
-    public bool isCheckOutCalled;
     public int bullets = 1000;
     public string text = "";
     public int RespawnTm = 1;    
@@ -58,8 +48,7 @@ public class MapItem : bs, IAim
         if (!inited)
         {
             g.AddComponent<NetworkView>();
-            g.AddComponent<AudioSource>();
-            g.AddComponent<Rigidbody>();            
+            g.AddComponent<AudioSource>();            
             g.rigidbody.isKinematic = true;
             inited = true;
         }
@@ -91,7 +80,6 @@ public class MapItem : bs, IAim
     {
         if (itemType == MapItemType.shop)
         {
-          
             text = "Press F to buy " + gunType;
             endless = true;
             hide = true;
@@ -250,14 +238,7 @@ public class MapItem : bs, IAim
     {        
         _Game.mapitems.Add(this);        
         //if (animation != null && animation.clip != null && Network.isServer)
-        //    animation.Stop();
-
-        if (itemType == MapItemType.shop)
-        {
-            foreach (var r in GetComponentsInChildren<Renderer>())
-                r.material.shader = Shader.Find("Self-Illumin/Diffuse");
-        }
-
+        //    animation.Stop();        
         base.Awake();
     }
     
@@ -272,7 +253,7 @@ public class MapItem : bs, IAim
     public bool Check()
     {
         if (!_localPlayer.Alive) return false;
-        if (itemType == MapItemType.life && _localPlayer.Life == _localPlayer.maxLife)
+        if (itemType == MapItemType.life && _localPlayer.Life == _localPlayer.MaxLife)
             return false;
         if (itemType == MapItemType.laser && _localPlayer.gun.laser) return false;
         if (itemType == MapItemType.timewarp && _localPlayer.haveTimeBomb) return false;
@@ -350,8 +331,8 @@ public class MapItem : bs, IAim
             }
             if (itemType == MapItemType.life)
             {
-                _localPlayer.RPCSetLife(Math.Min(_localPlayer.Life + this.bullets, _localPlayer.maxLife), -1);
-                Debug.Log(_localPlayer.maxLife);
+                _localPlayer.RPCSetLife(Math.Min(_localPlayer.Life + this.bullets, _localPlayer.MaxLife), -1);
+                Debug.Log(_localPlayer.MaxLife);
                 Debug.Log(_localPlayer.Life);
                 
             }
@@ -398,5 +379,15 @@ public class MapItem : bs, IAim
             if (RespawnTm > 0) _TimerA.AddMethod(RespawnTm * 1000, delegate { this.Show(true); itemsLeft = 1; });
         }
 
+    }
+    MapItemType itemType { get { return itemtype.Parse<MapItemType>(); } }
+    internal int guni { get { return (int)gunType.Parse<GunType>(); } }
+    public float score;
+    public float Score
+    {
+        get
+        {
+            return (int)(score * _Game.scorefactor.Evaluate(_Game.stage) * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1));
+        }
     }
 }

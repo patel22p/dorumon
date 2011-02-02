@@ -18,16 +18,14 @@ public class GameStatsWindow : WindowBase {
 	internal bool focusPlayerStatsTitle;
 	
 	internal bool rPlayerStatsTitle = true;
-	[HideInInspector]
-	public string PlayerStatsTitle = @"       Player_Name              Team      Score  Frags Deaths  FPS   Ping";
+	internal string PlayerStatsTitle = @"       Player_Name              Team      Score  Frags Deaths  FPS   Ping";
 	
 	internal bool vPlayerStats = true;
 	
 	internal bool focusPlayerStats;
 	
 	internal bool rPlayerStats = true;
-	[HideInInspector]
-	public string PlayerStats = @"";
+	internal string PlayerStats = @"";
 	private int wndid1;
 	
     
@@ -47,16 +45,16 @@ public class GameStatsWindow : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-310.5f + Screen.width/2,-220f + Screen.height/2,611f,371f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.Label(new Rect(0f, 0f, 99.99f, 14f), @"Scores");
 		GUI.BeginGroup(new Rect(22f, 18f, 564f, 345f), "");
@@ -67,7 +65,7 @@ public class GameStatsWindow : WindowBase {
 		if(rPlayerStatsTitle){
 		GUI.Label(new Rect(10f, 21f, 546f, 12f), PlayerStatsTitle.ToString(), GUI.skin.customStyles[2]);
 		} else
-		PlayerStatsTitle = GUI.TextField(new Rect(10f, 21f, 546f, 12f), PlayerStatsTitle,100, GUI.skin.customStyles[2]);
+		try {PlayerStatsTitle = GUI.TextField(new Rect(10f, 21f, 546f, 12f), PlayerStatsTitle,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.Box(new Rect(59f, 16f, 1f, 310.015f),"",GUI.skin.customStyles[4]);//line
 		GUI.Box(new Rect(298f, 16f, 1f, 310.015f),"",GUI.skin.customStyles[4]);//line
@@ -82,7 +80,7 @@ public class GameStatsWindow : WindowBase {
 		if(rPlayerStats){
 		GUI.Label(new Rect(10f, 37f, 546f, 300f), PlayerStats.ToString(), GUI.skin.customStyles[2]);
 		} else
-		PlayerStats = GUI.TextField(new Rect(10f, 37f, 546f, 300f), PlayerStats,100, GUI.skin.customStyles[2]);
+		try {PlayerStats = GUI.TextField(new Rect(10f, 37f, 546f, 300f), PlayerStats,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.EndGroup();
 		if (GUI.Button(new Rect(611f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }

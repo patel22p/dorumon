@@ -21,8 +21,7 @@ public class UserView
     public string FirstName = "";
     public string BallTextureUrl="";
     public int MaterialId;    
-    public ScoreView[] scoreboard = new ScoreView[10];
-    public bool guest = true;
-    
-    
+    public ScoreView[] scoreboard = new ScoreView[10];    
+    [XmlIgnore]
+    public bool guest = false;
 } 

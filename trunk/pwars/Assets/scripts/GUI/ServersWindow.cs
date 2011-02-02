@@ -12,8 +12,8 @@ public partial class Base2:MonoBehaviour
 public enum ServersWindowEnum { Connect,ServersTable,Refresh,Close, }
 public class ServersWindow : WindowBase {
 		
-	public string Ipaddress{ get { return PlayerPrefs.GetString(Application.platform +"Ipaddress", @""); } set { PlayerPrefs.SetString(Application.platform +"Ipaddress", value); } }
-	public int Port{ get { return PlayerPrefs.GetInt(Application.platform +"Port", 5300); } set { PlayerPrefs.SetInt(Application.platform +"Port", value); } }
+	internal string Ipaddress{ get { return PlayerPrefs.GetString(Application.platform +"Ipaddress", @""); } set { PlayerPrefs.SetString(Application.platform +"Ipaddress", value); } }
+	internal int Port{ get { return PlayerPrefs.GetInt(Application.platform +"Port", 5300); } set { PlayerPrefs.SetInt(Application.platform +"Port", value); } }
 	
 	internal bool vipaddress = true;
 	
@@ -36,8 +36,7 @@ public class ServersWindow : WindowBase {
 	
 	internal bool focusServersTable;
 	public string[] lServersTable;
-	[HideInInspector]
-	public int iServersTable = -1;
+	internal int iServersTable = -1;
 	public string ServersTable { get { if(lServersTable.Length==0 || iServersTable == -1) return ""; return lServersTable[iServersTable]; } set { iServersTable = lServersTable.SelectIndex(value); }}
 	
 	internal bool vRefresh = true;
@@ -50,8 +49,7 @@ public class ServersWindow : WindowBase {
 	internal bool focusServersTitle;
 	
 	internal bool rServersTitle = true;
-	[HideInInspector]
-	public string ServersTitle = @"  Server_Name              Map             Game_Type         Players        Ping";
+	internal string ServersTitle = @"  Server_Name          Map       Game_Type         IpAddress            Users Ping";
 	private int wndid1;
 	private bool oldMouseOverConnect;
 	private Vector2 sServersTable;
@@ -72,19 +70,19 @@ public class ServersWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iServersTable = -1;
+        		iServersTable = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-326.5f + Screen.width/2,-287f + Screen.height/2,618f,492f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
@@ -95,7 +93,7 @@ public class ServersWindow : WindowBase {
 		if(rIpaddress){
 		GUI.Label(new Rect(103.3f, 30f, 123f, 14f), Ipaddress.ToString());
 		} else
-		Ipaddress = GUI.TextField(new Rect(103.3f, 30f, 123f, 14f), Ipaddress,100);
+		try {Ipaddress = GUI.TextField(new Rect(103.3f, 30f, 123f, 14f), Ipaddress,100);}catch{};
 		}
 		GUI.Label(new Rect(64.38f, 48f, 32.32333f, 21.96f), @"port");
 		if(vport){
@@ -104,7 +102,7 @@ public class ServersWindow : WindowBase {
 		if(rPort){
 		GUI.Label(new Rect(103.3f, 48f, 123f, 14f), Port.ToString());
 		} else
-		Port = int.Parse(GUI.TextField(new Rect(103.3f, 48f, 123f, 14f), Port.ToString(),100));
+		try {Port = int.Parse(GUI.TextField(new Rect(103.3f, 48f, 123f, 14f), Port.ToString(),100));}catch{};
 		}
 		if(vconnect){
 		if(focusConnect) { focusConnect = false; GUI.FocusControl("Connect");}
@@ -123,9 +121,9 @@ public class ServersWindow : WindowBase {
 		if(focusServersTable) { focusServersTable = false; GUI.FocusControl("ServersTable");}
 		GUI.SetNextControlName("ServersTable");
 		GUI.Box(new Rect(8f, 48f, 586f, 299f), "");
-		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 586f, 299f), sServersTable, new Rect(0,0, 566f, lServersTable.Length* 15f));
+		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 586f, 299f), sServersTable, new Rect(0,0, 576f, lServersTable.Length* 15f));
 		int oldServersTable = iServersTable;
-		iServersTable = GUI.SelectionGrid(new Rect(0,0, 566f, lServersTable.Length* 15f), iServersTable, lServersTable,1,GUI.skin.customStyles[0]);
+		iServersTable = GUI.SelectionGrid(new Rect(0,0, 576f, lServersTable.Length* 15f), iServersTable, lServersTable,1,GUI.skin.customStyles[0]);
 		if (iServersTable != oldServersTable) Action("ServersTable");
 		GUI.EndScrollView();
 		}
@@ -146,12 +144,8 @@ public class ServersWindow : WindowBase {
 		if(rServersTitle){
 		GUI.Label(new Rect(8f, 30f, 586f, 14f), ServersTitle.ToString(), GUI.skin.customStyles[2]);
 		} else
-		ServersTitle = GUI.TextField(new Rect(8f, 30f, 586f, 14f), ServersTitle,100, GUI.skin.customStyles[2]);
+		try {ServersTitle = GUI.TextField(new Rect(8f, 30f, 586f, 14f), ServersTitle,100, GUI.skin.customStyles[2]);}catch{};
 		}
-		GUI.Box(new Rect(173f, 30f, 1f, 317f),"",GUI.skin.customStyles[4]);//line
-		GUI.Box(new Rect(282f, 30f, 1f, 318.907f),"",GUI.skin.customStyles[4]);//line
-		GUI.Box(new Rect(404f, 30f, 1f, 318.511f),"",GUI.skin.customStyles[4]);//line
-		GUI.Box(new Rect(523f, 30f, 1f, 318.191f),"",GUI.skin.customStyles[4]);//line
 		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Server");
 		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }

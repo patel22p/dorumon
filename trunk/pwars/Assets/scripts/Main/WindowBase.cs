@@ -8,6 +8,7 @@ public class WindowBase : Base2
     {
         enabled = false;
     }
+    public bool AlwaysOnTop;
     public void Action(string name, params object[] param)
     {
         controller.SendMessage("Action", name, SendMessageOptions.DontRequireReceiver);
@@ -38,6 +39,10 @@ public class WindowBase : Base2
         ResetValues();
         Show();
     }
+    public virtual void OnGUI()
+    {
+        
+    }
     public virtual void ResetValues() { }
     public virtual void Show()
     {
@@ -47,6 +52,7 @@ public class WindowBase : Base2
 
         enabled = true;        
     }
+  
     public void ShowDontHide(MonoBehaviour controller)
     {
         enabled = true;

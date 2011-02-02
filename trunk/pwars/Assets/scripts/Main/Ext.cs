@@ -20,6 +20,15 @@ public static class Ext
     {
         return v ? 1 : 0;
     }
+    public static T GetValue<T>(this Component c,string str)
+    {
+        return (T)c.GetType().GetField(str).GetValue(c);
+    }
+    public static void SetValue<T>(this Component c, string str,T value)
+    {
+        c.GetType().GetField(str).SetValue(c,value);
+    }
+
     public static string[] Split(this string s,string d)
     {
         return s.Split(new string[] { d }, StringSplitOptions.RemoveEmptyEntries);

@@ -12,17 +12,17 @@ public partial class Base2:MonoBehaviour
 public enum SettingsWindowEnum { GraphicQuality,ScreenSize,FullScreen,Blood,Decals,AtmoSphere,Sao,Shadows,MotionBlur,BloomAndFlares,RenderSettings,Contrast,Reset,ShowKeyboard,Close, }
 public class SettingsWindow : WindowBase {
 		
-	public int iGraphicQuality{ get { return PlayerPrefs.GetInt(Application.platform +"iGraphicQuality", -1); } set { PlayerPrefs.SetInt(Application.platform +"iGraphicQuality", value); } }
-	public int iScreenSize{ get { return PlayerPrefs.GetInt(Application.platform +"iScreenSize", -1); } set { PlayerPrefs.SetInt(Application.platform +"iScreenSize", value); } }
-	public float Camx{ get { return PlayerPrefs.GetFloat(Application.platform +"Camx", 6f); } set { PlayerPrefs.SetFloat(Application.platform +"Camx", value); } }
-	public float Camy{ get { return PlayerPrefs.GetFloat(Application.platform +"Camy", 4f); } set { PlayerPrefs.SetFloat(Application.platform +"Camy", value); } }
-	public float Fieldof{ get { return PlayerPrefs.GetFloat(Application.platform +"Fieldof", 100f); } set { PlayerPrefs.SetFloat(Application.platform +"Fieldof", value); } }
-	public float CamSmooth{ get { return PlayerPrefs.GetFloat(Application.platform +"CamSmooth", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"CamSmooth", value); } }
-	public float MusicVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat(Application.platform +"MusicVolume", value); } }
-	public float SoundVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat(Application.platform +"SoundVolume", value); } }
-	public float NetworkSendRate{ get { return PlayerPrefs.GetFloat(Application.platform +"NetworkSendRate", 15f); } set { PlayerPrefs.SetFloat(Application.platform +"NetworkSendRate", value); } }
-	public float MouseY{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseY", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseY", value); } }
-	public float MouseX{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseX", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseX", value); } }
+	internal int iGraphicQuality{ get { return PlayerPrefs.GetInt(Application.platform +"iGraphicQuality", -1); } set { PlayerPrefs.SetInt(Application.platform +"iGraphicQuality", value); } }
+	internal int iScreenSize{ get { return PlayerPrefs.GetInt(Application.platform +"iScreenSize", -1); } set { PlayerPrefs.SetInt(Application.platform +"iScreenSize", value); } }
+	internal float Camx{ get { return PlayerPrefs.GetFloat(Application.platform +"Camx", 6f); } set { PlayerPrefs.SetFloat(Application.platform +"Camx", value); } }
+	internal float Camy{ get { return PlayerPrefs.GetFloat(Application.platform +"Camy", 4f); } set { PlayerPrefs.SetFloat(Application.platform +"Camy", value); } }
+	internal float Fieldof{ get { return PlayerPrefs.GetFloat(Application.platform +"Fieldof", 100f); } set { PlayerPrefs.SetFloat(Application.platform +"Fieldof", value); } }
+	internal float CamSmooth{ get { return PlayerPrefs.GetFloat(Application.platform +"CamSmooth", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"CamSmooth", value); } }
+	internal float MusicVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"MusicVolume", 0.5f); } set { PlayerPrefs.SetFloat(Application.platform +"MusicVolume", value); } }
+	internal float SoundVolume{ get { return PlayerPrefs.GetFloat(Application.platform +"SoundVolume", 0.1f); } set { PlayerPrefs.SetFloat(Application.platform +"SoundVolume", value); } }
+	internal float NetworkSendRate{ get { return PlayerPrefs.GetFloat(Application.platform +"NetworkSendRate", 15f); } set { PlayerPrefs.SetFloat(Application.platform +"NetworkSendRate", value); } }
+	internal float MouseY{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseY", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseY", value); } }
+	internal float MouseX{ get { return PlayerPrefs.GetFloat(Application.platform +"MouseX", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"MouseX", value); } }
 	
 	internal bool vGraphicQuality = true;
 	
@@ -80,8 +80,7 @@ public class SettingsWindow : WindowBase {
 	
 	internal bool focusRenderSettings;
 	public string[] lRenderSettings;
-	[HideInInspector]
-	public int iRenderSettings = -1;
+	internal int iRenderSettings = -1;
 	public string RenderSettings { get { if(lRenderSettings.Length==0 || iRenderSettings == -1) return ""; return lRenderSettings[iRenderSettings]; } set { iRenderSettings = lRenderSettings.SelectIndex(value); }}
 	
 	internal bool vcamx = true;
@@ -165,21 +164,21 @@ public class SettingsWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iGraphicQuality = -1;
-	iScreenSize = -1;
-	iRenderSettings = -1;
+        		iGraphicQuality = -1;
+		iScreenSize = -1;
+		iRenderSettings = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-366.5f + Screen.width/2,-209f + Screen.height/2,729f,418f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 368.333f), "");
 		GUI.Box(new Rect(0, 0, 463.5f, 368.333f), "");
@@ -187,9 +186,9 @@ public class SettingsWindow : WindowBase {
 		if(focusGraphicQuality) { focusGraphicQuality = false; GUI.FocusControl("GraphicQuality");}
 		GUI.SetNextControlName("GraphicQuality");
 		GUI.Box(new Rect(49.5f, 38.833f, 111.013f, 112.167f), "");
-		sGraphicQuality = GUI.BeginScrollView(new Rect(49.5f, 38.833f, 111.013f, 112.167f), sGraphicQuality, new Rect(0,0, 91.013f, lGraphicQuality.Length* 15.960000038147f));
+		sGraphicQuality = GUI.BeginScrollView(new Rect(49.5f, 38.833f, 111.013f, 112.167f), sGraphicQuality, new Rect(0,0, 101.013f, lGraphicQuality.Length* 15.960000038147f));
 		int oldGraphicQuality = iGraphicQuality;
-		iGraphicQuality = GUI.SelectionGrid(new Rect(0,0, 91.013f, lGraphicQuality.Length* 15.960000038147f), iGraphicQuality, lGraphicQuality,1,GUI.skin.customStyles[0]);
+		iGraphicQuality = GUI.SelectionGrid(new Rect(0,0, 101.013f, lGraphicQuality.Length* 15.960000038147f), iGraphicQuality, lGraphicQuality,1,GUI.skin.customStyles[0]);
 		if (iGraphicQuality != oldGraphicQuality) Action("GraphicQuality");
 		GUI.EndScrollView();
 		}
@@ -197,9 +196,9 @@ public class SettingsWindow : WindowBase {
 		if(focusScreenSize) { focusScreenSize = false; GUI.FocusControl("ScreenSize");}
 		GUI.SetNextControlName("ScreenSize");
 		GUI.Box(new Rect(182.833f, 38.833f, 114.667f, 112.167f), "");
-		sScreenSize = GUI.BeginScrollView(new Rect(182.833f, 38.833f, 114.667f, 112.167f), sScreenSize, new Rect(0,0, 94.667f, lScreenSize.Length* 15f));
+		sScreenSize = GUI.BeginScrollView(new Rect(182.833f, 38.833f, 114.667f, 112.167f), sScreenSize, new Rect(0,0, 104.667f, lScreenSize.Length* 15f));
 		int oldScreenSize = iScreenSize;
-		iScreenSize = GUI.SelectionGrid(new Rect(0,0, 94.667f, lScreenSize.Length* 15f), iScreenSize, lScreenSize,1,GUI.skin.customStyles[0]);
+		iScreenSize = GUI.SelectionGrid(new Rect(0,0, 104.667f, lScreenSize.Length* 15f), iScreenSize, lScreenSize,1,GUI.skin.customStyles[0]);
 		if (iScreenSize != oldScreenSize) Action("ScreenSize");
 		GUI.EndScrollView();
 		}
@@ -290,9 +289,9 @@ public class SettingsWindow : WindowBase {
 		if(focusRenderSettings) { focusRenderSettings = false; GUI.FocusControl("RenderSettings");}
 		GUI.SetNextControlName("RenderSettings");
 		GUI.Box(new Rect(326.5f, 87f, 129f, 64f), "");
-		sRenderSettings = GUI.BeginScrollView(new Rect(326.5f, 87f, 129f, 64f), sRenderSettings, new Rect(0,0, 109f, lRenderSettings.Length* 15.960000038147f));
+		sRenderSettings = GUI.BeginScrollView(new Rect(326.5f, 87f, 129f, 64f), sRenderSettings, new Rect(0,0, 119f, lRenderSettings.Length* 15.960000038147f));
 		int oldRenderSettings = iRenderSettings;
-		iRenderSettings = GUI.SelectionGrid(new Rect(0,0, 109f, lRenderSettings.Length* 15.960000038147f), iRenderSettings, lRenderSettings,1,GUI.skin.customStyles[0]);
+		iRenderSettings = GUI.SelectionGrid(new Rect(0,0, 119f, lRenderSettings.Length* 15.960000038147f), iRenderSettings, lRenderSettings,1,GUI.skin.customStyles[0]);
 		if (iRenderSettings != oldRenderSettings) Action("RenderSettings");
 		GUI.EndScrollView();
 		}

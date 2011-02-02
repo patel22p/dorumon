@@ -5,8 +5,13 @@ using System.Collections.Generic;
 
 public class Patron : bs
 {    
-    public bool decalhole = true;
-    internal Vector3 Force = new Vector3(0, 0, 80);
+    private float tm;
+    private Vector3 Force; 
+    private Vector3 previousPosition;
+    internal Gun gun;
+    private int? _probivaemost;
+
+    public bool decalhole = true;    
     [FindAsset("Detonator-Base")]
     public GameObject detonator;    
     [FindAsset(overide = true)]
@@ -14,26 +19,16 @@ public class Patron : bs
     public bool DestroyOnHit;
     public bool explodeOnDestroy;
     public int detonatorsize = 8;
-    internal float ExpForce = 2000;
-    internal int damage = 60;
-    internal int probivaemost = 0;
     public bool granate;
-    public float gravitate = 0;
-    internal float Radius = 1;
     public bool breakwall;
-    internal float timeToDestroy = 5;
     public float damageFactor(Object o)
     {
-        return mapSettings.damageFactor * (o is Zombie ? zmDamageFactor : 1) * (o is Player ? plDamageFactor : 1);
+        return _Game.mapSettings.damageFactor * (o is Zombie ? zmDamageFactor : 1) * (o is Player ? plDamageFactor : 1);
     }
-    internal float plDamageFactor = 1;
-    internal float zmDamageFactor = 1;
-    public float tm;
-    protected Vector3 previousPosition;
     public void Start()
     {
         _Game.patrons.Add(this);
-        Force = transform.rotation * Force;
+        Force = transform.rotation * new Vector3(0, 0, 300 * BulletForce);
         previousPosition = transform.position;        
     }
     void OnDisable()
@@ -92,7 +87,6 @@ public class Patron : bs
         int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
     }
-
     private void GravitateMagnet()
     {
         foreach (Patron p in _Game.patrons)
@@ -102,9 +96,9 @@ public class Patron : bs
         }
 
         foreach (var b in _Game.players.Where(p => p != null && p.isEnemy(OwnerID)).Cast<bs>().Union(_Game.boxes.Cast<bs>()).Union(_Game.patrons.Where(a => a.rigidbody != null).Cast<bs>()).Union(_Game.zombies.Cast<bs>()))
-            if (b != null && b != this && Vector3.Distance(pos, b.pos) < Radius)
+            if (b != null && b != this && Vector3.Distance(pos, b.pos) < Radius * 3)
             {
-                if (b is Zombie)
+                if (b is Zombie && Vector3.Distance(pos, b.pos) < Radius)
                 {
                     var z = ((Zombie)b);    
                     z.ResetSpawnTm();                    
@@ -191,4 +185,13 @@ public class Patron : bs
         dt.size = detonatorsize;
         dt.autoCreateForce = false;
     }
+    internal float ExpForce { get { return gun.expOttalkivanie; } }
+    internal int damage { get { return gun.damage; } }
+    internal float Radius { get { return gun.radius; } }
+    internal float timeToDestroy { get { return gun.timeToDestroy; } }
+    internal float plDamageFactor { get { return gun.plDamageFactor; } }
+    internal float zmDamageFactor { get { return gun.zmDamageFactor; } }
+    internal float BulletForce { get { return gun.BulletForce; } }
+    internal int probivaemost { get { return _probivaemost ?? gun.probivaemost; } set { _probivaemost = value; } }
+    internal float gravitate { get { return gun.gravitate; } }
 }

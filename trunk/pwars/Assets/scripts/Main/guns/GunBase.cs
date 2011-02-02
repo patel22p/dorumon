@@ -6,25 +6,23 @@ using UnityEngine;
 
 public class GunBase : bs
 {
-    public bool laser;
+    internal bool laser;
     public float ves;
-    
     public Texture2D GunPicture;
     public int guntype;
     public Player player;
     public List<Transform> cursor = new List<Transform>();
-    public int group { get { return int.Parse(transform.parent.name); } }
     public float patronsLeft = 0;
     public string Text;
     public GameObject gunModel;
     public override void Awake()
     {
-        Text = name;
         base.Awake();
     }
-    public Ray GetRay()
+    public override void InitValues()
     {
-        return new Ray(cursor[0].position, rot * new Vector3(0, 0, 1));
+        Text = name;
+        base.InitValues();
     }
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void Init()
@@ -63,7 +61,7 @@ public class GunBase : bs
     }
     public void Reset()
     {
-        patronsLeft = mapSettings.patrons[guntype];        
+        patronsLeft = _Game.mapSettings.patrons[guntype];        
     }
     protected virtual void Update()
     {
@@ -88,6 +86,11 @@ public class GunBase : bs
     public override string ToString()
     {
         return name;
+    }
+    internal int group { get { return int.Parse(transform.parent.name); } }
+    public Ray GetRay()
+    {
+        return new Ray(cursor[0].position, rot * new Vector3(0, 0, 1));
     }
 
 }

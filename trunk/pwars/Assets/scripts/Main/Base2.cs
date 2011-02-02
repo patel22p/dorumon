@@ -15,16 +15,6 @@ using System.Xml.Serialization;
 
 public partial class Base2 : MonoBehaviour
 {    
-    //public static void print(params object[] ob)
-    //{
-    //    MethodBase m = new System.Diagnostics.StackFrame(1, true).GetMethod();
-    //    StringBuilder sb = new StringBuilder();
-    //    sb.Append(m.ReflectedType.Name + "." + m.Name);
-    //    foreach (object o in ob)
-    //        sb.Append(" " + o + ",");
-    //    MonoBehaviour.print(sb.ToString());
-    //}
-    
     public static string pr
     {
         get
@@ -35,30 +25,11 @@ public partial class Base2 : MonoBehaviour
             return sb.ToString();
         }
     }
-    
-    //public static void CopyS<T2, T>(T FromObj, T2 ToObj) where T : class, new()
-    //{
-    //    foreach (var fiFrom in FromObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
-    //    {
-    //        var FromV = fiFrom.GetValue(FromObj);
-    //         //if(FromV != null ) Debug.Log(FromV.GetType());
-    //        if (FromV != null && (FromV is string || FromV is IConvertible && Activator.CreateInstance(FromV.GetType()) != FromV)) //FromV.GetType().GetConstructor(new Type[0]) != null && 
-    //        {
-    //            foreach (var fiTo in ToObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
-    //                foreach (var n in getnames(fiFrom))
-    //                    foreach (var n2 in getnames(fiTo))
-    //                        if (n2 == n)
-    //                            if (fiTo != null && fiTo.FieldType == fiFrom.FieldType)
-    //                            {
-    //                                Debug.Log(fiFrom+ " " + fiTo+" "+FromV);
-    //                                fiTo.SetValue(ToObj, FromV);
-    //                                goto Continue;
-    //                            }
-
-    //        }
-    //    Continue: { }
-    //    }
-    //}
+    public bool inited;
+    public virtual void Init()
+    {
+        inited = true;
+    }
     private static IEnumerable<string> getnames(FieldInfo fi)
     {
         var names = fi.GetCustomAttributes(typeof(Names), true).SelectMany(a => ((Names)a).names).Union(new[] { fi.Name }); ;
@@ -75,7 +46,6 @@ public partial class Base2 : MonoBehaviour
                 fi.SetValue(t, v);
         }
     }
-    //public static Cam _Cam; 
     public static T TakeRandom<T>(IList<T> t)
     {
         return t[UnityEngine.Random.Range(0, t.Count-1)];
@@ -88,7 +58,6 @@ public partial class Base2 : MonoBehaviour
             return xml.Deserialize(sr);
         }
     }
-
     public static string SerializeToStr(object t, XmlSerializer xml)
     {
         using (StringWriter sw = new StringWriter())
@@ -106,7 +75,6 @@ public partial class Base2 : MonoBehaviour
             return ms.ToArray();
         }
     }
-
     static GameWindow __GameWindow;
     public static GameWindow _GameWindow { get { if (__GameWindow == null) __GameWindow = (GameWindow)MonoBehaviour.FindObjectOfType(typeof(GameWindow)); return __GameWindow; } }    
     static Game __Game;
@@ -142,7 +110,6 @@ public partial class Base2 : MonoBehaviour
     }
     public float fdt { get { return 0.02f / Time.fixedDeltaTime ; } }
     public static Player _localPlayer { get { return _Game._localPlayer; } set { _Game._localPlayer = value; } }
-    public static MapSetting mapSettings { get { return _Loader.mapSettings; } set { _Loader.mapSettings = value; } }
     public static TimerA _TimerA { get { if (!Application.isPlaying) throw new Exception("access from editor"); return _Loader._TimerA; } }
     public static bool lockCursor { get { return Screen.lockCursor; } set { Screen.lockCursor = value; } }
     public static Rect CenterRect(float w, float h)
@@ -222,13 +189,7 @@ public partial class Base2 : MonoBehaviour
             pos = p;
         }
     }
-    public virtual void Init()
-    {
-        inited = true;
-    }
-    public bool inited;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-
     public static string[] files;
     public static IEnumerable<string> GetFiles()
     {

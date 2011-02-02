@@ -2,45 +2,55 @@ using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using doru;
 public class Cam : bs
 {
-    public float xSpeed = 120.0f;
-    public float ySpeed = 120.0f;
-    public float yMinLimit = -90f;
-    public float yMaxLimit = 90f;
+    Vector3 oldpos;
     float x = 0.0f;
     float y = 0.0f;
+    TimerA ft = new TimerA();
+    float damageblurtm;
+    float xoffset = 2;
+    float yoffset = 3;
+    internal float exp;
     public TextMesh LevelText;
     public TextMesh ScoreText;
+    public GUITexture[] blood = new GUITexture[2];
+    public void Hit()
+    {
+        GUITexture g = blood[Random.Range(0, blood.Length)];
+        g.transform.rotation = Random.rotation;
+        g.color = new Color(1, 1, 1, 1f);
+        damageblurtm = 3;
+    }
     public override void Init()
     {
         camera = GetComponentInChildren<Camera>();
-        blur = GetComponentInChildren<MotionBlur>();
+        MotionBlur = GetComponentInChildren<MotionBlur>();
         LevelText = transform.Find("LevelText").GetComponent<TextMesh>();
         ScoreText = transform.Find("ScoreText").GetComponent<TextMesh>();
         Vingetting = (MonoBehaviour)camera.GetComponent("Vignetting");
+        DepthOfField = (MonoBehaviour)camera.GetComponent("DepthOfField");
         bloomAndFlares = (MonoBehaviour)camera.GetComponent("BloomAndFlares");
         ambientsmoke = transform.Find("ambientsmoke");
         ssao = GetComponentInChildren<SSAOEffect>();
         contranStretch = GetComponentInChildren<ContrastStretchEffect>();
-        xSpeed = 120;
-        ySpeed = 120;
-        yMinLimit = -90;
-        yMaxLimit = 90;        
         base.Init();
     }
     public new Camera camera;
     public Transform ambientsmoke;
-    public MotionBlur blur;
+    public MotionBlur MotionBlur;
     public MonoBehaviour Vingetting;
+    public MonoBehaviour DepthOfField;
     public SSAOEffect ssao;
     public MonoBehaviour bloomAndFlares;
     public ContrastStretchEffect contranStretch;
+
     public void onEffect()
     {
         ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
         if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
-        if (blur.enabled != _SettingsWindow.MotionBlur) { blur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + blur.enabled); }
+        if (MotionBlur.enabled != _SettingsWindow.MotionBlur) { MotionBlur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + MotionBlur.enabled); }
         if (bloomAndFlares.enabled != _SettingsWindow.BloomAndFlares) { bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares; Debug.Log("blom and flares" + bloomAndFlares.enabled); }
         if (contranStretch.enabled != _SettingsWindow.Contrast) { contranStretch.enabled = _SettingsWindow.Contrast; Debug.Log("Contrast stretch " + contranStretch.enabled); }
         if (_SettingsWindow.iGraphicQuality != -1 && (QualityLevel)_SettingsWindow.iGraphicQuality != QualitySettings.currentLevel)
@@ -69,25 +79,40 @@ public class Cam : bs
         y = angles.x;
         onEffect();
     }
-    float blurtime;
     void FixedUpdate()
     {
-        CamUpdate();
-    }
-    
-    void LateUpdate()
-    {        
-        blurtime += Time.deltaTime;
-        if (blurtime > .1f)
+        if (ft.TimeElapsed(120))
         {
-            blurtime -= .1f;
-            blur.blurAmount = Vector3.Distance(oldpos, transform.position) / 15;
+            MotionBlur.enabled = true;
+            MotionBlur.blurAmount = Vector3.Distance(oldpos, transform.position) / 8;
             oldpos = transform.position;
         }
+        ft.Update();
+
+        CamUpdate();
+    }
+    void Update()
+    {
+        if (DebugKey(KeyCode.J))
+            Hit();
+
+        damageblurtm -= Time.deltaTime * 4;
+        if (damageblurtm > 0)
+        {
+            DepthOfField.enabled = true;
+            damageBlur = damageblurtm;
+        }
+        else
+            DepthOfField.enabled = false;
+       
+        foreach (GUITexture a in blood)
+            if (a.guiTexture.color.a > 0)
+                a.guiTexture.color -= new Color(0, 0, 0, Time.deltaTime * 1f);
+
         if (lockCursor)
         {
-            x += Input.GetAxis("Mouse X") * xSpeed * .02f * _SettingsWindow.MouseX;
-            y -= Input.GetAxis("Mouse Y") * ySpeed * .02f * _SettingsWindow.MouseY;
+            x += Input.GetAxis("Mouse X") * 120 * .02f * _SettingsWindow.MouseX;
+            y -= Input.GetAxis("Mouse Y") * 120 * .02f * _SettingsWindow.MouseY;
         }
     }
     void CamUpdate()
@@ -96,7 +121,7 @@ public class Cam : bs
         camera.fieldOfView = _SettingsWindow.Fieldof;
         xoffset = _SettingsWindow.Camx + 0.01f;
         yoffset = _SettingsWindow.Camy + 0.01f;        
-        y = ClampAngle(y, yMinLimit, yMaxLimit, 90);
+        y = ClampAngle(y, -90, 90, 90);
         Quaternion rot2 = Quaternion.Euler(y, x, 0);
         Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
         pos2.y += yoffset;
@@ -118,10 +143,6 @@ public class Cam : bs
         exp -= .1f;
         if (exp < 0) exp = 0;
     }
-    public float xoffset = 2;
-    public float yoffset = 3;
-    Vector3 oldpos;
-    public float exp;
     public static float ClampAngle(float angle, float min, float max, float clamp)
     {
         if (angle < -clamp)
@@ -130,6 +151,12 @@ public class Cam : bs
             angle = clamp;
         return Mathf.Clamp(angle, min, max);
     }
+    public float damageBlur
+    {
+        get { return DepthOfField.GetValue<float>("blurSpread"); }
+        set { DepthOfField.SetValue("blurSpread", value); }
+    }
+
 }
 [System.Serializable]
 public class Decal

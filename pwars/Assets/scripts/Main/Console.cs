@@ -6,8 +6,10 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 public class Console : bs
 {
-    public static StringBuilder log = new StringBuilder();
+    static StringBuilder log = new StringBuilder();
     Rect r;
+    internal int errorcount;
+    internal int exceptionCount;
     public Console()
     {
 
@@ -18,10 +20,6 @@ public class Console : bs
         base.Awake();
         
     }
-    public int errorcount;
-    public int exceptionCount;
-    public string version;
-
     void onLog(string condition, string stackTrace, LogType type)
     {
         try
@@ -39,7 +37,6 @@ public class Console : bs
         }
         catch { }
     }
-
     public void OnGUI()
     {
         GUI.skin = _Loader.Skin;
@@ -47,17 +44,12 @@ public class Console : bs
         GUI.Window(-1, r, Window, "Console");
 
     }
-    
     void Window(int id)
     {        
         //GUI.Box(r, "");                
-        GUILayout.Label("Warnings:" + errorcount + " Errors:" + exceptionCount + " " + "Version " + _Loader.version);        
+        GUILayout.Label("Warnings:" + errorcount + " Errors:" + exceptionCount + " " + "Version " + _Loader.version + " Network Time:" + (Network.time));        
         GUI.TextField(new Rect(0, 50, r.width, r.height - 50), log.ToString(), GUI.skin.customStyles[8]);
         GUI.BringWindowToFront(-1);
         GUI.FocusWindow(-1);
     }
-    
-    //}
-
-
 }

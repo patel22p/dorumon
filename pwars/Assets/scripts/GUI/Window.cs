@@ -31,16 +31,16 @@ public class Window : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-226.5f + Screen.width/2,-243f + Screen.height/2,414f,371f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if (GUI.Button(new Rect(414f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}

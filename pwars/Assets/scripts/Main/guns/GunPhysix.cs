@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class GunPhysix : GunBase
 {
+    internal float holdtm;
+    internal bool power;
     public float radius = 50;    
     public float ExpRadius = 1;
     public AnimationCurve gravitaty;
     public AnimationCurve release;
-    public float holdtm;
-    public bool power;
     [FindAsset("wave")]
     public GameObject wavePrefab;
     [FindAsset("superphys_launch3")]
@@ -116,7 +116,6 @@ public class GunPhysix : GunBase
     {
         this.power = power;
     }
-    
     protected override void Update()
     {
         if (isOwner && enabled && lockCursor)
@@ -135,5 +134,10 @@ public class GunPhysix : GunBase
         }
         base.Update();
 
+    }
+    public override void DisableGun()
+    {
+        RPCSetPower(false);
+        base.DisableGun();
     }
 }

@@ -7,11 +7,14 @@ using System.Collections;
 
 public abstract class Destroible : Shared
 {
-    public bool CanFreeze;
-    public float maxLife = 100;
-    public float Life;
-    public GameObject model;
+    internal float isGrounded;
+    internal bool Alive = true;
+    internal bool CanFreeze;
+    internal float Life;
+    internal bool frozen;
     float freezedt;
+    public float MaxLife = 100;
+    public GameObject model;
     [FindAsset]
     public AudioClip heal;
     public Team? team
@@ -22,8 +25,6 @@ public abstract class Destroible : Shared
             else return _Game.players[OwnerID.GetHashCode()].team;
         }
     }    
-    //public bool dead { get { return !Alive; } set { Alive = !value; } }
-    public bool Alive = true;
     public void SetLayer(int layer)
     {
         foreach (var t in transform.GetTransforms())
@@ -45,7 +46,6 @@ public abstract class Destroible : Shared
         foreach (var a in g.transform.GetTransforms())
             a.gameObject.layer = la;
     }
-
     public override void Awake()
     {        
         base.Awake();
@@ -57,21 +57,20 @@ public abstract class Destroible : Shared
     }
     public override void Start()
     {
-        //SetLayer(model);
         base.Start();
     }
-    public float isGrounded;
     protected virtual void OnCollisionEnter(Collision collisionInfo)
     {
         if (Alive && isController)
         {
             Box b = collisionInfo.gameObject.GetComponent<Box>();
-            if (b != null && (this.isEnemy(b.OwnerID) || OwnerID == _localPlayer.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
-                RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10 * mapSettings.damageFactor, b.OwnerID);
+            if (b != null)
+            {             
+                if ((this.isEnemy(b.OwnerID) || b.OwnerID == _localPlayer.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
+                    RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10 * _Game.mapSettings.damageFactor, b.OwnerID);
+            }
         }
     }
-    public bool frozen;
-    
     public virtual void RPCSetFrozen(bool value)
     {
         if(value)
@@ -112,8 +111,8 @@ public abstract class Destroible : Shared
             //if (isEnemy(killedby) || NwLife > Life)
             {
                 if (this == _localPlayer && NwLife < Life)
-                    _GameWindow.Hit();
-                Life = Math.Min(NwLife, maxLife);                
+                    _Cam.Hit();
+                Life = Math.Min(NwLife, MaxLife);                
                 CallRPC("SetLife", Life, killedby);
                 
                 if(CanFreeze)
@@ -130,11 +129,11 @@ public abstract class Destroible : Shared
         Life = NwLife;
     }
     public virtual bool isEnemy(int id)
-    {
+    {        
         if (this is Zombie) return true;        
         if (id == -1) return true;        
         if (id == OwnerID) return false;
-        if (mapSettings.DM) return true;
+        if (_Game.mapSettings.DM) return true;
         if (id != -1 && players[id] != null && players[id].team != team) return true;        
         return false;    
     }

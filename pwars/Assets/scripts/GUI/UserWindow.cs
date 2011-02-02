@@ -23,36 +23,33 @@ public class UserWindow : WindowBase {
 	internal bool focusUserNick;
 	
 	internal bool rUserNick = true;
-	[HideInInspector]
-	public string UserNick = @"";
+	internal string UserNick = @"";
 	
 	internal bool vFirstName = true;
 	
 	internal bool focusFirstName;
 	
 	internal bool rFirstName = false;
-	[HideInInspector]
-	public string FirstName = @"";
+	internal string FirstName = @"";
 	
 	internal bool vAvatarUrl = true;
 	
 	internal bool focusAvatarUrl;
 	
 	internal bool rAvatarUrl = false;
-	[HideInInspector]
-	public string AvatarUrl = @"";
+	internal string AvatarUrl = @"";
 	
 	internal bool vDesctiption = true;
 	
 	internal bool focusDesctiption;
 	
 	internal bool rDesctiption = false;
-	[HideInInspector]
-	public string Desctiption = @"";
+	internal string Desctiption = @"";
 	
 	internal bool vBallRender = true;
 	
 	internal bool focusBallRender;
+	[FindAsset("ballrender")]
 	public Texture imgBallRender;
 	
 	internal bool vPrev = true;
@@ -70,23 +67,20 @@ public class UserWindow : WindowBase {
 	internal bool focusBallImage;
 	
 	internal bool rBallImage = false;
-	[HideInInspector]
-	public string BallImage = @"";
+	internal string BallImage = @"";
 	
 	internal bool vMaterialName = true;
 	
 	internal bool focusMaterialName;
 	
 	internal bool rMaterialName = true;
-	[HideInInspector]
-	public string MaterialName = @"name";
+	internal string MaterialName = @"name";
 	
 	internal bool vUserScores = true;
 	
 	internal bool focusUserScores;
 	public string[] lUserScores;
-	[HideInInspector]
-	public int iUserScores = -1;
+	internal int iUserScores = -1;
 	public string UserScores { get { if(lUserScores.Length==0 || iUserScores == -1) return ""; return lUserScores[iUserScores]; } set { iUserScores = lUserScores.SelectIndex(value); }}
 	
 	internal bool vtableheader = true;
@@ -94,8 +88,7 @@ public class UserWindow : WindowBase {
 	internal bool focusTableheader;
 	
 	internal bool rTableheader = false;
-	[HideInInspector]
-	public string Tableheader = @" Place  Game_Type                        score           Deaths";
+	internal string Tableheader = @" Place  Game_Type                        score           Deaths";
 	
 	internal bool vRefreshUserInfo = true;
 	
@@ -132,19 +125,19 @@ public class UserWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iUserScores = -1;
+        		iUserScores = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-328.5f + Screen.width/2,-262f + Screen.height/2,676f,538f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if(vSaveUser){
 		if(focusSaveUser) { focusSaveUser = false; GUI.FocusControl("SaveUser");}
@@ -162,7 +155,7 @@ public class UserWindow : WindowBase {
 		if(rUserNick){
 		GUI.Label(new Rect(110f, 8f, 198f, 13f), UserNick.ToString());
 		} else
-		UserNick = GUI.TextField(new Rect(110f, 8f, 198f, 13f), UserNick,100);
+		try {UserNick = GUI.TextField(new Rect(110f, 8f, 198f, 13f), UserNick,100);}catch{};
 		}
 		GUI.BeginGroup(new Rect(60f, 100f, 308f, 203f), "");
 		GUI.Box(new Rect(0, 0, 308f, 203f), "");
@@ -173,7 +166,7 @@ public class UserWindow : WindowBase {
 		if(rFirstName){
 		GUI.Label(new Rect(115f, 23f, 175f, 14f), FirstName.ToString());
 		} else
-		FirstName = GUI.TextField(new Rect(115f, 23f, 175f, 14f), FirstName,20);
+		try {FirstName = GUI.TextField(new Rect(115f, 23f, 175f, 14f), FirstName,20);}catch{};
 		}
 		GUI.Label(new Rect(28f, 54.04f, 87f, 21.96f), @"Avatar URL");
 		if(vAvatarUrl){
@@ -182,7 +175,7 @@ public class UserWindow : WindowBase {
 		if(rAvatarUrl){
 		GUI.Label(new Rect(115f, 54.04f, 175f, 14f), AvatarUrl.ToString());
 		} else
-		AvatarUrl = GUI.TextField(new Rect(115f, 54.04f, 175f, 14f), AvatarUrl,100);
+		try {AvatarUrl = GUI.TextField(new Rect(115f, 54.04f, 175f, 14f), AvatarUrl,100);}catch{};
 		}
 		GUI.Label(new Rect(19f, 84f, 92f, 21.96f), @"Description");
 		if(vDesctiption){
@@ -191,7 +184,7 @@ public class UserWindow : WindowBase {
 		if(rDesctiption){
 		GUI.Label(new Rect(115f, 84f, 175f, 94f), Desctiption.ToString());
 		} else
-		Desctiption = GUI.TextField(new Rect(115f, 84f, 175f, 94f), Desctiption,100);
+		try {Desctiption = GUI.TextField(new Rect(115f, 84f, 175f, 94f), Desctiption,100);}catch{};
 		}
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(401f, 58f, 246f, 284f), "");
@@ -231,7 +224,7 @@ public class UserWindow : WindowBase {
 		if(rBallImage){
 		GUI.Label(new Rect(138f, 252f, 90f, 17f), BallImage.ToString());
 		} else
-		BallImage = GUI.TextField(new Rect(138f, 252f, 90f, 17f), BallImage,100);
+		try {BallImage = GUI.TextField(new Rect(138f, 252f, 90f, 17f), BallImage,100);}catch{};
 		}
 		GUI.Label(new Rect(16f, 255f, 111.37f, 21.96f), @"Custom Image URL");
 		if(vMaterialName){
@@ -240,7 +233,7 @@ public class UserWindow : WindowBase {
 		if(rMaterialName){
 		GUI.Label(new Rect(80f, 28f, 82f, 21.96f), MaterialName.ToString());
 		} else
-		MaterialName = GUI.TextField(new Rect(80f, 28f, 82f, 21.96f), MaterialName,100);
+		try {MaterialName = GUI.TextField(new Rect(80f, 28f, 82f, 21.96f), MaterialName,100);}catch{};
 		}
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(8f, 357f, 522f, 146f), "");
@@ -249,9 +242,9 @@ public class UserWindow : WindowBase {
 		if(focusUserScores) { focusUserScores = false; GUI.FocusControl("UserScores");}
 		GUI.SetNextControlName("UserScores");
 		GUI.Box(new Rect(43.158f, 27f, 447.331f, 105f), "");
-		sUserScores = GUI.BeginScrollView(new Rect(43.158f, 27f, 447.331f, 105f), sUserScores, new Rect(0,0, 427.331f, lUserScores.Length* 15f));
+		sUserScores = GUI.BeginScrollView(new Rect(43.158f, 27f, 447.331f, 105f), sUserScores, new Rect(0,0, 437.331f, lUserScores.Length* 15f));
 		int oldUserScores = iUserScores;
-		iUserScores = GUI.SelectionGrid(new Rect(0,0, 427.331f, lUserScores.Length* 15f), iUserScores, lUserScores,1,GUI.skin.customStyles[0]);
+		iUserScores = GUI.SelectionGrid(new Rect(0,0, 437.331f, lUserScores.Length* 15f), iUserScores, lUserScores,1,GUI.skin.customStyles[0]);
 		if (iUserScores != oldUserScores) Action("UserScores");
 		GUI.EndScrollView();
 		}
@@ -261,7 +254,7 @@ public class UserWindow : WindowBase {
 		if(rTableheader){
 		GUI.Label(new Rect(41.646f, 3f, 448.843f, 20f), Tableheader.ToString(), GUI.skin.customStyles[2]);
 		} else
-		Tableheader = GUI.TextField(new Rect(41.646f, 3f, 448.843f, 20f), Tableheader,100, GUI.skin.customStyles[2]);
+		try {Tableheader = GUI.TextField(new Rect(41.646f, 3f, 448.843f, 20f), Tableheader,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.Box(new Rect(22f, 23f, 470f, 1f),"",GUI.skin.customStyles[4]);//line
 		GUI.EndGroup();

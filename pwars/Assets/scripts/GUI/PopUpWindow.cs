@@ -18,8 +18,7 @@ public class PopUpWindow : WindowBase {
 	internal bool focusText;
 	
 	internal bool rText = true;
-	[HideInInspector]
-	public string Text = @"";
+	internal string Text = @"";
 	
 	internal bool vok = true;
 	
@@ -45,16 +44,16 @@ public class PopUpWindow : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-223.5f + Screen.width/2,-192f + Screen.height/2,409.9f,277f), Wnd1,"", GUI.skin.customStyles[6]);
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if(vtext){
 		if(focusText) { focusText = false; GUI.FocusControl("Text");}
@@ -62,7 +61,7 @@ public class PopUpWindow : WindowBase {
 		if(rText){
 		GUI.Label(new Rect(23f, 25f, 360f, 189f), Text.ToString());
 		} else
-		Text = GUI.TextField(new Rect(23f, 25f, 360f, 189f), Text,100);
+		try {Text = GUI.TextField(new Rect(23f, 25f, 360f, 189f), Text,100);}catch{};
 		}
 		if(vok){
 		if(focusOk) { focusOk = false; GUI.FocusControl("Ok");}

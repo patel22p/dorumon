@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading;
 public class Gun : GunBase
 {
+    internal float barrelVell;
+    int cursorid; Vector3 defPos, defPos2;
+    internal float tm;
     public float interval = 1;
-    [HideInInspector]
-    public float tm;
     public int howmuch = 1;
     public GameObject patronPrefab;
     public Vector3 random;        
@@ -19,32 +20,28 @@ public class Gun : GunBase
     public float otbrasivanie;
     public float BulletForce =1;
     public float radius = 1;
-    public float soundVolume;
+    public float soundVolume = 1;
+    public float gravitate = 0;
     public float timeToDestroy = 5;
     public float plDamageFactor = 1;
     public float zmDamageFactor = 1;
-    Vector3 defPos,defPos2;
     [FindAsset("noammo")]
     public AudioClip noammoSound;
-    int cursorid;
-    public float barrelVell;
-    
     public Light fireLight;
     public override void Init()
     {
         base.Init();
         enabled = false;
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);
-
     }
-    
     public override void InitValues()
     {
         GunType gt = (GunType)guntype;
         if (new[] { GunType.bazoka , GunType.granate , GunType.gravitygranate }.Contains(gt))
         {
             BulletForce = .15f;
-            expOttalkivanie = 10;
+            expOttalkivanie = 7;
+            radius = 6;
         }
         if (new[] { GunType.ak}.Contains(gt))
         {
@@ -54,15 +51,24 @@ public class Gun : GunBase
         {
             timeToDestroy = 2;
             BulletForce = .08f;
-            interval = 1;
-            
+            radius = 6;
+            interval = 1;            
         }
         if (new[] { GunType.gravitygranate }.Contains(gt)) //garvitationgranate
         {
             timeToDestroy = 5;
+            gravitate = 1;
             expOttalkivanie = 30;
-        }      
-
+        }
+        if (new[] { GunType.minigun}.Contains(gt))
+        {
+            damage = 30;
+        }
+        if (new[] { GunType.railgun }.Contains(gt))
+        {
+            expOttalkivanie = 6;
+        }
+        
         if (new[] { GunType.shotgun }.Contains(gt))
         {
             probivaemost = 1;
@@ -151,15 +157,8 @@ public class Gun : GunBase
             var p2 = cursor[cursorid].position;
             Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
             Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back * 2, r2))).GetComponent<Patron>();
+            patron.gun = this;
             patron.OwnerID = OwnerID;
-            patron.timeToDestroy = timeToDestroy;
-            patron.damage = this.damage;
-            patron.ExpForce = expOttalkivanie * 200;
-            patron.Force = new Vector3(0, 0, 300 * BulletForce);
-            patron.probivaemost = this.probivaemost;
-            patron.plDamageFactor = plDamageFactor;
-            patron.Radius = radius;
-            patron.zmDamageFactor = zmDamageFactor;
         }
         RandomFactorTm = Mathf.Min(RandomFactorTm + .2f, 1);
         this.pos -= rot * new Vector3(0, 0, vibration);

@@ -18,23 +18,20 @@ public class IrcChatWindow : WindowBase {
 	internal bool focusMsgs;
 	
 	internal bool rMsgs = true;
-	[HideInInspector]
-	public string Msgs = @"";
+	internal string Msgs = @"";
 	
 	internal bool vinput = true;
 	
 	internal bool focusInput;
 	
 	internal bool rInput = false;
-	[HideInInspector]
-	public string Input = @"";
+	internal string Input = @"";
 	
 	internal bool vUsers = true;
 	
 	internal bool focusUsers;
 	public string[] lUsers;
-	[HideInInspector]
-	public int iUsers = -1;
+	internal int iUsers = -1;
 	public string Users { get { if(lUsers.Length==0 || iUsers == -1) return ""; return lUsers[iUsers]; } set { iUsers = lUsers.SelectIndex(value); }}
 	
 	internal bool vircSend = true;
@@ -60,19 +57,19 @@ public class IrcChatWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iUsers = -1;
+        		iUsers = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-347.5f + Screen.width/2,-320f + Screen.height/2,679f,608.476f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if(vmsgs){
 		if(focusMsgs) { focusMsgs = false; GUI.FocusControl("Msgs");}
@@ -80,7 +77,7 @@ public class IrcChatWindow : WindowBase {
 		if(rMsgs){
 		GUI.Label(new Rect(30f, 50f, 503f, 488f), Msgs.ToString());
 		} else
-		Msgs = GUI.TextField(new Rect(30f, 50f, 503f, 488f), Msgs,100);
+		try {Msgs = GUI.TextField(new Rect(30f, 50f, 503f, 488f), Msgs,100);}catch{};
 		}
 		if(vinput){
 		if(focusInput) { focusInput = false; GUI.FocusControl("Input");}
@@ -88,15 +85,15 @@ public class IrcChatWindow : WindowBase {
 		if(rInput){
 		GUI.Label(new Rect(30f, 551f, 503f, 21f), Input.ToString());
 		} else
-		Input = GUI.TextField(new Rect(30f, 551f, 503f, 21f), Input,100);
+		try {Input = GUI.TextField(new Rect(30f, 551f, 503f, 21f), Input,100);}catch{};
 		}
 		if(vUsers){
 		if(focusUsers) { focusUsers = false; GUI.FocusControl("Users");}
 		GUI.SetNextControlName("Users");
 		GUI.Box(new Rect(546f, 50f, 114f, 488f), "");
-		sUsers = GUI.BeginScrollView(new Rect(546f, 50f, 114f, 488f), sUsers, new Rect(0,0, 94f, lUsers.Length* 15f));
+		sUsers = GUI.BeginScrollView(new Rect(546f, 50f, 114f, 488f), sUsers, new Rect(0,0, 104f, lUsers.Length* 15f));
 		int oldUsers = iUsers;
-		iUsers = GUI.SelectionGrid(new Rect(0,0, 94f, lUsers.Length* 15f), iUsers, lUsers,1,GUI.skin.customStyles[0]);
+		iUsers = GUI.SelectionGrid(new Rect(0,0, 104f, lUsers.Length* 15f), iUsers, lUsers,1,GUI.skin.customStyles[0]);
 		if (iUsers != oldUsers) Action("Users");
 		GUI.EndScrollView();
 		}

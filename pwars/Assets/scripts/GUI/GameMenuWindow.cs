@@ -35,8 +35,7 @@ public class GameMenuWindow : WindowBase {
 	internal bool focusFraglimit;
 	
 	internal bool rFraglimit = true;
-	[HideInInspector]
-	public int Fraglimit = 0;
+	internal int Fraglimit = 0;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverTeamSelectButton;
@@ -61,16 +60,16 @@ public class GameMenuWindow : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-245.5f + Screen.width/2,-224f + Screen.height/2,509.968f,328f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
 			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);
@@ -111,7 +110,7 @@ public class GameMenuWindow : WindowBase {
 		if(rFraglimit){
 		GUI.Label(new Rect(434.635f, 314f, 75.333f, 21.96f), Fraglimit.ToString());
 		} else
-		Fraglimit = int.Parse(GUI.TextField(new Rect(434.635f, 314f, 75.333f, 21.96f), Fraglimit.ToString(),100));
+		try {Fraglimit = int.Parse(GUI.TextField(new Rect(434.635f, 314f, 75.333f, 21.96f), Fraglimit.ToString(),100));}catch{};
 		}
 		if (GUI.Button(new Rect(509.968f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}

@@ -1,13 +1,25 @@
 ﻿using System;
 using UnityEngine;
-public enum SpawnType { zombie, RedSpawn, NoneSpawn, BlueSpawn ,none,ZombieSpawnLocation}
+public enum SpawnType { none = -1, zombie, RedSpawn, NoneSpawn, BlueSpawn, none2, ZombieSpawnLocation }
 [AddComponentMenu("MapTag")]
 public class MapTag : MonoBehaviour
 {
     public bool glass;
+    public bool disablelight;
+    public float lightIntensivity;
     public SpawnType SpawnType;
     public void Init()
     {
-        tag = "glass";
+        if (glass) tag = "glass";
     }
+    public void Awake()
+    {
+
+        if (this.light != null)
+        {
+            this.light.intensity = lightIntensivity;
+            if (disablelight) Destroy(this.light);
+        }
+    }
+    
 }

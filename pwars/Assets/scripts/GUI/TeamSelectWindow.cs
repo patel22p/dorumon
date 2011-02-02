@@ -21,8 +21,7 @@ public class TeamSelectWindow : WindowBase {
 	
 	internal bool focusTeams;
 	public string[] lTeams;
-	[HideInInspector]
-	public int iTeams = 0;
+	internal int iTeams = 0;
 	public string Teams { get { if(lTeams.Length==0 || iTeams == -1) return ""; return lTeams[iTeams]; } set { iTeams = lTeams.SelectIndex(value); }}
 	
 	internal bool vred = true;
@@ -75,19 +74,19 @@ public class TeamSelectWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iTeams = -1;
+        		iTeams = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-308.5f + Screen.width/2,-197f + Screen.height/2,596f,316f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Team Select");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");
@@ -101,9 +100,9 @@ public class TeamSelectWindow : WindowBase {
 		if(focusTeams) { focusTeams = false; GUI.FocusControl("Teams");}
 		GUI.SetNextControlName("Teams");
 		GUI.Box(new Rect(11f, 20f, 298f, 81f), "");
-		sTeams = GUI.BeginScrollView(new Rect(11f, 20f, 298f, 81f), sTeams, new Rect(0,0, 278f, lTeams.Length* 28.9599990844727f));
+		sTeams = GUI.BeginScrollView(new Rect(11f, 20f, 298f, 81f), sTeams, new Rect(0,0, 288f, lTeams.Length* 28.9599990844727f));
 		int oldTeams = iTeams;
-		iTeams = GUI.SelectionGrid(new Rect(0,0, 278f, lTeams.Length* 28.9599990844727f), iTeams, lTeams,1,GUI.skin.customStyles[0]);
+		iTeams = GUI.SelectionGrid(new Rect(0,0, 288f, lTeams.Length* 28.9599990844727f), iTeams, lTeams,1,GUI.skin.customStyles[0]);
 		if (iTeams != oldTeams) Action("Teams");
 		GUI.EndScrollView();
 		}

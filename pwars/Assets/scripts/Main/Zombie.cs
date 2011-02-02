@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 public enum ZombieType { Normal, Speed, Life }
 public class Zombie : Destroible
 {
-    internal ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed, ZombieType.Speed };
+    internal ZombieType[] priority = new ZombieType[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ZombieType.Life, ZombieType.Speed, ZombieType.Speed, ZombieType.Speed };
     public ZombieType zombieType;
     public float zombieBite;    
     public float speed = .3f;
@@ -65,9 +65,9 @@ public class Zombie : Destroible
     public void CreateZombie(int stage)
     {   
         zombieType = priority.Random();
-        var speed = zombieSpeedCurve.Evaluate(stage) * mapSettings.zombieSpeedFactor;
+        var speed = zombieSpeedCurve.Evaluate(stage) * _Game.mapSettings.zombieSpeedFactor;
         speed = Random.Range(speed, speed * .8f);
-        var life = zombieLifeCurve.Evaluate(stage) * mapSettings.zombieLifeFactor;
+        var life = zombieLifeCurve.Evaluate(stage) * _Game.mapSettings.zombieLifeFactor;
         life = Random.Range(life, life * .3f);
         if (zombieType == ZombieType.Life) { speed *= .7f; life *= 5; }
         if (zombieType == ZombieType.Speed) { speed *= 1.5f; life *= .7f; }
@@ -87,7 +87,7 @@ public class Zombie : Destroible
         SetAliveModel(zombieType, true);
         CanFreeze = zombieType != ZombieType.Life;
         speed = zombiespeed;
-        maxLife = Life = zombieLife;
+        MaxLife = Life = zombieLife;
         transform.localScale = Vector3.one * Math.Min(Mathf.Max(Mathf.Sqrt(zombieLife) / 10, 1f), 3);
     }
 
@@ -127,7 +127,7 @@ public class Zombie : Destroible
             PlayRandSound(gibSound);
         SetAliveModel(zombieType, false);
         if (killedby == _localPlayer.OwnerID)
-            _localPlayer.AddFrags(1, mapSettings.pointsPerZombie );
+            _localPlayer.AddFrags(1, _Game.mapSettings.pointsPerZombie );
     }
     public float tiltTm;
     public float spawninTM;
@@ -144,7 +144,8 @@ public class Zombie : Destroible
     }
     protected override void Update()
     {
-        base.Update();
+        base.Update();        
+
         if(isController)
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
@@ -201,7 +202,7 @@ public class Zombie : Destroible
         {
             zombieBite = 0;
             PlayRandSound(screamSounds);
-            ipl.RPCSetLife(ipl.Life - Math.Min(mapSettings.ZombieDamage, _Game.stage + 1), -1);
+            ipl.RPCSetLife(ipl.Life - Math.Min(_Game.mapSettings.zombieDamage, _Game.stage + 1), -1);
         }
     }
     public float pwait;
@@ -237,8 +238,8 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
                 rigidbody.angularVelocity = Vector3.zero;
-                var t = rot * new Vector3(0, 0, speed * Time.deltaTime * Time.timeScale * Time.timeScale * rigidbody.mass);
-                Ray r = new Ray(pos,t);
+                var t = rot * new Vector3(0, 0, 1) * .5f * speed * Time.deltaTime * Time.timeScale * Time.timeScale * (1 + ((_Game.stageTime / 200) * _Game.mapSettings.zombieSpeedGrowFactor));
+                Ray r = new Ray(pos, t);
                 if (Physics.Raycast(r, .3f, 1 << LayerMask.NameToLayer("Level")))
                     t.y++;
                 pos += t;                
@@ -351,7 +352,7 @@ public class Zombie : Destroible
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         base.OnPlayerConnectedBase(np);
-        RPCSetup((float)speed, (float)maxLife, (int)zombieType);
+        RPCSetup((float)speed, (float)MaxLife, (int)zombieType);
         if (!Alive)
         {
             Debug.Log("send zombie rpc die" + np);

@@ -12,14 +12,14 @@ public partial class Base2:MonoBehaviour
 public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Close, }
 public class HostWindow : WindowBase {
 		
-	public string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
-	public float Startup_Level{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Level", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Level", value); } }
-	public float Startup_Money{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Money", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Money", value); } }
-	public float Zombie_Speed{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Speed", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Speed", value); } }
-	public float Zombie_Damage{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Damage", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Damage", value); } }
-	public float Zombie_Life{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Life", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Life", value); } }
-	public float ZombiesAtStart{ get { return PlayerPrefs.GetFloat(Application.platform +"ZombiesAtStart", 5f); } set { PlayerPrefs.SetFloat(Application.platform +"ZombiesAtStart", value); } }
-	public float Money_per_frag{ get { return PlayerPrefs.GetFloat(Application.platform +"Money_per_frag", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Money_per_frag", value); } }
+	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
+	internal float Startup_Level{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Level", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Level", value); } }
+	internal float Startup_Money{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Money", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Money", value); } }
+	internal float Zombie_Speed{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Speed", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Speed", value); } }
+	internal float Zombie_Damage{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Damage", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Damage", value); } }
+	internal float Zombie_Life{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Life", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Life", value); } }
+	internal float ZombiesAtStart{ get { return PlayerPrefs.GetFloat(Application.platform +"ZombiesAtStart", 5f); } set { PlayerPrefs.SetFloat(Application.platform +"ZombiesAtStart", value); } }
+	internal float Money_per_frag{ get { return PlayerPrefs.GetFloat(Application.platform +"Money_per_frag", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Money_per_frag", value); } }
 	
 	internal bool vname = true;
 	
@@ -32,24 +32,21 @@ public class HostWindow : WindowBase {
 	internal bool focusPort;
 	
 	internal bool rPort = false;
-	[HideInInspector]
-	public int Port = 5300;
+	internal int Port = 5300;
 	
 	internal bool vmaxPlayers = true;
 	
 	internal bool focusMaxPlayers;
 	
 	internal bool rMaxPlayers = false;
-	[HideInInspector]
-	public int MaxPlayers = 6;
+	internal int MaxPlayers = 6;
 	
 	internal bool vmaxTime = true;
 	
 	internal bool focusMaxTime;
 	
 	internal bool rMaxTime = false;
-	[HideInInspector]
-	public int MaxTime = 999;
+	internal int MaxTime = 999;
 	
 	internal bool vKick_if_AFK = true;
 	
@@ -66,8 +63,7 @@ public class HostWindow : WindowBase {
 	internal bool focusMaxPing;
 	
 	internal bool rMaxPing = false;
-	[HideInInspector]
-	public int MaxPing = 0;
+	internal int MaxPing = 0;
 	
 	internal bool vfragCanvas = true;
 	
@@ -78,16 +74,14 @@ public class HostWindow : WindowBase {
 	internal bool focusFragLimitText;
 	
 	internal bool rFragLimitText = true;
-	[HideInInspector]
-	public string FragLimitText = @"Frag Limit";
+	internal string FragLimitText = @"Frag Limit";
 	
 	internal bool vmaxFrags = true;
 	
 	internal bool focusMaxFrags;
 	
 	internal bool rMaxFrags = false;
-	[HideInInspector]
-	public int MaxFrags = 20;
+	internal int MaxFrags = 20;
 	
 	internal bool vGameImage = true;
 	
@@ -98,16 +92,14 @@ public class HostWindow : WindowBase {
 	
 	internal bool focusGameMode;
 	public string[] lGameMode;
-	[HideInInspector]
-	public int iGameMode = 0;
+	internal int iGameMode = 0;
 	public string GameMode { get { if(lGameMode.Length==0 || iGameMode == -1) return ""; return lGameMode[iGameMode]; } set { iGameMode = lGameMode.SelectIndex(value); }}
 	
 	internal bool vMap = true;
 	
 	internal bool focusMap;
 	public string[] lMap;
-	[HideInInspector]
-	public int iMap = 0;
+	internal int iMap = 0;
 	public string Map { get { if(lMap.Length==0 || iMap == -1) return ""; return lMap[iMap]; } set { iMap = lMap.SelectIndex(value); }}
 	
 	internal bool vStartServer = true;
@@ -170,20 +162,20 @@ public class HostWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        	iGameMode = -1;
-	iMap = -1;
+        		iGameMode = -1;
+		iMap = -1;
 
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-306f + Screen.width/2,-273f + Screen.height/2,615f,465.5f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(25.5f, 36f, 556.5f, 118f), "");
 		GUI.Box(new Rect(0, 0, 556.5f, 118f), "");
@@ -194,7 +186,7 @@ public class HostWindow : WindowBase {
 		if(rName){
 		GUI.Label(new Rect(144.667f, 12.667f, 185.333f, 20.667f), Name.ToString());
 		} else
-		Name = GUI.TextField(new Rect(144.667f, 12.667f, 185.333f, 20.667f), Name,20);
+		try {Name = GUI.TextField(new Rect(144.667f, 12.667f, 185.333f, 20.667f), Name,20);}catch{};
 		}
 		GUI.Label(new Rect(361.333f, 14f, 72f, 19.334f), @"Port");
 		if(vport){
@@ -203,7 +195,7 @@ public class HostWindow : WindowBase {
 		if(rPort){
 		GUI.Label(new Rect(400.667f, 10f, 62.666f, 20.667f), Port.ToString());
 		} else
-		Port = int.Parse(GUI.TextField(new Rect(400.667f, 10f, 62.666f, 20.667f), Port.ToString(),4));
+		try {Port = int.Parse(GUI.TextField(new Rect(400.667f, 10f, 62.666f, 20.667f), Port.ToString(),4));}catch{};
 		}
 		GUI.Label(new Rect(258f, 79.667f, 72f, 19.334f), @"Players");
 		if(vmaxPlayers){
@@ -212,7 +204,7 @@ public class HostWindow : WindowBase {
 		if(rMaxPlayers){
 		GUI.Label(new Rect(316f, 75.667f, 62.666f, 20.667f), MaxPlayers.ToString());
 		} else
-		MaxPlayers = int.Parse(GUI.TextField(new Rect(316f, 75.667f, 62.666f, 20.667f), MaxPlayers.ToString(),1));
+		try {MaxPlayers = int.Parse(GUI.TextField(new Rect(316f, 75.667f, 62.666f, 20.667f), MaxPlayers.ToString(),1));}catch{};
 		}
 		GUI.Label(new Rect(27f, 81.667f, 97f, 14f), @"Time Limit");
 		if(vmaxTime){
@@ -221,7 +213,7 @@ public class HostWindow : WindowBase {
 		if(rMaxTime){
 		GUI.Label(new Rect(126f, 78.667f, 56f, 17f), MaxTime.ToString());
 		} else
-		MaxTime = int.Parse(GUI.TextField(new Rect(126f, 78.667f, 56f, 17f), MaxTime.ToString(),2));
+		try {MaxTime = int.Parse(GUI.TextField(new Rect(126f, 78.667f, 56f, 17f), MaxTime.ToString(),2));}catch{};
 		}
 		if(vKick_if_AFK){
 		if(focusKick_if_AFK) { focusKick_if_AFK = false; GUI.FocusControl("Kick_if_AFK");}
@@ -250,7 +242,7 @@ public class HostWindow : WindowBase {
 		if(rMaxPing){
 		GUI.Label(new Rect(475.666f, 50.667f, 72.834f, 13.04f), MaxPing.ToString());
 		} else
-		MaxPing = int.Parse(GUI.TextField(new Rect(475.666f, 50.667f, 72.834f, 13.04f), MaxPing.ToString(),100));
+		try {MaxPing = int.Parse(GUI.TextField(new Rect(475.666f, 50.667f, 72.834f, 13.04f), MaxPing.ToString(),100));}catch{};
 		}
 		GUI.Box(new Rect(22f, 43f, 521.243f, 1f),"",GUI.skin.customStyles[4]);//line
 		if(vfragCanvas){
@@ -264,7 +256,7 @@ public class HostWindow : WindowBase {
 		if(rFragLimitText){
 		GUI.Label(new Rect(6f, 8.667f, 95f, 14f), FragLimitText.ToString());
 		} else
-		FragLimitText = GUI.TextField(new Rect(6f, 8.667f, 95f, 14f), FragLimitText,100);
+		try {FragLimitText = GUI.TextField(new Rect(6f, 8.667f, 95f, 14f), FragLimitText,100);}catch{};
 		}
 		if(vmaxFrags){
 		if(focusMaxFrags) { focusMaxFrags = false; GUI.FocusControl("MaxFrags");}
@@ -272,7 +264,7 @@ public class HostWindow : WindowBase {
 		if(rMaxFrags){
 		GUI.Label(new Rect(105f, 5.667f, 56f, 17f), MaxFrags.ToString());
 		} else
-		MaxFrags = int.Parse(GUI.TextField(new Rect(105f, 5.667f, 56f, 17f), MaxFrags.ToString(),2));
+		try {MaxFrags = int.Parse(GUI.TextField(new Rect(105f, 5.667f, 56f, 17f), MaxFrags.ToString(),2));}catch{};
 		}
 		GUI.EndGroup();
 		}
@@ -294,9 +286,9 @@ public class HostWindow : WindowBase {
 		if(focusGameMode) { focusGameMode = false; GUI.FocusControl("GameMode");}
 		GUI.SetNextControlName("GameMode");
 		GUI.Box(new Rect(24.334f, 19.897f, 194.666f, 153.77f), "");
-		sGameMode = GUI.BeginScrollView(new Rect(24.334f, 19.897f, 194.666f, 153.77f), sGameMode, new Rect(0,0, 174.666f, lGameMode.Length* 26.9599990844727f));
+		sGameMode = GUI.BeginScrollView(new Rect(24.334f, 19.897f, 194.666f, 153.77f), sGameMode, new Rect(0,0, 184.666f, lGameMode.Length* 26.9599990844727f));
 		int oldGameMode = iGameMode;
-		iGameMode = GUI.SelectionGrid(new Rect(0,0, 174.666f, lGameMode.Length* 26.9599990844727f), iGameMode, lGameMode,1,GUI.skin.customStyles[0]);
+		iGameMode = GUI.SelectionGrid(new Rect(0,0, 184.666f, lGameMode.Length* 26.9599990844727f), iGameMode, lGameMode,1,GUI.skin.customStyles[0]);
 		if (iGameMode != oldGameMode) Action("GameMode");
 		GUI.EndScrollView();
 		}
@@ -305,9 +297,9 @@ public class HostWindow : WindowBase {
 		if(focusMap) { focusMap = false; GUI.FocusControl("Map");}
 		GUI.SetNextControlName("Map");
 		GUI.Box(new Rect(223f, 19.897f, 100f, 153.77f), "");
-		sMap = GUI.BeginScrollView(new Rect(223f, 19.897f, 100f, 153.77f), sMap, new Rect(0,0, 80f, lMap.Length* 26.9599990844727f));
+		sMap = GUI.BeginScrollView(new Rect(223f, 19.897f, 100f, 153.77f), sMap, new Rect(0,0, 90f, lMap.Length* 26.9599990844727f));
 		int oldMap = iMap;
-		iMap = GUI.SelectionGrid(new Rect(0,0, 80f, lMap.Length* 26.9599990844727f), iMap, lMap,1,GUI.skin.customStyles[0]);
+		iMap = GUI.SelectionGrid(new Rect(0,0, 90f, lMap.Length* 26.9599990844727f), iMap, lMap,1,GUI.skin.customStyles[0]);
 		if (iMap != oldMap) Action("Map");
 		GUI.EndScrollView();
 		}

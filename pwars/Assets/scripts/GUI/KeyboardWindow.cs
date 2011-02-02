@@ -35,16 +35,16 @@ public class KeyboardWindow : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-395.5f + Screen.width/2,-240f + Screen.height/2,775f,470f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage3!=null)
 			GUI.DrawTexture(Image3,imgImage3, ScaleMode.ScaleToFit, imgImage3 is RenderTexture?false:true);

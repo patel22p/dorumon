@@ -12,12 +12,12 @@ public partial class Base2:MonoBehaviour
 public enum LoginWindowEnum { LoginAsGuest,Login,Registr,AutoLogin, }
 public class LoginWindow : WindowBase {
 		
-	public string Nick{ get { return PlayerPrefs.GetString(Application.platform +"Nick", @""); } set { PlayerPrefs.SetString(Application.platform +"Nick", value); } }
-	public string LoginNick{ get { return PlayerPrefs.GetString(Application.platform +"LoginNick", @""); } set { PlayerPrefs.SetString(Application.platform +"LoginNick", value); } }
-	public string LoginPassw{ get { return PlayerPrefs.GetString(Application.platform +"LoginPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"LoginPassw", value); } }
-	public string RegNick{ get { return PlayerPrefs.GetString(Application.platform +"RegNick", @""); } set { PlayerPrefs.SetString(Application.platform +"RegNick", value); } }
-	public string RegPassw{ get { return PlayerPrefs.GetString(Application.platform +"RegPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"RegPassw", value); } }
-	public string Email{ get { return PlayerPrefs.GetString(Application.platform +"Email", @""); } set { PlayerPrefs.SetString(Application.platform +"Email", value); } }
+	internal string Nick{ get { return PlayerPrefs.GetString(Application.platform +"Nick", @""); } set { PlayerPrefs.SetString(Application.platform +"Nick", value); } }
+	internal string LoginNick{ get { return PlayerPrefs.GetString(Application.platform +"LoginNick", @""); } set { PlayerPrefs.SetString(Application.platform +"LoginNick", value); } }
+	internal string LoginPassw{ get { return PlayerPrefs.GetString(Application.platform +"LoginPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"LoginPassw", value); } }
+	internal string RegNick{ get { return PlayerPrefs.GetString(Application.platform +"RegNick", @""); } set { PlayerPrefs.SetString(Application.platform +"RegNick", value); } }
+	internal string RegPassw{ get { return PlayerPrefs.GetString(Application.platform +"RegPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"RegPassw", value); } }
+	internal string Email{ get { return PlayerPrefs.GetString(Application.platform +"Email", @""); } set { PlayerPrefs.SetString(Application.platform +"Email", value); } }
 	
 	internal int tabTabControl4;
 	
@@ -99,16 +99,16 @@ public class LoginWindow : WindowBase {
     {
         
     }
-    void OnGUI()
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
 		GUI.Window(wndid1,new Rect(-302.5f + Screen.width/2,-192f + Screen.height/2,612f,371f), Wnd1,"");
-
+		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		focusWindow = false;
+		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(19f, 21f, 574f, 88f), "");
 		GUI.Box(new Rect(0, 0, 574f, 88f), "");
@@ -132,7 +132,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rNick){
 		GUI.Label(new Rect(68f, 137.04f, 189.333f, 19f), Nick.ToString());
 		} else
-		Nick = GUI.TextField(new Rect(68f, 137.04f, 189.333f, 19f), Nick,10);
+		try {Nick = GUI.TextField(new Rect(68f, 137.04f, 189.333f, 19f), Nick,10);}catch{};
 		}
 		if(vLoginAsGuest){
 		if(focusLoginAsGuest) { focusLoginAsGuest = false; GUI.FocusControl("LoginAsGuest");}
@@ -153,7 +153,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rLoginNick){
 		GUI.Label(new Rect(193f, 52.04f, 189.333f, 19f), LoginNick.ToString());
 		} else
-		LoginNick = GUI.TextField(new Rect(193f, 52.04f, 189.333f, 19f), LoginNick,10);
+		try {LoginNick = GUI.TextField(new Rect(193f, 52.04f, 189.333f, 19f), LoginNick,10);}catch{};
 		}
 		if(vLogin){
 		if(focusLogin) { focusLogin = false; GUI.FocusControl("Login");}
@@ -172,7 +172,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rLoginPassw){
 		GUI.Label(new Rect(193f, 75.04f, 189.333f, 19f), LoginPassw.ToString());
 		} else
-		LoginPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), LoginPassw,'*',10);
+		try {LoginPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), LoginPassw,'*',10);}catch{};
 		}
 		}
 		if(tabTabControl4==2){
@@ -183,7 +183,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rRegNick){
 		GUI.Label(new Rect(193f, 52.04f, 189.333f, 19f), RegNick.ToString());
 		} else
-		RegNick = GUI.TextField(new Rect(193f, 52.04f, 189.333f, 19f), RegNick,10);
+		try {RegNick = GUI.TextField(new Rect(193f, 52.04f, 189.333f, 19f), RegNick,10);}catch{};
 		}
 		if(vRegistr){
 		if(focusRegistr) { focusRegistr = false; GUI.FocusControl("Registr");}
@@ -202,7 +202,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rRegPassw){
 		GUI.Label(new Rect(193f, 75.04f, 189.333f, 19f), RegPassw.ToString());
 		} else
-		RegPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), RegPassw,'*',10);
+		try {RegPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), RegPassw,'*',10);}catch{};
 		}
 		GUI.Label(new Rect(142f, 98.04f, 47f, 19f), @"Email");
 		if(vEmail){
@@ -211,7 +211,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(rEmail){
 		GUI.Label(new Rect(193f, 99.04f, 189.333f, 19f), Email.ToString());
 		} else
-		Email = GUI.TextField(new Rect(193f, 99.04f, 189.333f, 19f), Email,10);
+		try {Email = GUI.TextField(new Rect(193f, 99.04f, 189.333f, 19f), Email,10);}catch{};
 		}
 		}
 		GUI.EndGroup();

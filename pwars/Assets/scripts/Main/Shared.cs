@@ -10,19 +10,18 @@ using System.Linq;
 public class Shared : bs
 {
     public bool isController { get { return selected == Network.player.GetHashCode(); } }
-    public Vector3 syncPos;
-    public Quaternion syncRot;
-    public Vector3 syncVelocity;
-    public Vector3 syncAngularVelocity;
-    public Vector3 spawnpos;
-    public NetworkStateSynchronization nss = NetworkStateSynchronization.ReliableDeltaCompressed;
-    public Quaternion spawnrot;
-    public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
-    public int selected = -1;
+    internal Vector3 syncPos;
+    internal Quaternion syncRot;
+    internal Vector3 syncVelocity;
+    internal Vector3 syncAngularVelocity;
+    internal Vector3 spawnpos;
+    internal Quaternion spawnrot;
+    internal bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
+    internal int selected = -1;
     internal float[] tmsend = new float[maxConId];
+    internal Renderer[] renderers;
     public AnimationCurve SendPackets;
     public bool shared = true;
-    public Renderer[] renderers;
     [FindAsset("collision1")]
     public AudioClip soundcollision;
     public override void Awake()

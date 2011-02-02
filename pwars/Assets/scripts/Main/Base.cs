@@ -13,18 +13,23 @@ using System.Diagnostics;
 using Random = UnityEngine.Random;
 public class bs : Base2
 {
-    public const string webserver = "http://192.168.30.113/";
-    public const int maxConId= 100; 
-    public float mass { get { return rigidbody.mass / collider.bounds.size.magnitude; } }
-    public int OwnerID = -1;
-    public bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
+    public static NetworkPlayer? sendto;
+    internal const string webserver = "http://192.168.30.113/";
+    internal const int maxConId= 100;
+    internal float mass { get { return rigidbody.mass / collider.bounds.size.magnitude; } }
+    internal int OwnerID = -1;
+    internal bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
+    bool defenabled;
+    protected virtual void OnServerInitialized() { Enable(); }
+    protected virtual void OnConnectedToServer() { Enable(); }
+    protected virtual void Enable() { if (networkView != null) enabled = defenabled; }
     public void ShowPopup(string s)
     {
         Debug.Log("PopUp: " + s);
         _PopUpWindow.ShowDontHide(_Loader);
         _PopUpWindow.Text = s;
+        _PopUpWindow.AlwaysOnTop = true;
     }
-    bool defenabled;
     public virtual void Awake()
     {        
         defenabled = enabled;
@@ -37,11 +42,6 @@ public class bs : Base2
             }
         }
     }
-    //protected virtual void Start(){}
-    protected virtual void OnServerInitialized() { Enable(); }
-    protected virtual void OnConnectedToServer() { Enable(); }
-    protected virtual void Enable() { if (networkView != null) enabled = defenabled; }
-
     public virtual void InitValues()
     {
         
@@ -60,56 +60,6 @@ public class bs : Base2
             if (b.owner == pl) return b;
         return null;
     }
-    
-    //public const string hosting = "http://physxwars.rh10.ru/";
-    public static bool build { get { return _Loader.build; } }
-    public static bool debug { get { return !_Loader.build; } }
-    public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
-    public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
-    public static bool DebugKey(KeyCode key)
-    {
-        if (Input.GetKeyDown(key))
-            print("Debug Key" + key);
-        return Input.GetKeyDown(key);
-    }
-    public static string joinString(char j, params object[] o)
-    {
-        string s = "";
-        foreach (object a in o)
-            s += a.ToString() + j;
-        return s.Trim(j);
-    }
-    public static IEnumerable<Player> TP(Team t)
-    {
-        foreach (Player p in players)
-                if (p != null && p.team == t) yield return p;
-    }
-    public static bool IsPointed(LayerMask collmask, float len)
-    {
-        return RayCast(collmask,len).collider != null;
-    }
-    public static RaycastHit RayCast(LayerMask msk,float len)
-    {
-        if (!lockCursor) return default(RaycastHit);
-        
-        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
-        ray.origin = ray.GetPoint(1);
-        RaycastHit h;
-        Physics.Raycast(ray, out h, len, msk);
-        return h;
-    }
-    public static IEnumerable<Transform> getChild(Transform t)
-    {
-        if(t!=null)
-        for (int i = 0; i < t.childCount; i++)
-            yield return t.GetChild(i);
-    }
-    public static float clamp(float a)
-    {
-        if (a > 180) return a - 360f;
-        return a;
-    }
-    public static Player[] players { get { return _Game.players; } }
     public void PlaySound(AudioClip au)
     {
         PlaySound(au, 1);
@@ -124,7 +74,6 @@ public class bs : Base2
         if (!transform.root.audio.isPlaying)
             transform.GetComponentInParrent<AudioSource>().audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)], volume);
     }
-    public Transform root { get { return this.transform.root; } }
     public void LocalHide() { Show(false); }
     public void LocalShow() { Show(true); }
     public void RPCShow(bool v) { CallRPC("Show",v); }
@@ -138,7 +87,6 @@ public class bs : Base2
             r.onShow(value);
         }
     }
-
     public static void Show(GameObject g, bool value)
     {
         foreach (var rigidbody in g.GetComponentsInChildren<Rigidbody>())
@@ -167,12 +115,9 @@ public class bs : Base2
         //}
         
     }
-    
     public virtual void onShow(bool enabled)
     {
     }
-    
-    public static NetworkPlayer? sendto;
     public void CallRPC(string name, params object[] obs)
     {        
         if (new StackTrace().FrameCount > 30) throw new StackOverflowException();
@@ -184,5 +129,54 @@ public class bs : Base2
         else
             networkView.RPC(name, sendto.Value, obs);
         
+    }
+    public Transform root { get { return this.transform.root; } }
+    public static bool build { get { return _Loader.build; } }
+    public static bool debug { get { return !_Loader.build; } }
+    public static Player[] players { get { return _Game.players; } }
+    public static bool isWebPlayer { get { return Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXWebPlayer; } }
+    public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
+    public static bool DebugKey(KeyCode key)
+    {
+        if (Input.GetKeyDown(key))
+            print("Debug Key" + key);
+        return Input.GetKeyDown(key);
+    }
+    public static string joinString(char j, params object[] o)
+    {
+        string s = "";
+        foreach (object a in o)
+            s += a.ToString() + j;
+        return s.Trim(j);
+    }
+    public static IEnumerable<Player> TP(Team t)
+    {
+        foreach (Player p in players)
+            if (p != null && p.team == t) yield return p;
+    }
+    public static bool IsPointed(LayerMask collmask, float len)
+    {
+        return RayCast(collmask, len).collider != null;
+    }
+    public static RaycastHit RayCast(LayerMask msk, float len)
+    {
+        if (!lockCursor) return default(RaycastHit);
+
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
+        ray.origin = ray.GetPoint(1);
+        RaycastHit h;
+        Physics.Raycast(ray, out h, len, msk);
+        return h;
+    }
+    public static IEnumerable<Transform> getChild(Transform t)
+    {
+        if (t != null)
+            for (int i = 0; i < t.childCount; i++)
+                yield return t.GetChild(i);
+    }
+    public static float clamp(float a)
+    {
+        if (a > 180) return a - 360f;
+        return a;
     }
 }

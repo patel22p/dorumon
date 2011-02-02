@@ -36,13 +36,42 @@ public class InspectorSearch : EditorWindow
         if (GUI.Button("Apply"))
             ApplyAll();
         if (GUI.Button("Add"))
-            if (!instances.Contains(Selection.activeGameObject.name))
-                instances.Add(Selection.activeGameObject.name);
+            if (!instances.Contains(Selection.activeObject.name))
+            {
+                instances.Add(Selection.activeObject.name);
+                SaveParams();
+            }
         GUI.EndHorizontal();
         DrawObjects();
         DrawSearch();
     }
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
+    private void DrawObjects()
+    {
+        List<string> toremove = new List<string>();
+        foreach (var inst in instances)
+        {
+            GUI.BeginHorizontal();
+            if (GUI.Button(inst))
+            {
+                
+                Object o = GameObject.Find(inst) != null ? GameObject.Find(inst) : GameObject.FindObjectsOfTypeIncludingAssets(typeof(Object)).FirstOrDefault(a => a.name == inst);                
+                Selection.activeObject = o;
+                var p = AssetDatabase.GetAssetPath(o);
+                if (p != null && AssetDatabase.GetAssetPath(o).EndsWith(".unity"))
+                {
+                    EditorApplication.OpenScene(p);
+                    return;
+                }                
+            }
+            if (GUI.Button("X", GUI.ExpandWidth(false)))
+                toremove.Add(inst);
+            GUI.EndHorizontal();
+        }
+        foreach (var inst in toremove)
+            instances.Remove(inst);
+
+    }
     private void DrawSearch()
     {
         search = EditorGUILayout.TextField(search);
@@ -63,6 +92,7 @@ public class InspectorSearch : EditorWindow
 
                 SerializedObject so = new SerializedObject(m);
                 SerializedProperty pr = so.GetIterator();
+                
                 pr.NextVisible(true);
                 do
                 {
@@ -71,6 +101,7 @@ public class InspectorSearch : EditorWindow
                         || (pr.propertyType == SerializedPropertyType.Enum && pr.enumNames.Length >= 0 && pr.enumNames[pr.enumValueIndex].ToLower().Contains(search.ToLower()))
                         && pr.editable)
                         EditorGUILayout.PropertyField(pr);
+                    
                     if (so.ApplyModifiedProperties())
                     {
                         //Debug.Log(pr.name);
@@ -160,26 +191,6 @@ public class InspectorSearch : EditorWindow
     {
         EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
     }
-    private void DrawObjects()
-    {        
-        List<string> toremove = new List<string>();
-        foreach (var inst in instances)
-        {
-            GUI.BeginHorizontal();
-            if (GUI.Button(inst))
-            {
-                GameObject o = GameObject.Find(inst) != null ? GameObject.Find(inst) : (GameObject)GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);
-                Selection.activeGameObject = o;
-                SaveParams();
-            }
-            if (GUI.Button("X", GUI.ExpandWidth(false)))
-                toremove.Add(inst);
-            GUI.EndHorizontal();
-        }
-        foreach (var inst in toremove)
-            instances.Remove(inst);
-
-    }
     protected virtual void SetupLevel()
     {
         foreach (Transform g in Selection.activeGameObject.transform)
@@ -201,31 +212,6 @@ public class InspectorSearch : EditorWindow
         }
     }
     public GameObject selectedGameObject;
-    private void CopyComponent()
-    {
-        if (GUI.Button("CloneComp"))
-        {
-            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
-        }
-        if (selectedGameObject != null)
-        {
-            foreach (var c in selectedGameObject.GetComponents<Component>())
-                if (GUI.Button(c.GetType().Name))
-                {
-                    foreach (GameObject g in Selection.gameObjects)
-                    {
-                        var c2 = g.AddComponent(c.GetType());
-                        foreach (FieldInfo f in c.GetType().GetFields())
-                            f.SetValue(c2, f.GetValue(c));
-                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-                        //    if(p.CanRead && p.CanWrite)
-                        //        p.SetValue(c2, p.GetValue(c,null),null);
-                        //Debug.Log(c.GetType().GetProperties().Length+"+");
-                    }
-                }
-            GUI.Space(10);
-        }
-    }
     void OnInspectorGUI()
     {
         
@@ -280,6 +266,21 @@ public class InspectorSearch : EditorWindow
         var file = dir + datetime + ".jpg";
         Debug.Log("saved to: " + file);
         Application.CaptureScreenshot(file);
+    }
+    [MenuItem("GameObject/Attach Prefab")]
+    static void AttachPrefab()
+    {
+        var b = Selection.gameObjects.FirstOrDefault(a => AssetDatabase.IsMainAsset(a));
+        foreach (var g in Selection.gameObjects.ToArray())
+        {
+            if (g != b)
+            {
+                var p = EditorUtility.InstantiatePrefab(b);
+                var d = (GameObject)p;
+                d.transform.parent = g.transform;
+                d.transform.position = g.transform.position;
+            }
+        }
     }
     [MenuItem("GameObject/Child")]
     static void CreateChild()
@@ -349,7 +350,7 @@ public class InspectorSearch : EditorWindow
         foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
         {
             var p = AssetDatabase.GetAssetPath(m);
-            var nwp = p.Substring(0, p.Length - 4) + "D.mat";
+            var nwp = p.Substring(0, p.Length - 4) + "D" + Random.Range(10, 99) + ".mat";
             AssetDatabase.DeleteAsset(nwp);
             AssetDatabase.CopyAsset(p, nwp);
             AssetDatabase.Refresh();
@@ -495,6 +496,31 @@ public class InspectorSearch : EditorWindow
                 g.transform.position = t.position;
                 g.transform.rotation = t.rotation;
             }
+        }
+    }
+    private void CopyComponent()
+    {
+        if (GUI.Button("CloneComp"))
+        {
+            selectedGameObject = selectedGameObject == null ? Selection.activeGameObject : null;
+        }
+        if (selectedGameObject != null)
+        {
+            foreach (var c in selectedGameObject.GetComponents<Component>())
+                if (GUI.Button(c.GetType().Name))
+                {
+                    foreach (GameObject g in Selection.gameObjects)
+                    {
+                        var c2 = g.AddComponent(c.GetType());
+                        foreach (FieldInfo f in c.GetType().GetFields())
+                            f.SetValue(c2, f.GetValue(c));
+                        //foreach (PropertyInfo p in c.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                        //    if(p.CanRead && p.CanWrite)
+                        //        p.SetValue(c2, p.GetValue(c,null),null);
+                        //Debug.Log(c.GetType().GetProperties().Length+"+");
+                    }
+                }
+            GUI.Space(10);
         }
     }
     public TimerA _TimerA = new TimerA();

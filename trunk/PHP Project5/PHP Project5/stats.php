@@ -3,10 +3,7 @@ include 'common.php';
 
 
 $path = "games/stats-$game.txt";
-if($find)
-{
-	
-}		
+
 if(!$game) 
 	exit("wrong params");
 

@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Globalization;
 using System.Threading;
+using System.Reflection;
 
 namespace XamlParser
 {
@@ -21,7 +22,8 @@ namespace XamlParser
         [STAThread]
         static void Main(string[] args)
         {
-
+            
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location));
             Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
             Start();
         }
@@ -74,8 +76,10 @@ namespace XamlParser
             public Window w;
             string ongui = "";
             string winfunc = "";
+            string showfunc = "";
             string privfields = "";
             string prefFields = "";
+            string enums = "";
             string pubfields = "";
             string start = "";
             public string templ;
@@ -109,32 +113,23 @@ namespace XamlParser
                     ongui += "\t\tGUI.Window(wndid" + fieldi + "," + "new Rect(" + x1 + "," + y1 + "," + Width(c) + "f," + Height(c) + "f)" + ", Wnd" + fieldi + ",\"\"" + GetStyle(c) + ");\r\n";
                     winfunc += "\tvoid Wnd" + fieldi + "(int id){\r\n";
                     winfunc += "\t\tif (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}\r\n";
+                    winfunc += "\t\tif (AlwaysOnTop) { GUI.BringWindowToFront(id);}";
                     winfunc += "\t\tfocusWindow = false;\r\n";
                     winfunc += "\t\tbool onMouseOver;\r\n";
                     Draw(c);
                     if (!w.Topmost)
-                        WriteLine("if (GUI.Button(new Rect(" + Width(c) + "f - 25, 5, 20, 15), \"X\")) { enabled = false;onButtonClick();Action(\"Close\"); }");
+                        WriteLine("if (GUI.Button(new Rect(" + Width(c) + "f - 25, 5, 20, 15), \"X\")) { enabled = false;onButtonClick();" + Action("Close") + " }");
                     //WriteLine(@"if(GUI.tooltip!="""") GUI.Label(new Rect(Input.mousePosition.x+10-rect.x,Screen.height -Input.mousePosition.y+10-rect.y, 100, 200), GUI.tooltip);");
                     winfunc += "\t}\r\n";
+                    ongui += "\t\tbase.OnGUI();";
                 }
-                templ = templ.Replace("_fields_", prefFields + pubfields + privfields, "_funcs_", winfunc, "_start_", start, "_ongui_", ongui);
+                templ = templ.Replace("_fields_", prefFields + pubfields + privfields, "_funcs_", winfunc, "_start_", start, "_ongui_", ongui, "_showfunc_", showfunc, "_enums_", enums);
                 File.WriteAllText(output + "scripts/GUI/" + filename + ".cs", templ, System.Text.Encoding.UTF8);
             }
             string GetStyle(FrameworkElement f)
             {
 
-                int i = Panel.GetZIndex(f);
-                //if (f.Tag != null)
-                //{
-                //    string prv = "GUIStyle style" + f.Tag + ";";
-                //    if (!privfields.Contains(prv))
-                //    {
-                //        WritePrivateField(prv);
-                //        start += "\t\tstyle" + f.Tag + " = GUI.skin.FindStyle(\"" + f.Tag + "\");\r\n";
-                //    }
-                //    return ", GUI.skin.FindStyle(\"" + f.Tag + "\")";
-                //}
-                //else 
+                int i = Panel.GetZIndex(f);                
                 if (i != 0)
                     return ", GUI.skin.customStyles[" + i + "]";
                 else
@@ -144,6 +139,7 @@ namespace XamlParser
             }
             private void Draw(Canvas parent)
             {
+                
                 foreach (FrameworkElement c in parent.Children)
                 {
                     bool hasname;
@@ -160,6 +156,7 @@ namespace XamlParser
                         {
                             WriteinternalField("bool v" + c.Name + " = " + (c.Visibility == 0 ? "true" : "false") + ";");
                             WriteLine("if(v" + c.Name + "){");
+                            //WriteReset("v" + c.Name + " = " + (c.Visibility == 0 ? "true" : "false") + ";");
                         }
 
                         c.Name = char.ToUpper(c.Name[0]) + c.Name.Substring(1);
@@ -208,7 +205,7 @@ namespace XamlParser
             {
                 if (f.Width + "" == "NaN")
                 {
-                    if (f.ActualWidth == 0) Debugger.Break();
+                    if (f.ActualWidth == 0) return float.NaN;
                     return (float)f.ActualWidth;
                 }
                 return (float)f.Width;
@@ -232,11 +229,11 @@ namespace XamlParser
             {
                 bool toggle = c is CheckBox;
                 var n = c.Name;
-                //WritepublicField("Action on" + c.Name + ";");                
+                
                 WriteBoolField(n, ((toggle && ((CheckBox)c).IsChecked.Value) ? true : false), c.ClipToBounds);
                 WriteLine("bool old" + n + " = " + n + ";");
                 WriteLine(n + " = GUI." + (toggle ? "Toggle" : "Button") + "(" + Rect(c) + (toggle ? "," + n : "") + ", new GUIContent(" + GetContent(c.Content) + ",\"" + c.Tag + "\"));");
-                WriteLine("if (" + n + " != old" + n + (toggle ? "" : " && " + n) + " ) {Action(\"" + n + "\");onButtonClick(); }");
+                WriteLine("if (" + n + " != old" + n + (toggle ? "" : " && " + n) + " ) {" + Action(n) + "onButtonClick(); }");
                 WriteLine("onMouseOver = " + Rect(c) + ".Contains(Event.current.mousePosition);");
                 WriteLine("if (oldMouseOver" + n + " != onMouseOver && onMouseOver) onOver();");
                 WriteLine("oldMouseOver" + n + " = onMouseOver;");
@@ -272,19 +269,20 @@ namespace XamlParser
             private void ListBox(ListBox c)
             {
                 var n = c.Name;
-                pubfields += "\tpublic string[] l" + n + ";\r\n";
+                WritePublicField("string[] l{0};", n);
                 double h = 15;
                 if (c.Items.Count > 0)
                     h = Height((ListBoxItem)c.Items[0]);
-                WritePrivateField("Vector2 s" + n + ";");
+                WritePrivateField("Vector2 s{0};", n);
                 WritePrefsField("Int", "i" + n, c.SelectedIndex, c.ClipToBounds);
-                WritePublicField("string " + n + " { get { if(l" + n + ".Length==0) return \"\"; return l" + n + "[i" + n + "]; } set { i" + n + " = l" + n + ".SelectIndex(value); }}");
-                string rect = "new Rect(0,0, " + (Width(c) - 20) + "f, l" + n + ".Length* " + h + "f)";
-                WriteLine("GUI.Box(" + Rect(c) + ", \"\");");
-                WriteLine("s" + n + " = GUI.BeginScrollView(" + Rect(c) + ", s" + n + ", " + rect + ");");
-                WriteLine("int old" + n + " = i" + n + ";");
-                WriteLine("i" + n + " = GUI.SelectionGrid(" + rect + ", i" + n + ", l" + n + ",1,GUI.skin.customStyles[0]);");
-                WriteLine("if (i" + n + " != old" + n + ") Action(\"" + n + "\");");
+                WritePublicField("string {0} { get { if(l{0}.Length==0 || i{0} == -1) return \"\"; return l{0}[i{0}]; } set { i{0} = l{0}.SelectIndex(value); }}", n);
+                string rect = "new Rect(0,0, " + (Width(c) - 10) + "f, l" + n + ".Length* " + h + "f)";
+                WriteLine("GUI.Box(" + Rect(c) + ", \"\");",n);
+                WriteLine("s{0} = GUI.BeginScrollView(" + Rect(c) + ", s{0}, " + rect + ");", n);
+                WriteLine("int old{0} = i{0};", n);
+                WriteReset("i{0} = -1;", n);
+                WriteLine("i{0} = GUI.SelectionGrid(" + rect + ", i{0}, l{0},1,GUI.skin.customStyles[0]);", n);
+                WriteLine("if (i{0} != old{0}) " + Action(n),n);
                 //WritepublicField("Action<string> on" + n + ";");
                 WriteLine("GUI.EndScrollView();");
             }
@@ -305,8 +303,10 @@ namespace XamlParser
                 WriteLine("if(r" + n + "){");
                 WriteLine("GUI.Label(" + Rect(c) + ", " + n + ".ToString()" + GetStyle(c) + ");");
                 WriteLine("} else");
-                WriteLine(n + " = " + (b ? "int.Parse(" : "") +
-                    "GUI.TextField(" + Rect(c) + ", " + n + (b ? ".ToString()" : "") + (c.MaxLength == 0 ? ",100" : "," + c.MaxLength) + GetStyle(c) + (b ? ")" : "") + ");");
+                var p = (c.Tag+"" == "pass");                
+                var m = c.MaxLength;
+                WriteLine("try {"+n + " = " + (b ? "int.Parse(" : "") +
+                    "GUI." + (p ? "PasswordField" : "TextField") + "(" + Rect(c) + ", " + n + (b ? ".ToString()" : "") + (p ? ",'*'" : "") + (m == 0 ? ",100" : "," + m) + GetStyle(c) + (b ? ")" : "") + ");}catch{};");
                 WritePrefsField((b ? "Int" : "String"), n, (b ? c.Text : eval(c.Text)), c.ClipToBounds);
                 //WritepublicField((b ? "int " : "string ") + n + " = " + (b ? c.Text : eval(c.Text)) + ";");
             }
@@ -322,7 +322,7 @@ namespace XamlParser
                 WriteStart(n + " = " + Rect(a) + ";");
                 var f = GetImage(a);
                 WriteLine("if(" + f + "!=null)");
-                WriteLine("\tGUI.DrawTexture(" + n + "," + f + ", ScaleMode.ScaleToFit);");
+                WriteLine("\tGUI.DrawTexture(" + n + "," + f + ", ScaleMode.ScaleToFit, " + f + " is RenderTexture?false:true);");
             }
             string GetImage(Image a)
             {
@@ -345,12 +345,12 @@ namespace XamlParser
                 foreach (TabItem i in c.Items)
                     strs += "\"" + i.Header + "\",";
 
-                WriteLine("GUILayout.BeginArea(new Rect(0f, 0, " + Width(c) + ", 18));");
+                WriteLine("GUILayout.BeginArea(new Rect(0f, 0, " + Width(c) + "f, 18));");
                 WriteLine("tab" + c.Name + " = GUILayout.Toolbar(tab" + c.Name + ", new string[] { " + strs + " }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));");
                 WriteLine("GUILayout.EndArea();");
 
-                WriteLine("GUI.BeginGroup(new Rect(0, 18, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
-                WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + ", " + (Height(c) - 18) + "), \"\");");
+                WriteLine("GUI.BeginGroup(new Rect(0, 18, " + Width(c) + "f, " + (Height(c) - 18) + "f), \"\");");
+                WriteLine("GUI.Box(new Rect(0, 0, " + Width(c) + "f, " + (Height(c) - 18) + "f), \"\");");
                 foreach (TabItem i in c.Items)
                 {
                     WriteLine("if(tab" + c.Name + "==" + tab++ + "){");
@@ -375,7 +375,7 @@ namespace XamlParser
             void WritePrefsField(string type, string name, object def, bool save)
             {
                 if (save)
-                    prefFields += "\tinternal " + type.ToLower() + " " + name + "{ get { return PlayerPrefs.Get" + type + "(\"" + name + "\", " + def + "); } set { PlayerPrefs.Set" + type + "(\"" + name + "\", value); } }\r\n";
+                    prefFields += "\tinternal " + type.ToLower() + " " + name + "{ get { return PlayerPrefs.Get" + type + "(Application.platform +\"" + name + "\", " + def + "); } set { PlayerPrefs.Set" + type + "(Application.platform +\"" + name + "\", value); } }\r\n";
                 else
                     pubfields += "\tinternal " + type.ToLower() + " " + name + " = " + def + ";\r\n";
 
@@ -384,18 +384,48 @@ namespace XamlParser
             {
                 privfields += "\tprivate " + s + "\r\n";
             }
+            void WritePrivateField(string s, params string[] prms)
+            {
+                privfields += "\tprivate " + Format(s, prms) + "\r\n";
+            }
+            string Action(string s)
+            {
+                enums +=s+",";
+                return "Action(\"" + s + "\");";
+            }
             void WriteinternalField(string s)
             {
-                pubfields += "\tinternal " + s + "\r\n";
+                pubfields += "\t\r\n\tinternal " + s + "\r\n";
             }
-
+            void WriteinternalField(string s, params string[] prms)
+            {
+                pubfields += "\t\r\n\tinternal " + Format(s, prms) + "\r\n";
+            }
             void WritePublicField(string s)
             {
                 pubfields += "\tpublic " + s + "\r\n";
             }
+            void WritePublicField(string s,params string[] prms)
+            {
+                pubfields += "\tpublic " + Format(s, prms) + "\r\n";
+            }
             void WriteLine(string s)
             {
                 winfunc += "\t\t" + s + "\r\n";
+            }
+            void WriteLine(string s, params string[] prms)
+            {
+                winfunc += "\t\t" + Format(s, prms) + "\r\n";
+            }
+            void WriteReset(string s,params string[] prms)
+            {
+                showfunc += "\t\t" + Format(s, prms) + "\r\n";
+            }
+            string Format(string s, string[] prms)
+            {
+                for (int i = 0; i < prms.Length; i++)
+                    s = s.Replace("{" + i + "}", prms[i]);
+                return s;
             }
         }
     }

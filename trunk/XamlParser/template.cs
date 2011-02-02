@@ -15,7 +15,7 @@ public partial class Base2:MonoBehaviour
     static _name_ ___name_;
     public static _name_ __name_ { get { if (___name_ == null) ___name_ = (_name_)MonoBehaviour.FindObjectOfType(typeof(_name_)); return ___name_; } }
 }
-
+public enum _name_Enum { _enums_ }
 public class _name_ : WindowBase {
 		
 _fields_	
@@ -31,8 +31,11 @@ _start_
     {
         focusWindow = true;
     }
-    
-    void OnGUI()
+    public override void ResetValues()
+    {
+        _showfunc_
+    }
+    public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         

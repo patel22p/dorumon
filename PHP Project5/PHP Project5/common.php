@@ -25,8 +25,8 @@ if(!$dbg)
 	if(strtolower($hash)!= strtolower($myhash))
 		exit("wrong hash ".$_SERVER["REQUEST_URI"]);
 }	
-//if($nick && !preg_match("/^[\w_\d]{4,15}$/",$nick)) exit("nick must not have special characters, length from 4 to 10");
-//if($passw && !preg_match("/^[\w\d]{1,150}$/",$passw)) exit("password does not match regex");
+if($nick && !preg_match("/^[\w_\d]{1,15}$/",$nick)) exit("nick must not have special characters, length from 4 to 10");
+if($passw && !preg_match("/^[\w\d]{1,150}$/",$passw)) exit("password does not match regex");
 
 
 

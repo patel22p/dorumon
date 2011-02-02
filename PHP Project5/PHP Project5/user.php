@@ -26,21 +26,13 @@ if($registr)
 	}		
 	if(file_exists("ips.txt"))
 	{
-		$timeLeft= time()-filectime("ips.txt");
-		if($timeLeft>60*60*24) unlink("ips.txt");
-		else
-		{
-			$ips = explode("\r\n",file_get_contents("ips.txt"));
-			$count = array_count_values($ips);		
-			if($count[$_SERVER["REMOTE_ADDR"]]>3)
-				exit("registration limit reached, try tommorow ".(60*60*24-$timeLeft));	
-		}
+		$ips = explode("\r\n",file_get_contents("ips.txt"));
+		$count = array_count_values($ips);		
+		if($count[$_SERVER["REMOTE_ADDR"]]>3)
+			exit("registration limit reached, try tommorow ".(60*60*24-$timeLeft));	
 	}	
 	file_put_contents("ips.txt","$_SERVER[REMOTE_ADDR]\r\n",FILE_APPEND);	
 	file_put_contents("users.txt","$nick\t$passw\r\n",FILE_APPEND) or exit("cannot write file");		
-	if($email)
-		@mail($email,"Physics Wars","Welcome to physics wars");
-	
 }
 
 if($xml)

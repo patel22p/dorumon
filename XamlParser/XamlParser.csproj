@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="S.cs" />
+    <Compile Include="template.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Visual Studio 2010\Projects\Helper\Helper.csproj">

@@ -75,10 +75,22 @@ public class Menu : bs
         _MenuWindow.vAccountInfo = !_Loader.UserView.guest;
         if (_TimerA.TimeElapsed(100))
         {
-            if (_HostWindow.Map != "" && _HostWindow.GameMode != "")
+            if (_HostWindow.GameMode != "")
             {
-                mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);
-                mapSettings.gameMode = _HostWindow.GameMode.Parse<GameMode>();
+                var g = _HostWindow.GameMode.Parse<GameMode>();
+                _HostWindow.lMap = GetMapsByMode(g).ToArray();
+
+                if (g == GameMode.CustomZombieSurvival)
+                    _HostWindow.vums = true;
+                else
+                    _HostWindow.vums = false;
+                _HostWindow.Description = GetDescr(g);
+                if (_HostWindow.Map != "")
+                {
+                    mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);
+                    mapSettings.gameMode = g;
+                }
+
             }
             _HostWindow.vfragCanvas = !mapSettings.zombi;
             _UserWindow.vSaveUser = _UserWindow.UserNick == LocalUser.nick;
@@ -164,27 +176,18 @@ public class Menu : bs
         else
         {
             _TimerA.Clear();
-            
+            Debug.Log("start Server");
             mapSettings.fragLimit = _HostWindow.MaxFrags;            
             mapSettings.maxPlayers = Math.Min(4, _HostWindow.MaxPlayers);
             mapSettings.kickIfAfk = _HostWindow.Kick_if_AFK;
             mapSettings.kickIfErrors = _HostWindow.KickIfErrors;
-            Debug.Log("start Server");
-            
             mapSettings.timeLimit = _HostWindow.MaxTime;
-            
             _Loader.port = _HostWindow.Port;
             _Loader.host = true;
+            if (mapSettings.DM)
+                CopyValuesCommon(true);                
             if (mapSettings.gameMode == GameMode.CustomZombieSurvival)
-            {
-                mapSettings.pointsPerZombie = _HostWindow.Money_per_frag;
-                mapSettings.zombiesAtStart = (int)_HostWindow.ZombiesAtStart;
-                mapSettings.StartMoney = (int)_HostWindow.Startup_Money;
-                mapSettings.stage = (int)_HostWindow.Startup_Level;
-                mapSettings.zombieDamage = _HostWindow.Zombie_Damage;
-                mapSettings.zombieLifeFactor = _HostWindow.Zombie_Life;
-                mapSettings.zombieSpeedFactor = _HostWindow.Zombie_Speed;
-            }
+                CopyValuesZombie(true);                
             bool useNat = !Network.HavePublicAddress();
             var conn = Network.InitializeServer(mapSettings.maxPlayers - 1, _Loader.port, useNat);
             if (conn == NetworkConnectionError.NoError)
@@ -195,6 +198,44 @@ public class Menu : bs
             else
                 ShowPopup("Connection failed: " + conn);
 
+        }
+    }
+    private void CopyValuesCommon(bool save)
+    {
+        if (save)
+        {
+            mapSettings.StartMoney = (int)_HostWindow.StartMoney;
+            mapSettings.damageFactor = _HostWindow.DamageFactor;
+            mapSettings.pointsPerZombie = _HostWindow.Money_per_playerKill;
+        }
+        else
+        {
+            _HostWindow.StartMoney = mapSettings.StartMoney;
+            _HostWindow.DamageFactor = mapSettings.damageFactor;
+            _HostWindow.Money_per_playerKill = mapSettings.pointsPerZombie;
+        }
+    }
+    private void CopyValuesZombie(bool save)
+    {
+        if (save)
+        {
+            mapSettings.pointsPerZombie = _HostWindow.Money_per_frag;
+            mapSettings.zombiesAtStart = (int)_HostWindow.ZombiesAtStart;
+            mapSettings.StartMoney = (int)_HostWindow.Startup_Money;
+            mapSettings.stage = (int)_HostWindow.Startup_Level;
+            mapSettings.zombieDamage = _HostWindow.Zombie_Damage;
+            mapSettings.zombieLifeFactor = _HostWindow.Zombie_Life;
+            mapSettings.zombieSpeedFactor = _HostWindow.Zombie_Speed;
+        }
+        else
+        {
+            _HostWindow.Money_per_frag = mapSettings.pointsPerZombie;
+            _HostWindow.ZombiesAtStart = mapSettings.zombiesAtStart;
+            _HostWindow.Startup_Money = mapSettings.StartMoney;
+            _HostWindow.Startup_Level = mapSettings.stage;
+            _HostWindow.Zombie_Damage = mapSettings.zombieDamage;
+            _HostWindow.Zombie_Life = mapSettings.zombieLifeFactor;
+            _HostWindow.Zombie_Speed = mapSettings.zombieSpeedFactor;            
         }
     }
     private void onConnect()
@@ -392,16 +433,14 @@ public class Menu : bs
             _HostWindow.lMap = new string[0];
             Action("GameMode");
         }
+        if (n == "Map")
+        {
+            CopyValuesCommon(false);
+            CopyValuesZombie(false);
+        }
         if (n == "GameMode" && _HostWindow.GameMode!="")
         {
-            var g = _HostWindow.GameMode.Parse<GameMode>();
-            _HostWindow.lMap = GetMapsByMode(g).ToArray();
-            _HostWindow.iMap = 0;
-            //if (g == GameMode.ZombieSurive || g == GameMode.CustomZombieSurvival)
-            if (g == GameMode.CustomZombieSurvival)
-                _HostWindow.vums = true;
-            else
-                _HostWindow.vums = false;
+            _HostWindow.iMap = 0; 
         }
         if (n == "StartServer")
             StartServer();

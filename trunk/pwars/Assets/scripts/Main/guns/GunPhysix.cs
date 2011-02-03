@@ -114,6 +114,7 @@ public class GunPhysix : GunBase
     [RPC]
     public void SetPower(bool power)
     {
+        audio.Stop();
         this.power = power;
     }
     protected override void Update()

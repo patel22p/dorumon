@@ -123,12 +123,32 @@ public class bs : Base2
         if (new StackTrace().FrameCount > 30) throw new StackOverflowException();
         if (sendto == null)
         {
+
             networkView.RPC(name, RPCMode.Others, obs);
-            this.GetType().GetMethod(name).Invoke(this, obs); // public
+            try
+            {
+                this.GetType().GetMethod(name).Invoke(this, obs); // public
+            }
+            catch { this.GetType().GetMethod(name).Invoke(this, obs.Concat(new object[] { new NetworkMessageInfo() }).ToArray()); }
         }
         else
             networkView.RPC(name, sendto.Value, obs);
         
+    }
+    public string GetDescr(GameMode g)
+    {
+        switch (g)
+        {
+            case GameMode.ZombieSurvival:
+            case GameMode.CustomZombieSurvival:
+                return "Zombie survival. \r\nkill the maximum number of zombies.";
+            case GameMode.DeathMatch:
+                return "DeathMatch. \r\nkill the maximum number of players.";
+            case GameMode.TeamDeathMatch:
+                return "Team battle. \r\n kill the maximum number of players.";
+            default:
+                return "";
+        }
     }
     public Transform root { get { return this.transform.root; } }
     public static bool build { get { return _Loader.build; } }

@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static HostWindow __HostWindow;
     public static HostWindow _HostWindow { get { if (__HostWindow == null) __HostWindow = (HostWindow)MonoBehaviour.FindObjectOfType(typeof(HostWindow)); return __HostWindow; } }
 }
-public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Close, }
+public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Gunlist,Close, }
 public class HostWindow : WindowBase {
 		
 	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
@@ -107,6 +107,44 @@ public class HostWindow : WindowBase {
 	internal bool focusStartServer;
 	internal bool StartServer=false;
 	
+	internal int tabTabControl14;
+	
+	internal bool vdescription = true;
+	
+	internal bool focusDescription;
+	
+	internal bool rDescription = true;
+	internal string Description = @"";
+	
+	internal bool vStartMoney = true;
+	
+	internal bool focusStartMoney;
+	internal float StartMoney = 0f;
+	
+	internal bool vMoney_per_playerKill = true;
+	
+	internal bool focusMoney_per_playerKill;
+	internal float Money_per_playerKill = 0f;
+	
+	internal bool vgunlist = true;
+	
+	internal bool focusGunlist;
+	public string[] lGunlist;
+	internal int iGunlist = -1;
+	public string Gunlist { get { if(lGunlist.Length==0 || iGunlist == -1) return ""; return lGunlist[iGunlist]; } set { iGunlist = lGunlist.SelectIndex(value); }}
+	
+	internal bool vgunBullets = true;
+	
+	internal bool focusGunBullets;
+	
+	internal bool rGunBullets = false;
+	internal int GunBullets = 0;
+	
+	internal bool vdamageFactor = true;
+	
+	internal bool focusDamageFactor;
+	internal float DamageFactor = 1f;
+	
 	internal bool vums = true;
 	
 	internal bool focusUms;
@@ -145,6 +183,7 @@ public class HostWindow : WindowBase {
 	private Vector2 sGameMode;
 	private Vector2 sMap;
 	private bool oldMouseOverStartServer;
+	private Vector2 sGunlist;
 	
     
     
@@ -164,13 +203,14 @@ public class HostWindow : WindowBase {
     {
         		iGameMode = -1;
 		iMap = -1;
+		iGunlist = -1;
 
     }
     public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
-		GUI.Window(wndid1,new Rect(-306f + Screen.width/2,-273f + Screen.height/2,615f,465.5f), Wnd1,"");
+		GUI.Window(wndid1,new Rect(-306f + Screen.width/2,-273f + Screen.height/2,615f,490.5f), Wnd1,"");
 		base.OnGUI();
     }
 	void Wnd1(int id){
@@ -270,8 +310,8 @@ public class HostWindow : WindowBase {
 		}
 		GUI.EndGroup();
 		GUI.Label(new Rect(10.833f, 15f, 155.334f, 14.667f), @"Create Server");
-		GUI.BeginGroup(new Rect(25.5f, 158f, 556.5f, 181.667f), "");
-		GUI.Box(new Rect(0, 0, 556.5f, 181.667f), "");
+		GUI.BeginGroup(new Rect(25.5f, 158f, 556.5f, 169.667f), "");
+		GUI.Box(new Rect(0, 0, 556.5f, 169.667f), "");
 		GUI.BeginGroup(new Rect(348f, 13.897f, 192.5f, 147.77f), "");
 		GUI.Box(new Rect(0, 0, 192.5f, 147.77f), "");
 		if(vGameImage){
@@ -285,8 +325,8 @@ public class HostWindow : WindowBase {
 		if(vGameMode){
 		if(focusGameMode) { focusGameMode = false; GUI.FocusControl("GameMode");}
 		GUI.SetNextControlName("GameMode");
-		GUI.Box(new Rect(24.334f, 19.897f, 194.666f, 153.77f), "");
-		sGameMode = GUI.BeginScrollView(new Rect(24.334f, 19.897f, 194.666f, 153.77f), sGameMode, new Rect(0,0, 184.666f, lGameMode.Length* 26.9599990844727f));
+		GUI.Box(new Rect(24.334f, 19.897f, 194.666f, 141.77f), "");
+		sGameMode = GUI.BeginScrollView(new Rect(24.334f, 19.897f, 194.666f, 141.77f), sGameMode, new Rect(0,0, 184.666f, lGameMode.Length* 26.9599990844727f));
 		int oldGameMode = iGameMode;
 		iGameMode = GUI.SelectionGrid(new Rect(0,0, 184.666f, lGameMode.Length* 26.9599990844727f), iGameMode, lGameMode,1,GUI.skin.customStyles[0]);
 		if (iGameMode != oldGameMode) Action("GameMode");
@@ -296,30 +336,92 @@ public class HostWindow : WindowBase {
 		if(vMap){
 		if(focusMap) { focusMap = false; GUI.FocusControl("Map");}
 		GUI.SetNextControlName("Map");
-		GUI.Box(new Rect(223f, 19.897f, 100f, 153.77f), "");
-		sMap = GUI.BeginScrollView(new Rect(223f, 19.897f, 100f, 153.77f), sMap, new Rect(0,0, 90f, lMap.Length* 26.9599990844727f));
+		GUI.Box(new Rect(223f, 19.897f, 100f, 141.77f), "");
+		sMap = GUI.BeginScrollView(new Rect(223f, 19.897f, 100f, 141.77f), sMap, new Rect(0,0, 90f, lMap.Length* 26.9599990844727f));
 		int oldMap = iMap;
 		iMap = GUI.SelectionGrid(new Rect(0,0, 90f, lMap.Length* 26.9599990844727f), iMap, lMap,1,GUI.skin.customStyles[0]);
 		if (iMap != oldMap) Action("Map");
 		GUI.EndScrollView();
 		}
-		GUI.Box(new Rect(329f, 9f, 1f, 166.648f),"",GUI.skin.customStyles[4]);//line
 		GUI.EndGroup();
 		if(vStartServer){
 		if(focusStartServer) { focusStartServer = false; GUI.FocusControl("StartServer");}
 		GUI.SetNextControlName("StartServer");
 		bool oldStartServer = StartServer;
-		StartServer = GUI.Button(new Rect(479.5f, 430.167f, 101.5f, 28.333f), new GUIContent("Create",""));
+		StartServer = GUI.Button(new Rect(480.5f, 455.834f, 101.5f, 28.333f), new GUIContent("Create",""));
 		if (StartServer != oldStartServer && StartServer ) {Action("StartServer");onButtonClick(); }
-		onMouseOver = new Rect(479.5f, 430.167f, 101.5f, 28.333f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(480.5f, 455.834f, 101.5f, 28.333f).Contains(Event.current.mousePosition);
 		if (oldMouseOverStartServer != onMouseOver && onMouseOver) onOver();
 		oldMouseOverStartServer = onMouseOver;
 		}
+		GUI.BeginGroup(new Rect(25.5f, 331.667f, 556.5f, 120.167f), "");
+		GUI.Box(new Rect(0, 0, 556.5f, 120.167f), "");
+		GUILayout.BeginArea(new Rect(0f, 0, 556.5f, 18));
+		tabTabControl14 = GUILayout.Toolbar(tabTabControl14, new string[] { "Description","Common Settings","Zombie Custom", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
+		GUILayout.EndArea();
+		GUI.BeginGroup(new Rect(0, 18, 556.5f, 102.167f), "");
+		GUI.Box(new Rect(0, 0, 556.5f, 102.167f), "");
+		if(tabTabControl14==0){
+		if(vdescription){
+		if(focusDescription) { focusDescription = false; GUI.FocusControl("Description");}
+		GUI.SetNextControlName("Description");
+		if(rDescription){
+		GUI.Label(new Rect(8f, 6f, 530f, 78.167f), Description.ToString(), GUI.skin.customStyles[2]);
+		} else
+		try {Description = GUI.TextField(new Rect(8f, 6f, 530f, 78.167f), Description,100, GUI.skin.customStyles[2]);}catch{};
+		}
+		}
+		if(tabTabControl14==1){
+		GUI.BeginGroup(new Rect(0f, 0f, 546.5f, 92.167f), "");
+		GUI.Box(new Rect(0, 0, 546.5f, 92.167f), "");
+		GUI.Label(new Rect(8f, 8f, 76f, 14f), @"StartMoney");
+		if(vStartMoney){
+		if(focusStartMoney) { focusStartMoney = false; GUI.FocusControl("StartMoney");}
+		GUI.SetNextControlName("StartMoney");
+		StartMoney = GUI.HorizontalSlider(new Rect(8f, 22f, 119f, 16f), StartMoney, 0f, 500f);
+		GUI.Label(new Rect(127f,22f,40,15),System.Math.Round(StartMoney,1).ToString());
+		}
+		if(vMoney_per_playerKill){
+		if(focusMoney_per_playerKill) { focusMoney_per_playerKill = false; GUI.FocusControl("Money_per_playerKill");}
+		GUI.SetNextControlName("Money_per_playerKill");
+		Money_per_playerKill = GUI.HorizontalSlider(new Rect(190f, 60f, 119f, 16f), Money_per_playerKill, 0f, 100f);
+		GUI.Label(new Rect(309f,60f,40,15),System.Math.Round(Money_per_playerKill,1).ToString());
+		}
+		GUI.Label(new Rect(190f, 44f, 168.5f, 16f), @"Money per player kill");
+		if(vgunlist){
+		if(focusGunlist) { focusGunlist = false; GUI.FocusControl("Gunlist");}
+		GUI.SetNextControlName("Gunlist");
+		GUI.Box(new Rect(442f, 8f, 96.5f, 76.167f), "");
+		sGunlist = GUI.BeginScrollView(new Rect(442f, 8f, 96.5f, 76.167f), sGunlist, new Rect(0,0, 86.5f, lGunlist.Length* 15f));
+		int oldGunlist = iGunlist;
+		iGunlist = GUI.SelectionGrid(new Rect(0,0, 86.5f, lGunlist.Length* 15f), iGunlist, lGunlist,1,GUI.skin.customStyles[0]);
+		if (iGunlist != oldGunlist) Action("Gunlist");
+		GUI.EndScrollView();
+		}
+		GUI.Label(new Rect(355f, 8f, 83f, 0f), @"Gun bullets");
+		if(vgunBullets){
+		if(focusGunBullets) { focusGunBullets = false; GUI.FocusControl("GunBullets");}
+		GUI.SetNextControlName("GunBullets");
+		if(rGunBullets){
+		GUI.Label(new Rect(355f, 26f, 72f, 14f), GunBullets.ToString());
+		} else
+		try {GunBullets = int.Parse(GUI.TextField(new Rect(355f, 26f, 72f, 14f), GunBullets.ToString(),100));}catch{};
+		}
+		GUI.Label(new Rect(8f, 44f, 103f, 14f), @"Damage Factor");
+		if(vdamageFactor){
+		if(focusDamageFactor) { focusDamageFactor = false; GUI.FocusControl("DamageFactor");}
+		GUI.SetNextControlName("DamageFactor");
+		DamageFactor = GUI.HorizontalSlider(new Rect(8f, 58f, 119f, 16f), DamageFactor, 0f, 3f);
+		GUI.Label(new Rect(127f,58f,40,15),System.Math.Round(DamageFactor,1).ToString());
+		}
+		GUI.EndGroup();
+		}
+		if(tabTabControl14==2){
 		if(vums){
 		if(focusUms) { focusUms = false; GUI.FocusControl("Ums");}
 		GUI.SetNextControlName("Ums");
-		GUI.BeginGroup(new Rect(25.5f, 343.667f, 556.5f, 82.5f), "");
-		GUI.Box(new Rect(0, 0, 556.5f, 82.5f), "");
+		GUI.BeginGroup(new Rect(0f, 0f, 546.5f, 92.167f), "");
+		GUI.Box(new Rect(0, 0, 546.5f, 92.167f), "");
 		if(vStartup_Level){
 		if(focusStartup_Level) { focusStartup_Level = false; GUI.FocusControl("Startup_Level");}
 		GUI.SetNextControlName("Startup_Level");
@@ -355,7 +457,7 @@ public class HostWindow : WindowBase {
 		Zombie_Life = GUI.HorizontalSlider(new Rect(283f, 21.833f, 119f, 18.167f), Zombie_Life, 0.2f, 4f);
 		GUI.Label(new Rect(402f,21.833f,40,15),System.Math.Round(Zombie_Life,1).ToString());
 		}
-		GUI.Label(new Rect(286f, 47.333f, 98.70667f, 21.96f), @"Zombies At Start");
+		GUI.Label(new Rect(286f, 47.333f, 118f, 14f), @"Zombies At Start");
 		if(vzombiesAtStart){
 		if(focusZombiesAtStart) { focusZombiesAtStart = false; GUI.FocusControl("ZombiesAtStart");}
 		GUI.SetNextControlName("ZombiesAtStart");
@@ -371,6 +473,9 @@ public class HostWindow : WindowBase {
 		GUI.Label(new Rect(406f, 10f, 142.5f, 16f), @"Money per frag");
 		GUI.EndGroup();
 		}
+		}
+		GUI.EndGroup();
+		GUI.EndGroup();
 		GUI.Box(new Rect(11.5f, 31f, 584.112f, 1f),"",GUI.skin.customStyles[4]);//line
 		if (GUI.Button(new Rect(615f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}

@@ -43,8 +43,11 @@ public class Seeker : MonoBehaviour {
 	//Warning this might crash the game on windows computers - Disabled due to a high possability of crashing
 	//public bool multithread;
 	
-	//This is still at beta stage, can crash the game!
-	private bool postProcessEdges = false;
+	public bool IsPathfindingDone () {
+		return isDone;
+	}
+	
+	private bool isDone = false;
 	
 	public PostProcessor postProcessor;
 	public int subdivisions = 3;
@@ -90,16 +93,15 @@ public class Seeker : MonoBehaviour {
 	private Vector3 [] pathPoints;
 
 	//Check if the path is finnished, see OnCompleteLater
-	public IEnumerator MultithreadingCompleteCheck () {
+	/*public IEnumerator MultithreadingCompleteCheck () {
 		while (!isComplete) {
 			yield return 0;
 		}
-		isComplete = false;
+		isDone = false;
 		OnComplete (path);
 	}
 	
 	//This is called instaed of OnComplete when using multithreading. Other thread can't call Unity specific stuff, so we have to set a flag that the path is finnished and then call OnComplete next time we check if it is complete (in Update).
-	private bool isComplete = false;
 	public void OnCompleteLater (AstarPath.Path p) {
 		
 		if (path != p) {
@@ -107,7 +109,7 @@ public class Seeker : MonoBehaviour {
 		}
 		
 		isComplete = true;
-	}
+	}*/
 	
 	//This function will be called when the pathfinding is complete, it will be called when the pathfinding returned an error too.
 	public void OnComplete (AstarPath.Path p) {
@@ -115,6 +117,8 @@ public class Seeker : MonoBehaviour {
 		if (path != p) {
 			return;
 		}
+		
+		isDone = true;
 		
 		//What should we do if the path returned an error (there is no available path to the target).
 		if (path.error) {
@@ -136,10 +140,10 @@ public class Seeker : MonoBehaviour {
 		}
 		
 		//Still at beta stage, can crash the game
-		if (postProcessEdges) {
+		//if (postProcessEdges) {
 			//Vector3[] points = AstarProcess.PostProcess.NavigationMesh (p.path,AstarPath.active.meshNodePosition == MeshNodePosition.Edge, startpos, endpos,turningRadius);
 			//(FindObjectOfType (typeof(Clicker)) as Clicker).NavigationMesh (p.path,AstarPath.active.meshNodePosition == MeshNodePosition.Edge, startpos, endpos,turningRadius);
-		}
+		//}
 		
 		if(path.path.Length > 1) {
 			//Convert the Node array to a Vector3 array, subract one from the array if Remove First is true and add one to the array if Use Real End is set to Add
@@ -166,6 +170,7 @@ public class Seeker : MonoBehaviour {
 			//Store the path in a variable so it can be drawn in the scene view for debugging
 			pathPoints = a;
 			
+			//Post-process the path using splines if the user has choosen to do that (default is None)
 			switch (postProcessor) {
 				case PostProcessor.CubicBezier:
 					pathPoints = PostProcessSplines.CubicSmooth (pathPoints,subdivisions,bezierNormalizeTangents,bezierTangentLength);
@@ -188,34 +193,7 @@ public class Seeker : MonoBehaviour {
 		
 	}
 	
-	//This function smoothes the path using Catmull Rom splines
-	public Vector3[] PostProcess (Vector3[] nodes) {
-		//Vector3 prePoint = nodes[0];
-		
-		Vector3[] newNodes = new Vector3[nodes.Length*10];
-		int c = 0;
-		for (int i=0;i<nodes.Length;i++) {
-			//Debug.DrawRay (nodes[i],Vector3.up*Random.value*3,new Color(Random.value,Random.value,Random.value,0.9F));
-			for (float t=0.0F; t<1.0F; t+=0.1F) {
-				Vector3 previous = GetNode(i-1,nodes);
-				Vector3 start = GetNode(i,nodes);
-				Vector3 end = GetNode(i+1,nodes);
-				Vector3 next = GetNode(i+2,nodes);
-				
-				//Uncomment for more corners in the smooth, but not as risky to use since it will not be a such big chance the generated path will overlap colliders
-				float magn = (start-end).magnitude;
-				next = end+(next-end).normalized*magn*0.5F;
-				previous = start+(previous-start).normalized*magn*0.5F;
-				
-				Vector3 point = AstarSplines.CatmullRom (previous, start, end, next,t);
-				//Gizmos.DrawLine (prePoint,point);
-				newNodes[c] = point;
-				c++;
-			}
-		}
-		return newNodes;
-	}
-	
+	//Returns a node from a clamped I integer (makes sure no Out-Of-Range-Exceptions will get called)
 	public static Vector3 GetNode (int i,Vector3[] nodes) {
 		i = i > nodes.Length-1 ? nodes.Length-1 : i;
 		i = i < 0 ? 0 : i;
@@ -224,6 +202,7 @@ public class Seeker : MonoBehaviour {
 	
 	
 	public void OnDrawGizmos () {
+		//Draw the smoothed path (however if no smoothing is enabled, this path will not be smoothed)
 		if (debugPath && pathPoints != null) {
 			Gizmos.color = new Color (1,0.565F,0);
 			
@@ -232,6 +211,7 @@ public class Seeker : MonoBehaviour {
 			}
 		}
 		
+		//Draw the basic, unsmoothed path
 		if (postProcessor != PostProcessor.None && !onlyDebugSmoothedPath) {
 			Gizmos.color = new Color (1,0,0,0.7F);
 			if (debugPath && path != null && path.path != null) {
@@ -261,7 +241,7 @@ public class Seeker : MonoBehaviour {
 			path = new AstarPath.Path (this,start,end,maxAngle,angleCost,stepByStep,grid);//Create a new Path instance
 		}
 		
-		isComplete = false;
+		isDone = false;
 		
 		/*if (multithread) {
 			AstarPath.StartPathPreThread(path,this);

@@ -10,7 +10,7 @@ public abstract class Destroible : Shared
     internal float isGrounded;
     internal bool Alive = true;
     internal bool CanFreeze;
-    internal float Life;
+    public float Life;
     internal bool frozen;
     float freezedt;
     public float MaxLife = 100;
@@ -65,7 +65,7 @@ public abstract class Destroible : Shared
         {
             Box b = collisionInfo.gameObject.GetComponent<Box>();
             if (b != null)
-            {             
+            {
                 if ((this.isEnemy(b.OwnerID) || b.OwnerID == _localPlayer.OwnerID) && collisionInfo.rigidbody.velocity.magnitude > 20)
                     RPCSetLife(Life - (int)collisionInfo.rigidbody.velocity.magnitude * 10 * _Game.mapSettings.damageFactor, b.OwnerID);
             }
@@ -73,7 +73,7 @@ public abstract class Destroible : Shared
     }
     public virtual void RPCSetFrozen(bool value)
     {
-        if(value)
+        if (value)
             freezedt = .5f;
         if (value != frozen)
            CallRPC("SetFrozen", value);

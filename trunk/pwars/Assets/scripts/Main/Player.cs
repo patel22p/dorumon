@@ -427,10 +427,9 @@ public class Player : Destroible, IAim
             }
             else
             {
-
                 this.rigidbody.AddTorque(new Vector3(moveDirection.z, 0, -moveDirection.x) * 1 * 5);
             }
-            if (frozen) this.rigidbody.velocity *= .85f;
+            if (frozen) this.rigidbody.velocity *= .95f;
         }
     }
 
@@ -523,7 +522,8 @@ public class Player : Destroible, IAim
         e.OwnerID = OwnerID;
         e.self = this;
         e.exp = 5000;
-        e.radius = 2;
+        e.DamageFactor = .5f;
+        e.radius = 10;
         if (isOwner)
             _Cam.exp = 2;
 
@@ -695,6 +695,7 @@ public class Player : Destroible, IAim
     [RPC]
     public override void SetLife(float NwLife, int killedby)
     {
+        if (debug) NwLife = Math.Max(1, NwLife);
         base.SetLife(NwLife, killedby);
     }
     void OnCollisionStay(Collision collisionInfo)

@@ -248,12 +248,13 @@ public class Game : bs
         var gmi = GameModeIcons;
         switch (_Game.mapSettings.gameMode)
         {
-            case GameMode.ZombieSurvival: tw.vZombi = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
-            case GameMode.DeathMatch: tw.vDeathmatch = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.DeathmatchIcon]; break;
-            case GameMode.TeamDeathMatch: tw.vTeamDeathMatch = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.TeamDeathmatchIcon]; break;
-            case GameMode.CustomZombieSurvival: tw.vZombi = true; tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
+            case GameMode.ZombieSurvival: tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
+            case GameMode.DeathMatch: tw.imgRed = gmi[(int)GameTypeIconsEnum.DeathmatchIcon]; break;
+            case GameMode.TeamDeathMatch: tw.imgRed = gmi[(int)GameTypeIconsEnum.TeamDeathmatchIcon]; break;
+            case GameMode.CustomZombieSurvival: tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
         }
-
+        tw.Description = GetDescr(_Game.mapSettings.gameMode);
+        
         if (_Game.mapSettings.gameMode == GameMode.ZombieSurvival)
             _GameMenuWindow.vfraglimit = false;
         _GameMenuWindow.Fraglimit = _Game.mapSettings.fragLimit;
@@ -380,9 +381,10 @@ public class Game : bs
     public AudioClip[] stageSound;
     public void RPCNextStage(int stage,float time) { CallRPC("NextStage", stage, time); }
     [RPC]
-    public void NextStage(int stage, float time)
+    public void NextStage(int stage, float time, NetworkMessageInfo info)
     {
-        stageTime = 0;
+        
+        stageTime = time;// +(float)(Network.time - info.timestamp);
         PlayRandSound(stageSound);
         this.stage = stage;
         maxzombies = _Game.mapSettings.zombiesAtStart + stage;

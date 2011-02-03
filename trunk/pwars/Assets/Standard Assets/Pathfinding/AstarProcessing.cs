@@ -1,4 +1,3 @@
-#pragma warning disable 0169, 0414,649,168
 using UnityEngine;
 using System.Collections;
 using AstarClasses;
@@ -919,8 +918,6 @@ namespace AstarProcess {
 			}
 		}
 		
-		int triA;
-		int triB;
 	
 		private Vector3 _center = Vector3.zero;
 		

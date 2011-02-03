@@ -1,1 +1,1 @@
-public enum GameTypeIconsEnum:int{none = -1,idm,itdm,iz,izc}
+public enum GameTypeIconsEnum:int{none = -1,DeathmatchIcon,IconZombie,TeamDeathmatchIcon}

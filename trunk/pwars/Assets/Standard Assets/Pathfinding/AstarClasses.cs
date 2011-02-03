@@ -270,7 +270,7 @@ namespace AstarClasses {
 		//Local position of the node
 		public Int3 pos;
 		//The previous parent
-		public Node parentx;
+		//public Node parentx;
 		//Current parent
 		public Node parent;
 		
@@ -279,12 +279,15 @@ namespace AstarClasses {
 		
 		//These variables used by the grid to indicate the cost of moving from this node's parent to this node, the basicCost is just the constant cost, and the extraCost is used for the angle cost
 		public int basicCost = 0;
-		public int extraCost = 0;
+		//public int extraCost = 0;
 		
 		//Cached G and H values
-		public int _g = 0;
-		public int hx = -1;
+		//public int _g = 0;
+		//public int hx = -1;
 		
+		public int h = 0;
+		public int g = 0;
+			
 		public int penalty = 0;
 		
 		//This is the angles to each neighbour divided by 90
@@ -318,7 +321,7 @@ namespace AstarClasses {
 		public int areaTimeStamp = 0;
 		
 		//Previous scripts
-		public AstarPath.Path scripty;
+		//public AstarPath.Path scripty;
 		
 		//public int[] costs = null;
 		
@@ -358,46 +361,94 @@ namespace AstarClasses {
 			connections = tmp;
 			GenerateEnabledConnections ();
 		}
+
 		
-		/*public void UpdateH () {
-			//If useWorldPositions is True, then the script will calculate the distance between this node and the target using world positions, otherwise it will use the array indexes (grids are made up of 2D arrays), which is a lot faster since it only uses integers instead of floats. It is recommended to use world positions when not using the Grid or Texture mode since all other modes does not place the nodes in an array which indexes can be used as positions.
-			//It can also be good to use world positions when using multiple grids since the array indexes wont create a good direction when this node and the target node are in different grids.
+		public virtual void Open (AstarPath.BinaryHeap open, AstarPath.Path p, Node start, Node end, float angleCost) {
 			
-			if (AstarPath.active.useWorldPositions) {
+			for (int i=0;i<enabledConnections.Length;i++) {
 				
-				h = (int) (Mathf.Abs(script.end.vectorPos.x-vectorPos.x)*100
-			
-				//@Performance, comment out the next line if you dont use multiple grids
-				+  Mathf.Abs(script.end.vectorPos.y-vectorPos.y)*100
-			
-				+ Mathf.Abs(script.end.vectorPos.z-vectorPos.z)*100);
+				Connection connection = enabledConnections[i];
+				Node node = connection.endNode;
 				
-			} else {
+				if (node == start) {
+					continue;
+				}
 				
-				h = Mathf.Abs(script.end.pos.x-pos.x)*10
-			
-				//@Performance, comment out the next line if you dont use multiple grids
-				+ Mathf.Abs((int)AstarPath.active.grids[script.end.pos.y].offset.y-(int)AstarPath.active.grids[pos.y].offset.y)*AstarPath.active.levelCost
-			
-				+ Mathf.Abs(script.end.pos.z-pos.z)*10;
-				
-				//This is another heuristic, try it if you want
-				/*int xDistance = Mathf.Abs(script.end.pos.x-pos.x);
-				int zDistance = Mathf.Abs(script.end.pos.z-pos.z);
-				if (xDistance > zDistance) {
-				     h = 14*zDistance + 10*(xDistance-zDistance);
+				//Debug.DrawLine (current.vectorPos,current.neighbours[i].vectorPos,Color.red); //Uncomment for debug
+				//If the nodes script variable isn't refering to this path class the node counts as "not used yet" and can then be used
+				if (node.script != p) {
+					//Test if the angle from the current node to this one has exceded the angle limit
+					//if (angle >= maxAngle) {
+					//	return;
+					//}
+					node.parent = this;
+					node.script = p;
+					
+					node.basicCost = connection.cost + Mathf.RoundToInt (connection.cost*connection.angle*angleCost);
+					//(current.costs == null || costs.Length == 0 ? costs[node.invParentDirection] : current.costs[node.invParentDirection]);
+					//Calculate the extra cost of moving in a slope
+					//node.extraCost =  ;
+					//Add the node to the open array
+					//Debug.DrawLine (current.vectorPos,current.neighbours[i].vectorPos,Color.green); //Uncomment for @Debug
+					
+					node.UpdateH (end);
+					node.UpdateG ();
+					
+					open.Add (node);
+					
 				} else {
-				     h = 14*xDistance + 10*(zDistance-xDistance);
-				}*
+					
+					//If not we can test if the path from the current node to this one is a better one then the one already used
+					int cost2 = connection.cost + Mathf.RoundToInt (connection.cost*connection.angle*angleCost);//(current.costs == null || current.costs.Length == 0 ? costs[current.neighboursKeys[i]] : current.costs[current.neighboursKeys[i]]);
+					
+					//int extraCost2
+					
+					if (g+cost2+node.penalty < node.g) {
+						node.basicCost = cost2;
+						//node.extraCost = extraCost2;
+						node.parent = this;
+						
+						node.UpdateAllG ();
+						
+						open.Add (node);//@Quality, uncomment for better quality (I think).
+						
+						//Debug.DrawLine (current.vectorPos,current.neighbours[i].vectorPos,Color.cyan); //Uncomment for @Debug
+					}
+					
+					 else if (node.g+cost2+penalty < g) {//Or if the path from this node ("node") to the current ("current") is better
+						bool contains = false;
+						
+						//Make sure we don't travel along the wrong direction of a one way link now, make sure the Current node can be accesed from the Node.
+						for (int y=0;y<node.connections.Length;y++) {
+							if (node.connections[y].endNode == this) {
+								contains = true;
+								break;
+							}
+						}
+						
+						if (!contains) {
+							continue;
+						}
+						
+						parent = node;
+						basicCost = cost2;
+						//extraCost = extraCost2;
+						
+						node.UpdateAllG ();
+						
+						//Debug.DrawLine (current.vectorPos,current.neighbours[i].vectorPos,Color.blue); //Uncomment for @Debug
+						open.Add (this);
+					}
+				}
 			}
-		}*/
+		}
 		
 		public void UpdateG () {
-			g = parent.g+basicCost+extraCost+penalty;
+			g = parent.g+basicCost+penalty;
 		}
 		
 		public void UpdateAllG () {
-			g = parent.g+basicCost+extraCost+penalty;
+			g = parent.g+basicCost+penalty;
 			
 			foreach (Connection conn in enabledConnections) {
 				if (conn.endNode.parent == this) {
@@ -407,7 +458,7 @@ namespace AstarClasses {
 		}
 		
 		public void UpdateAllG (int parentG) {
-			g = parentG+basicCost+extraCost+penalty;
+			g = parentG+basicCost+penalty;
 			
 			foreach (Connection conn in enabledConnections) {
 				if (conn.endNode.parent == this) {
@@ -423,11 +474,9 @@ namespace AstarClasses {
 					return 0;
 				}
 				
-				return basicCost+extraCost+penalty+parent.gScore;
+				return basicCost+penalty+parent.gScore;
 			}
 		}
-		
-		public int g = 0;
 		
 		/*public int g {
 			get {
@@ -483,8 +532,6 @@ namespace AstarClasses {
 				}*/
 			}
 		}
-		
-		public int h = 0;
 		
 		/*public int h {
 			get {

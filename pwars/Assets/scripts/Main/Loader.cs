@@ -192,12 +192,15 @@ public class Loader : bs
             new MapSetting(){ title = "Test map", mapName = "test" }
         };
 
-        foreach (var a in mapsets)
+        foreach (var m in mapsets)
         {
-            for (int i = 0; i < a.patrons.Length; i++)
-                a.patrons[i] = -1;
-            a.patrons[(int)GunType.physxgun] = 40;
-            a.patrons[(int)GunType.pistol] = 30;
+            for (int i = 0; i < m.patrons.Length; i++)
+                m.patrons[i] = -1;
+            m.patrons[(int)GunType.physxgun] = 40;
+            m.patrons[(int)GunType.pistol] = 30;
+            m.stage = 20;
+            m.timeLimit = 99;
+            m.zombieDamage = 4;
         }
         base.InitValues();
     }

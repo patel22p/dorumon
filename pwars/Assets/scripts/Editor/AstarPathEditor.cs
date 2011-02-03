@@ -42,7 +42,7 @@ public class AstarPathEditor : Editor {
 	
 	public string version {
 		get {
-			return "2.92";
+			return "2.93";
 		}
 	}
 	private string updateVersion = "";
@@ -283,9 +283,9 @@ public class AstarPathEditor : Editor {
 			mouse.y = Screen.height - mouse.y;
 			for (int y=0;y<path.grids.Length;y++) {
 				foreach (Node node in path.staticNodes[y]) {
-					Vector2 pos = HandleUtility.WorldToGUIPoint (node.vectorPos);//Camera.current.WorldToScreenPoint (node.vectorPos);
+					Vector2 pos = HandleUtility.WorldToGUIPoint (node.vectorPos);
 					pos.y = Screen.height - pos.y;
-					float dist = Mathf.Abs (pos.x-mouse.x)+Mathf.Abs(pos.y-mouse.y);//(mouse-pos).sqrMagnitude;
+					float dist = Mathf.Abs (pos.x-mouse.x)+Mathf.Abs(pos.y-mouse.y);
 					if (dist<minDist) {
 						minDist = dist;
 						minNode = node;
@@ -299,19 +299,24 @@ public class AstarPathEditor : Editor {
 			
 			if (minNode.enabledConnections != null) {
 				for (int i=0;i<minNode.enabledConnections.Length;i++) {
+					//This should optimally use ArrowCap, but I haven't bothered to set it up
 					Handles.Slider (minNode.vectorPos,minNode.enabledConnections[i].endNode.vectorPos-minNode.vectorPos);
+					//Handles.ArrowCap (minNode.vectorPos,minNode.enabledConnections[i].endNode.vectorPos-minNode.vectorPos);
 				}
 			}
 			
 			Vector2 debugNodePosition = HandleUtility.WorldToGUIPoint (minNode.vectorPos);
-			Handles.BeginGUI (new Rect (debugNodePosition.x-100,debugNodePosition.y-100,200,200));
-			GUI.color = Color.black;
-			//GUILayout.Label ("G = "+minNode.g+"\nH = "+minNode.h+"\nF = "+minNode.f+"\nNeighbours "+minNode.neighbours.Length);
-			
-			GUILayout.Label ("Depth: "+minNode.depth+"\nPosition: "+minNode.pos+"\nWorld Pos: "+minNode.vectorPos);
 			
 			Vector2 arrayPos = HandleUtility.WorldToGUIPoint (new Vector3 (minNode.pos.x*path.grids[minNode.pos.y].nodeSize,minNode.vectorPos.y,minNode.pos.z*path.grids[minNode.pos.y].nodeSize));
+			
+			Handles.BeginGUI ();
+			
 			GUI.depth = 100;
+			GUI.Box (new Rect (debugNodePosition.x,debugNodePosition.y,200,80),"",EditorStyles.notificationBackground);
+			GUI.color = Color.white;
+			GUI.Label (new Rect (debugNodePosition.x+5,debugNodePosition.y+5,200,200),"G score "+minNode.g+"\nH score "+minNode.h+"\nArray Position: "+minNode.pos+"\nWorld Position: "+minNode.vectorPos+"\nNumber of connections "+minNode.enabledConnections.Length);
+			
+			GUI.depth = 1;
 			GUI.Box (new Rect (arrayPos.x-6,arrayPos.y-6,12,12),"");
 			GUI.depth = 0;
 			Handles.EndGUI ();
@@ -355,7 +360,7 @@ public class AstarPathEditor : Editor {
 		if (!EditorPrefs.GetBool ("AstarInitialized")) {
 			return;
 		}
-        
+		
 		
 		
 		//First the editor will do a series of checks to see if any assets are damaged or if there is a new version of the pathfinding system available 
@@ -809,7 +814,6 @@ public class AstarPathEditor : Editor {
 	public void RenderStaticSettings () {
 		
 		AstarPath path = target as AstarPath;
-		
 		//GRIDS START
 		//path.showGrid = GUILayout.Toggle (path.showGrid,"Show Grid","Button");
 		

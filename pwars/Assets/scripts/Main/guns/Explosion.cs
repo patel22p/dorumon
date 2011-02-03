@@ -17,24 +17,29 @@ public class Explosion : bs
     }
     public void Start()
     {
+        
         foreach (Destroible ip in GameObject.FindObjectsOfType(typeof(Destroible)))
         {
             float dist = Vector3.Distance(ip.transform.position, transform.position);
+            
             if (ip != self && dist < radius && ip.isController && ip.Alive)
             {
                 if (ip.isOwner)
                     _Cam.exp = 1;
-                if(ip.isEnemy(OwnerID) || OwnerID == _localPlayer.OwnerID)
-                    ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * DamageFactor / 5 * damageFactor(ip), OwnerID);
+                if (ip.isEnemy(OwnerID) || ip.OwnerID == _localPlayer.OwnerID)
+                {
+                    ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * DamageFactor * 4 * damageFactor(ip), OwnerID);
+                }
             }
         }
-        _TimerA.AddMethod(50, delegate
+        //_TimerA.AddMethod(10, delegate
         {
             foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
                 if (b != self && (!(b is Player) || ((Player)b).Alive))
                 {
                     b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * .3f * fdt, transform.position, radius * 3);
                 }
-        });
+        }
+        //);
     }
 }

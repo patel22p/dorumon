@@ -21,16 +21,16 @@ public partial class ETools : InspectorSearch
     {
         get
         {
-            return new[] { EditorApplication.currentScene }.Union(new string[] { 
+            return new string[] { 
             p + "/Menu.unity",
             p + "/test.unity",
             p + "/Pitt.unity",
-        }).ToArray();
+        };
         }
     }
     string cspath = @"C:\Users\igolevoc\Documents\PhysxWars\Assets\scripts\GUI\";
     public bool bake;
-    public bool web;
+    public bool web, buildall;
     public override void Awake()
     {
         base.Awake();
@@ -39,7 +39,11 @@ public partial class ETools : InspectorSearch
     protected override void OnGUI()
     {
         GUI.BeginHorizontal();
-        web = GUI.Toggle(web, "web", GUI.ExpandWidth(false));        
+        web = GUI.Toggle(web, "web", GUI.ExpandWidth(false));
+        var old = buildall;
+        buildall = GUI.Toggle(buildall, "all", GUI.ExpandWidth(false));
+        if (buildall && buildall != old)
+            disablePathFinding = debug = disableSounds = stopZombies = false;
 
         if (GUILayout.Button("Build"))
         {
@@ -319,6 +323,7 @@ public partial class ETools : InspectorSearch
                 a.navmeshRotation = (Quaternion.AngleAxis(270, new Vector3(1, 0, 0))).eulerAngles;
                 a.meshGrid.offset = t.position;
                 a.meshGrid.offset.y += .2f;
+                a.boundsMargin = 1;
                 a.meshGrid.scale = 1;
                 t.renderer.enabled = false;
                 if (t.collider != null)
@@ -439,6 +444,7 @@ public partial class ETools : InspectorSearch
     }
     private void Build()
     {
+        Debug.Log("build");
         var fn = "Game.Exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         var dt = DateTime.Now.ToFileTime();
@@ -456,9 +462,7 @@ public partial class ETools : InspectorSearch
             File.WriteAllText(path + "Server.bat", "start Game.Exe server");
         }
 
-        foreach (var ai in scenes)
-            Debug.Log("build " + ai);
-        BuildPipeline.BuildPlayer(scenes, (path = path + fn), web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment);
+        BuildPipeline.BuildPlayer(buildall ? scenes : new[] { EditorApplication.currentScene }, path + fn, web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment);
         if (web) BuildPipeline.BuildPlayer(new[] { "" }, "", BuildTarget.StandaloneWindows, BuildOptions.Development);
     }
     public static Loader loader;

@@ -34,46 +34,57 @@ public class Gun : GunBase
         enabled = false;
         fireLight = root.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point);
     }
+    public bool Its(params GunType[] gts)
+    {
+        return gts.Contains((GunType)guntype);
+    }
     public override void InitValues()
     {
         GunType gt = (GunType)guntype;
-        if (new[] { GunType.bazoka , GunType.granate , GunType.gravitygranate }.Contains(gt))
+        if (Its(GunType.pistol))
+        {
+            soundVolume = .3f;
+        }
+        if (Its(GunType.bazoka, GunType.granate, GunType.gravitygranate))
         {
             BulletForce = .15f;
+            damage = 1;
             expOttalkivanie = 7;
             radius = 6;
         }
-        if (new[] { GunType.ak}.Contains(gt))
+        if (Its(GunType.ak))
         {
             expOttalkivanie = .5f;
         }
-        if (new[] { GunType.gravitygranate, GunType.granate }.Contains(gt))
+        if (Its(GunType.gravitygranate, GunType.granate))
         {
             timeToDestroy = 2;
             BulletForce = .08f;
             radius = 6;
-            interval = 1;            
+            damage = 2;
+            interval = 1;
         }
-        if (new[] { GunType.gravitygranate }.Contains(gt)) //garvitationgranate
+
+        if (Its(GunType.gravitygranate)) //garvitationgranate
         {
             timeToDestroy = 5;
             gravitate = 1;
-            expOttalkivanie = 30;
+            expOttalkivanie = 20;
         }
-        if (new[] { GunType.minigun}.Contains(gt))
+        if (Its(GunType.minigun))
         {
             damage = 30;
         }
-        if (new[] { GunType.railgun }.Contains(gt))
+        if (Its(GunType.railgun))
         {
-            expOttalkivanie = 6;
+            expOttalkivanie = 3;
         }
-        
-        if (new[] { GunType.shotgun }.Contains(gt))
+
+        if (Its(GunType.shotgun))
         {
             probivaemost = 1;
-            expOttalkivanie = .3f; 
-            damage = 6;            
+            expOttalkivanie = .3f;
+            damage = 6;
         }
         zmDamageFactor = .8f;
     }

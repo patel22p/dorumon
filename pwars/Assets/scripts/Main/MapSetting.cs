@@ -12,8 +12,9 @@ public class MapSetting
     public float damageFactor = 1;
     public bool FreezeOnBite = true;
     public float pointsPerZombie = 2;
+    public float pointsPerPlayer = 2;
     public int StartMoney = 1;
-    public float zombieDamage = 20;
+    public float zombieDamage = 10;    
     public int zombiesAtStart = 10;
     public float zombieLifeFactor = 1;
     public float zombieSpeedFactor = 1;
@@ -33,6 +34,7 @@ public class MapSetting
     public bool TDM { get { return gameMode == GameMode.TeamDeathMatch; } }
     public bool DM { get { return gameMode == GameMode.DeathMatch; } }
     public bool ZombiSurvival { get { return gameMode == GameMode.ZombieSurvival; } }
+    public bool CustomZombiSurvival { get { return gameMode == GameMode.CustomZombieSurvival; } }
     public bool Team { get { return TeamZombiSurvival || TDM; } }
-    public bool zombi { get { return ZombiSurvival || TeamZombiSurvival; } }
+    public bool zombi { get { return ZombiSurvival || TeamZombiSurvival || CustomZombiSurvival; } }
 }

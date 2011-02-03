@@ -126,7 +126,7 @@ public class Patron : bs
             _TimerA.AddMethod(delegate
             {
                 if (r != null && r.velocity.magnitude < 20)
-                    r.AddForceAtPosition(rt * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.sqrMagnitude * 10) * fdt, hit.point);
+                    r.AddForceAtPosition(rt * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.magnitude * 1000) * fdt, hit.point);
             });
         }
         Destroible destroible = m as Destroible;
@@ -175,9 +175,9 @@ public class Patron : bs
         Destroy(o = (GameObject)Instantiate(detonator, vector3, Quaternion.identity), .6f);
         GameObject exp = (GameObject)Instantiate(Explosion, o.transform.position, Quaternion.identity);
         exp.transform.parent = o.transform;
-        var e = exp.GetComponent<Explosion>();        
-        e.exp = ExpForce;
-        e.DamageFactor = damage / 60;
+        var e = exp.GetComponent<Explosion>();
+        e.exp = ExpForce * 400;
+        e.DamageFactor = damage;
         e.radius = Radius;
         e.OwnerID = OwnerID;
         Destroy(gameObject);

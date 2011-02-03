@@ -116,11 +116,11 @@ public class LoginWindow : WindowBase {
 		GUI.EndGroup();
 		GUI.BeginGroup(new Rect(19f, 130f, 574f, 199f), "");
 		GUI.Box(new Rect(0, 0, 574f, 199f), "");
-		GUILayout.BeginArea(new Rect(0f, 0, 574, 18));
+		GUILayout.BeginArea(new Rect(0f, 0, 574f, 18));
 		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Login as Guest","Login","Registr", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
 		GUILayout.EndArea();
-		GUI.BeginGroup(new Rect(0, 18, 574, 181), "");
-		GUI.Box(new Rect(0, 0, 574, 181), "");
+		GUI.BeginGroup(new Rect(0, 18, 574f, 181f), "");
+		GUI.Box(new Rect(0, 0, 574f, 181f), "");
 		if(tabTabControl4==0){
 		GUI.Label(new Rect(21f, 21.04f, 498f, 112f), @"Please note: entrance in the ""Visitor "" leaves you many opportunities to play, such as participation in reytenge players and getting degrees.
 

@@ -18,7 +18,14 @@ public class InspectorSearch : EditorWindow
     public bool SetPivot;
     public bool SetCam;
     Vector3 oldpos;
-    public static string datetime { get { return DateTime.Now.ToString("yyyy-MM-dd hh-mm"); } }
+    public static string datetime
+    {
+        get
+        {
+            return DateTime.Now.Ticks+"";
+            //return DateTime.Now.ToString("yyyy-MM-dd hh-mm");
+        }
+    }
     public virtual void Awake()
     {
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -330,7 +337,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    [MenuItem("Assets/Clear Labels")]
+    [MenuItem("Assets/Clear Labels %y")]
     static void ClearLabels()
     {
         Undo.RegisterSceneUndo("rtools");
@@ -347,21 +354,21 @@ public class InspectorSearch : EditorWindow
     static void Dup()
     {
         Undo.RegisterSceneUndo("rtools");
+        var n = "D" + Random.Range(10, 99) + ".mat";
         foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
         {
             var p = AssetDatabase.GetAssetPath(m);
-            var nwp = p.Substring(0, p.Length - 4) + "D" + Random.Range(10, 99) + ".mat";
-            AssetDatabase.DeleteAsset(nwp);
+            var nwp = p.Substring(0, p.Length - 4) + n;
             AssetDatabase.CopyAsset(p, nwp);
             AssetDatabase.Refresh();
         }
-        foreach (var a in Selection.gameObjects.Select(a=>a.renderer))
+        foreach (var a in Selection.gameObjects.Select(a => a.renderer))
         {
             var ms = a.sharedMaterials;
             for (int i = 0; i < ms.Count(); i++)
             {
                 var p = AssetDatabase.GetAssetPath(ms[i]);
-                var nwp = p.Substring(0, p.Length - 4) + "D.mat";                
+                var nwp = p.Substring(0, p.Length - 4) + n;
                 ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));
             }
             a.sharedMaterials = ms;
@@ -383,12 +390,20 @@ public class InspectorSearch : EditorWindow
     //        AssetDatabase.Refresh();
     //    }
     //}
-    [MenuItem("GameObject/Clear")]
-    static void Clear()
+    //[MenuItem("GameObject/Clear")]
+    //static void Clear()
+    //{
+    //    Undo.RegisterSceneUndo("rtools");
+    //    foreach (var g in Selection.gameObjects)
+    //        Clear(g, false);
+    //}
+    [MenuItem("GameObject/ClearCollider")]
+    static void ClearColl()
     {
         Undo.RegisterSceneUndo("rtools");
         foreach (var g in Selection.gameObjects)
-            Clear(g, false);
+            foreach (var c in g.GetComponentsInChildren<Collider>().ToArray())
+                DestroyImmediate(c);
     }
     [MenuItem("GameObject/ClearAll")]
     static void ClearAll()
@@ -556,7 +571,10 @@ public class InspectorSearch : EditorWindow
             var cs = EditorApplication.currentScene;
             var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Materials/";
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-            EditorApplication.SaveScene(dir + Path.GetFileNameWithoutExtension(cs) +datetime+ Path.GetExtension(cs));
+            
+            var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
+            Debug.Log(p);
+            EditorApplication.SaveScene(p);
         }
     }
     

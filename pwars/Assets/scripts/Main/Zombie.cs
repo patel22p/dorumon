@@ -132,45 +132,83 @@ public class Zombie : Destroible
     public float tiltTm;
     public float spawninTM;
     public new Quaternion rot;
-    float ztpltm;
-    int oldf;
     Vector3? zToPl(Destroible ipl)
     {        
-        if (oldf != Time.frameCount - 1) ztpltm = 0;
-        oldf = Time.frameCount;
-        ztpltm += Time.deltaTime;
-        if (ztpltm > 3) return ipl.transform.position - pos;        
+        return ipl.transform.position - pos;        
+    }
+    public enum ZState { none, GetRay, GetPath, ZToPl }
+    ZState state = ZState.none;
+    float stm;
+    public void RPCSetzsL(ZState z)
+    {
+        if (state != z && isController)
+            RPCSetzs((int)z);
+    }
+    public void RPCSetzs(int z) { CallRPC("Setzs", z); }
+    [RPC]
+    public void Setzs(int z)
+    {
+        stm = 0;
+        state = (ZState)z;
+    }
+    public Vector3? GetPoint()
+    {
+        var ipl = Nearest();
+        Vector3? pnt = null;
+        if (state == ZState.GetRay || stm > 1)
+        {
+            pnt = pnt ?? GetRay(ipl);
+            if (pnt != null) { RPCSetzsL(ZState.GetRay); return pnt; }
+        }
+
+        if (state == ZState.GetPath || stm > 1)
+        {
+            pnt = pnt ?? GetNextPathFindPoint(ipl);
+            if (pnt != null) { RPCSetzsL(ZState.GetPath); return pnt; }
+        }
+
+        if (state == ZState.ZToPl || stm > 10)
+        {
+            pnt = pnt ?? zToPl(ipl);
+            if (pnt != null) { RPCSetzsL(ZState.ZToPl); return pnt; }
+        }
         return null;
     }
     protected override void Update()
     {
         base.Update();        
-
+        
         if(isController)
             if (rigidbody.velocity.magnitude > 5 * transform.localScale.x || Physics.gravity != _Game.gravity || Time.timeScale != 1) RPCSetFrozen(true);
 
         if (_Loader.stopZombies && _TimerA.TimeElapsed(100)) RPCSetFrozen(true);
-        
+
         zombieBite += Time.deltaTime;
+
+        if (isController)
+            stm += Time.deltaTime;
+        else
+            stm = 0;
+
         seekPathtm -= Time.deltaTime;
+
         if (!Alive || selected == -1 || frozen) return;
         var ipl = Nearest();
         if (ipl != null && ipl.Alive)
         {
-            Vector3 pathPointDir;
-            pathPointDir = (GetRay(ipl) ?? GetPlayerPathPoint(ipl) ?? GetNextPathFindPoint(ipl) ?? zToPl(ipl) ?? default(Vector3));
-            
-            if (pathPointDir == default(Vector3))
+            Vector3? nwp =  _Loader.disablePathFinding ? zToPl(ipl) : GetPoint();
+            if (nwp == null)
             {
                 move = false;
                 tiltTm += Time.deltaTime;
             }
             else
             {
+                Vector3 pathPointDir = nwp.Value;
                 Debug.DrawLine(pos, pos + pathPointDir);
                 pathPointDir.y = 0;
                 rot = Quaternion.LookRotation(pathPointDir.normalized);
-                if (Vector3.Distance( ipl.transform.position , pos) > 1.5f)
+                if (Vector3.Distance(ipl.transform.position, pos) > 1.5f)
                 {
                     move = true;
                     tiltTm += Time.deltaTime;
@@ -205,16 +243,11 @@ public class Zombie : Destroible
             ipl.RPCSetLife(ipl.Life - Math.Min(_Game.mapSettings.zombieDamage, _Game.stage + 1), -1);
         }
     }
-    public float pwait;
     private Vector3? GetRay(Destroible ipl)
     {        
         var r = new Ray(pos, ipl.pos - pos);
         RaycastHit h;
-        pwait += Time.deltaTime;
-        if (Physics.Raycast(r, out h, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
-            pwait = 0;
-
-        if (pwait > 3)
+        if (!Physics.Raycast(r, out h, Vector3.Distance(ipl.pos, pos), 1 << LayerMask.NameToLayer("Level")))
             return ipl.pos - pos;
         else
             return null;
@@ -227,6 +260,7 @@ public class Zombie : Destroible
             nearest = players.Where(a => a != null && a.Alive).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
         return nearest;
     }
+    public float speedadd;
     void FixedUpdate()
     {
         if (Alive && !frozen)
@@ -238,7 +272,8 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
                 rigidbody.angularVelocity = Vector3.zero;
-                var t = rot * new Vector3(0, 0, 1) * .5f * speed * Time.deltaTime * Time.timeScale * Time.timeScale * (1 + ((_Game.stageTime / 200) * _Game.mapSettings.zombieSpeedGrowFactor));
+                speedadd = (_Game.stageTime / 10) * _Game.mapSettings.zombieSpeedGrowFactor;
+                var t = rot * new Vector3(0, 0, 1) * .5f * (speed + speedadd) * Time.deltaTime * Time.timeScale * Time.timeScale;
                 Ray r = new Ray(pos, t);
                 if (Physics.Raycast(r, .3f, 1 << LayerMask.NameToLayer("Level")))
                     t.y++;
@@ -246,16 +281,16 @@ public class Zombie : Destroible
             }
         }
     }
-    private Vector3? GetPlayerPathPoint(Destroible ipl)
-    {        
-        if (ipl is Player)
-        {
-            var pathPoints = ((Player)ipl).plPathPoints;
-            var np = FindNextPoint(pathPoints);
-            return np;
-        }
-        return null;
-    }
+    //private Vector3? GetPlayerPathPoint(Destroible ipl)
+    //{        
+    //    if (ipl is Player)
+    //    {
+    //        var pathPoints = ((Player)ipl).plPathPoints;
+    //        var np = FindNextPoint(pathPoints);
+    //        return np;
+    //    }
+    //    return null;
+    //}
     private Vector3? FindNextPoint(IList<Vector3> points)
     {
         if (points == null || points.Count == 0) return null;
@@ -353,6 +388,7 @@ public class Zombie : Destroible
     {
         base.OnPlayerConnectedBase(np);
         RPCSetup((float)speed, (float)MaxLife, (int)zombieType);
+        RPCSetzs((int)state);
         if (!Alive)
         {
             Debug.Log("send zombie rpc die" + np);

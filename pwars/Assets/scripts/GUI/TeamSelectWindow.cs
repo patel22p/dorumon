@@ -38,21 +38,12 @@ public class TeamSelectWindow : WindowBase {
 	
 	internal bool focusGameType;
 	
-	internal bool vZombi = false;
+	internal bool vdescription = true;
 	
-	internal bool focusZombi;
+	internal bool focusDescription;
 	
-	internal bool vZombiTeam = false;
-	
-	internal bool focusZombiTeam;
-	
-	internal bool vDeathmatch = false;
-	
-	internal bool focusDeathmatch;
-	
-	internal bool vTeamDeathMatch = false;
-	
-	internal bool focusTeamDeathMatch;
+	internal bool rDescription = false;
+	internal string Description = @"description";
 	private int wndid1;
 	private Vector2 sTeams;
 	private Rect Red;
@@ -133,40 +124,13 @@ public class TeamSelectWindow : WindowBase {
 		GUI.SetNextControlName("GameType");
 		GUI.BeginGroup(new Rect(40f, 155f, 302f, 95f), "");
 		GUI.Box(new Rect(0, 0, 302f, 95f), "");
-		if(vZombi){
-		if(focusZombi) { focusZombi = false; GUI.FocusControl("Zombi");}
-		GUI.SetNextControlName("Zombi");
-		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
-		GUI.Box(new Rect(0, 0, 292f, 79f), "");
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Zombie survival. 
- kill the maximum number of zombies.");
-		GUI.EndGroup();
-		}
-		if(vZombiTeam){
-		if(focusZombiTeam) { focusZombiTeam = false; GUI.FocusControl("ZombiTeam");}
-		GUI.SetNextControlName("ZombiTeam");
-		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
-		GUI.Box(new Rect(0, 0, 292f, 79f), "");
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle with zombies. 
- surviving team wins.");
-		GUI.EndGroup();
-		}
-		if(vDeathmatch){
-		if(focusDeathmatch) { focusDeathmatch = false; GUI.FocusControl("Deathmatch");}
-		GUI.SetNextControlName("Deathmatch");
-		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
-		GUI.Box(new Rect(0, 0, 292f, 79f), "");
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"DeathMatch. 
- kill the maximum number of players.");
-		GUI.EndGroup();
-		}
-		if(vTeamDeathMatch){
-		if(focusTeamDeathMatch) { focusTeamDeathMatch = false; GUI.FocusControl("TeamDeathMatch");}
-		GUI.SetNextControlName("TeamDeathMatch");
-		GUI.BeginGroup(new Rect(0f, 0f, 292f, 79f), "");
-		GUI.Box(new Rect(0, 0, 292f, 79f), "");
-		GUI.Label(new Rect(8f, 8f, 276f, 50f), @"Team battle. \r \n kill the maximum number of players.");
-		GUI.EndGroup();
+		if(vdescription){
+		if(focusDescription) { focusDescription = false; GUI.FocusControl("Description");}
+		GUI.SetNextControlName("Description");
+		if(rDescription){
+		GUI.Label(new Rect(17f, 8f, 267f, 79f), Description.ToString());
+		} else
+		try {Description = GUI.TextField(new Rect(17f, 8f, 267f, 79f), Description,100);}catch{};
 		}
 		GUI.EndGroup();
 		}

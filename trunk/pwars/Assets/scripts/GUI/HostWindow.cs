@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static HostWindow __HostWindow;
     public static HostWindow _HostWindow { get { if (__HostWindow == null) __HostWindow = (HostWindow)MonoBehaviour.FindObjectOfType(typeof(HostWindow)); return __HostWindow; } }
 }
-public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Gunlist,Close, }
+public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Gunlist,Player_Hit_Slow,Have_A_Laser,Close, }
 public class HostWindow : WindowBase {
 		
 	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
@@ -116,6 +116,10 @@ public class HostWindow : WindowBase {
 	internal bool rDescription = true;
 	internal string Description = @"";
 	
+	internal bool vcommon = true;
+	
+	internal bool focusCommon;
+	
 	internal bool vStartMoney = true;
 	
 	internal bool focusStartMoney;
@@ -144,6 +148,16 @@ public class HostWindow : WindowBase {
 	
 	internal bool focusDamageFactor;
 	internal float DamageFactor = 1f;
+	
+	internal bool vPlayer_Hit_Slow = true;
+	
+	internal bool focusPlayer_Hit_Slow;
+	internal bool Player_Hit_Slow=false;
+	
+	internal bool vHave_A_Laser = true;
+	
+	internal bool focusHave_A_Laser;
+	internal bool Have_A_Laser=false;
 	
 	internal bool vums = true;
 	
@@ -184,6 +198,8 @@ public class HostWindow : WindowBase {
 	private Vector2 sMap;
 	private bool oldMouseOverStartServer;
 	private Vector2 sGunlist;
+	private bool oldMouseOverPlayer_Hit_Slow;
+	private bool oldMouseOverHave_A_Laser;
 	
     
     
@@ -210,7 +226,7 @@ public class HostWindow : WindowBase {
     {		
 		GUI.skin = _Loader.Skin;
         
-		GUI.Window(wndid1,new Rect(-306f + Screen.width/2,-273f + Screen.height/2,615f,490.5f), Wnd1,"");
+		GUI.Window(wndid1,new Rect(-312f + Screen.width/2,-244.5f + Screen.height/2,615f,490.5f), Wnd1,"");
 		base.OnGUI();
     }
 	void Wnd1(int id){
@@ -372,6 +388,9 @@ public class HostWindow : WindowBase {
 		}
 		}
 		if(tabTabControl14==1){
+		if(vcommon){
+		if(focusCommon) { focusCommon = false; GUI.FocusControl("Common");}
+		GUI.SetNextControlName("Common");
 		GUI.BeginGroup(new Rect(0f, 0f, 546.5f, 92.167f), "");
 		GUI.Box(new Rect(0, 0, 546.5f, 92.167f), "");
 		GUI.Label(new Rect(8f, 8f, 76f, 14f), @"StartMoney");
@@ -384,10 +403,10 @@ public class HostWindow : WindowBase {
 		if(vMoney_per_playerKill){
 		if(focusMoney_per_playerKill) { focusMoney_per_playerKill = false; GUI.FocusControl("Money_per_playerKill");}
 		GUI.SetNextControlName("Money_per_playerKill");
-		Money_per_playerKill = GUI.HorizontalSlider(new Rect(190f, 60f, 119f, 16f), Money_per_playerKill, 0f, 100f);
-		GUI.Label(new Rect(309f,60f,40,15),System.Math.Round(Money_per_playerKill,1).ToString());
+		Money_per_playerKill = GUI.HorizontalSlider(new Rect(152f, 60f, 119f, 16f), Money_per_playerKill, 0f, 100f);
+		GUI.Label(new Rect(271f,60f,40,15),System.Math.Round(Money_per_playerKill,1).ToString());
 		}
-		GUI.Label(new Rect(190f, 44f, 168.5f, 16f), @"Money per player kill");
+		GUI.Label(new Rect(152f, 44f, 168.5f, 16f), @"Money per player kill");
 		if(vgunlist){
 		if(focusGunlist) { focusGunlist = false; GUI.FocusControl("Gunlist");}
 		GUI.SetNextControlName("Gunlist");
@@ -414,7 +433,28 @@ public class HostWindow : WindowBase {
 		DamageFactor = GUI.HorizontalSlider(new Rect(8f, 58f, 119f, 16f), DamageFactor, 0f, 3f);
 		GUI.Label(new Rect(127f,58f,40,15),System.Math.Round(DamageFactor,1).ToString());
 		}
+		if(vPlayer_Hit_Slow){
+		if(focusPlayer_Hit_Slow) { focusPlayer_Hit_Slow = false; GUI.FocusControl("Player_Hit_Slow");}
+		GUI.SetNextControlName("Player_Hit_Slow");
+		bool oldPlayer_Hit_Slow = Player_Hit_Slow;
+		Player_Hit_Slow = GUI.Toggle(new Rect(184f, 22f, 145.5f, 13f),Player_Hit_Slow, new GUIContent("Player Slow onDmg",""));
+		if (Player_Hit_Slow != oldPlayer_Hit_Slow ) {Action("Player_Hit_Slow");onButtonClick(); }
+		onMouseOver = new Rect(184f, 22f, 145.5f, 13f).Contains(Event.current.mousePosition);
+		if (oldMouseOverPlayer_Hit_Slow != onMouseOver && onMouseOver) onOver();
+		oldMouseOverPlayer_Hit_Slow = onMouseOver;
+		}
+		if(vHave_A_Laser){
+		if(focusHave_A_Laser) { focusHave_A_Laser = false; GUI.FocusControl("Have_A_Laser");}
+		GUI.SetNextControlName("Have_A_Laser");
+		bool oldHave_A_Laser = Have_A_Laser;
+		Have_A_Laser = GUI.Toggle(new Rect(321.5f, 64f, 105.5f, 13f),Have_A_Laser, new GUIContent("Have A Laser",""));
+		if (Have_A_Laser != oldHave_A_Laser ) {Action("Have_A_Laser");onButtonClick(); }
+		onMouseOver = new Rect(321.5f, 64f, 105.5f, 13f).Contains(Event.current.mousePosition);
+		if (oldMouseOverHave_A_Laser != onMouseOver && onMouseOver) onOver();
+		oldMouseOverHave_A_Laser = onMouseOver;
+		}
 		GUI.EndGroup();
+		}
 		}
 		if(tabTabControl14==2){
 		if(vums){

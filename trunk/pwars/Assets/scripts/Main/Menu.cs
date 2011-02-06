@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.IO;
 using System.Net.Sockets;
-using System.Threading;
 using System.Text.RegularExpressions;
 using Random = UnityEngine.Random;
 public enum ScoreBoardTables { ZombieSurvival, Time, DeathMatch, TeamDeathMatch, CustomZombie }
@@ -30,18 +29,20 @@ public class Menu : bs
     }
     public void Start()
     {
+        foreach (AudioSource a in FindObjectsOfTypeIncludingAssets(typeof(AudioSource)))
+            a.pitch = 1;
         lockCursor = false;
         if (_Loader.dedicated)
         {
             Dedicated();
             return;
         }
-
+        
         foreach (WindowBase o in Component.FindObjectsOfType(typeof(WindowBase)))
             o.SendMessage("HideWindow", SendMessageOptions.DontRequireReceiver);
         if (_Loader.loggedin)
         {
-            _MenuWindow.Show(this);                            
+            _MenuWindow.Show(this);                                        
         }
         else
         {
@@ -53,7 +54,7 @@ public class Menu : bs
                 OnLogin();
             }
         }
-        
+        _HostWindow.lGunlist = Enum.GetNames(typeof(GunType));
         _HostWindow.lGameMode = Enum.GetNames(typeof(GameMode));
         _ScoreBoardWindow.lScoreboard_orderby = Enum.GetNames(typeof(ScoreBoardTables));
         RefreshMasterServer();        
@@ -64,7 +65,7 @@ public class Menu : bs
         mapSettings = TakeRandom(_Loader.mapsets);
         mapSettings.gameMode = TakeRandom(mapSettings.supportedModes);
         bool useNat = !Network.HavePublicAddress();
-        Network.InitializeServer(mapSettings.maxPlayers, _Loader.port, useNat);
+        Network.InitializeServer(mapSettings.maxPlayers, _Loader.hostport, useNat);
         MasterServer.dedicatedServer = true;
         MasterServer.RegisterHost(_Loader.version, "DedicatedServer", mapSettings.mapName + "," + _HostWindow.GameMode);
         _Loader.RPCLoadLevel(mapSettings.mapName, RPCMode.AllBuffered);
@@ -73,29 +74,37 @@ public class Menu : bs
     void Update()
     {
         _MenuWindow.vAccountInfo = !_Loader.UserView.guest;
-        if (_TimerA.TimeElapsed(100))
-        {
-            if (_HostWindow.GameMode != "")
-            {
-                var g = _HostWindow.GameMode.Parse<GameMode>();
-                _HostWindow.lMap = GetMapsByMode(g).ToArray();
+        _MenuWindow.vScore_Board = !_Loader.UserView.guest;
+        _UserWindow.vSaveUser = _UserWindow.UserNick == LocalUser.nick;
 
-                if (g == GameMode.CustomZombieSurvival)
-                    _HostWindow.vums = true;
-                else
-                    _HostWindow.vums = false;
-                _HostWindow.Description = GetDescr(g);
-                if (_HostWindow.Map != "")
+        if (_HostWindow.GameMode != "" && _TimerA.TimeElapsed(100))
+        {
+            var g = _HostWindow.GameMode.Parse<GameMode>();
+            _HostWindow.lMap = GetMapsByMode(g).ToArray();
+
+            if (g == GameMode.CustomZombieSurvival)
+                _HostWindow.vums = true;
+            else
+                _HostWindow.vums = false;
+            _HostWindow.Description = GetDescr(g);
+            if (_HostWindow.Map != "")
+            {
+                mapSettings.gameMode = g;
+
+                if (mapSettings.CustomZombiSurvival || mapSettings.DM)
                 {
-                    mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map);
-                    mapSettings.gameMode = g;
+                    if (_HostWindow.iGunlist != -1)
+                        mapSettings.patrons[_HostWindow.iGunlist] = _HostWindow.GunBullets;
+                    _HostWindow.vcommon = true;
                 }
+                else
+                    _HostWindow.vcommon = false;
+
+                _HostWindow.vfragCanvas = !mapSettings.zombi;
+
 
             }
-            _HostWindow.vfragCanvas = !mapSettings.zombi;
-            _UserWindow.vSaveUser = _UserWindow.UserNick == LocalUser.nick;
         }
-
         if (_TimerA.TimeElapsed(100))
         {
             if (_ScoreBoardWindow.iScoreboard_orderby != -1)
@@ -106,6 +115,8 @@ public class Menu : bs
                 else
                     _ScoreBoardWindow.lScore_table = new string[] { };
             }
+            else
+                _ScoreBoardWindow.lScore_table = new string[] { };
 
             _UserWindow.MaterialName = _Loader.playerTextures[LocalUser.MaterialId].name;
             Sphere.renderer.material = _Loader.playerTextures[LocalUser.MaterialId];
@@ -123,7 +134,7 @@ public class Menu : bs
     }
     public void SaveScoreBoard(string gamename, string user, string passw, bool guest, int frags, int deaths)
     {
-        Debug.Log("SaveScoreBoard");
+        Debug.Log("SaveScoreBoard" +gamename);
         WWWSend("stats.php?user=" + user + "&guest=" + (guest ? "1" : "") + "&passw=" + passw + "&frags=" + frags + "&deaths=" + deaths + "&game=" + gamename, TableParse);
     }
     private void TableParse(string s)
@@ -149,8 +160,11 @@ public class Menu : bs
         var tableTitle = GenerateTable(_ScoreBoardWindow.TableHeader);
         foreach (var row in sa.Skip(1))
         {
+            
             var cell = row.Split(new[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            table.Add(string.Format(tableTitle, "", cell[0], cell[1], cell[2], cell[3], "", ""));
+            var frags  = int.Parse(cell[2]);
+            var cell2 = scType == ScoreBoardTables.Time ? TimeSpan.FromSeconds(frags) + "" : frags + "";
+            table.Add(string.Format(tableTitle, "", cell[0], cell[1], cell2, cell[3], "", ""));
         }
         ScoreBoard[(int)scType] = table.ToArray();
         foreach (var a in sa) //check if user in tabble
@@ -159,6 +173,7 @@ public class Menu : bs
             var r = Regex.Match(a, @"(\d+)\t(.+?)\t(\d+)\t(\d+)");
             if (r.Success && r.Groups[2].Value == LocalUser.nick)
             {
+
                 LocalUser.scoreboard[(int)scType].frags = int.Parse(r.Groups[3].Value);
                 LocalUser.scoreboard[(int)scType].place = int.Parse(r.Groups[1].Value);
                 LocalUser.scoreboard[(int)scType].deaths = int.Parse(r.Groups[4].Value);
@@ -182,14 +197,14 @@ public class Menu : bs
             mapSettings.kickIfAfk = _HostWindow.Kick_if_AFK;
             mapSettings.kickIfErrors = _HostWindow.KickIfErrors;
             mapSettings.timeLimit = _HostWindow.MaxTime;
-            _Loader.port = _HostWindow.Port;
+            
             _Loader.host = true;
             if (mapSettings.DM)
                 CopyValuesCommon(true);                
             if (mapSettings.gameMode == GameMode.CustomZombieSurvival)
                 CopyValuesZombie(true);                
             bool useNat = !Network.HavePublicAddress();
-            var conn = Network.InitializeServer(mapSettings.maxPlayers - 1, _Loader.port, useNat);
+            var conn = Network.InitializeServer(mapSettings.maxPlayers - 1, _HostWindow.Port, useNat);
             if (conn == NetworkConnectionError.NoError)
             {
                 MasterServer.RegisterHost(_Loader.version, _HostWindow.Name, mapSettings.mapName + "," + _HostWindow.GameMode);
@@ -204,12 +219,16 @@ public class Menu : bs
     {
         if (save)
         {
+            mapSettings.haveALaser = _HostWindow.Have_A_Laser;
             mapSettings.StartMoney = (int)_HostWindow.StartMoney;
             mapSettings.damageFactor = _HostWindow.DamageFactor;
             mapSettings.pointsPerZombie = _HostWindow.Money_per_playerKill;
+            mapSettings.Slow = _HostWindow.Player_Hit_Slow;
         }
         else
         {
+            _HostWindow.Have_A_Laser = mapSettings.haveALaser;
+            _HostWindow.Player_Hit_Slow = mapSettings.Slow;
             _HostWindow.StartMoney = mapSettings.StartMoney;
             _HostWindow.DamageFactor = mapSettings.damageFactor;
             _HostWindow.Money_per_playerKill = mapSettings.pointsPerZombie;
@@ -231,7 +250,6 @@ public class Menu : bs
         {
             _HostWindow.Money_per_frag = mapSettings.pointsPerZombie;
             _HostWindow.ZombiesAtStart = mapSettings.zombiesAtStart;
-            _HostWindow.Startup_Money = mapSettings.StartMoney;
             _HostWindow.Startup_Level = mapSettings.stage;
             _HostWindow.Zombie_Damage = mapSettings.zombieDamage;
             _HostWindow.Zombie_Life = mapSettings.zombieLifeFactor;
@@ -245,13 +263,13 @@ public class Menu : bs
         else
         {
             _Loader.ipaddress = _ServersWindow.Ipaddress.Split(',');
-            _Loader.port = _ServersWindow.Port;
+            _Loader.hostport = _ServersWindow.Port;
             _Loader.host = false;
             ShowPopup("Connecting to " + string.Join(",", _Loader.ipaddress));
             var conn = Network.Connect(_Loader.ipaddress, _ServersWindow.Port);
             if (conn != NetworkConnectionError.NoError)
                 ShowPopup("Connection failed: " + conn);
-            _ServersWindow.Hide();
+            //_ServersWindow.Hide();
         }
     }
     void OnFailedToConnect(NetworkConnectionError error)
@@ -313,6 +331,7 @@ public class Menu : bs
     }
     public void SaveUser() //usersave
     {
+        Debug.Log("passw " + _Loader.passpref);
         WWWSend("user.php?user=" + LocalUser.nick + "&passw=" + _Loader.passwordHash, SerializeToStr(LocalUser, UserView.xml), delegate { UpdateImage(LocalUser); });
     }
     private void OnLogin()
@@ -356,6 +375,10 @@ public class Menu : bs
                 LocalUser.guest = true;
                 OnLogin();
             }
+        if (n == "Gunlist")
+        {
+            _HostWindow.GunBullets = mapSettings.patrons[_HostWindow.iGunlist];
+        }
         if (n == "Login")
         {
             _LoginWindow.vLogin = false;
@@ -377,7 +400,7 @@ public class Menu : bs
                 _LoginWindow.vLogin = true;
             });
         }
-        if (n == LoginWindowEnum.Registr + "")
+        if (n == "Registr")
         {
             _LoginWindow.vRegistr = false;
             WWWSend("user.php?reg=1&user=" + _LoginWindow.RegNick + "&email=" + _LoginWindow.Email + "&passw=" + Ext.CalculateMD5Hash(_LoginWindow.RegPassw), SerializeToStr(new UserView() { nick = _LoginWindow.RegNick }, UserView.xml),
@@ -391,8 +414,9 @@ public class Menu : bs
             });
         }
 
-        if (n == UserWindowEnum.SaveUser + "")
+        if (n == "SaveUser")
         {
+            
             LocalUser.AvatarUrl = _UserWindow.AvatarUrl;
             LocalUser.Desctiption = _UserWindow.Desctiption;
             LocalUser.FirstName = _UserWindow.FirstName;
@@ -415,12 +439,15 @@ public class Menu : bs
                 GetScoreBoard(_ScoreBoardWindow.Scoreboard_orderby, _ScoreBoardWindow.FindUserName, "");
             else
                 ShowPopup("select order first");
-        if (n == ScoreBoardWindowEnum.Score_table + "")
+        if (n == "Score_table")
         {
-            GetUserInfo(_ScoreBoardWindow.Score_table.Split(" ")[1]);
-            _UserWindow.Show(this);
+            if (_ScoreBoardWindow.Score_table != "")
+            {
+                GetUserInfo(_ScoreBoardWindow.Score_table.Split(" ")[1]);
+                _UserWindow.Show(this);
+            }
         }
-        if (n == UserWindowEnum.UserScores + "")
+        if (n == "UserScores")
         {
             _ScoreBoardWindow.Show(this);
             GetScoreBoard(Regex.Match(_UserWindow.UserScores, @"[^\d ]+").Value, "", _UserWindow.UserNick);           
@@ -435,12 +462,19 @@ public class Menu : bs
         }
         if (n == "Map")
         {
-            CopyValuesCommon(false);
-            CopyValuesZombie(false);
+            if (_HostWindow.Map != "")
+            {
+                mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == _HostWindow.Map).Clone();
+                CopyValuesCommon(false);
+                CopyValuesZombie(false);
+            }
         }
         if (n == "GameMode" && _HostWindow.GameMode!="")
         {
-            _HostWindow.iMap = 0; 
+            var g = _HostWindow.GameMode.Parse<GameMode>();
+            _HostWindow.lMap = GetMapsByMode(g).ToArray();
+            _HostWindow.iMap = 0;
+            Action("Map");
         }
         if (n == "StartServer")
             StartServer();
@@ -519,6 +553,4 @@ public class Menu : bs
             yield return string.Format(GenerateTable(_ServersWindow.ServersTitle), "", host.gameName, data[0], data[1], host.ip[0], host.connectedPlayers + "/" + host.playerLimit, hdp.ping);
         }
     }
-    
 }
-

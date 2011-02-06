@@ -20,42 +20,69 @@ public enum Level { z1login, z2menu, z4game }
 public class Loader : bs
 {
     Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
-    int currentmap;
     internal string cmd = ""; 
-    string pass;
     internal MapSetting mapSettings = new MapSetting();
     internal bool loaded;
     internal int lastLevelPrefix;
+    internal int rpcCount;
     public bool disableSounds;
     public string version = "PhysxWars";
     public bool stopZombies;
     public bool dontcheckwin;
+    public bool completeBuild;
+    public bool proxy;
     new public bool build;
     public string[] ipaddress;
-    public int port = 5300;
+    internal int hostport = 5300;    
     [FindAsset]
     public Material[] playerTextures;
     public bool debugPath;
     public bool disablePathFinding= true;
     public bool loggedin;    
     public bool host;
+    [FindAsset]
+    public AudioClip ForceField;
     public UserView UserView = new UserView();
     new public Level _Level;
     new public TimerA _TimerA = new TimerA();
+    
     public MapSetting[] mapsets = new MapSetting[1];
     [FindAsset("Skin/Skin.guiskin")]
     public GUISkin Skin;
+    public override void InitValues()
+    {
+        mapsets = new MapSetting[]
+        {
+            new MapSetting(){ title = "Jamo map", mapName = "Pitt"},
+            new MapSetting(){ title = "Test map", mapName = "test" }
+        };
+
+        foreach (var m in mapsets)
+        {
+            for (int i = 0; i < m.patrons.Length; i++)
+                m.patrons[i] = -1;
+            m.patrons[(int)GunType.physxgun] = 10;
+            m.patrons[(int)GunType.pistol] = 30;
+            
+            m.timeLimit = 99;
+            m.zombieDamage = 8;
+            m.pointsPerZombie = 2;
+            m.haveALaser = false;
+            m.pointsPerPlayer = 5;
+            m.Slow = true;
+            m.StartMoney = 50;
+
+            m.gameMode = GameMode.ZombieSurvival; 
+            m.stage = 0;
+        }        
+        base.InitValues();
+    }
     public override void Awake()
     {        
         Debug.Log("loader Awake");
         base.Awake();
         enabled = true;
         Application.targetFrameRate = 60;                
-        for (int i = 0; i < mapsets.Length; i++)
-            if (mapsets[i].mapName == Application.loadedLevelName)
-            {
-                currentmap = i; break;
-            }
         DontDestroyOnLoad(this.transform.root);
         networkView.group = 1;
         if (!isWebPlayer)
@@ -174,6 +201,8 @@ public class Loader : bs
                 _Cam.onEffect();
         if (s == "RenderSettings")
             _Cam.onEffect();
+        if (s == "GraphicQuality")
+            _Cam.onEffect();
         if (s == "Ok")
             _PopUpWindow.Hide();
         if (s == "ShowKeyboard")
@@ -184,26 +213,7 @@ public class Loader : bs
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     SerializedObject serializedObject;
     public SerializedObject SerializedObject { get { if (serializedObject == null) serializedObject = new SerializedObject(this); return serializedObject; } }
-    public override void InitValues()
-    {
-        mapsets = new MapSetting[]
-        {
-            new MapSetting(){ title = "Jamo map", mapName = "Pitt"},
-            new MapSetting(){ title = "Test map", mapName = "test" }
-        };
-
-        foreach (var m in mapsets)
-        {
-            for (int i = 0; i < m.patrons.Length; i++)
-                m.patrons[i] = -1;
-            m.patrons[(int)GunType.physxgun] = 40;
-            m.patrons[(int)GunType.pistol] = 30;
-            m.stage = 20;
-            m.timeLimit = 99;
-            m.zombieDamage = 4;
-        }
-        base.InitValues();
-    }
+    
     public override void Init()
     {
         version = DateTime.Now.ToString();
@@ -213,7 +223,20 @@ public class Loader : bs
     public string curdir { get { return Application.isWebPlayer ? Application.absoluteURL : Directory.GetCurrentDirectory(); } }
     public bool dedicated { get { return _Loader.cmd.Contains("-batchmode"); } }
     public string nickpref { get { return PlayerPrefs.GetString(Application.platform + "nick"); } set { PlayerPrefs.SetString(Application.platform + "nick", value); } }
-    public string passpref { get { return pass ?? PlayerPrefs.GetString(Application.platform + "passw"); } set { PlayerPrefs.SetString(Application.platform + "passw", value); pass = value; } }
+    string pass;
+    public string passpref
+    {
+        get {
+            if (pass == "") Debug.LogWarning("wtf");
+            return pass ?? PlayerPrefs.GetString(Application.platform + "passw"); }
+        set
+        {
+            
+            PlayerPrefs.SetString(Application.platform + "passw", value);
+            pass = value;
+            if (value == "" || value == null) Debug.LogWarning("password is set to null");
+        }
+    }
     public bool guestpref { get { return PlayerPrefs.GetInt(Application.platform + "guest").toBool(); } set { PlayerPrefs.SetInt(Application.platform + "guest", value.toInt()); } }
     internal string passwordHash { get { return Ext.CalculateMD5Hash(passpref); } }
     string mapspath { get { return Application.dataPath + "/../maps.xml"; } }

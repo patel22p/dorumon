@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
-using System.Threading;
 public class Gun : GunBase
 {
     internal float barrelVell;
@@ -40,13 +39,13 @@ public class Gun : GunBase
     }
     public override void InitValues()
     {
-        GunType gt = (GunType)guntype;
         if (Its(GunType.pistol))
         {
             soundVolume = .3f;
         }
         if (Its(GunType.bazoka, GunType.granate, GunType.gravitygranate))
         {
+            plDamageFactor = .2f;
             BulletForce = .15f;
             damage = 1;
             expOttalkivanie = 7;
@@ -73,11 +72,18 @@ public class Gun : GunBase
         }
         if (Its(GunType.minigun))
         {
-            damage = 30;
+            damage = 20;
+            probivaemost = 1;
+            plDamageFactor = .8f;
+
         }
         if (Its(GunType.railgun))
         {
+            BulletForce = 5;
             expOttalkivanie = 3;
+            probivaemost = 2;
+            damage = 200;
+            plDamageFactor = .5f;
         }
 
         if (Its(GunType.shotgun))
@@ -85,8 +91,10 @@ public class Gun : GunBase
             probivaemost = 1;
             expOttalkivanie = .3f;
             damage = 6;
+            plDamageFactor = 10;
         }
         zmDamageFactor = .8f;
+        base.InitValues();
     }
     public override void Awake()
     {
@@ -96,13 +104,12 @@ public class Gun : GunBase
     {
         defPos2 = defPos = transform.localPosition;        
     }
-    public override void onShow(bool enabled)
+    public override void onShow(bool e)
     {        
-        base.onShow(enabled);
+        base.onShow(e);
     }
     protected override void Update()
     {
-        
         base.Update();
         RandomFactorTm = Mathf.Max(0, RandomFactorTm - Time.deltaTime);
         if (barrel != null)
@@ -115,6 +122,7 @@ public class Gun : GunBase
             defPos2 = Vector3.Scale(Random.onUnitSphere, new Vector3(1, 1, 3)) / 30;
         defPos = (defPos * 200 + defPos2) / 201;
         transform.localPosition = defPos + transform.localPosition / 2;
+
         if (isOwner)
             LocalUpdate();
 
@@ -163,11 +171,14 @@ public class Gun : GunBase
                     fireLight.enabled = false;
                 });
             }
-            if (barrel != null) barrelVell += 10;
-
-            var p2 = cursor[cursorid].position;
-            Quaternion r2 = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
-            Patron patron = ((GameObject)(Instantiate(patronPrefab, p2 + r2 * Vector3.back * 2, r2))).GetComponent<Patron>();
+            if (barrel != null) barrelVell += 10;            
+            
+            var pb = cursor[cursorid].position;
+            Quaternion rb = rot * Quaternion.Euler(r) * Quaternion.Euler(Random.insideUnitSphere * RandomFactorTm * 2);
+            var pl = new Plane(rb * Vector3.forward, pos);
+            var dist = pl.GetDistanceToPoint(pb);
+            pb -= rb * Vector3.forward * dist;
+            Patron patron = ((GameObject)(Instantiate(patronPrefab, pb, rb))).GetComponent<Patron>();
             patron.gun = this;
             patron.OwnerID = OwnerID;
         }

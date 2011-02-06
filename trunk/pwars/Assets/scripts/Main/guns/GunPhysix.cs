@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class GunPhysix : GunBase
 {
-    internal float holdtm;
+    private float holdtm;
+    private float shoottm;
     internal bool power;
     public float radius = 50;    
     public float ExpRadius = 1;
@@ -34,7 +35,7 @@ public class GunPhysix : GunBase
         bool boxes = false;
         foreach (bs b in _Game.boxes.Cast<bs>().Where(b => b != null))
         {
-            var d = Vector3.Distance(b.pos, cursor[0].position);
+            var d = Vector3.Distance(b.pos, curspos);
             if (d < ExpRadius * 7)
             {
                 b.OwnerID = this.root.GetComponent<Player>().OwnerID;
@@ -42,18 +43,20 @@ public class GunPhysix : GunBase
                 boxes = true;
             }
         }
-        var v = cursor[0].position;
+        var v = curspos;
         if (!boxes)
         {
             RaycastHit h;
             var ray = new Ray(pos, rot * new Vector3(0, 0, 1));
             if (Physics.Raycast(ray, out h, 10, 1 << LayerMask.NameToLayer("Level")))
             {
-                var d = 20 - h.distance;
-                if (d > 0)
+                if (h.distance < 4 && root.rigidbody.velocity.magnitude < 50)
                 {
-                    v = h.point;
-                    player.rigidbody.AddForce(ray.direction * -25 * d * fdt);
+                    v = ray.origin;
+                    var vd = ray.direction;
+                    vd.x *= .22f;
+                    vd.z *= .22f;
+                    player.rigidbody.AddForce(vd * -600 * fdt);
                 }
             }
         }
@@ -62,6 +65,7 @@ public class GunPhysix : GunBase
 
 
     }
+    public Vector3 curspos;
     protected override void FixedUpdate()
     {
         if (power)
@@ -69,7 +73,7 @@ public class GunPhysix : GunBase
             patronsLeft -= Time.deltaTime;
             holdtm += Time.deltaTime;
             {
-                var p2 = cursor[0].position;
+                var p2 = curspos;
                 var b2 = _Game.towers.Where(a => a != null && a.Alive && Vector3.Distance(a.pos, p2) < 10).OrderBy(a => Vector3.Distance(a.pos, p2)).FirstOrDefault();
                 if (b2 != null)
                 {
@@ -80,13 +84,13 @@ public class GunPhysix : GunBase
             }
             var boxes = _Game.boxes.Where(b => b != null && Vector3.Distance(b.pos, pos + transform.forward * 14) < 15);
             float size = boxes.Sum(a => a.collider.bounds.size.sqrMagnitude);
-            cursor[0].position = pos + (transform.forward * size / 120) + (transform.forward * 6);
+            curspos = cursor[0].position + (transform.forward * size / 120) + (transform.forward * 6);
             foreach (bs b in boxes)
             {
                 if (b.rigidbody.velocity.magnitude < 1)
                     b.OwnerID = this.root.GetComponent<Player>().OwnerID;
                 b.rigidbody.velocity *= .95f;
-                b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, cursor[0].position, radius, 0, ForceMode.VelocityChange);
+                b.rigidbody.AddExplosionForce(-1f * b.rigidbody.mass, curspos, radius, 0, ForceMode.VelocityChange);
                 b.rigidbody.angularVelocity *= .95f;
                 b.rigidbody.angularVelocity += Vector3.one / 4; //physrot gunphys physgun
             }
@@ -119,6 +123,7 @@ public class GunPhysix : GunBase
     }
     protected override void Update()
     {
+        shoottm -= Time.deltaTime;
         if (isOwner && enabled && lockCursor)
         {
             if (Input.GetMouseButtonDown(0) && (patronsLeft > 0 || debug))
@@ -126,8 +131,9 @@ public class GunPhysix : GunBase
             else if (Input.GetMouseButtonUp(0) || (patronsLeft <= 0 && !debug))
             {
                 RPCSetPower(false);
-                if (holdtm < .2f && (patronsLeft > 2 || debug))
+                if (holdtm < .2f && (patronsLeft > 2 || debug) && shoottm < 0)
                 {
+                    shoottm = .5f;
                     patronsLeft -= 2;
                     RPCShoot();
                 }                

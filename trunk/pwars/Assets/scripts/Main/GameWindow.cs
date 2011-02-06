@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-public class GameWindow : Base2 {
+public class GameWindow : bs {
     List<string> systemMessage = new List<string>();
     public GUIText fpstext;
     public GUIText chatInput;
@@ -14,18 +14,21 @@ public class GameWindow : Base2 {
     public GUITexture gunTexture;
     [FindTransform]
     public GUIText gunPatrons;
-    [FindTransform("teamscore")]
+    [FindTransform]
     public GUIText teamscore;
-    [FindTransform("lifeupgrate")]
+    [FindTransform]
     public GUIText lifeupgrate;
-    [FindTransform("speedupgrate")]
+    [FindTransform]
     public GUIText speedupgrate;
-    [FindTransform("antigrav")]
+    [FindTransform]
+    public GUIText nitroupgrate;
+    [FindTransform]
     public GUITexture antigrav;
     [FindTransform("light")]
     public GUITexture spotLight;
     [FindTransform("clock")]
     public GUITexture clock;
+    
     public GUIText Score;
     [FindTransform]
     public GUITexture energy;
@@ -47,11 +50,7 @@ public class GameWindow : Base2 {
         systemMessage.Add(s);
         systemMessages.text = string.Join("\r\n", systemMessage.TakeLast(5).ToArray());
     }
-    void Start()
-    {
-        foreach(GUIText text in GetComponentsInChildren<GUIText>())
-            if (!text.text.StartsWith(" ")) text.text = "";
-    }
+    
     public void SetWidth(GUITexture t, int value)
     {
         var p = t.pixelInset;
@@ -69,9 +68,9 @@ public class GameWindow : Base2 {
         this.time.text = ts.Hours + ":" + ts.Minutes + ":" + ts.Seconds;
         if (_Game.mapSettings.Team)
             this.teamscore.text = _Game.BlueFrags+":"+_Game.RedFrags;
-        
-        this.speedupgrate.text  = "Speed upgrate: "+_localPlayer.speedUpgrate;
-        this.lifeupgrate.text = "Life upgrate: " + _localPlayer.lifeUpgrate;
+        this.nitroupgrate.text = "Power Upgrate: " + _localPlayer.EnergyUpgrate;
+        this.speedupgrate.text = "Speed Upgrate: " + _localPlayer.SpeedUpgrate;
+        this.lifeupgrate.text = "Life Upgrate: " + _localPlayer.LifeUpgrate;
         this.spotLight.enabled = _localPlayer.haveLight;
         this.clock.enabled = _localPlayer.haveTimeBomb;
         this.antigrav.enabled = _localPlayer.haveAntiGravitation;        
@@ -79,7 +78,7 @@ public class GameWindow : Base2 {
         {                        
             SetWidth(life, (int)Mathf.Min(_localPlayer.Life, _localPlayer.MaxLife));
             SetWidth(lifeoff, (int)_localPlayer.MaxLife);
-            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.nitro, energyoff.pixelInset.width));
+            SetWidth(energy, (int)Mathf.Min((int)_localPlayer.Energy, energyoff.pixelInset.width));
 
             this.gunPatrons.text = _localPlayer.gun.Text + ":" + (int)_localPlayer.gun.patronsLeft;
             if (_Game.mapSettings.zombi)

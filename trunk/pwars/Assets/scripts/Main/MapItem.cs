@@ -13,6 +13,7 @@ public class MapItem : bs, IAim
     bool isCheckOutCalled;
     [FindAsset("checkout", overide = true)]
     public AudioClip opendoor;
+    public AudioClip checkOutSound;
     public bool payonce;
     public bool hide = false;
     public bool lookat;
@@ -27,11 +28,11 @@ public class MapItem : bs, IAim
     public string gunType;
     public int bullets = 1000;
     public string text = "";
+    public Transform[] buttons = new Transform[0];
+    public Collider[] boundings = new Collider[0];
     public int RespawnTm = 1;    
     [FindAsset("Player")]
     public GameObject playerPrefab;
-    [FindAsset("superphys_launch3")]
-    public AudioClip superphys_launch3;
     [FindAsset("wave")]
     public GameObject wavePrefab;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
@@ -42,22 +43,18 @@ public class MapItem : bs, IAim
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
-        //foreach (var a in gameObject.GetComponentsInChildren<Animation>())
-        //    a.wrapMode = WrapMode.Once;
         var g = gameObject;
         if (!inited)
         {
             g.AddComponent<NetworkView>();
-            g.AddComponent<AudioSource>();            
-            g.rigidbody.isKinematic = true;
+            g.AddComponent<AudioSource>(); 
+            if(g.rigidbody)
+                g.rigidbody.isKinematic = true;
             inited = true;
         }
         this.networkView.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
         foreach (var a in g.GetComponentsInChildren<Animation>())
-        {
             a.animatePhysics = true;
-            a.playAutomatically = true;        
-        }
       
         if (itemType == MapItemType.shop)
         {
@@ -74,10 +71,13 @@ public class MapItem : bs, IAim
                 //bullets = (int)(20 / ((Gun)gun).interval);
             }
         }
-        base.Init();
+        base.Init();        
     }
     public override void InitValues()
     {
+        checkOutSound = opendoor;
+        //if (buttons.Length == 0)
+            buttons = new Transform[] { this.transform };
         if (itemType == MapItemType.shop)
         {
             text = "Press F to buy " + gunType;
@@ -95,32 +95,33 @@ public class MapItem : bs, IAim
                     score = 80;
                     break;
                 case GunType.gravitygranate:
-                    score = 200;
+                    score = 150;
+                    bullets = 10;
                     break;
                 case GunType.minigun:
-                    score = 160;
+                    score = 150;
                     break;
                 case GunType.physxgun:
-                    score = 40;
+                    score = 80;
                     bullets = 50;
                     break;
                 case GunType.pistol:
-                    score = 10;
+                    score = 20;
                     break;
                 case GunType.railgun:
-                    score = 160;
+                    score = 150;
                     break;
                 case GunType.shotgun:
                     score = 50;
                     break;
                 case GunType.uzi:
-                    score = 80;
+                    score = 70;
                     break;
                 default:
                     score = 100;
                     break;
             }
-        }
+        }        
 
         if (itemType == MapItemType.timewarp)
         {
@@ -153,20 +154,21 @@ public class MapItem : bs, IAim
         {
             endless = true;
             score = 50;
+            RespawnTm = 10000;
             bullets = 45;
             text = "Take Life";
         }
         if (itemType == MapItemType.energy)
         {
             endless = true;
-            score = 50;
-            bullets = 65;
+            score = 200;
+            bullets = 10;
             text = "Take Energy";
         }
         if (itemType == MapItemType.speedupgrate)
         {
             endless = true;
-            score = 350;
+            score = 300;
             text = "Upgrate speed";
         }
         if (itemType == MapItemType.lifeupgrate)
@@ -194,11 +196,9 @@ public class MapItem : bs, IAim
         }
         if (itemType == MapItemType.teleport)
         {
-            opendoor = Base2.FindAsset<AudioClip>("teleport");
+            checkOutSound = Base2.FindAsset<AudioClip>("teleport");
             endless = true;
-            text = "Teleport";
-            foreach (var a in this.GetComponentsInChildren<Collider>())
-                a.isTrigger = true;
+            text = "Teleport";            
             score = 40;
         }
         if (itemType == MapItemType.door)
@@ -208,7 +208,7 @@ public class MapItem : bs, IAim
         }
         if (itemType == MapItemType.speed)
         {
-            opendoor = Base2.FindAsset<AudioClip>("speed");
+            checkOutSound = Base2.FindAsset<AudioClip>("speed");
             Distance = 0;
             autoTake = false;
             endless = true;
@@ -232,7 +232,6 @@ public class MapItem : bs, IAim
 
         base.InitValues();
     }
-
 #endif
     public override void Awake()
     {        
@@ -241,7 +240,6 @@ public class MapItem : bs, IAim
         //    animation.Stop();        
         base.Awake();
     }
-    
     public void Aim(Player p)
     {        
         if (lookat && Check() && p.isOwner)
@@ -252,126 +250,110 @@ public class MapItem : bs, IAim
     }
     public bool Check()
     {
-        if (!_localPlayer.Alive) return false;
+
+        if (!_localPlayer.Alive) return false; //Debug.Log(1);
         if (itemType == MapItemType.life && _localPlayer.Life == _localPlayer.MaxLife)
-            return false;
-        if (itemType == MapItemType.laser && _localPlayer.gun.laser) return false;
-        if (itemType == MapItemType.timewarp && _localPlayer.haveTimeBomb) return false;
-        if (itemType == MapItemType.spotlight && _localPlayer.haveLight) return false;
-        if (itemType == MapItemType.antigravitation && _localPlayer.haveAntiGravitation) return false;
-        if (itemType == MapItemType.lifeupgrate && _localPlayer.lifeUpgrate >= 6) return false;
-        if (itemType == MapItemType.speedupgrate && _localPlayer.speedUpgrate >= 5) return false;
-        if (!endless && itemsLeft <= 0) return false;
-        if (_localPlayer.MapItemInterval >= 0) return false;
-        if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false;
+            return false; //Debug.Log(2);
+        if (itemType == MapItemType.laser && _localPlayer.gun.laser) return false; //Debug.Log(3);
+        if (itemType == MapItemType.timewarp && _localPlayer.haveTimeBomb) return false; //Debug.Log(4);
+        if (itemType == MapItemType.spotlight && _localPlayer.haveLight) return false; //Debug.Log(5);
+        if (itemType == MapItemType.antigravitation && _localPlayer.haveAntiGravitation) return false; //Debug.Log(6);
+        if (itemType == MapItemType.lifeupgrate && _localPlayer.LifeUpgrate >= 6) return false; //Debug.Log(7);
+        if (itemType == MapItemType.speedupgrate && _localPlayer.SpeedUpgrate >= 5) return false; //Debug.Log(8);
+        if (itemType == MapItemType.energy && _localPlayer.EnergyUpgrate > 3) return false; //Debug.Log(9);
+        if (!endless && itemsLeft <= 0) return false; //Debug.Log(10);
+        if (_localPlayer.MapItemInterval >= 0) return false; //Debug.Log(11);
+        if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false; //Debug.Log(12);
         return true;
     }
     void Update()
     {
-                                        
+
     }
     bool isbought { get { return Score == 0; } }
-
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         if (isCheckOutCalled)
         {
             RPCCheckOut(itemsLeft);
-            if (animation != null && animation.clip.name == "Take 001")
-                animation.Play();
+            //if (animation != null && animation.clip.name == "Take 001")
+            //        a.Play();
         }
         base.OnPlayerConnectedBase(np);
     }
-    void OnCollisionStay(Collision c)
-    {
-        if (itemType == MapItemType.trap && bullets > 0)
-        {
-            var ipl = c.gameObject.GetComponent<Destroible>();
-            if (_TimerA.TimeElapsed(100) && ipl != null && ipl.isController)
-                ipl.RPCSetLife(ipl.Life - bullets, -1);
-        }
-
-        if (c.transform.GetMonoBehaviorInParrent() == _localPlayer && Check())
-        {
-            _localPlayer.mapItem = this;
-            _localPlayer.mapItemTm = .5f;
-        }
-    }
+    
     public void LocalCheckOut()
     {
+        
+        RPCCheckOut(itemsLeft - 1);
+        if (itemType == MapItemType.shop)
+            PlayTextAnimation(_Cam.ActionText, "you got a " + gunType);
+        if (itemType == MapItemType.speed && isbought)
+            _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x));
+
+        if (itemType == MapItemType.teleport)
         {
-            RPCCheckOut(itemsLeft - 1);
-            if (itemType == MapItemType.speed && isbought)
-                _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x));
-
-            if (itemType == MapItemType.teleport)
-            {
-                _localPlayer.transform.position = teleport.position;                
-            }
-            if (itemType == MapItemType.jumper && isbought)
-            {
-                _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass * fdt);
-                GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
-                PlaySound(superphys_launch3);
-                Destroy(g, 1.6f);
-                
-            }
-
-            _localPlayer.MapItemInterval = 1;
-            _localPlayer.Score = Math.Max(_localPlayer.Score - Score, 0);
-
-            if (itemType == MapItemType.shop)
-            {
-                _localPlayer.guns[this.guni].patronsLeft += this.bullets;
-                _localPlayer.RPCSelectGun(this.guni);
-            }
-            if (itemType == MapItemType.energy)
-            {
-                _localPlayer.nitro += bullets;
-            }
-            if (itemType == MapItemType.life)
-            {
-                _localPlayer.RPCSetLife(Math.Min(_localPlayer.Life + this.bullets, _localPlayer.MaxLife), -1);
-                Debug.Log(_localPlayer.MaxLife);
-                Debug.Log(_localPlayer.Life);
-                
-            }
-            if (itemType == MapItemType.laser)
-            {
-                _localPlayer.gun.RPCSetLaser(true);
-            }
-            if (itemType == MapItemType.spotlight)
-                _localPlayer.haveLight = true;
-            if (itemType == MapItemType.lifeupgrate)
-                _localPlayer.RPCSetLifeUpgrate(_localPlayer.lifeUpgrate + 1);
-            if (itemType == MapItemType.speedupgrate)
-                _localPlayer.RPCSetSpeedUpgrate(_localPlayer.speedUpgrate + 1);
-            if (itemType == MapItemType.timewarp)
-                _localPlayer.haveTimeBomb = true;
-            if (itemType == MapItemType.antigravitation)
-                _localPlayer.haveAntiGravitation = true;
-
-            if (animation != null && animation.clip != null)
-                RPCPlay();
+            _localPlayer.transform.position = teleport.position;
         }
-    }
+        if (itemType == MapItemType.jumper && isbought)
+        {
+            _localPlayer.rigidbody.AddForce(this.Jumper * _localPlayer.rigidbody.mass * fdt);
+            GameObject g = (GameObject)Instantiate(wavePrefab, pos, rot);
+            Destroy(g, 1.6f);
+        }
 
+        _localPlayer.MapItemInterval = 1;
+        _localPlayer.Score = Math.Max(_localPlayer.Score - Score, 0);
+
+        if (itemType == MapItemType.shop)
+        {
+            _localPlayer.guns[this.guni].patronsLeft += this.bullets;
+            _localPlayer.RPCSelectGun(this.guni);
+        }
+        if (itemType == MapItemType.energy)
+        {
+            _localPlayer.EnergyUpgrate += 1;
+        }
+        if (itemType == MapItemType.life)
+        {
+            _localPlayer.RPCSetLifeLocal(Math.Min(_localPlayer.Life + this.bullets, _localPlayer.MaxLife), -1);
+        }
+        if (itemType == MapItemType.laser)
+        {
+            _localPlayer.gun.RPCSetLaser(true);
+        }
+        if (itemType == MapItemType.spotlight)
+            _localPlayer.haveLight = true;
+        if (itemType == MapItemType.lifeupgrate)
+            _localPlayer.RPCSetLifeUpgrate(_localPlayer.LifeUpgrate);
+        if (itemType == MapItemType.speedupgrate)
+            _localPlayer.RPCSetSpeedUpgrate(_localPlayer.SpeedUpgrate);
+        if (itemType == MapItemType.timewarp)
+            _localPlayer.haveTimeBomb = true;
+        if (itemType == MapItemType.antigravitation)
+            _localPlayer.haveAntiGravitation = true;
+
+        if (animation != null && animation.clip != null)
+            RPCPlay();
+    }
     public void RPCPlay() { CallRPC("Play"); }
     [RPC]
     public void Play()
-    {
-        animation.Play();
+    {       
+        foreach(Animation a in this.GetComponentsInChildren<Animation>())
+            a.Play();
     }
     public void RPCCheckOut(int i) { CallRPC("CheckOut", i); }
     [RPC]
     public void CheckOut(int i)
-    {
+    {        
         itemsLeft = i;
+        if (checkOutSound != null)
+            audio.PlayOneShot(checkOutSound, 10);
+
         Debug.Log("check out " + name + " " + i);
         isCheckOutCalled = true;
-        if (payonce) { score = 0; endless = true; payonce = false; }
-        if (opendoor != null)
-            audio.PlayOneShot(opendoor, 10);
+        if (payonce) { score = 0; endless = true; payonce = false; }        
 
         if (hide && itemsLeft <= 0)
         {

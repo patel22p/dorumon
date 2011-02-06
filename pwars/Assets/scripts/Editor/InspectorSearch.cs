@@ -12,6 +12,8 @@ using doru;
 using Random = UnityEngine.Random;
 public class InspectorSearch : EditorWindow
 {
+    protected TimerA _TimerA = new TimerA();
+    float autosavetm = 0; 
     public List<string> instances = new List<string>();
     List<Object> lastUsed = new List<Object>();
     string search = "";
@@ -76,7 +78,10 @@ public class InspectorSearch : EditorWindow
             GUI.EndHorizontal();
         }
         foreach (var inst in toremove)
+        {
             instances.Remove(inst);
+            SaveParams();
+        }
 
     }
     private void DrawSearch()
@@ -190,7 +195,7 @@ public class InspectorSearch : EditorWindow
         if (Camera.main != null)
         {
             Camera.main.transform.position = Camera.main.transform.parent.position;
-            Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
+            Camera.main.transform.rotation = Camera.main.transform.parent.rotation;           
         }
     }
     
@@ -224,7 +229,7 @@ public class InspectorSearch : EditorWindow
         
     }
     public DateTime idletime;
-    private void OnSceneUpdate(SceneView s)
+    private void OnSceneUpdate(SceneView scene)
     {
         if (Event.current.isMouse) idletime = DateTime.Now;
         var ago = Selection.activeGameObject;
@@ -238,11 +243,22 @@ public class InspectorSearch : EditorWindow
         }
         if (ago != null)
             oldpos = ago.transform.position;
-        var c = s.camera;
+        var scenecam = scene.camera;
         if (SetCam)
         {
-            Camera.main.transform.position = s.camera.transform.position;
-            Camera.main.transform.rotation = s.camera.transform.rotation;
+            if (EditorApplication.isPlaying)
+            {
+                var t = Camera.main.transform;
+                scene.LookAt(t.position,t.rotation,3);
+                Camera.main.GetComponent<GUILayer>().enabled = true;
+            }
+            else
+            {
+                var t = Camera.main.transform;
+                t.position = scene.camera.transform.position;
+                t.rotation = scene.camera.transform.rotation;
+                Camera.main.GetComponent<GUILayer>().enabled = false;
+            }
         }
         var e = Event.current;
         var p = e.mousePosition;
@@ -252,7 +268,7 @@ public class InspectorSearch : EditorWindow
             Ray r = HandleUtility.GUIPointToWorldRay(new Vector2(p.x, p.y));
             RaycastHit h;
             if (Physics.Raycast(r, out h))
-                s.LookAt(h.point - 5 * r.direction, c.transform.rotation, 5);
+                scene.LookAt(h.point - 5 * r.direction, scenecam.transform.rotation, 5);
             if (e.modifiers == EventModifiers.Control && Selection.activeGameObject != null)
             {
                 Undo.RegisterSceneUndo("rtools");
@@ -319,23 +335,56 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Window/Rtools", false, 0)]
     static void rtoolsclick()
     {
-        EditorWindow.GetWindow<ETools>();
+        EditorWindow.GetWindow<RTools>();
     }
     [MenuItem("Assets/Add Labels %t")]
     static void ApplyLabels()
     {
         Undo.RegisterSceneUndo("rtools");
-        foreach(var asset in Selection.objects)
+        foreach (var asset in Selection.objects)
         {
             if (AssetDatabase.IsMainAsset(asset))
             {
                 var apath = AssetDatabase.GetAssetPath(asset);
                 var list = AssetDatabase.GetLabels(asset);
                 var nwlist = list.Union(apath.Split('/').Skip(1));
-                AssetDatabase.SetLabels(asset,nwlist.ToArray());
+                AssetDatabase.SetLabels(asset, nwlist.ToArray());
                 EditorUtility.SetDirty(asset);
             }
         }
+    }
+    [MenuItem("GameObject/toCloth")]
+    static void ToCloth()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        //var cols = Selection.gameObjects.Where(a => clothcollider(a));
+        foreach (var g in Selection.gameObjects)
+            if (!clothcollider(g))
+            {
+                Material mt = null;
+                var mf = g.GetComponent<MeshFilter>();
+                var cl = g.AddOrGet<InteractiveCloth>();
+                var r = g.AddOrGet<ClothRenderer>();
+                if (mf != null)
+                {
+                    var me = mf.sharedMesh;
+                    mt = g.renderer.sharedMaterial;
+                    r.sharedMaterial = mt;
+                    cl.mesh = me;
+                    cl.randomAcceleration = Vector3.one * 10;
+                    DestroyImmediate(mf);
+                    DestroyImmediate(g.renderer);
+                    DestroyImmediate(g.collider);
+                }
+                //foreach (var col in cols)
+                //    cl.AttachToCollider(col.collider,false,false);
+            }
+
+    }
+
+    private static bool clothcollider(GameObject g)
+    {
+        return g.GetComponent<MapTag>() != null && g.GetComponent<MapTag>().SpawnType == SpawnType.clothcollider;
     }
     [MenuItem("Assets/Clear Labels %y")]
     static void ClearLabels()
@@ -421,6 +470,12 @@ public class InspectorSearch : EditorWindow
             else if (c is Collider)
                 ((Collider)c).isTrigger = true;
         }
+    }
+    [MenuItem("Assets/Reset pitch")]
+    static void Pitch()
+    {
+        foreach (AudioSource a in FindObjectsOfTypeIncludingAssets(typeof(AudioSource)))
+            a.pitch = 1;
     }
     [MenuItem("GameObject/ApplyAll")]
     static void ApplyAll()
@@ -538,8 +593,7 @@ public class InspectorSearch : EditorWindow
             GUI.Space(10);
         }
     }
-    public TimerA _TimerA = new TimerA();
-    float autosavetm = 0;
+    
 
     protected virtual void Update()
     {
@@ -573,7 +627,7 @@ public class InspectorSearch : EditorWindow
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             
             var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
-            Debug.Log(p);
+            Debug.Log("backup: " + p);
             EditorApplication.SaveScene(p);
         }
     }

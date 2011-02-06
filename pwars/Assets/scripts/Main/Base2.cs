@@ -14,7 +14,8 @@ using System.Xml.Serialization;
 
 
 public partial class Base2 : MonoBehaviour
-{    
+{
+    
     public static string pr
     {
         get
@@ -29,6 +30,9 @@ public partial class Base2 : MonoBehaviour
     public virtual void Init()
     {
         inited = true;
+    }
+    public virtual void InitValues()
+    {
     }
     private static IEnumerable<string> getnames(FieldInfo fi)
     {

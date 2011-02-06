@@ -10,7 +10,9 @@ using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using System.Runtime.Serialization.Formatters.Binary;
-public enum GameMode { ZombieSurvival, DotA, DeathMatch, TeamDeathMatch, CustomZombieSurvival }
+using System.Threading;
+public enum GameMode { ZombieSurvival, DeathMatch, TeamDeathMatch, CustomZombieSurvival }
+
 
 public class Game : bs
 {
@@ -60,15 +62,18 @@ public class Game : bs
     public float nwt;
     public override void Awake()
     {
+        foreach (GUIText text in _GameWindow.GetComponentsInChildren<GUIText>())
+            if (!text.text.StartsWith(" ")) text.text = "";
+
         nwt = (float)Network.time;
         if (!_Loader.loaded)
         {
-            Debug.Log("game Awake " + Application.loadedLevelName);
-            mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == Application.loadedLevelName);
+            Debug.Log("game Awake is host" + _Loader.host + " ip" + _Loader.ipaddress + " hostport " + _Loader.hostport);
+            mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == Application.loadedLevelName).Clone();
             var u = _Loader.UserView;
             u.nick = "a";
-            _Loader.passpref = "a";
             u.guest = false;
+            _Loader.passpref = "a";
             _Loader.loggedin = true;
         }
         gravity = Physics.gravity;
@@ -77,11 +82,14 @@ public class Game : bs
         _Level = Level.z4game;
         if (Network.peerType == NetworkPeerType.Disconnected)
             if ((_Loader.host && Application.isEditor) || _Loader.cmd.Contains("server"))
-                Network.InitializeServer(_Game.mapSettings.maxPlayers, _Loader.port, false);
+                Network.InitializeServer(_Game.mapSettings.maxPlayers, _Loader.hostport, false);
             else
-                Network.Connect(_Loader.ipaddress, _Loader.port);
+            {
+                Network.Connect(_Loader.ipaddress, _Loader.hostport + (_Loader.proxy ? 1 : 0));
+            }
         else
             foreach (bs o in Component.FindObjectsOfType(typeof(bs))) o.SendMessage("Enable", SendMessageOptions.DontRequireReceiver);
+        
     }
     public void Start()
     {
@@ -130,15 +138,17 @@ public class Game : bs
             Screen.lockCursor = !chatEnabled;
         }
         addChatAlfa(-Time.deltaTime, false);
-
+        var c = _GameWindow.chatInput;
         if (chatEnabled)
         {
-            _GameWindow.chatInput.text += Input.inputString;
+            c.text += Input.inputString;
+            if (Input.GetKeyDown(KeyCode.Backspace) && c.text != "")
+                c.text = c.text.Substring(0, c.text.Length - 2);
         }
-        else if (_GameWindow.chatInput.text != "")
+        else if (c.text != "")
         {
-            RPCSendChantMessage(_GameWindow.chatInput.text, _localPlayer.OwnerID);
-            _GameWindow.chatInput.text = "";
+            RPCSendChantMessage(c.text, _localPlayer.OwnerID);
+            c.text = "";
         }
 
         if (sendto != null) Debug.Log("warning,sendto is not null");
@@ -167,7 +177,7 @@ public class Game : bs
 
         if (!_Loader.dontcheckwin) CheckWin();
 
-        if (_Game.mapSettings.TeamZombiSurvival || _Game.mapSettings.ZombiSurvival)
+        if (_Game.mapSettings.zombi)
             ZUpdate();
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -222,8 +232,7 @@ public class Game : bs
             if (_TeamSelectWindow.iTeams == -1 && _Game.mapSettings.Team) ShowPopup("Select team first");
             else
             {
-                _TeamSelectWindow.Hide();
-                _localPlayer.team = (_Game.mapSettings.DM || _Game.mapSettings.ZombiSurvival) ? Team.None : _TeamSelectWindow.Teams.Parse<Team>();
+                _TeamSelectWindow.Hide();                
                 if (!_localPlayer.spawned)
                 {
                     if (!_Game.mapSettings.zombi) _localPlayer.ResetSpawn();
@@ -240,15 +249,13 @@ public class Game : bs
         
         _Game.mapSettings = (MapSetting)Deserialize(s, MapSetting.xml);
         Debug.Log("GameSettings ");
-        Debug.Log(mapSettings.timeLimit);
-        Debug.Log(mapSettings.stage);        
         var tw = _TeamSelectWindow;        
         if (!_Game.mapSettings.Team) tw.vTeamsView = false;
         tw.lTeams = new string[] { Team.Blue + "", Team.Red + "" };
         var gmi = GameModeIcons;
         switch (_Game.mapSettings.gameMode)
         {
-            case GameMode.ZombieSurvival: tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
+            case GameMode.ZombieSurvival: tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;        
             case GameMode.DeathMatch: tw.imgRed = gmi[(int)GameTypeIconsEnum.DeathmatchIcon]; break;
             case GameMode.TeamDeathMatch: tw.imgRed = gmi[(int)GameTypeIconsEnum.TeamDeathmatchIcon]; break;
             case GameMode.CustomZombieSurvival: tw.imgRed = gmi[(int)GameTypeIconsEnum.IconZombie]; break;
@@ -287,7 +294,7 @@ public class Game : bs
     public void RPCSetGravityBomb(bool enable) { CallRPC("SetGravityBomb", enable); }
     [RPC]
     public void SetGravityBomb(bool enable)
-    {
+    {        
         Physics.gravity = enable ? new Vector3(0, 0.1f, 0) : gravity;
         if (enable)
         {
@@ -307,6 +314,7 @@ public class Game : bs
             _Cam.Vingetting.enabled = false;
         }
     }
+
     public void RPCSetTimeBomb(float timescale) { CallRPC("SetTimeBomb", timescale); }
     [RPC]
     public void SetTimeBomb(float timescale)
@@ -368,6 +376,7 @@ public class Game : bs
     [RPC]
     public void WriteMessage(string s)
     {
+        Debug.Log(s);
         _GameWindow.AppendSystemMessage(s);
     }
     public void RPCPingFps(int id, int ping, int fps) { CallRPC("PingFps", id, ping, fps); }
@@ -397,8 +406,6 @@ public class Game : bs
                     p.RPCSetAlive(true);
     }
     
-    
-    
     public void RPCSendChantMessage(string msg, int userid) { CallRPC("ChantMessage", msg, userid); }
     [RPC]
     public void ChantMessage(string s, int id) //writechat
@@ -412,7 +419,7 @@ public class Game : bs
     void OnPlayerDisconnected(NetworkPlayer player)
     {
         int playerid = player.GetHashCode();
-        RPCWriteMessage(players[playerid].nick + " Player Leaved" + player);
+        RPCWriteMessage(players[playerid].nick + " Disconnected");
         foreach (Shared box in GameObject.FindObjectsOfType(typeof(Shared)))
             if (!(box is Player))
             {
@@ -448,9 +455,9 @@ public class Game : bs
 
             if (Network.isServer && !win)
             {
-                if (_Game.mapSettings.DM)
+                if (_Game.mapSettings.DeathMatch)
                     DMCheck();
-                else if (_Game.mapSettings.TDM)
+                else if (_Game.mapSettings.TeamDeathMatch)
                     TDMCheck();
                 else if (_Game.mapSettings.ZombiSurvival)
                     ZombieSuriveCheck();
@@ -511,18 +518,20 @@ public class Game : bs
         _TimerA.Clear();
         if (!_localPlayer.user.guest)
         {
+            var mode = _Game.mapSettings.gameMode;
             _TimerA.AddMethod(500, delegate
             {
+                Debug.Log(mode);
                 _ScoreBoardWindow.Show(_Menu);
-                SaveScores(ScoreBoardTables.Time, (int)Time.timeSinceLevelLoad, 0);
-                if (_Loader.mapSettings.ZombiSurvival)
+                SaveScores(ScoreBoardTables.Time, (int)(Time.timeSinceLevelLoad * 60), 0);
+                if (mode == GameMode.ZombieSurvival)
                     SaveScores(ScoreBoardTables.ZombieSurvival, _localPlayer.frags, _localPlayer.deaths);
-                if (_Loader.mapSettings.DM)
+                if (mode == GameMode.DeathMatch)
                     SaveScores(ScoreBoardTables.DeathMatch, _localPlayer.frags, _localPlayer.deaths);
-                if (_Loader.mapSettings.TDM)
+                if (mode == GameMode.TeamDeathMatch)
                     SaveScores(ScoreBoardTables.TeamDeathMatch, _localPlayer.frags, _localPlayer.deaths);
-
-                
+                if (mode == GameMode.CustomZombieSurvival)
+                    SaveScores(ScoreBoardTables.CustomZombie, _localPlayer.frags, _localPlayer.deaths);
             });
         }
         _Loader.LoadLevel("Menu", _Loader.lastLevelPrefix + 1);

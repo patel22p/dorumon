@@ -61,12 +61,13 @@ public class GunBase : bs
     }
     public void Reset()
     {
-        patronsLeft = _Game.mapSettings.patrons[guntype];        
+        patronsLeft = _Game.mapSettings.patrons[guntype];
+        laser = false;
     }
     protected virtual void Update()
     {
         if (enabled )
-            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.speedUpgrate * .07f);
+            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.SpeedUpgrate * .07f);
 
         if (isOwner)
         {
@@ -90,7 +91,11 @@ public class GunBase : bs
     internal int group { get { return int.Parse(transform.parent.name); } }
     public Ray GetRay()
     {
-        return new Ray(cursor[0].position, rot * new Vector3(0, 0, 1));
+        var p = cursor[0].position;
+        var pl = new Plane(rot * Vector3.forward, pos);
+        p -= rot * Vector3.forward * pl.GetDistanceToPoint(p);
+        var r = new Ray(p, rot * new Vector3(0, 0, 1));
+        return r;
     }
 
 }

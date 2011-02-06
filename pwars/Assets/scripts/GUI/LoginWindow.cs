@@ -32,6 +32,10 @@ public class LoginWindow : WindowBase {
 	internal bool focusLoginAsGuest;
 	internal bool LoginAsGuest=false;
 	
+	internal bool vclogin = false;
+	
+	internal bool focusClogin;
+	
 	internal bool vLoginNick = true;
 	
 	internal bool focusLoginNick;
@@ -48,6 +52,10 @@ public class LoginWindow : WindowBase {
 	internal bool focusLoginPassw;
 	
 	internal bool rLoginPassw = false;
+	
+	internal bool vcreg = false;
+	
+	internal bool focusCreg;
 	
 	internal bool vRegNick = true;
 	
@@ -117,7 +125,7 @@ public class LoginWindow : WindowBase {
 		GUI.BeginGroup(new Rect(19f, 130f, 574f, 199f), "");
 		GUI.Box(new Rect(0, 0, 574f, 199f), "");
 		GUILayout.BeginArea(new Rect(0f, 0, 574f, 18));
-		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Login as Guest","Login","Registr", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
+		tabTabControl4 = GUILayout.Toolbar(tabTabControl4, new string[] { "Login as Guest","Login","Register", }, GUI.skin.customStyles[1], GUILayout.ExpandWidth(false));
 		GUILayout.EndArea();
 		GUI.BeginGroup(new Rect(0, 18, 574f, 181f), "");
 		GUI.Box(new Rect(0, 0, 574f, 181f), "");
@@ -146,6 +154,11 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		}
 		}
 		if(tabTabControl4==1){
+		if(vclogin){
+		if(focusClogin) { focusClogin = false; GUI.FocusControl("Clogin");}
+		GUI.SetNextControlName("Clogin");
+		GUI.BeginGroup(new Rect(0f, 0f, 564f, 171f), "");
+		GUI.Box(new Rect(0, 0, 564f, 171f), "");
 		GUI.Label(new Rect(142f, 52.04f, 47f, 19f), @"Name");
 		if(vLoginNick){
 		if(focusLoginNick) { focusLoginNick = false; GUI.FocusControl("LoginNick");}
@@ -174,8 +187,15 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		} else
 		try {LoginPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), LoginPassw,'*',10);}catch{};
 		}
+		GUI.EndGroup();
+		}
 		}
 		if(tabTabControl4==2){
+		if(vcreg){
+		if(focusCreg) { focusCreg = false; GUI.FocusControl("Creg");}
+		GUI.SetNextControlName("Creg");
+		GUI.BeginGroup(new Rect(0f, 0f, 564f, 171f), "");
+		GUI.Box(new Rect(0, 0, 564f, 171f), "");
 		GUI.Label(new Rect(142f, 52.04f, 47f, 19f), @"Name");
 		if(vRegNick){
 		if(focusRegNick) { focusRegNick = false; GUI.FocusControl("RegNick");}
@@ -212,6 +232,8 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		GUI.Label(new Rect(193f, 99.04f, 189.333f, 19f), Email.ToString());
 		} else
 		try {Email = GUI.TextField(new Rect(193f, 99.04f, 189.333f, 19f), Email,10);}catch{};
+		}
+		GUI.EndGroup();
 		}
 		}
 		GUI.EndGroup();

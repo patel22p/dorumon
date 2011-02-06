@@ -78,9 +78,9 @@
      <Compile Include="Assets\scripts\Editor\AstarDataEditor.cs" />
      <Compile Include="Assets\scripts\Editor\AstarPathEditor.cs" />
      <Compile Include="Assets\scripts\Editor\AstarWelcome.cs" />
-     <Compile Include="Assets\scripts\Editor\ETools.cs" />
      <None Include="Assets\scripts\Editor\HeightmapExportPNG.js" />
      <Compile Include="Assets\scripts\Editor\InspectorSearch.cs" />
+     <Compile Include="Assets\scripts\Editor\RTools.cs" />
      <Compile Include="Assets\scripts\GUI\AboutWindow.cs" />
      <Compile Include="Assets\scripts\GUI\DecalTypes.cs" />
      <Compile Include="Assets\scripts\GUI\GameMenuWindow.cs" />

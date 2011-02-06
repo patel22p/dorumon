@@ -42,7 +42,7 @@ public class TeamSelectWindow : WindowBase {
 	
 	internal bool focusDescription;
 	
-	internal bool rDescription = false;
+	internal bool rDescription = true;
 	internal string Description = @"description";
 	private int wndid1;
 	private Vector2 sTeams;
@@ -128,9 +128,9 @@ public class TeamSelectWindow : WindowBase {
 		if(focusDescription) { focusDescription = false; GUI.FocusControl("Description");}
 		GUI.SetNextControlName("Description");
 		if(rDescription){
-		GUI.Label(new Rect(17f, 8f, 267f, 79f), Description.ToString());
+		GUI.Label(new Rect(17f, 8f, 267f, 79f), Description.ToString(), GUI.skin.customStyles[2]);
 		} else
-		try {Description = GUI.TextField(new Rect(17f, 8f, 267f, 79f), Description,100);}catch{};
+		try {Description = GUI.TextField(new Rect(17f, 8f, 267f, 79f), Description,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.EndGroup();
 		}

@@ -54,10 +54,11 @@ public class Patron : bs
         if (gravitate > 0)
             GravitateMagnet();
         if (SamoNavod.length > 0)
-            foreach (Destroible p in _Game.players.Union(_Game.zombies.Cast<Destroible>()))
-                if (p != null && p.isEnemy(OwnerID))
-                    Force += (this.pos - _localPlayer.pos).normalized * Time.deltaTime * this.Force.sqrMagnitude * SamoNavod.Evaluate(Vector3.Distance(this.pos, _localPlayer.pos));
-
+        {
+            Destroible p = _Game.players.Union(_Game.zombies.Cast<Destroible>()).Where(a => a != null && a.Alive && a.isEnemy(OwnerID)).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+            if(p!=null)
+                Force += (pos - p.pos).normalized * Time.deltaTime * this.Force.magnitude * -1f * Mathf.Max(0, SamoNavod.Evaluate(Vector3.Distance(pos, p.pos)));
+        }
         tm += Time.deltaTime;
         if (tm > timeToDestroy)
         {
@@ -122,12 +123,10 @@ public class Patron : bs
         if (!explodeOnDestroy)
         {
             var r = hit.rigidbody;
+            
             var rt = transform.rotation;
-            _TimerA.AddMethod(delegate
-            {
-                if (r != null && r.velocity.magnitude < 20)
-                    r.AddForceAtPosition(rt * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.magnitude * 1000) * fdt, hit.point);
-            });
+            if (r != null && r.velocity.magnitude < 20 && r.gameObject.GetComponent<Player>() == null)
+                r.AddForceAtPosition(rt * new Vector3(0, 0, ExpForce * hit.rigidbody.mass / hit.collider.bounds.size.magnitude * 1000) * fdt, hit.point);
         }
         Destroible destroible = m as Destroible;
         if (g.layer == LayerMask.NameToLayer("Level") || g.layer == LayerMask.NameToLayer("Glass"))
@@ -152,7 +151,7 @@ public class Patron : bs
         }
         if (destroible != null && destroible.isController && destroible.Alive)
         {
-            destroible.RPCSetLife(destroible.Life - damage * damageFactor(destroible), OwnerID);
+            destroible.RPCSetLifeLocal(destroible.Life - damage * damageFactor(destroible), OwnerID);
         }
         
         bool staticfield = g.name.ToLower().StartsWith("staticfield");
@@ -179,6 +178,8 @@ public class Patron : bs
         e.exp = ExpForce * 400;
         e.DamageFactor = damage;
         e.radius = Radius;
+        e.plDamageFactor = plDamageFactor;
+        e.zmDamageFactor = zmDamageFactor;
         e.OwnerID = OwnerID;
         Destroy(gameObject);
         var dt = detonator.GetComponent<Detonator>();

@@ -28,18 +28,14 @@ public class Explosion : bs
                     _Cam.exp = 1;
                 if (ip.isEnemy(OwnerID) || ip.OwnerID == _localPlayer.OwnerID)
                 {
-                    ip.RPCSetLife(ip.Life - damage.Evaluate(dist) * DamageFactor * 4 * damageFactor(ip), OwnerID);
+                    ip.RPCSetLifeLocal(ip.Life - damage.Evaluate(dist) * DamageFactor * damageFactor(ip), OwnerID);
                 }
             }
         }
-        //_TimerA.AddMethod(10, delegate
-        {
-            foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
-                if (b != self && (!(b is Player) || ((Player)b).Alive))
-                {
-                    b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * .3f * fdt, transform.position, radius * 3);
-                }
-        }
-        //);
+        foreach (Shared b in GameObject.FindObjectsOfType(typeof(Shared)))
+            if (b != self && (!(b is Player) || ((Player)b).Alive))
+            {
+                b.rigidbody.AddExplosionForce(exp * b.rigidbody.mass * .3f * fdt, transform.position, radius * 3);
+            }
     }
 }

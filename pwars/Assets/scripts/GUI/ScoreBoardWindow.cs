@@ -25,7 +25,7 @@ public class ScoreBoardWindow : WindowBase {
 	internal bool focusTableHeader;
 	
 	internal bool rTableHeader = true;
-	internal string TableHeader = @" Place        Name               score    deaths";
+	internal string TableHeader = @" Place        Name               score        deaths";
 	
 	internal bool vscoreboard_orderby = true;
 	

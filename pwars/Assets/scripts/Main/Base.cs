@@ -1,22 +1,18 @@
 ﻿using System.Linq;
 using UnityEngine;
-using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
-using doru;
-using System.Xml.Serialization;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
-using Random = UnityEngine.Random;
+
 public class bs : Base2
 {
     public static NetworkPlayer? sendto;
-    internal const string webserver = "http://192.168.30.113/";
+    internal const string webserver = "http://physxwars.ru/serv/";
+    //internal const string webserver = "http://192.168.30.113/";
     internal const int maxConId= 100;
-    internal float mass { get { return rigidbody.mass / collider.bounds.size.magnitude; } }
     internal int OwnerID = -1;
     internal bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     bool defenabled;
@@ -41,10 +37,6 @@ public class bs : Base2
                 enabled = false;
             }
         }
-    }
-    public virtual void InitValues()
-    {
-        
     }
     public virtual void OnPlayerConnectedBase(NetworkPlayer np) { }
     public NetworkView myNetworkView
@@ -115,27 +107,28 @@ public class bs : Base2
         //}
         
     }
-    public virtual void onShow(bool enabled)
+    public virtual void onShow(bool e)
     {
     }
     public void CallRPC(string name, params object[] obs)
     {        
         if (new StackTrace().FrameCount > 30) throw new StackOverflowException();
+        _Loader.rpcCount++;
         if (sendto == null)
         {
-
             networkView.RPC(name, RPCMode.Others, obs);
             try
             {
-                this.GetType().GetMethod(name).Invoke(this, obs); // public
+                GetType().GetMethod(name).Invoke(this, obs); // public
             }
-            catch { this.GetType().GetMethod(name).Invoke(this, obs.Concat(new object[] { new NetworkMessageInfo() }).ToArray()); }
+            catch (TargetParameterCountException) { this.GetType().GetMethod(name).Invoke(this, obs.Concat(new object[] { new NetworkMessageInfo() }).ToArray()); }
         }
         else
             networkView.RPC(name, sendto.Value, obs);
         
     }
-    public string GetDescr(GameMode g)
+    public Transform root { get { return this.transform.root; } }
+    public static string GetDescr(GameMode g)
     {
         switch (g)
         {
@@ -150,7 +143,6 @@ public class bs : Base2
                 return "";
         }
     }
-    public Transform root { get { return this.transform.root; } }
     public static bool build { get { return _Loader.build; } }
     public static bool debug { get { return !_Loader.build; } }
     public static Player[] players { get { return _Game.players; } }
@@ -158,9 +150,12 @@ public class bs : Base2
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static bool DebugKey(KeyCode key)
     {
+        if (_Loader.completeBuild)
+            return false;
         if (Input.GetKeyDown(key))
             print("Debug Key" + key);
         return Input.GetKeyDown(key);
+
     }
     public static string joinString(char j, params object[] o)
     {
@@ -181,7 +176,6 @@ public class bs : Base2
     public static RaycastHit RayCast(LayerMask msk, float len)
     {
         if (!lockCursor) return default(RaycastHit);
-
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));//new Ray(cam.transform.position, cam.transform.TransformDirection(Vector3.forward));  
         ray.origin = ray.GetPoint(1);
         RaycastHit h;
@@ -198,5 +192,10 @@ public class bs : Base2
     {
         if (a > 180) return a - 360f;
         return a;
+    }
+    public static void PlayTextAnimation(TextMesh text, string s)
+    {
+        text.text = s;
+        text.animation.Play();
     }
 }

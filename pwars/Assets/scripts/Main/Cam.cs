@@ -15,6 +15,8 @@ public class Cam : bs
     internal float exp;
     public TextMesh LevelText;
     public TextMesh ScoreText;
+    [FindTransform]
+    public TextMesh ActionText;
     public GUITexture[] blood = new GUITexture[2];
     public void Hit()
     {
@@ -23,6 +25,22 @@ public class Cam : bs
         g.color = new Color(1, 1, 1, 1f);
         damageblurtm = 3;
     }
+    public override void Awake()
+    {
+        
+        base.Awake();
+    }
+    public void Start()
+    {
+        camera.GetComponent<GUILayer>().enabled = true;
+        camera.transform.localPosition= Vector3.zero;
+        camera.transform.localRotation = Quaternion.identity;
+        Vector3 angles = transform.eulerAngles;
+        x = angles.y;
+        y = angles.x;
+        onEffect();
+    }
+    
     public override void Init()
     {
         camera = GetComponentInChildren<Camera>();
@@ -71,14 +89,7 @@ public class Cam : bs
                 c.renderingPath = (RenderingPath)_SettingsWindow.iRenderSettings;
         }
     }
-    public void Start()
-    {
-        camera.GetComponent<GUILayer>().enabled = true;
-        Vector3 angles = transform.eulerAngles;
-        x = angles.y;
-        y = angles.x;
-        onEffect();
-    }
+    
     void FixedUpdate()
     {
         if (ft.TimeElapsed(120))

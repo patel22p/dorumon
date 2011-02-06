@@ -176,7 +176,6 @@ public class Shared : bs
     [RPC]
     public void ResetOwner()
     {
-        Debug.Log("_ResetOwner");
         this.selected = -1;
         foreach (bs bas in GetComponentsInChildren(typeof(bs)))
             bas.OwnerID = -1;

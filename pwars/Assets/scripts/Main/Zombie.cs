@@ -77,7 +77,6 @@ public class Zombie : Destroible
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
     {
-        
         Alive = true;
         Sync = true;
         ResetSpawn();
@@ -85,10 +84,11 @@ public class Zombie : Destroible
         _TimerA.AddMethod(UnityEngine.Random.Range(0, 1000), PlayRandom);
         zombieType = (ZombieType)priority;
         SetAliveModel(zombieType, true);
-        CanFreeze = zombieType != ZombieType.Life;
+        
         speed = zombiespeed;
-        MaxLife = Life = zombieLife;
+        MaxLife = Life = zombieLife;        
         transform.localScale = Vector3.one * Math.Min(Mathf.Max(Mathf.Sqrt(zombieLife) / 10, 1f), 3);
+        slowdowntime = .2f / transform.localScale.x;
     }
 
     private void SetAliveModel(ZombieType zt, bool alive)
@@ -127,7 +127,7 @@ public class Zombie : Destroible
             PlayRandSound(gibSound);
         SetAliveModel(zombieType, false);
         if (killedby == _localPlayer.OwnerID)
-            _localPlayer.AddFrags(1, _Game.mapSettings.pointsPerZombie );
+            _localPlayer.AddFrags(1, _Game.mapSettings.pointsPerZombie);
     }
     public float tiltTm;
     public float spawninTM;
@@ -157,19 +157,19 @@ public class Zombie : Destroible
         Vector3? pnt = null;
         if (state == ZState.GetRay || stm > 1)
         {
-            pnt = pnt ?? GetRay(ipl);
+            pnt = pnt != null ? pnt : GetRay(ipl) ;
             if (pnt != null) { RPCSetzsL(ZState.GetRay); return pnt; }
         }
 
         if (state == ZState.GetPath || stm > 1)
         {
-            pnt = pnt ?? GetNextPathFindPoint(ipl);
+            pnt = pnt != null ? pnt : GetNextPathFindPoint(ipl);
             if (pnt != null) { RPCSetzsL(ZState.GetPath); return pnt; }
         }
 
         if (state == ZState.ZToPl || stm > 10)
         {
-            pnt = pnt ?? zToPl(ipl);
+            pnt = pnt != null ? pnt : zToPl(ipl);
             if (pnt != null) { RPCSetzsL(ZState.ZToPl); return pnt; }
         }
         return null;
@@ -240,7 +240,7 @@ public class Zombie : Destroible
         {
             zombieBite = 0;
             PlayRandSound(screamSounds);
-            ipl.RPCSetLife(ipl.Life - Math.Min(_Game.mapSettings.zombieDamage, _Game.stage + 1), -1);
+            ipl.RPCSetLifeLocal(ipl.Life - (Math.Min(_Game.mapSettings.zombieDamage, _Game.stage + 1) * (zombieType == ZombieType.Life ? 3 : 1)), -1);
         }
     }
     private Vector3? GetRay(Destroible ipl)
@@ -272,7 +272,7 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
                 rigidbody.angularVelocity = Vector3.zero;
-                speedadd = (_Game.stageTime / 10) * _Game.mapSettings.zombieSpeedGrowFactor;
+                speedadd = (_Game.stageTime / 5) * _Game.mapSettings.zombieSpeedGrowFactor;
                 var t = rot * new Vector3(0, 0, 1) * .5f * (speed + speedadd) * Time.deltaTime * Time.timeScale * Time.timeScale;
                 Ray r = new Ray(pos, t);
                 if (Physics.Raycast(r, .3f, 1 << LayerMask.NameToLayer("Level")))
@@ -363,15 +363,13 @@ public class Zombie : Destroible
         
         Destroible pl = Nearest();
         if (pl == null)
-        {
             pos = spawns.First().transform.position;
-        }
         else
         {
             var spawn = spawns.Where(a => loc.Any(b => b.collider.bounds.Contains(pl.pos) && b.collider.bounds.Contains(a.transform.position))).Random();
             var o = spawns.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
             pos = (spawn ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
-                ).transform.position;
+                ).transform.position + new Vector3(0, 1, 0);
         }
         rot = Quaternion.identity;
         rigidbody.velocity = Vector3.zero;
@@ -395,9 +393,9 @@ public class Zombie : Destroible
             RPCDie(-1);
         }
     }
-    public override void RPCSetLife(float NwLife, int killedby)
+    public override void RPCSetLifeLocal(float NwLife, int killedby)
     {
-        base.RPCSetLife(NwLife, killedby);
+        base.RPCSetLifeLocal(NwLife, killedby);
     }
     [RPC]
     public override void SetLife(float NwLife, int killedby)

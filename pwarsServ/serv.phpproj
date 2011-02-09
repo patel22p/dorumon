@@ -1,0 +1,99 @@
+"General"
+{
+"ProjectType" = "local"
+"AutoLoadTemplate" = "%s.php;class.%s.php;"
+"IncludeDirs" = ""
+}
+"Configurations"
+{
+    "Local|PHP 5.2"
+    {
+    }
+    "Staging|PHP 5.2"
+    {
+    }
+    "Production|PHP 5.2"
+    {
+    }
+}
+"Files"
+{
+    "serv"
+    {
+    "ProjRelPath" = "T"
+    }
+    "image.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\user.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\common.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "index.html"
+    {
+    "ProjRelPath" = "T"
+    }
+    "ips.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "common.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "log.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "user.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\stats.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\music.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "stats.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "music.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\crossdomain.xml"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\users.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\image.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "users.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+}
+"ProjStartupServices"
+{
+}
+"Globals"
+{
+}
+"References"
+{
+"PhpReference" = "pcre"
+}

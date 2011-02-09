@@ -18,43 +18,7 @@
 }
 "Files"
 {
-    "serv"
-    {
-    "ProjRelPath" = "T"
-    }
-    "image.php"
-    {
-    "ProjRelPath" = "T"
-    }
-    "serv\\user.php"
-    {
-    "ProjRelPath" = "T"
-    }
-    "serv\\common.php"
-    {
-    "ProjRelPath" = "T"
-    }
-    "index.html"
-    {
-    "ProjRelPath" = "T"
-    }
-    "ips.txt"
-    {
-    "ProjRelPath" = "T"
-    }
-    "common.php"
-    {
-    "ProjRelPath" = "T"
-    }
-    "log.php"
-    {
-    "ProjRelPath" = "T"
-    }
     "user.php"
-    {
-    "ProjRelPath" = "T"
-    }
-    "serv\\stats.php"
     {
     "ProjRelPath" = "T"
     }
@@ -62,7 +26,11 @@
     {
     "ProjRelPath" = "T"
     }
-    "stats.php"
+    "serv\\user.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv"
     {
     "ProjRelPath" = "T"
     }
@@ -70,7 +38,15 @@
     {
     "ProjRelPath" = "T"
     }
-    "serv\\crossdomain.xml"
+    "index.html"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\common.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "ips.txt"
     {
     "ProjRelPath" = "T"
     }
@@ -82,7 +58,31 @@
     {
     "ProjRelPath" = "T"
     }
+    "serv\\stats.php"
+    {
+    "ProjRelPath" = "T"
+    }
     "users.txt"
+    {
+    "ProjRelPath" = "T"
+    }
+    "common.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "stats.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "image.php"
+    {
+    "ProjRelPath" = "T"
+    }
+    "serv\\crossdomain.xml"
+    {
+    "ProjRelPath" = "T"
+    }
+    "log.php"
     {
     "ProjRelPath" = "T"
     }

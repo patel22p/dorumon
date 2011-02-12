@@ -11,7 +11,19 @@ using System.Collections;
 
 public static class Ext
 {
-    
+    //public static void SetValue<T, T2>(this List<KeyValuePair<T, T2>> d, T key, T2 value) where T : class
+    //{
+
+    //    for (int i = 0; i < d.Count; i++)
+    //    {
+    //        if (d[i].Key == key)
+    //        {
+    //            d[i] = new KeyValuePair<T, T2>(key, value);
+    //            return;
+    //        }
+    //    }
+    //    d.Add(new KeyValuePair<T, T2>(key, value));
+    //}
     public static bool toBool(this int v)
     {
         return v != 0;
@@ -20,16 +32,16 @@ public static class Ext
     {
         return v ? 1 : 0;
     }
-    public static T GetValue<T>(this Component c,string str)
+    public static T GetValue<T>(this Component c, string str)
     {
         return (T)c.GetType().GetField(str).GetValue(c);
     }
-    public static void SetValue<T>(this Component c, string str,T value)
+    public static void SetValue<T>(this Component c, string str, T value)
     {
-        c.GetType().GetField(str).SetValue(c,value);
+        c.GetType().GetField(str).SetValue(c, value);
     }
 
-    public static string[] Split(this string s,string d)
+    public static string[] Split(this string s, string d)
     {
         return s.Split(new string[] { d }, StringSplitOptions.RemoveEmptyEntries);
     }
@@ -44,9 +56,9 @@ public static class Ext
         return sb.ToString();
     }
 
-    public static int SelectIndex<T>(this IEnumerable<T> strs, T t) where T: class
+    public static int SelectIndex<T>(this IEnumerable<T> strs, T t) where T : class
     {
-        int i =0;
+        int i = 0;
         foreach (var a in strs)
         {
             if (a == t)
@@ -118,6 +130,124 @@ public static class Ext
     //        buffer[k] = buffer[n];
     //    }
     //}
+
+}
+[XmlRoot("dictionary")]
+public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
+{
+
+    #region IXmlSerializable Members
+
+    public System.Xml.Schema.XmlSchema GetSchema()
+    {
+
+        return null;
+
+    }
+
+
+
+    public void ReadXml(System.Xml.XmlReader reader)
+    {
+
+        XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
+
+        XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
+
+
+
+        bool wasEmpty = reader.IsEmptyElement;
+
+        reader.Read();
+
+
+
+        if (wasEmpty)
+
+            return;
+
+
+
+        while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
+        {
+
+            reader.ReadStartElement("item");
+
+
+
+            reader.ReadStartElement("key");
+
+            TKey key = (TKey)keySerializer.Deserialize(reader);
+
+            reader.ReadEndElement();
+
+
+
+            reader.ReadStartElement("value");
+
+            TValue value = (TValue)valueSerializer.Deserialize(reader);
+
+            reader.ReadEndElement();
+
+
+
+            this.Add(key, value);
+
+
+
+            reader.ReadEndElement();
+
+            reader.MoveToContent();
+
+        }
+
+        reader.ReadEndElement();
+
+    }
+
+
+
+    public void WriteXml(System.Xml.XmlWriter writer)
+    {
+
+        XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
+
+        XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
+
+
+
+        foreach (TKey key in this.Keys)
+        {
+
+            writer.WriteStartElement("item");
+
+
+
+            writer.WriteStartElement("key");
+
+            keySerializer.Serialize(writer, key);
+
+            writer.WriteEndElement();
+
+
+
+            writer.WriteStartElement("value");
+
+            TValue value = this[key];
+
+            valueSerializer.Serialize(writer, value);
+
+            writer.WriteEndElement();
+
+
+
+            writer.WriteEndElement();
+
+        }
+
+    }
+
+    #endregion
 
 }
 public class FindAsset : Attribute

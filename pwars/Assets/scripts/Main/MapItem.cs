@@ -8,10 +8,10 @@ using Random = UnityEngine.Random;
 public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, trap, spotlight, timewarp, teleport, speedupgrate, lifeupgrate, antigravitation, energy, life }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 [AddComponentMenu("MapItem")]
-public class MapItem : bs, IAim
+public class MapItem : bs
 {
     bool isCheckOutCalled;
-    [FindAsset("checkout", overide = true)]
+    [FindAsset("checkout")]
     public AudioClip opendoor;
     public AudioClip checkOutSound;
     public bool payonce;
@@ -30,7 +30,7 @@ public class MapItem : bs, IAim
     public string text = "";
     public Transform[] buttons = new Transform[0];
     public Collider[] boundings = new Collider[0];
-    public int RespawnTm = 1;    
+    public float RespawnTm = 1;    
     [FindAsset("Player")]
     public GameObject playerPrefab;
     [FindAsset("wave")]
@@ -52,13 +52,18 @@ public class MapItem : bs, IAim
                 g.rigidbody.isKinematic = true;
             inited = true;
         }
-        this.networkView.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        if (this.networkView.observed != null)
+            this.networkView.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        else
+            this.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+
         foreach (var a in g.GetComponentsInChildren<Animation>())
+        {
             a.animatePhysics = true;
-      
+            a.playAutomatically = false;
+        }
         if (itemType == MapItemType.shop)
         {
-
             var gun = playerPrefab.GetComponent<Player>().guns[guni];
             var cur = transform.Find("cursor");
             if (cur != null && cur.childCount == 0)
@@ -66,56 +71,55 @@ public class MapItem : bs, IAim
                 var g2 = (GameObject)Instantiate(gun.gunModel, cur.transform.position, cur.transform.rotation);
                 g2.transform.parent = cur;
             }
-            if (gun is Gun)
-            {
+            //if (gun is Gun)
                 //bullets = (int)(20 / ((Gun)gun).interval);
-            }
         }
         base.Init();        
     }
     public override void InitValues()
     {
         checkOutSound = opendoor;
-        //if (buttons.Length == 0)
+        if (buttons.Length == 0)
             buttons = new Transform[] { this.transform };
         if (itemType == MapItemType.shop)
         {
-            text = "Press F to buy " + gunType;
+            text = "" + gunType;
             endless = true;
             hide = true;
             switch (gunType.Parse<GunType>())
             {
+                case GunType.gravitygranate: //gravgun
+                    score = 150;
+                    bullets = 5;
+                    RespawnTm = 60 * 3;
+                    break;
+                case GunType.minigun:
+                    score = 220;
+                    break;
+                case GunType.railgun:
+                    score = 150;
+                    break;
+                case GunType.bazoka:
+                    score = 150;
+                    break;
                 case GunType.ak:
                     score = 100;
                     break;
-                case GunType.bazoka:
-                    score = 120;
-                    break;
                 case GunType.granate:
                     score = 80;
-                    break;
-                case GunType.gravitygranate:
-                    score = 150;
-                    bullets = 10;
-                    break;
-                case GunType.minigun:
-                    score = 150;
                     break;
                 case GunType.physxgun:
                     score = 80;
                     bullets = 50;
                     break;
-                case GunType.pistol:
-                    score = 20;
-                    break;
-                case GunType.railgun:
-                    score = 150;
+                case GunType.uzi:
+                    score = 70;
                     break;
                 case GunType.shotgun:
                     score = 50;
                     break;
-                case GunType.uzi:
-                    score = 70;
+                case GunType.pistol:
+                    score = 20;
                     break;
                 default:
                     score = 100;
@@ -142,7 +146,7 @@ public class MapItem : bs, IAim
         {
             endless = true;
             score = 50;
-            text = "Take Antigravitation";
+            text = "Take Zero Gravitation";
         }
         if (itemType == MapItemType.timewarp)
         {
@@ -258,9 +262,9 @@ public class MapItem : bs, IAim
         if (itemType == MapItemType.timewarp && _localPlayer.haveTimeBomb) return false; //Debug.Log(4);
         if (itemType == MapItemType.spotlight && _localPlayer.haveLight) return false; //Debug.Log(5);
         if (itemType == MapItemType.antigravitation && _localPlayer.haveAntiGravitation) return false; //Debug.Log(6);
-        if (itemType == MapItemType.lifeupgrate && _localPlayer.LifeUpgrate >= 6) return false; //Debug.Log(7);
+        if (itemType == MapItemType.lifeupgrate && _localPlayer.LifeUpgrate >= 3) return false; //Debug.Log(7);
         if (itemType == MapItemType.speedupgrate && _localPlayer.SpeedUpgrate >= 5) return false; //Debug.Log(8);
-        if (itemType == MapItemType.energy && _localPlayer.EnergyUpgrate > 3) return false; //Debug.Log(9);
+        if (itemType == MapItemType.energy && _localPlayer.PowerUpgrate > 3) return false; //Debug.Log(9);
         if (!endless && itemsLeft <= 0) return false; //Debug.Log(10);
         if (_localPlayer.MapItemInterval >= 0) return false; //Debug.Log(11);
         if (animation != null && animation.clip.name == "Take 001" && animation.isPlaying) return false; //Debug.Log(12);
@@ -286,8 +290,6 @@ public class MapItem : bs, IAim
     {
         
         RPCCheckOut(itemsLeft - 1);
-        if (itemType == MapItemType.shop)
-            PlayTextAnimation(_Cam.ActionText, "you got a " + gunType);
         if (itemType == MapItemType.speed && isbought)
             _localPlayer.rigidbody.AddTorque(new Vector3(Speed.y, 0, Speed.x));
 
@@ -312,7 +314,7 @@ public class MapItem : bs, IAim
         }
         if (itemType == MapItemType.energy)
         {
-            _localPlayer.EnergyUpgrate += 1;
+            _localPlayer.PowerUpgrate += 1;
         }
         if (itemType == MapItemType.life)
         {
@@ -325,9 +327,9 @@ public class MapItem : bs, IAim
         if (itemType == MapItemType.spotlight)
             _localPlayer.haveLight = true;
         if (itemType == MapItemType.lifeupgrate)
-            _localPlayer.RPCSetLifeUpgrate(_localPlayer.LifeUpgrate);
+            _localPlayer.RPCSetLifeUpgrate(_localPlayer.LifeUpgrate + 1);
         if (itemType == MapItemType.speedupgrate)
-            _localPlayer.RPCSetSpeedUpgrate(_localPlayer.SpeedUpgrate);
+            _localPlayer.RPCSetSpeedUpgrate(_localPlayer.SpeedUpgrate + 1);
         if (itemType == MapItemType.timewarp)
             _localPlayer.haveTimeBomb = true;
         if (itemType == MapItemType.antigravitation)
@@ -358,7 +360,7 @@ public class MapItem : bs, IAim
         if (hide && itemsLeft <= 0)
         {
             this.Show(false);
-            if (RespawnTm > 0) _TimerA.AddMethod(RespawnTm * 1000, delegate { this.Show(true); itemsLeft = 1; });
+            if (RespawnTm > 0) _TimerA.AddMethod((int)(RespawnTm * 1000), delegate { this.Show(true); itemsLeft = 1; });
         }
 
     }

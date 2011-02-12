@@ -12,11 +12,11 @@ public enum Team
     Blue,
     None
 }
-internal interface IAim
-{
-    void Aim(Player p);
-}
-public class Player : Destroible, IAim
+//internal interface IAim
+//{
+//    void Aim(Player p);
+//}
+public class Player : Destroible
 {
     private float multikilltime;
     private int multikill;
@@ -35,6 +35,7 @@ public class Player : Destroible, IAim
     internal bool haveAntiGravitation;
     internal int fps;
     internal int ping;
+    internal int errors;
     internal int deaths;
     internal bool spawned;
     internal int frags;
@@ -42,7 +43,7 @@ public class Player : Destroible, IAim
     public float Energy = 30;
     public int SpeedUpgrate=1;
     public int LifeUpgrate=1;
-    public float EnergyUpgrate=1;
+    public int PowerUpgrate=1;
     
     [FindAsset] public AudioClip death;
     [FindAsset] public AudioClip alive;
@@ -86,11 +87,11 @@ public class Player : Destroible, IAim
         Debug.Log("player Start " + name);
         rigidbody.maxAngularVelocity = 3000;
         _TimerA.AddMethod(100, delegate
-                                   {
-                                       if (_Game.mapSettings.zombi)
-                                           Score = _Game.stage*50*_Game.scorefactor.Evaluate(_Game.stage);
-                                       slowdowntime = _Game.mapSettings.Slow ? 1 : 0;
-                                   });
+        {
+            if (_Game.mapSettings.zombi)
+                Score = (_Game.stage + 1) * mapSettings.pointsPerStage;
+            slowdowntime = _Game.mapSettings.slow ? 1 : 0;
+        });
         base.Start();
     }
     public void RPCSetUserView(byte[] s)
@@ -144,10 +145,15 @@ public class Player : Destroible, IAim
         Debug.Log(name + "Reset Spawn");
         base.ResetSpawn();
         RPCSetAlive(false);
-        transform.position =
-            _Game.spawns.Where(a => a.SpawnType.ToString().ToLower() == (team + "spawn").ToLower()).Random().transform.
-                position;
+        var g = GetSpawn(team);
+        if (g == null)
+            g = GetSpawn(Team.None);
+        transform.position = g.transform.position;
         transform.rotation = Quaternion.identity;
+    }
+    public MapTag GetSpawn(Team team)
+    {
+        return _Game.spawns.Where(a => a.SpawnType.ToString().ToLower() == (team + "spawn").ToLower()).Random();
     }
     public void LocalSelectGun(int id)
     {
@@ -198,10 +204,7 @@ public class Player : Destroible, IAim
         UpdateAim();
 
         if (!isOwner)
-            UpdateTitle();
-
-        if (shift)
-            this.transform.rotation = Quaternion.identity;
+            UpdateTitle();        
 
         if (_TimerA.TimeElapsed(100))
         {
@@ -231,14 +234,16 @@ public class Player : Destroible, IAim
     private float scrolintrvl;
     private void LocalUpdate()
     {
-        UpdateMapItems();
-        if (DebugKey(KeyCode.L))
-            RPCSetFrags(30, 10);
-        Energy += Time.deltaTime * EnergyUpgrate / 3;
+        
+        Energy += Time.deltaTime * PowerUpgrate / 6;
         Energy = Math.Min(100, Energy);
         scrolintrvl += Time.deltaTime;
         if (lockCursor && Alive)
         {
+            UpdateMapItems();
+            if (DebugKey(KeyCode.L))
+                RPCSetFrags(30, 10);
+
             bool sh = Input.GetKey(KeyCode.LeftShift);
             if (sh != shift) RPCSetStreff(sh);
             if (Input.GetAxis("Mouse ScrollWheel") > 0 && scrolintrvl > .1f)
@@ -291,7 +296,7 @@ public class Player : Destroible, IAim
             }
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (Energy > 10 && isGrounded < 1 || !build)
+                if (Energy > 10 || !build)
                 {
                     Energy -= 10;
                     RPCJump();
@@ -422,7 +427,7 @@ public class Player : Destroible, IAim
             var pos = gun.cursor[0].position;
             var ps = _Game.players //.Union(_Game.zombies.Cast<Destroible>())
                 .Where(a => a != null && a.Alive && a.isEnemy(OwnerID));
-            var t = ps.Select(a => new tmp {angle = Vector3.Angle(syncRot*Vector3.forward, a.pos - pos), b = a}).OrderBy(a => a.angle).FirstOrDefault();
+            var t = ps.Select(a => new tmp { angle = Vector3.Angle(syncRot * Vector3.forward, a.pos - pos), b = a }).OrderBy(a => a.angle).FirstOrDefault();
             if (t.b != null)
                 guntr.rotation = Quaternion.RotateTowards(syncRot, Quaternion.LookRotation(t.b.pos - pos), 1);
             Laser();
@@ -433,12 +438,10 @@ public class Player : Destroible, IAim
     private void Laser()
     {
         Ray r = gun.GetRay();
-        RaycastHit h = new RaycastHit() {point = r.origin + r.direction*100};
+        RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
         if (Physics.Raycast(r, out h, 100, ~(1 << LayerMask.NameToLayer("Glass"))))
         {
-            var aim = h.collider.gameObject.transform.GetMonoBehaviorInParrent() as IAim;
-            if (aim != null)
-                aim.Aim(this);
+            h.collider.gameObject.SendMessage("Aim", this, SendMessageOptions.DontRequireReceiver);            
         }
 
         if ((gun.laser || debug || _Game.mapSettings.haveALaser))
@@ -456,37 +459,40 @@ public class Player : Destroible, IAim
         moveForce *= .80f;
         if (isOwner)
         {
+            var agr = Physics.gravity != _Game.gravity;
             Vector3 md = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             if (!lockCursor) md = Vector3.zero;
             var e = _Cam.rot.eulerAngles;
-            md = Quaternion.Euler(new Vector3(0, e.y, 0)) * md;                        
+            md = Quaternion.Euler(new Vector3(agr ? e.x : 0, e.y, 0)) * md;
             md.Normalize();
 
-            if (shift && !frozen && (Energy > 0 || !build))
+            if (agr)
             {
-                if (md != default(Vector3))
-                    moveForce += md*3; //forcemove
-
-                this.rigidbody.angularVelocity = Vector3.zero;
-                Energy -= Time.deltaTime*3f;
-
-                
-                var v = this.rigidbody.velocity;
-                v.x = moveForce.x;
-                v.z = moveForce.z;
-                v = v / Mathf.Sqrt(rigidbody.mass);
-                if (Physics.gravity != _Game.gravity)
-                    v.y = moveForce.y;
-                else
-                    v.y *= Mathf.Sqrt(rigidbody.mass);
-                rigidbody.velocity = v;
+                this.rigidbody.AddForce(new Vector3(md.x, md.y, md.z) * 10);
+                this.rigidbody.velocity *= .98f;
             }
             else
-            {
-                this.rigidbody.AddTorque(new Vector3(md.z, 0, -md.x) * 1 * 5);
-                //this.rigidbody.position += new Vector3(md.x, 0, md.z) /100;
-                //this.rigidbody.AddForce(new Vector3(md.x, 0, md.z) * 1 * 10);
-            }
+                if (shift && !frozen && (Energy > 0 || !build))
+                {
+                    moveForce += md * 2; //forcemove
+                    this.rigidbody.angularVelocity = new Vector3(md.z, 0, -md.x) * 16 / Mathf.Sqrt(Mathf.Sqrt(rigidbody.mass));
+
+                    Energy -= Time.deltaTime * 3f;
+                    var v = this.rigidbody.velocity;
+                    v.x = moveForce.x;
+                    v.z = moveForce.z;
+                    v = v / Mathf.Sqrt(rigidbody.mass);
+                    if (Physics.gravity == _Game.gravity)
+                        v.y *= Mathf.Sqrt(rigidbody.mass);
+                    rigidbody.velocity = v;
+                }
+                else
+                {
+                    //this.rigidbody.angularVelocity = new Vector3(md.z, 0, -md.x)*30;
+                    this.rigidbody.AddTorque(new Vector3(md.z, 0, -md.x) * 1 * 5);
+                    //this.rigidbody.position += new Vector3(md.x, 0, md.z) /100;
+
+                }
             if (frozen)
                 this.rigidbody.velocity *= .95f;
         }
@@ -499,7 +505,7 @@ public class Player : Destroible, IAim
     public void Jump()
     {
         transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 1, 0));
-        rigidbody.AddForce(_Cam.transform.rotation*new Vector3(0, 0, 1000)*rigidbody.mass*fdt);
+        rigidbody.AddForce(_Cam.transform.rotation*new Vector3(0, 0, 1500)*rigidbody.mass*fdt);
         PlaySound(nitrojumpSound);
     }
     public void PrevGun()
@@ -583,52 +589,48 @@ public class Player : Destroible, IAim
     [RPC]
     public void PowerExp(Vector3 v)
     {
-        PlaySound(powerexpSound, 4);
-        GameObject g = (GameObject) Instantiate(WavePrefab, v, Quaternion.Euler(90, 0, 0));
-        GameObject exp = (GameObject) Instantiate(Explosion, v, Quaternion.identity);
-        exp.transform.parent = g.transform;
-        var e = exp.GetComponent<Explosion>();
-        e.OwnerID = OwnerID;
-        e.self = this;
-        e.exp = 5000;
-        //e.plDamageFactor = .2f;
-        e.DamageFactor = .5f;
-        e.radius = 10;
+        PlaySound(powerexpSound, 2);
+        GameObject g = (GameObject) Instantiate(WavePrefab, v, Quaternion.Euler(90, 0, 0));       
         if (isOwner)
-            _Cam.exp = 2;
+            _Cam.exp = 1f;
 
         Destroy(g, 1.6f);
     }
     [FindAsset("Detonator-Base")] public GameObject detonator;
+    public override void RPCDie(int killedby)
+    {
+        base.RPCDie(killedby);
+    }
     [RPC]
     public override void Die(int killedby)
     {
         if (!Alive) return;
         Destroy(Instantiate(detonator, transform.position, Quaternion.identity), .4f);
         deaths++;
-        if (killedby == _localPlayer.OwnerID)
+        if (isOwner)
         {
-            if (OwnerID == _localPlayer.OwnerID)
+            if (killedby == -1)
             {
-                _Game.WriteMessage(_localPlayer.nick + " Killed self ");
-                _localPlayer.AddFrags(-1, -.5f*_Game.mapSettings.pointsPerPlayer);
+                _Game.RPCWriteMessage(nick + " died ");
             }
-            else if (team != _localPlayer.team || _Game.mapSettings.DeathMatch)
+            else if (OwnerID == killedby)
             {
-                _Game.WriteMessage(_localPlayer.nick + " kill " + nick);
-                _localPlayer.AddFrags(+1, _Game.mapSettings.pointsPerPlayer);
-                PlayTextAnimation(_Cam.ActionText, "You Killed " + nick + " +" + _Game.mapSettings.pointsPerPlayer);
+                _Game.RPCWriteMessage(_localPlayer.nick + " Killed self ");
+                players[killedby].AddFragsLocal(-1, -.5f * _Game.mapSettings.pointsPerPlayer);
+            }
+            else if (team != players[killedby].team || _Game.mapSettings.DeathMatch)
+            {
+                _Game.RPCWriteMessage(players[killedby].nick + " kill " + nick);
+                players[killedby].AddFragsLocal(+1, _Game.mapSettings.pointsPerPlayer);
+                players[killedby].RPCPlayKillAnim(OwnerID);
             }
             else
             {
-                _Game.WriteMessage(_localPlayer.nick + " kill " + nick);
-                _localPlayer.AddFrags(-1, -1*_Game.mapSettings.pointsPerPlayer);
+                _Game.RPCWriteMessage(_localPlayer.nick + " kill " + nick);
+                players[killedby].AddFragsLocal(-1, -1 * _Game.mapSettings.pointsPerPlayer);
             }
         }
-        if (killedby == -1)
-        {
-            _Game.WriteMessage(nick + " died ");
-        }
+        
 
         if (isOwner)
         {
@@ -637,6 +639,12 @@ public class Player : Destroible, IAim
 
             RPCSetAlive(false);
         }
+    }
+    public void RPCPlayKillAnim(int killedby) { CallRPC("PlayKillAnim", killedby); }
+    [RPC]
+    public void PlayKillAnim(int killedby)
+    {
+        PlayTextAnimation(_Cam.ActionText, "You Killed " + players[killedby].nick + " +" + _Game.mapSettings.pointsPerPlayer);
     }
     public Material AliveMaterial;
     public Material deadMaterial;
@@ -662,6 +670,7 @@ public class Player : Destroible, IAim
         {
             foreach (GunBase gb in guns)
                 gb.DisableGun();
+            selectedgun = -1;
             NextGun();
             RPCSetFrozen(false);
             RPCSetTeam((int)(_Game.mapSettings.Team && _TeamSelectWindow.Teams != "" ? _TeamSelectWindow.Teams.Parse<Team>() : Team.None));
@@ -675,11 +684,23 @@ public class Player : Destroible, IAim
 
         if (!_Game.mapSettings.zombi)
             Score = _Game.mapSettings.StartMoney;
-        SpeedUpgrate = LifeUpgrate = 1;
+        if(build)
+            SpeedUpgrate = LifeUpgrate = PowerUpgrate = 1;
+        haveAntiGravitation = haveLight = haveTimeBomb = false;
         shift = false;       
         Energy = 20;
     }
-    public void AddFrags(int i, float sc)
+    public void RPCSetFrags(int i, float score)
+    {
+        CallRPC("SetFrags", i, score);
+    }
+    [RPC]
+    public void SetFrags(int i, float sc)
+    {
+        frags = i;
+        Score = sc;
+    }
+    public void AddFragsLocal(int i, float sc)
     {
         if (isOwner)
         {
@@ -705,22 +726,13 @@ public class Player : Destroible, IAim
 
                 PlayTextAnimation(_Cam.ScoreText, "x" + (multikill + 1));
             }
-            frags += i;
-            Score += sc;
+            
         }
+        frags += i;
+        Score += sc;
         RPCSetFrags(frags, Score);
     }
     [FindAsset("toasty")] public AudioClip[] multikillSounds;
-    public void RPCSetFrags(int i, float score)
-    {
-        CallRPC("SetFrags", i, score);
-    }
-    [RPC]
-    public void SetFrags(int i, float sc)
-    {
-        frags = i;
-        Score = sc;
-    }
     public void RPCSetSpeedUpgrate(int value)
     {
         CallRPC("SetSpeedUpgrate", value);
@@ -781,8 +793,9 @@ public class Player : Destroible, IAim
     }
     internal string nick
     {
-        get { return user.guest ? "[" + user.nick + "]" : user.nick; }
+        get { return user.guest ? "[G]" + user.nick : user.nick; }
     }
+    internal bool topdown { get { return _Cam.topdown; } }
     internal MapSetting mapSettings
     {
         get { return _Loader.mapSettings; }

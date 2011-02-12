@@ -44,14 +44,15 @@ namespace doru
         private void UpdateAction2s()
         {
             CA select = null;
-            foreach (var _CA in _List)
-            {
-                _CA._Miliseconds -= _MilisecondsElapsed;
-                if (_CA._Miliseconds < 0 && (_CA.func == null || _CA.func()) && select == null)
+            lock (_List)
+                foreach (var _CA in _List)
                 {
-                    select = _CA;
+                    _CA._Miliseconds -= _MilisecondsElapsed;
+                    if (_CA._Miliseconds < 0 && (_CA.func == null || _CA.func()) && (select == null || select._Miliseconds > _CA._Miliseconds))
+                    {
+                        select = _CA;
+                    }
                 }
-            }
             if (select != null)
             {
                 _List.Remove(select);                
@@ -105,7 +106,8 @@ namespace doru
             if (ca == null)
             {
                 ca = new CA();
-                _List.Add(ca);
+                lock (_List)
+                    _List.Add(ca);
             }
             ca.stacktrace = UnityEngine.StackTraceUtility.ExtractStackTrace();
             ca._Action2 = _Action2;
@@ -115,8 +117,10 @@ namespace doru
         public void Clear()
         {
             Debug.Log("Timer Clear");
-            _List.Clear();
+            lock (_List)
+                _List.Clear();
         }
+        
         List<CA> _List = new List<CA>();
         class CA
         {

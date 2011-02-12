@@ -45,7 +45,8 @@ public class GameMenuWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 		Image2 = new Rect(128f, 0f, 250f, 104.348f);
 
 	}    
@@ -58,7 +59,12 @@ public class GameMenuWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        
+		vTeamSelectButton = true;
+		voptions = true;
+		vdisconnect = true;
+		vfraglimit = true;
+
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -69,7 +75,7 @@ public class GameMenuWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
 			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);

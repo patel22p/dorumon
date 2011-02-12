@@ -117,7 +117,7 @@ public class SettingsWindow : WindowBase {
 	internal bool focusReset;
 	internal bool Reset=false;
 	
-	internal bool vNetworkSendRate = true;
+	internal bool vNetworkSendRate = false;
 	
 	internal bool focusNetworkSendRate;
 	
@@ -152,7 +152,8 @@ public class SettingsWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -164,10 +165,34 @@ public class SettingsWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iGraphicQuality = -1;
+		vGraphicQuality = true;
+		iGraphicQuality = -1;
+		vScreenSize = true;
 		iScreenSize = -1;
+		vFullScreen = true;
+		vBlood = true;
+		vdecals = true;
+		vatmoSphere = true;
+		vsao = true;
+		vshadows = true;
+		vmotionBlur = true;
+		vbloomAndFlares = true;
+		vRenderSettings = true;
 		iRenderSettings = -1;
+		vcamx = true;
+		vcamy = true;
+		vfieldof = true;
+		vcamSmooth = true;
+		vContrast = true;
+		vMusicVolume = true;
+		vSoundVolume = true;
+		vReset = true;
+		vNetworkSendRate = false;
+		vMouseY = true;
+		vMouseX = true;
+		vShowKeyboard = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -178,7 +203,7 @@ public class SettingsWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(34.5f, 36f, 463.5f, 368.333f), "");
 		GUI.Box(new Rect(0, 0, 463.5f, 368.333f), "");

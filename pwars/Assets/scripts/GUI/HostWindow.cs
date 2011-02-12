@@ -12,14 +12,14 @@ public partial class Base2:MonoBehaviour
 public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Gunlist,Player_Hit_Slow,Have_A_Laser,Close, }
 public class HostWindow : WindowBase {
 		
-	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @""); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
+	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @"mygame"); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
 	internal float Startup_Level{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Level", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Level", value); } }
-	internal float Startup_Money{ get { return PlayerPrefs.GetFloat(Application.platform +"Startup_Money", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Startup_Money", value); } }
 	internal float Zombie_Speed{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Speed", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Speed", value); } }
 	internal float Zombie_Damage{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Damage", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Damage", value); } }
 	internal float Zombie_Life{ get { return PlayerPrefs.GetFloat(Application.platform +"Zombie_Life", 1f); } set { PlayerPrefs.SetFloat(Application.platform +"Zombie_Life", value); } }
 	internal float ZombiesAtStart{ get { return PlayerPrefs.GetFloat(Application.platform +"ZombiesAtStart", 5f); } set { PlayerPrefs.SetFloat(Application.platform +"ZombiesAtStart", value); } }
 	internal float Money_per_frag{ get { return PlayerPrefs.GetFloat(Application.platform +"Money_per_frag", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Money_per_frag", value); } }
+	internal float Money_Per_Level{ get { return PlayerPrefs.GetFloat(Application.platform +"Money_Per_Level", 0f); } set { PlayerPrefs.SetFloat(Application.platform +"Money_Per_Level", value); } }
 	
 	internal bool vname = true;
 	
@@ -51,7 +51,7 @@ public class HostWindow : WindowBase {
 	internal bool vKick_if_AFK = true;
 	
 	internal bool focusKick_if_AFK;
-	internal bool Kick_if_AFK=false;
+	internal bool Kick_if_AFK=true;
 	
 	internal bool vkickIfErrors = true;
 	
@@ -63,7 +63,7 @@ public class HostWindow : WindowBase {
 	internal bool focusMaxPing;
 	
 	internal bool rMaxPing = false;
-	internal int MaxPing = 0;
+	internal int MaxPing = 150;
 	
 	internal bool vfragCanvas = true;
 	
@@ -167,10 +167,6 @@ public class HostWindow : WindowBase {
 	
 	internal bool focusStartup_Level;
 	
-	internal bool vStartup_Money = true;
-	
-	internal bool focusStartup_Money;
-	
 	internal bool vZombie_Speed = true;
 	
 	internal bool focusZombie_Speed;
@@ -190,6 +186,10 @@ public class HostWindow : WindowBase {
 	internal bool vMoney_per_frag = true;
 	
 	internal bool focusMoney_per_frag;
+	
+	internal bool vMoney_Per_Level = true;
+	
+	internal bool focusMoney_Per_Level;
 	private int wndid1;
 	private bool oldMouseOverKick_if_AFK;
 	private bool oldMouseOverKickIfErrors;
@@ -204,7 +204,8 @@ public class HostWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 		GameImage = new Rect(0f, 0f, 190f, 143f);
 
 	}    
@@ -217,10 +218,42 @@ public class HostWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iGameMode = -1;
+		vname = true;
+		vport = true;
+		vmaxPlayers = true;
+		vmaxTime = true;
+		vKick_if_AFK = true;
+		vkickIfErrors = true;
+		vmaxPing = true;
+		vfragCanvas = true;
+		vfragLimitText = true;
+		vmaxFrags = true;
+		vGameImage = true;
+		vGameMode = true;
+		iGameMode = -1;
+		vMap = true;
 		iMap = -1;
+		vStartServer = true;
+		vdescription = true;
+		vcommon = true;
+		vStartMoney = true;
+		vMoney_per_playerKill = true;
+		vgunlist = true;
 		iGunlist = -1;
+		vgunBullets = true;
+		vdamageFactor = true;
+		vPlayer_Hit_Slow = true;
+		vHave_A_Laser = true;
+		vums = true;
+		vStartup_Level = true;
+		vZombie_Speed = true;
+		vZombie_Damage = true;
+		vZombie_Life = true;
+		vzombiesAtStart = true;
+		vMoney_per_frag = true;
+		vMoney_Per_Level = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -231,7 +264,7 @@ public class HostWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(25.5f, 36f, 556.5f, 118f), "");
 		GUI.Box(new Rect(0, 0, 556.5f, 118f), "");
@@ -364,7 +397,7 @@ public class HostWindow : WindowBase {
 		if(focusStartServer) { focusStartServer = false; GUI.FocusControl("StartServer");}
 		GUI.SetNextControlName("StartServer");
 		bool oldStartServer = StartServer;
-		StartServer = GUI.Button(new Rect(480.5f, 455.834f, 101.5f, 28.333f), new GUIContent("Create",""));
+		StartServer = GUI.Button(new Rect(480.5f, 455.834f, 101.5f, 28.333f), new GUIContent("Start",""));
 		if (StartServer != oldStartServer && StartServer ) {Action("StartServer");onButtonClick(); }
 		onMouseOver = new Rect(480.5f, 455.834f, 101.5f, 28.333f).Contains(Event.current.mousePosition);
 		if (oldMouseOverStartServer != onMouseOver && onMouseOver) onOver();
@@ -469,13 +502,6 @@ public class HostWindow : WindowBase {
 		GUI.Label(new Rect(127f,24f,40,15),System.Math.Round(Startup_Level,1).ToString());
 		}
 		GUI.Label(new Rect(8f, 8f, 110f, 16f), @"Startup Level");
-		GUI.Label(new Rect(8f, 44f, 110f, 16f), @"Startup Money");
-		if(vStartup_Money){
-		if(focusStartup_Money) { focusStartup_Money = false; GUI.FocusControl("Startup_Money");}
-		GUI.SetNextControlName("Startup_Money");
-		Startup_Money = GUI.HorizontalSlider(new Rect(8f, 60f, 119f, 16f), Startup_Money, 0f, 500f);
-		GUI.Label(new Rect(127f,60f,40,15),System.Math.Round(Startup_Money,1).ToString());
-		}
 		if(vZombie_Speed){
 		if(focusZombie_Speed) { focusZombie_Speed = false; GUI.FocusControl("Zombie_Speed");}
 		GUI.SetNextControlName("Zombie_Speed");
@@ -511,6 +537,13 @@ public class HostWindow : WindowBase {
 		GUI.Label(new Rect(525f,26f,40,15),System.Math.Round(Money_per_frag,1).ToString());
 		}
 		GUI.Label(new Rect(406f, 10f, 142.5f, 16f), @"Money per frag");
+		if(vMoney_Per_Level){
+		if(focusMoney_Per_Level) { focusMoney_Per_Level = false; GUI.FocusControl("Money_Per_Level");}
+		GUI.SetNextControlName("Money_Per_Level");
+		Money_Per_Level = GUI.HorizontalSlider(new Rect(8f, 61.333f, 119f, 16f), Money_Per_Level, 0f, 50f);
+		GUI.Label(new Rect(127f,61.333f,40,15),System.Math.Round(Money_Per_Level,1).ToString());
+		}
+		GUI.Label(new Rect(8f, 45.333f, 131f, 16f), @"Money Per Stage");
 		GUI.EndGroup();
 		}
 		}

@@ -45,7 +45,8 @@ public class IrcChatWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -57,8 +58,13 @@ public class IrcChatWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iUsers = -1;
+		vmsgs = true;
+		vinput = true;
+		vUsers = true;
+		iUsers = -1;
+		vircSend = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -69,7 +75,7 @@ public class IrcChatWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		if(vmsgs){
 		if(focusMsgs) { focusMsgs = false; GUI.FocusControl("Msgs");}

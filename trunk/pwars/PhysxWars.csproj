@@ -89,7 +89,6 @@
      <Compile Include="Assets\scripts\GUI\GunType.cs" />
      <Compile Include="Assets\scripts\GUI\HostWindow.cs" />
      <Compile Include="Assets\scripts\GUI\IrcChatWindow.cs" />
-     <Compile Include="Assets\scripts\GUI\KeyboardWindow.cs" />
      <Compile Include="Assets\scripts\GUI\LoginWindow.cs" />
      <Compile Include="Assets\scripts\GUI\MenuWindow.cs" />
      <Compile Include="Assets\scripts\GUI\ParticleTypes.cs" />
@@ -100,11 +99,6 @@
      <Compile Include="Assets\scripts\GUI\TeamSelectWindow.cs" />
      <Compile Include="Assets\scripts\GUI\UserWindow.cs" />
      <Compile Include="Assets\scripts\GUI\Window.cs" />
-     <Compile Include="Assets\scripts\Main\guns\Explosion.cs" />
-     <Compile Include="Assets\scripts\Main\guns\Gun.cs" />
-     <Compile Include="Assets\scripts\Main\guns\GunBase.cs" />
-     <Compile Include="Assets\scripts\Main\guns\GunPhysix.cs" />
-     <Compile Include="Assets\scripts\Main\guns\Patron.cs" />
      <Compile Include="Assets\scripts\Main\Base.cs" />
      <Compile Include="Assets\scripts\Main\Base2.cs" />
      <Compile Include="Assets\scripts\Main\Box.cs" />
@@ -112,9 +106,13 @@
      <Compile Include="Assets\scripts\Main\Console.cs" />
      <Compile Include="Assets\scripts\Main\Destroible.cs" />
      <Compile Include="Assets\scripts\Main\Detonator.cs" />
+     <Compile Include="Assets\scripts\Main\Explosion.cs" />
      <Compile Include="Assets\scripts\Main\Ext.cs" />
      <Compile Include="Assets\scripts\Main\Game.cs" />
      <Compile Include="Assets\scripts\Main\GameWindow.cs" />
+     <Compile Include="Assets\scripts\Main\Gun.cs" />
+     <Compile Include="Assets\scripts\Main\GunBase.cs" />
+     <Compile Include="Assets\scripts\Main\GunPhysix.cs" />
      <Compile Include="Assets\scripts\Main\Loader.cs" />
      <Compile Include="Assets\scripts\Main\MapItem.cs" />
      <Compile Include="Assets\scripts\Main\MapSetting.cs" />
@@ -122,6 +120,7 @@
      <Compile Include="Assets\scripts\Main\Menu.cs" />
      <Compile Include="Assets\scripts\Main\Music.cs" />
      <Compile Include="Assets\scripts\Main\Particles.cs" />
+     <Compile Include="Assets\scripts\Main\Patron.cs" />
      <Compile Include="Assets\scripts\Main\Player.cs" />
      <Compile Include="Assets\scripts\Main\Shared.cs" />
      <Compile Include="Assets\scripts\Main\Text3D.cs" />
@@ -324,7 +323,7 @@
      <None Include="Assets\Standard Assets\Scripts\General Scripts\DragRigidbody.js" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
-     <None Include="Assets\Standard Assets\Skyboxes\ skybox info.txt" />
+     <None Include="Assets\Standard Assets\Skyboxes\skybox info.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

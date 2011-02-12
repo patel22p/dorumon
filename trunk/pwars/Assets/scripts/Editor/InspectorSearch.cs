@@ -6,10 +6,17 @@ using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using GUI = UnityEngine.GUILayout;
+using gui = UnityEditor.EditorGUILayout;
 using Object = UnityEngine.Object;
 using System.IO;
 using doru;
 using Random = UnityEngine.Random;
+using System.Text.RegularExpressions;
+using System.Xml.Serialization;
+using mdir = SerializableDictionary<string, string[]>;
+using System.Runtime.Serialization;
+
+
 public class InspectorSearch : EditorWindow
 {
     protected TimerA _TimerA = new TimerA();
@@ -34,12 +41,13 @@ public class InspectorSearch : EditorWindow
     }
     protected virtual void OnGUI()
     {
-
-        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;        
-        GUI.BeginHorizontal();       
-        SetPivot = (GUI.Toggle(SetPivot, "Pivot",GUI.ExpandWidth(false)) && Selection.activeGameObject != null);
+        if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
+        GUI.BeginHorizontal();
+        SetPivot = (GUI.Toggle(SetPivot, "Pivot", GUI.ExpandWidth(false)) && Selection.activeGameObject != null);
+      
         var old = SetCam;
         SetCam = (GUI.Toggle(SetCam && Camera.main != null, "Cam", GUI.ExpandHeight(false))); //camset
+        
         if (SetCam != old && SetCam == false) 
             ResetCam();
         if (GUI.Button("Apply"))
@@ -51,7 +59,7 @@ public class InspectorSearch : EditorWindow
                 SaveParams();
             }
         GUI.EndHorizontal();
-        DrawObjects();
+        DrawObjects(); 
         DrawSearch();
     }
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
@@ -64,14 +72,9 @@ public class InspectorSearch : EditorWindow
             if (GUI.Button(inst))
             {
                 
-                Object o = GameObject.Find(inst) != null ? GameObject.Find(inst) : GameObject.FindObjectsOfTypeIncludingAssets(typeof(Object)).FirstOrDefault(a => a.name == inst);                
+                Object o = GameObject.Find(inst) != null ? GameObject.Find(inst) : GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);                
                 Selection.activeObject = o;
                 var p = AssetDatabase.GetAssetPath(o);
-                if (p != null && AssetDatabase.GetAssetPath(o).EndsWith(".unity"))
-                {
-                    EditorApplication.OpenScene(p);
-                    return;
-                }                
             }
             if (GUI.Button("X", GUI.ExpandWidth(false)))
                 toremove.Add(inst);
@@ -86,6 +89,7 @@ public class InspectorSearch : EditorWindow
     }
     private void DrawSearch()
     {
+        
         search = EditorGUILayout.TextField(search);
         EditorGUIUtility.LookLikeInspector();
         var ago = Selection.activeGameObject;
@@ -246,7 +250,7 @@ public class InspectorSearch : EditorWindow
         var scenecam = scene.camera;
         if (SetCam)
         {
-            if (EditorApplication.isPlaying)
+            if (EditorApplication.isPlaying && !EditorApplication.isPaused)
             {
                 var t = Camera.main.transform;
                 scene.LookAt(t.position,t.rotation,3);
@@ -286,12 +290,12 @@ public class InspectorSearch : EditorWindow
         var c = EditorApplication.currentScene;
         var dir = Path.GetDirectoryName(c) + "/" + Path.GetFileNameWithoutExtension(c) + "/ScreenShots/";
         Directory.CreateDirectory(dir);
-        var file = dir + datetime + ".jpg";
+        var file = dir + datetime + ".png";
         Debug.Log("saved to: " + file);
         Application.CaptureScreenshot(file);
     }
     [MenuItem("GameObject/Attach Prefab")]
-    static void AttachPrefab()
+    static void AttachPrefabToSelectedObjects()
     {
         var b = Selection.gameObjects.FirstOrDefault(a => AssetDatabase.IsMainAsset(a));
         foreach (var g in Selection.gameObjects.ToArray())
@@ -381,7 +385,7 @@ public class InspectorSearch : EditorWindow
             }
 
     }
-
+    
     private static bool clothcollider(GameObject g)
     {
         return g.GetComponent<MapTag>() != null && g.GetComponent<MapTag>().SpawnType == SpawnType.clothcollider;
@@ -423,22 +427,21 @@ public class InspectorSearch : EditorWindow
             a.sharedMaterials = ms;
         }
     }
-    //[MenuItem("GameObject/Create Prefab")]
-    //static void CreatePrefabs()
-    //{
-    //    Undo.RegisterSceneUndo("rtools");
-    //    foreach (GameObject g in Selection.gameObjects)
-    //    {
-    //        if (!AssetDatabase.IsMainAsset(g))
-    //        {
-    //            Directory.CreateDirectory(Application.dataPath + "/" + g.transform.parent.name);
-    //            var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.transform.parent.name + "/" + g.name + ".prefab");
-    //            EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
-    //            EditorUtility.SetDirty(g);
-    //        }
-    //        AssetDatabase.Refresh();
-    //    }
-    //}
+    [MenuItem("GameObject/Create Prefab")]
+    static void CreatePrefabs()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (GameObject g in Selection.gameObjects)
+        {
+            if (!AssetDatabase.IsMainAsset(g))
+            {
+                var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.name + ".prefab");
+                EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
+                EditorUtility.SetDirty(g);
+            }
+            AssetDatabase.Refresh();
+        }
+    }
     //[MenuItem("GameObject/Clear")]
     //static void Clear()
     //{
@@ -446,6 +449,53 @@ public class InspectorSearch : EditorWindow
     //    foreach (var g in Selection.gameObjects)
     //        Clear(g, false);
     //}
+    [MenuItem("File/Open Log")]
+    private static void ParseLog()
+    {
+        string path = EditorUtility.OpenFilePanel("log", "", "txt");
+        string s = File.ReadAllText(path);
+        Debug.Log("Parsing Log: " + s.Length);
+        var ms = Regex.Matches(s, @"(?s).*?\(.*?Line: (-?\d+)\)");
+        foreach (Match m in ms.Cast<Match>())
+        {
+            var id = m.Groups[1].Value;
+            var t = m.Value.Trim();
+            if (id == "2528")
+                Debug.Log(t);
+            else if (id == "-1")
+                Debug.LogError(t);
+            else
+                Debug.LogWarning(t);
+        }
+    }
+    [MenuItem("GameObject/FixMaterials")]
+    public static void FixMaterials()
+    {
+        Undo.RegisterSceneUndo("SceneInit");
+        var rs = Selection.gameObjects.SelectMany(a=>a.GetComponentsInChildren<Renderer>());
+        foreach (var r in rs)
+        {
+            var sm = r.sharedMaterials;
+            for (int i = 0; i < sm.Length; i++)
+            {
+                if (AssetDatabase.GetAssetPath(sm[i]) == "")
+                {
+                    var n = sm[i].name;
+                    Debug.Log("Fixing Material " + r.name + "." + n);
+                    n = Regex.Match(n, @"[\w\d- ]+").Value.Trim();
+                    var pf = r.gameObject.GetComponent<MeshFilter>().sharedMesh;
+                    var path = Path.GetDirectoryName(AssetDatabase.GetAssetPath(pf)) + "/Materials/" + n + ".mat";
+                    //Debug.Log(path);
+                    var m = (Material)AssetDatabase.LoadAssetAtPath(path, typeof(Material));
+                    if (m != null)
+                        sm[i] = m;
+                    else
+                        Debug.Log("material could not be found");
+                }
+            }
+            r.sharedMaterials = sm;
+        }
+    }
     [MenuItem("GameObject/ClearCollider")]
     static void ClearColl()
     {
@@ -483,10 +533,12 @@ public class InspectorSearch : EditorWindow
         Undo.RegisterSceneUndo("rtools");
         foreach (var go in Selection.gameObjects)
         {
-            Debug.Log("Applied:" + go.name);
-            EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
-            EditorUtility.ResetGameObjectToPrefabState(go);
-            EditorUtility.ReconnectToLastPrefab(go);
+            if (EditorUtility.GetPrefabType(go) == PrefabType.PrefabInstance)
+            {                
+                EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
+                EditorUtility.ResetGameObjectToPrefabState(go);
+                EditorUtility.ReconnectToLastPrefab(go);
+            }
         }
         AssetDatabase.SaveAssets();
     }
@@ -592,15 +644,53 @@ public class InspectorSearch : EditorWindow
                 }
             GUI.Space(10);
         }
-    }
-    
+    }    
+    //[MenuItem("GameObject/cacheMaterials")]
+    //public static void CacheMaterials()
+    //{
+    //    mdir database = new mdir();
+    //    XmlSerializer xs = new XmlSerializer(typeof(mdir));
+    //    string str = EditorPrefs.GetString("matDatabase");
+    //    if (str != null && str != "")
+    //        try
+    //        {
+    //            using (var sr = new StringReader(str))
+    //                database = (mdir)xs.Deserialize(sr);
+    //        } catch (Exception e) { Debug.Log(e.Message); }
+    //    Debug.Log("db" + database.Count);
+    //    foreach (var render in Selection.gameObjects.SelectMany(a => a.GetComponentsInChildren<Renderer>()))
+    //    {
+    //        string[] foundvalue;
+    //        var paths = (render.sharedMaterials.Select(m => Path.GetFileName(AssetDatabase.GetAssetPath(m))).ToArray());                       
+    //        var mats = render.sharedMaterials;
+    //        var key = render.transform.parent + "/" + render.name;
+    //        if (database.TryGetValue(key, out foundvalue))
+    //        {                
+    //            for (int i = 0; i < paths.Length; i++)
+    //            {
+    //                if (mats[i] == null)
+    //                {
+    //                    paths[i] = foundvalue[i];
+    //                    var p = Path.GetDirectoryName(AssetDatabase.GetAssetPath(EditorUtility.GetPrefabParent(render))) + "/Materials/" + paths[i];
+    //                    Debug.Log("set material" + key + " " + i + " " + p);                        
+    //                    mats[i] = (Material)AssetDatabase.LoadAssetAtPath(p, typeof(Material));
+                        
+    //                }
+    //            }
+    //            render.sharedMaterials = mats;
+    //        }
+    //        database[key] = paths;
+    //    }
+    //    EditorPrefs.SetString(EditorApplication.currentScene + "mat", bs.SerializeToStr(database, xs));
 
+    //}
+    
     protected virtual void Update()
     {
         autosavetm += 0.01f;
         _TimerA.Update();        
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
-        bool autosave = (DateTime.Now - idletime) < TimeSpan.FromMinutes(10) && autosavetm >360;
+        bool autosave = (DateTime.Now - idletime) < TimeSpan.FromMinutes(10) && autosavetm > 60 * 20;
 
         if (autosave)
         {
@@ -623,7 +713,7 @@ public class InspectorSearch : EditorWindow
             EditorApplication.SaveAssets();
             EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
             var cs = EditorApplication.currentScene;
-            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Materials/";
+            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Backups/";
             if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             
             var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);

@@ -14,6 +14,7 @@ using System.Collections;
 using AstarClasses;
 using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
+using System.Xml.Serialization;
 [assembly: AssemblyVersion("1.0.*")]
 public partial class RTools : InspectorSearch
 {
@@ -49,7 +50,7 @@ public partial class RTools : InspectorSearch
 
         if (GUILayout.Button("Build"))
         {
-            EditorUtility.SetDirty(_Loader);
+            
             Build();
             return;
         }
@@ -89,61 +90,57 @@ public partial class RTools : InspectorSearch
 
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
-        bake = GUI.Toggle(bake, "Bake");
+        bake = GUI.Toggle(bake, "Bake",GUI.ExpandWidth(false));
 
-        lfactor = EditorGUILayout.FloatField(lfactor, GUI.Width(20));
-        dfactor = EditorGUILayout.FloatField(dfactor, GUI.Width(20));
+        lfactor = EditorGUILayout.FloatField(lfactor, GUI.Width(30));
+        dfactor = EditorGUILayout.FloatField(dfactor, GUI.Width(30));
 
         if (GUI.Button("SetupLevel"))
         {
             LevelSetup();
         }
-        if (GUI.Button("InitV"))
-        {
-            Debug.Log("InitV");
-            foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
-            {
-                if (AssetDatabase.IsMainAsset(a))
-                {
-                    bool mod = false;
-                    var ar = a.transform.GetTransforms().ToArray();
-                    foreach (var b in ar)
-                    {
-                        var bs = b.GetComponent<bs>();
-                        if (bs != null)
-                        {
-                            bs.InitValues();
-                            mod = true;
-                        }
-                    }
-                    if (mod)
-                        EditorUtility.SetDirty(a);
-                }
-                else
-                    foreach (var bs in a.GetComponentsInChildren<bs>())
-                        bs.InitValues();
-            }
-            
-        }
+        
         if (GUI.Button("Init"))
         {
             Undo.RegisterSceneUndo("SceneInit");
             SetupMaterials();
+            FixMaterials();
             if (Selection.activeGameObject != null)
                 Inits(cspath);
         }
         GUI.EndHorizontal();
-        //BuildGUI();
-        //GUI.Space(10);
-        //if (Application.isPlaying && Base2._Game != null)
-        //{
-        //    foreach (Player p in Base2._Game.players)
-        //        if (p != null)
-        //            if (GUI.Button(p.name + ":" + p.OwnerID))
-        //                Selection.activeObject = p;
-        //}
+        
         base.OnGUI();
     }
+
+    private static void InitValues()
+    {
+        var dt = DateTime.Now;
+        foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
+        {
+            if (AssetDatabase.IsMainAsset(a))
+            {
+                bool mod = false;
+                var ar = a.transform.GetTransforms().ToArray();
+                foreach (var b in ar)
+                {
+                    var bs = b.GetComponent<bs>();
+                    if (bs != null)
+                    {
+                        bs.InitValues();
+                        mod = true;
+                    }
+                }
+                if (mod)
+                    EditorUtility.SetDirty(a);
+            }
+            else
+                foreach (var bs in a.GetComponentsInChildren<bs>())
+                    bs.InitValues();
+        }
+        Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
+    }
+
     private void LevelSetup()
     {
         var Level = GameObject.Find("Level");
@@ -187,13 +184,20 @@ public partial class RTools : InspectorSearch
             }
         });
     }
+    public static void OnPlaymodeStateChanged ()
+    {
+
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            EditorUtility.SetDirty(loader);
+            InitValues();
+        }
+    }
+
     protected override void Update()
     {
-        EditorApplication.playmodeStateChanged = delegate
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
-                EditorUtility.SetDirty(loader);
-        };
+        EditorApplication.playmodeStateChanged = OnPlaymodeStateChanged;
+        
 
         _Loader.SerializedObject.ApplyModifiedProperties();
         base.Update();
@@ -206,7 +210,7 @@ public partial class RTools : InspectorSearch
             ResetCam();
             _TimerA.AddMethod(delegate
             {
-                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + dir, "client");
+                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "client");
             });
         }
         if (GUILayout.Button("Server App"))
@@ -214,7 +218,7 @@ public partial class RTools : InspectorSearch
             ResetCam();
             _TimerA.AddMethod(delegate
             {
-                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + dir, "server");
+                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/" + path, "server");
             });
         }
         GUI.EndHorizontal();        
@@ -275,7 +279,7 @@ public partial class RTools : InspectorSearch
         {
             foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
                 if (anim.clip == null) DestroyImmediate(anim);
-            foreach (var scr in go.GetComponentsInChildren<Base2>())
+            foreach (var scr in go.GetComponents<Base2>())
             {
                 foreach (var pf in scr.GetType().GetFields())
                 {
@@ -324,6 +328,7 @@ public partial class RTools : InspectorSearch
                 {
                     p.transform.position = g.transform.position;
                     p.transform.rotation = g.transform.rotation;
+                    p.transform.localScale = g.transform.localScale;
                 }
                 Clear(g, true);
             }
@@ -332,6 +337,7 @@ public partial class RTools : InspectorSearch
         {
             if (t.name.ToLower() == "path") //pathfind
             {
+                t.gameObject.isStatic = false;
                 var a = (AstarPath)GameObject.FindObjectOfType(typeof(AstarPath));
                 a.navmesh = t.GetComponent<MeshFilter>().sharedMesh;
                 a.navmeshRotation = (Quaternion.AngleAxis(270, new Vector3(1, 0, 0))).eulerAngles;
@@ -457,19 +463,23 @@ public partial class RTools : InspectorSearch
             }
         }
     }
+    public int build { get { return EditorPrefs.GetInt("build"); } set { EditorPrefs.SetInt("build", value); } }
     private void Build()
     {
+        build++;
+        _Loader.buildVersion = build;
+        EditorUtility.SetDirty(_Loader);
         var fn = web ? "game" : "game.exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();        
-        dir = @"Builds/PhysicsWars/";
-        CrDir(dir);
+        path = @"Builds/PhysicsWars/";
+        CrDir(path);        
         if (!web)
         {
-            File.WriteAllText(dir + "Client.bat", "start Game.Exe client");
-            File.WriteAllText(dir + "Server.bat", "start Game.Exe server");
+            File.WriteAllText(path + "Client.bat", "start Game.Exe client");
+            File.WriteAllText(path + "Server.bat", "start Game.Exe server");
         }
-        var path = dir + fn;
-        Debug.Log("build1 " + BuildPipeline.BuildPlayer(_Loader.completeBuild ? scenes : new[] { EditorApplication.currentScene }, path, web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.Development | BuildOptions.WebPlayerOfflineDeployment));
+        path += fn;
+        Debug.Log("build1 " + BuildPipeline.BuildPlayer(_Loader.completeBuild ? scenes : new[] { EditorApplication.currentScene }, path, web ? BuildTarget.WebPlayer : BuildTarget.StandaloneWindows, BuildOptions.None));
         if (web)
         {
             CrDir("t2");
@@ -504,7 +514,7 @@ public partial class RTools : InspectorSearch
                 yield return a;
         }
     }
-    string dir { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
+    string path { get { return EditorPrefs.GetString("bf"); } set { EditorPrefs.SetString("bf", value); } }
     float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
     float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
 }

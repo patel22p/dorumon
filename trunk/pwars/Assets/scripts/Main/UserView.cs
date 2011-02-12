@@ -14,7 +14,7 @@ public struct ScoreView
 [Serializable]
 public class UserView
 {
-    public static XmlSerializer xml = new XmlSerializer(typeof(UserView));
+    public static XmlSerializer xml = new XmlSerializer(typeof(UserView), new[] { typeof(ScoreView) });
     public string nick = "";    
     public string AvatarUrl= "";
     public string Desctiption = "";
@@ -22,6 +22,5 @@ public class UserView
     public string BallTextureUrl="";
     public int MaterialId;    
     public ScoreView[] scoreboard = new ScoreView[10];    
-    [XmlIgnore]
     public bool guest = false;
 } 

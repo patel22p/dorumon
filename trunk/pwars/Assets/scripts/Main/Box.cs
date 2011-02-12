@@ -14,9 +14,10 @@ public class Box : Shared
     {
         base.Init();
         rigidbody.mass = 5;
+        
         networkView.stateSynchronization = NetworkStateSynchronization.Off;
-        if (collider.sharedMaterial == null)
-            collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");
+        //if (collider.sharedMaterial == null)
+        collider.sharedMaterial = Base2.FindAsset<PhysicMaterial>("box");
         
     }
 #endif
@@ -24,7 +25,12 @@ public class Box : Shared
     public override void Start()
     {        
         _Game.boxes.Add(this);
+        
         base.Start();
+    }
+    public override void Awake()
+    {        
+        base.Awake();
     }
     protected virtual void OnCollisionStay(Collision collisionInfo)
     {

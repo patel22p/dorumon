@@ -66,7 +66,7 @@ public partial class Base2 : MonoBehaviour
     {
         using (StringWriter sw = new StringWriter())
         {
-            UserView.xml.Serialize(sw, t);
+            xml.Serialize(sw, t);
             return sw.ToString();
         }
     }

@@ -19,19 +19,22 @@ using System.Runtime.Serialization.Formatters.Binary;
 public enum Level { z1login, z2menu, z4game }
 public class Loader : bs
 {
-    Dictionary<string, Ping> hdps = new Dictionary<string, Ping>();
+    [FindTransform]
+    public GUIText infoText;
     internal string cmd = ""; 
     internal MapSetting mapSettings = new MapSetting();
     internal bool loaded;
     internal int lastLevelPrefix;
     internal int rpcCount;
     public bool disableSounds;
-    public string version = "PhysxWars";
+    public float Version = 1;
     public bool stopZombies;
+    internal bool Kongregate;
     public bool dontcheckwin;
     public bool completeBuild;
     public bool proxy;
     new public bool build;
+    public int buildVersion;
     public string[] ipaddress;
     internal int hostport = 5300;    
     [FindAsset]
@@ -61,25 +64,26 @@ public class Loader : bs
         {
             for (int i = 0; i < m.patrons.Length; i++)
                 m.patrons[i] = -1;
-            m.patrons[(int)GunType.physxgun] = 10;
-            m.patrons[(int)GunType.pistol] = 30;
-            
+            m.patrons[(int)GunType.physxgun] = 30;
+            m.patrons[(int)GunType.pistol] = 100;
             m.timeLimit = 99;
             m.zombieDamage = 8;
             m.pointsPerZombie = 2;
             m.haveALaser = false;
-            m.pointsPerPlayer = 5;
-            m.Slow = true;
+            m.pointsPerPlayer = 20;
+            m.slow = false;
+            m.zombiesAtStart = 20;
             m.StartMoney = 50;
-
-            m.gameMode = GameMode.ZombieSurvival; 
+            m.pointsPerStage = 5;
+            m.gameMode = GameMode.DeathMatch; 
             m.stage = 0;
         }        
         base.InitValues();
     }
     public override void Awake()
-    {        
-        Debug.Log("loader Awake");
+    {
+        Application.RegisterLogCallback(_Console.onLog);
+        Debug.Log("loader Awake");        
         base.Awake();
         enabled = true;
         Application.targetFrameRate = 60;                
@@ -93,7 +97,8 @@ public class Loader : bs
     public void Start()
     {
         _TimerA.AddMethod(100, delegate { loaded = true; });
-        print("Version " + version);
+        _LoginWindow.Build = "Build " + buildVersion + " Version " + Version;
+        Debug.Log(_LoginWindow.Build);        
         Debug.Log("App Path" + curdir);        
         _SettingsWindow.lScreenSize = ToString(Screen.resolutions).ToArray();
         _SettingsWindow.lGraphicQuality = Enum.GetNames(typeof(QualityLevel));
@@ -108,17 +113,23 @@ public class Loader : bs
                 File.Delete(a);
         }
     }
+    internal int fps;
+    internal float pingAverage;
     void Update()
     {
+        infoText.text = "Fps: " + fps + " Errors:" + _Console.exceptionCount + " Ping: " + (int)pingAverage;
+        if (_TimerA.TimeElapsed(500))
+            fps = (int)_TimerA.GetFps();
+
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.M))
             _Console.enabled = !_Console.enabled;
 
         _Music.audio.volume = _SettingsWindow.MusicVolume;
         AudioListener.volume = disableSounds ? 0 : _SettingsWindow.SoundVolume;        
-        if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
+        //if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
         if (!isWebPlayer && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E))
         {
-            var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".jpg";
+            var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".png";
             Debug.Log("sceenshot saved " + path);
             Application.CaptureScreenshot(path);
         }
@@ -139,15 +150,20 @@ public class Loader : bs
         Network.SetSendingEnabled(0, false);
         Network.isMessageQueueRunning = false;
         Network.SetLevelPrefix(levelPrefix);
-        Application.LoadLevel(level);
+        LoadLevel(level);    
 
     }
+
+    private void LoadLevel(string level)
+    {
+        foreach (bs bs in GameObject.FindObjectsOfType(typeof(bs)))
+            bs.OnLevelLoading();
+        Application.LoadLevel(level);
+    }
+
+    
     void OnLevelWasLoaded(int level)
     {        
-        foreach (Ping p in hdps.Values)
-            p.DestroyPing();
-        hdps.Clear();
-
         try
         {
             _Level = (Level)Enum.Parse(typeof(Level), Application.loadedLevelName);
@@ -162,52 +178,46 @@ public class Loader : bs
         foreach (Resolution a in t)
             yield return a.width + "x" + a.height + " " + a.refreshRate;
     }
-    public int GetPing(string ip)
+    
+    public void Action(string n)
     {
-        Ping p;
-        if (!hdps.ContainsKey(ip))
-            hdps.Add(ip, p = new Ping(ip));
-        else
-            p = hdps[ip];
-
-        return p.time == -1 ? 999 : p.time;
-    }
-    public void Action(string s)
-    {
-        Debug.Log("Loader Action: " + s);
-        if (s == "FullScreen")
+        Debug.Log("Loader Action: " + n);
+        if (n == "FullScreen")
             Screen.fullScreen = _SettingsWindow.FullScreen;
         
-        if (s == "ScreenSize")
+        if (n == "ScreenSize")
             if (_SettingsWindow.iScreenSize != -1 && _SettingsWindow.iScreenSize < Screen.resolutions.Length)
             {
                 print(pr);
                 Resolution r = Screen.resolutions[_SettingsWindow.iScreenSize];
                 Screen.SetResolution(r.width, r.height, _SettingsWindow.FullScreen);
             }
-        if (s == "Shadows")
+        if (n == "Shadows")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "Reset")//reset settings
+        if (n == "Reset")//reset settings
             PlayerPrefs.DeleteAll();
-        if (s == "AtmoSphere")
+        if (n == "AtmoSphere")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "Sao")
+        if (n == "Sao")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "BloomAndFlares")
+        if (n == "BloomAndFlares")
             if (_Cam != null)
                 _Cam.onEffect();
-        if (s == "RenderSettings")
-            _Cam.onEffect();
-        if (s == "GraphicQuality")
-            _Cam.onEffect();
-        if (s == "Ok")
+        if (n == "RenderSettings")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (n == "GraphicQuality")
+            if (_Cam != null)
+                _Cam.onEffect();
+        if (n == "Ok")
             _PopUpWindow.Hide();
-        if (s == "ShowKeyboard")
-            _KeyboardWindow.Show(this);
-        if (s == "Close" && _Menu != null)
+        if (n == "ShowKeyboard")
+            Application.OpenURL("https://picasaweb.google.com/dorumonstr/PhysicsWarsHelp#slideshow/5571650111087233570");
+
+        if (n == "Close" && _Menu != null)
             _MenuWindow.Show();
     }
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
@@ -216,7 +226,7 @@ public class Loader : bs
     
     public override void Init()
     {
-        version = DateTime.Now.ToString();
+        Version += 0.01f;
         base.Init();
     }
 #endif

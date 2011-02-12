@@ -16,7 +16,7 @@ public class Shared : bs
     internal Vector3 syncAngularVelocity;
     internal Vector3 spawnpos;
     internal Quaternion spawnrot;
-    internal bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
+    public bool velSync = true, posSync = true, rotSync = true, angSync = true, Sync = true;
     internal int selected = -1;
     internal float[] tmsend = new float[maxConId];
     internal Renderer[] renderers;

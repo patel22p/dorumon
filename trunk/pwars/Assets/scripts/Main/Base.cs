@@ -6,38 +6,48 @@ using Debug = UnityEngine.Debug;
 using System;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 
 public class bs : Base2
 {
     public static NetworkPlayer? sendto;
     internal const string webserver = "http://physxwars.ru/serv/";
-    //internal const string webserver = "http://192.168.30.113/";
+    //internal const string webserver = "http://192.168.30.113/serv/";
     internal const int maxConId= 100;
     internal int OwnerID = -1;
     internal bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
-    bool defenabled;
+    bool Defenabled = true;
     protected virtual void OnServerInitialized() { Enable(); }
     protected virtual void OnConnectedToServer() { Enable(); }
-    protected virtual void Enable() { if (networkView != null) enabled = defenabled; }
+    protected virtual void Enable() { if (networkView != null && Defenabled) enabled = true; }
     public void ShowPopup(string s)
     {
         Debug.Log("PopUp: " + s);
-        _PopUpWindow.ShowDontHide(_Loader);
-        _PopUpWindow.Text = s;
-        _PopUpWindow.AlwaysOnTop = true;
+        if (_PopUpWindow.enabled)
+            _PopUpWindow.Text += "\r\n" + s;
+        else
+            _PopUpWindow.Text = s;
+        _PopUpWindow.ShowDontHide(_Loader);                
     }
     public virtual void Awake()
-    {        
-        defenabled = enabled;
+    {
+        if (name == "pistol") Debug.Log("Awake" + name);         
         if (networkView != null && enabled)
         {
-            name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
+            //name += "+" + Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
             if (Network.peerType == NetworkPeerType.Disconnected)
-            {
+            {                
                 enabled = false;
             }
         }
     }
+    public override void InitValues()
+    {        
+        Defenabled = enabled;
+        base.InitValues();
+    }
+    public virtual void OnLevelLoading(){}
     public virtual void OnPlayerConnectedBase(NetworkPlayer np) { }
     public NetworkView myNetworkView
     {
@@ -67,6 +77,27 @@ public class bs : Base2
             transform.GetComponentInParrent<AudioSource>().audio.PlayOneShot((AudioClip)au[UnityEngine.Random.Range(0, au.Length)], volume);
     }
     public void LocalHide() { Show(false); }
+//    public int GetPing(HostData hd,Action callback)
+//    {
+//        var dt = DateTime.Now;
+//        IPEndPoint edp = null;
+//        UdpClient c = new UdpClient();
+//        c.Connect(hd.ip[0], 5300);
+//        var bts = Hex(@"01 00 00 00 00 09
+//1B 43 54 00 FF FF 00 FE-FE FE FE FD FD FD FD 12
+//34 56 78");
+//        c.Send(bts, bts.Length);
+//        c.Receive(ref edp);
+//        _TimerA.AddMethod(callback);
+//    }
+//    public static byte[] Hex(string s)
+//    {
+//        MatchCollection ms = Regex.Matches(s, "[0-9a-fA-F]{2,2}");
+//        byte[] _bytes = new byte[ms.Count];
+//        for (int i = 0; i < ms.Count; i++)
+//            _bytes[i] = byte.Parse(ms[i].Value, System.Globalization.NumberStyles.HexNumber);
+//        return _bytes;
+//    }
     public void LocalShow() { Show(true); }
     public void RPCShow(bool v) { CallRPC("Show",v); }
     [RPC]
@@ -150,11 +181,13 @@ public class bs : Base2
     public static Level _Level { get { return _Loader._Level; } set { _Loader._Level = value; } }
     public static bool DebugKey(KeyCode key)
     {
+        
         if (_Loader.completeBuild)
             return false;
-        if (Input.GetKeyDown(key))
+        var a = Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(key);
+        if (a)
             print("Debug Key" + key);
-        return Input.GetKeyDown(key);
+        return a;
 
     }
     public static string joinString(char j, params object[] o)
@@ -198,4 +231,5 @@ public class bs : Base2
         text.text = s;
         text.animation.Play();
     }
+    public bool Antigrav { get { return Physics.gravity != _Game.gravity; } }
 }

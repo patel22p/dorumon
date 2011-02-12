@@ -17,12 +17,13 @@ public class Console : bs
     }
     public override void Awake()
     {
-        Application.RegisterLogCallback(onLog);                
         base.Awake();
-        
+
     }
-    void onLog(string condition, string stackTrace, LogType type)
+    public void onLog(string c, string stackTrace, LogType type)
     {
+
+        var condition = c.Replace("\r\n", " ") + "\r\n";
         try
         {
             if (type == LogType.Error) errorcount++;
@@ -37,25 +38,23 @@ public class Console : bs
                 else
                     log.AppendLine(condition);
             }
-
             if (log.Length > 6000)
-                log.Remove(0, log.Length - 6000);            
-        }
-        catch { }
+                log.Remove(0, log.Length - 6000);
+        } catch (Exception e) { log.AppendLine(e + ""); }
     }
     public void OnGUI()
     {
         GUI.skin = _Loader.Skin;
         r = new Rect(0, 0, Screen.width, Screen.height);
-        GUI.Window(-1, r, Window, "Console");
+        GUI.Window(4000, r, Window, "Console");
         
     }
     void Window(int id)
     {        
         //GUI.Box(r, "");                
-        GUILayout.Label("Warnings:" + errorcount + "\tErrors:" + exceptionCount + "\tRPC:" + _Loader.rpcCount + "\tVersion " + _Loader.version);        
+        GUILayout.Label("Warnings:" + errorcount + "\tErrors:" + exceptionCount + "\tRPC:" + _Loader.rpcCount + "\tVersion " + _Loader.Version);        
         GUI.TextField(new Rect(0, 50, r.width, r.height - 50), log.ToString(), GUI.skin.customStyles[8]);
-        GUI.BringWindowToFront(-1);
-        GUI.FocusWindow(-1);
+        GUI.BringWindowToFront(4000);
+        GUI.FocusWindow(4000);
     }
 }

@@ -5,8 +5,8 @@ using System.Text;
 using System.Linq;
 
 public class GameWindow : bs {
-    List<string> systemMessage = new List<string>();
-    public GUIText fpstext;
+    List<string> systemMessage = new List<string>();    
+
     public GUIText chatInput;
     public GUIText chatOutput;
     public GUIText CenterText;
@@ -50,7 +50,14 @@ public class GameWindow : bs {
         systemMessage.Add(s);
         systemMessages.text = string.Join("\r\n", systemMessage.TakeLast(5).ToArray());
     }
-    
+    public Font font;
+
+    public override void Init()
+    {
+        foreach (var a in this.GetComponentsInChildren<GUIText>())
+            a.font = font;
+        base.Init();
+    }
     public void SetWidth(GUITexture t, int value)
     {
         var p = t.pixelInset;
@@ -63,12 +70,12 @@ public class GameWindow : bs {
     void Update()
     {
         if (_localPlayer == null) return;
-        fpstext.text = "Fps: " + _Game.fps + " Ping:" + _Game.ping + " Errors:" + _Console.exceptionCount;
+        
         var ts = System.TimeSpan.FromMinutes(_Game.timeleft);
         this.time.text = ts.Hours + ":" + ts.Minutes + ":" + ts.Seconds;
         if (_Game.mapSettings.Team)
             this.teamscore.text = _Game.BlueFrags+":"+_Game.RedFrags;
-        this.nitroupgrate.text = "Power Upgrate: " + _localPlayer.EnergyUpgrate;
+        this.nitroupgrate.text = "Power Upgrate: " + _localPlayer.PowerUpgrate;
         this.speedupgrate.text = "Speed Upgrate: " + _localPlayer.SpeedUpgrate;
         this.lifeupgrate.text = "Life Upgrate: " + _localPlayer.LifeUpgrate;
         this.spotLight.enabled = _localPlayer.haveLight;

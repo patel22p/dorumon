@@ -16,6 +16,8 @@ public class Cam : bs
     public TextMesh LevelText;
     public TextMesh ScoreText;
     [FindTransform]
+    public TextMesh Levelcomplete;
+    [FindTransform]
     public TextMesh ActionText;
     public GUITexture[] blood = new GUITexture[2];
     public void Hit()
@@ -66,7 +68,7 @@ public class Cam : bs
 
     public void onEffect()
     {
-        ambientsmoke.gameObject.active = _SettingsWindow.AtmoSphere;
+        ambientsmoke.particleEmitter.emit = _SettingsWindow.AtmoSphere;
         if (ssao.enabled != _SettingsWindow.Sao) { ssao.enabled = _SettingsWindow.Sao; Debug.Log("sao settings" + ssao.enabled); }
         if (MotionBlur.enabled != _SettingsWindow.MotionBlur) { MotionBlur.enabled = _SettingsWindow.MotionBlur; Debug.Log("blur settings" + MotionBlur.enabled); }
         if (bloomAndFlares.enabled != _SettingsWindow.BloomAndFlares) { bloomAndFlares.enabled = _SettingsWindow.BloomAndFlares; Debug.Log("blom and flares" + bloomAndFlares.enabled); }
@@ -102,6 +104,7 @@ public class Cam : bs
 
         CamUpdate();
     }
+    public bool topdown = true;
     void Update()
     {
         if (DebugKey(KeyCode.J))
@@ -125,19 +128,26 @@ public class Cam : bs
             x += Input.GetAxis("Mouse X") * 120 * .02f * _SettingsWindow.MouseX;
             y -= Input.GetAxis("Mouse Y") * 120 * .02f * _SettingsWindow.MouseY;
         }
+        if (topdown)
+        {
+            y = 90;
+        }
+
     }
     void CamUpdate()
     {
         if (_localPlayer == null) return;
         camera.fieldOfView = _SettingsWindow.Fieldof;
         xoffset = _SettingsWindow.Camx + 0.01f;
-        yoffset = _SettingsWindow.Camy + 0.01f;        
+
+        yoffset = _SettingsWindow.Camy * (topdown ? 3 : 1) + 0.01f;
+
         y = ClampAngle(y, -90, 90, 90);
         Quaternion rot2 = Quaternion.Euler(y, x, 0);
         Vector3 pos2 = rot2 * new Vector3(0.0f, 0.0f, -xoffset) + _localPlayer.pos;
         pos2.y += yoffset;
         RaycastHit h;
-        Vector3 plpos = _localPlayer.transform.position;
+        Vector3 plpos = _localPlayer.transform.position + Vector3.up * _SettingsWindow.Camy;
         Ray r = new Ray(plpos, pos2 - plpos);
         
         if (Physics.Raycast(r, out h, Vector3.Distance(plpos, pos2), 1 << LayerMask.NameToLayer("Level")))
@@ -149,7 +159,7 @@ public class Cam : bs
             var a = Time.deltaTime * 5 * (2f - _SettingsWindow.CamSmooth);
             pos = ((pos2 * a) + (pos)) / (a + 1);
         }
-        rot = rot2; //Quaternion.Euler(rot.eulerAngles + (rot2.eulerAngles * 10) / 11);
+        rot = rot2;
         camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
         exp -= .1f;
         if (exp < 0) exp = 0;

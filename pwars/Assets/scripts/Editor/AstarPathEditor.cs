@@ -312,7 +312,7 @@ public class AstarPathEditor : Editor {
 			Handles.BeginGUI ();
 			
 			GUI.depth = 100;
-			GUI.Box (new Rect (debugNodePosition.x,debugNodePosition.y,200,80),"",EditorStyles.notificationBackground);
+			GUI.Box (new Rect (debugNodePosition.x,debugNodePosition.y,200,80),"");
 			GUI.color = Color.white;
 			GUI.Label (new Rect (debugNodePosition.x+5,debugNodePosition.y+5,200,200),"G score "+minNode.g+"\nH score "+minNode.h+"\nArray Position: "+minNode.pos+"\nWorld Position: "+minNode.vectorPos+"\nNumber of connections "+minNode.enabledConnections.Length);
 			
@@ -375,7 +375,7 @@ public class AstarPathEditor : Editor {
 		if (singletonWarning) {
 			GUIContent co = new GUIContent ("There are more than one instance of the AstarPath script in the scene\n\nYou should never have more than one AstarPath script in the scene");
 			GUI.color = Color.red;
-			GUILayout.Button (co,EditorStyles.notificationBackground);
+			GUILayout.Button (co);
 			GUI.color = Color.white;
 			return;
 		}

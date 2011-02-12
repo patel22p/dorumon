@@ -49,7 +49,14 @@ public class ServersWindow : WindowBase {
 	internal bool focusServersTitle;
 	
 	internal bool rServersTitle = true;
-	internal string ServersTitle = @"  Server_Name          Map       Game_Type         IpAddress            Users Ping";
+	internal string ServersTitle = @" Creator              Ver    Map                Game_Type                      Users Ping";
+	
+	internal bool vhostCount = true;
+	
+	internal bool focusHostCount;
+	
+	internal bool rHostCount = false;
+	internal int HostCount = 0;
 	private int wndid1;
 	private bool oldMouseOverConnect;
 	private Vector2 sServersTable;
@@ -58,7 +65,8 @@ public class ServersWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -70,19 +78,27 @@ public class ServersWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iServersTable = -1;
+		vipaddress = true;
+		vport = true;
+		vconnect = true;
+		vServersTable = true;
+		iServersTable = -1;
+		vRefresh = true;
+		vserversTitle = true;
+		vhostCount = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
 		GUI.skin = _Loader.Skin;
         
-		GUI.Window(wndid1,new Rect(-326.5f + Screen.width/2,-287f + Screen.height/2,618f,492f), Wnd1,"");
+		GUI.Window(wndid1,new Rect(-373.5f + Screen.width/2,-256f + Screen.height/2,739f,492f), Wnd1,"");
 		base.OnGUI();
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(8f, 27f, 329f, 81f), "");
 		GUI.Box(new Rect(0, 0, 329f, 81f), "");
@@ -115,15 +131,15 @@ public class ServersWindow : WindowBase {
 		oldMouseOverConnect = onMouseOver;
 		}
 		GUI.EndGroup();
-		GUI.BeginGroup(new Rect(8f, 112f, 602f, 355f), "");
-		GUI.Box(new Rect(0, 0, 602f, 355f), "");
+		GUI.BeginGroup(new Rect(8f, 112f, 723f, 355f), "");
+		GUI.Box(new Rect(0, 0, 723f, 355f), "");
 		if(vServersTable){
 		if(focusServersTable) { focusServersTable = false; GUI.FocusControl("ServersTable");}
 		GUI.SetNextControlName("ServersTable");
-		GUI.Box(new Rect(8f, 48f, 586f, 299f), "");
-		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 586f, 299f), sServersTable, new Rect(0,0, 576f, lServersTable.Length* 15f));
+		GUI.Box(new Rect(8f, 48f, 707f, 299f), "");
+		sServersTable = GUI.BeginScrollView(new Rect(8f, 48f, 707f, 299f), sServersTable, new Rect(0,0, 697f, lServersTable.Length* 15f));
 		int oldServersTable = iServersTable;
-		iServersTable = GUI.SelectionGrid(new Rect(0,0, 576f, lServersTable.Length* 15f), iServersTable, lServersTable,1,GUI.skin.customStyles[0]);
+		iServersTable = GUI.SelectionGrid(new Rect(0,0, 697f, lServersTable.Length* 15f), iServersTable, lServersTable,1,GUI.skin.customStyles[0]);
 		if (iServersTable != oldServersTable) Action("ServersTable");
 		GUI.EndScrollView();
 		}
@@ -132,9 +148,9 @@ public class ServersWindow : WindowBase {
 		if(focusRefresh) { focusRefresh = false; GUI.FocusControl("Refresh");}
 		GUI.SetNextControlName("Refresh");
 		bool oldRefresh = Refresh;
-		Refresh = GUI.Button(new Rect(512f, 4.04f, 82f, 21.96f), new GUIContent("Refresh",""));
+		Refresh = GUI.Button(new Rect(633f, 4.04f, 82f, 21.96f), new GUIContent("Refresh",""));
 		if (Refresh != oldRefresh && Refresh ) {Action("Refresh");onButtonClick(); }
-		onMouseOver = new Rect(512f, 4.04f, 82f, 21.96f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(633f, 4.04f, 82f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverRefresh != onMouseOver && onMouseOver) onOver();
 		oldMouseOverRefresh = onMouseOver;
 		}
@@ -142,13 +158,21 @@ public class ServersWindow : WindowBase {
 		if(focusServersTitle) { focusServersTitle = false; GUI.FocusControl("ServersTitle");}
 		GUI.SetNextControlName("ServersTitle");
 		if(rServersTitle){
-		GUI.Label(new Rect(8f, 30f, 586f, 14f), ServersTitle.ToString(), GUI.skin.customStyles[2]);
+		GUI.Label(new Rect(8f, 30f, 707f, 14f), ServersTitle.ToString(), GUI.skin.customStyles[2]);
 		} else
-		try {ServersTitle = GUI.TextField(new Rect(8f, 30f, 586f, 14f), ServersTitle,100, GUI.skin.customStyles[2]);}catch{};
+		try {ServersTitle = GUI.TextField(new Rect(8f, 30f, 707f, 14f), ServersTitle,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.EndGroup();
 		GUI.Label(new Rect(8f, 27f, 56.61f, 14f), @"Server");
-		if (GUI.Button(new Rect(618f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
+		if(vhostCount){
+		if(focusHostCount) { focusHostCount = false; GUI.FocusControl("HostCount");}
+		GUI.SetNextControlName("HostCount");
+		if(rHostCount){
+		GUI.Label(new Rect(550f, 476f, 39f, 14f), HostCount.ToString(), GUI.skin.customStyles[2]);
+		} else
+		try {HostCount = int.Parse(GUI.TextField(new Rect(550f, 476f, 39f, 14f), HostCount.ToString(),100, GUI.skin.customStyles[2]));}catch{};
+		}
+		if (GUI.Button(new Rect(739f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}
 
 

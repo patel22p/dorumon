@@ -52,7 +52,8 @@ public class TeamSelectWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 		Red = new Rect(385f, 39f, 181f, 177f);
 
 	}    
@@ -65,8 +66,15 @@ public class TeamSelectWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iTeams = -1;
+		vTeamsView = true;
+		vTeams = true;
+		iTeams = -1;
+		vred = true;
+		vTeamSelect = true;
+		vGameType = true;
+		vdescription = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -77,7 +85,7 @@ public class TeamSelectWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.Label(new Rect(0f, 1f, 99.99f, 14f), @"Team Select");
 		GUI.BeginGroup(new Rect(0f, 19f, 596f, 297f), "");

@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static MenuWindow __MenuWindow;
     public static MenuWindow _MenuWindow { get { if (__MenuWindow == null) __MenuWindow = (MenuWindow)MonoBehaviour.FindObjectOfType(typeof(MenuWindow)); return __MenuWindow; } }
 }
-public enum MenuWindowEnum { Servers,Create,Settings,About,LogOut,Score_Board,AccountInfo, }
+public enum MenuWindowEnum { Servers,Create,Settings,About,LogOut,Score_Board,AccountInfo,ShowHelp,GamePlay, }
 public class MenuWindow : WindowBase {
 		
 	[FindAsset("1")]
@@ -49,6 +49,16 @@ public class MenuWindow : WindowBase {
 	
 	internal bool focusAccountInfo;
 	internal bool AccountInfo=false;
+	
+	internal bool vShowHelp = true;
+	
+	internal bool focusShowHelp;
+	internal bool ShowHelp=false;
+	
+	internal bool vGamePlay = true;
+	
+	internal bool focusGamePlay;
+	internal bool GamePlay=false;
 	private int wndid1;
 	private Rect Image2;
 	private bool oldMouseOverServers;
@@ -58,11 +68,14 @@ public class MenuWindow : WindowBase {
 	private bool oldMouseOverLogOut;
 	private bool oldMouseOverScore_Board;
 	private bool oldMouseOverAccountInfo;
+	private bool oldMouseOverShowHelp;
+	private bool oldMouseOverGamePlay;
 	
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 		Image2 = new Rect(0f, 17f, 791f, 677f);
 
 	}    
@@ -75,7 +88,17 @@ public class MenuWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        
+		vServers = true;
+		vCreate = true;
+		vsettings = true;
+		vabout = true;
+		vLogOut = true;
+		vScore_Board = true;
+		vAccountInfo = true;
+		vShowHelp = true;
+		vGamePlay = true;
+
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -86,7 +109,7 @@ public class MenuWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		if(imgImage2!=null)
 			GUI.DrawTexture(Image2,imgImage2, ScaleMode.ScaleToFit, imgImage2 is RenderTexture?false:true);
@@ -134,9 +157,9 @@ public class MenuWindow : WindowBase {
 		if(focusLogOut) { focusLogOut = false; GUI.FocusControl("LogOut");}
 		GUI.SetNextControlName("LogOut");
 		bool oldLogOut = LogOut;
-		LogOut = GUI.Button(new Rect(316.5f, 534f, 169.5f, 36f), new GUIContent("Log Out",""));
+		LogOut = GUI.Button(new Rect(316.5f, 613f, 169.5f, 36f), new GUIContent("Log Out",""));
 		if (LogOut != oldLogOut && LogOut ) {Action("LogOut");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 534f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(316.5f, 613f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverLogOut != onMouseOver && onMouseOver) onOver();
 		oldMouseOverLogOut = onMouseOver;
 		}
@@ -159,6 +182,26 @@ public class MenuWindow : WindowBase {
 		onMouseOver = new Rect(316.5f, 414f, 169.5f, 36f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAccountInfo != onMouseOver && onMouseOver) onOver();
 		oldMouseOverAccountInfo = onMouseOver;
+		}
+		if(vShowHelp){
+		if(focusShowHelp) { focusShowHelp = false; GUI.FocusControl("ShowHelp");}
+		GUI.SetNextControlName("ShowHelp");
+		bool oldShowHelp = ShowHelp;
+		ShowHelp = GUI.Button(new Rect(316.5f, 533f, 169.5f, 36f), new GUIContent("Help",""));
+		if (ShowHelp != oldShowHelp && ShowHelp ) {Action("ShowHelp");onButtonClick(); }
+		onMouseOver = new Rect(316.5f, 533f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		if (oldMouseOverShowHelp != onMouseOver && onMouseOver) onOver();
+		oldMouseOverShowHelp = onMouseOver;
+		}
+		if(vGamePlay){
+		if(focusGamePlay) { focusGamePlay = false; GUI.FocusControl("GamePlay");}
+		GUI.SetNextControlName("GamePlay");
+		bool oldGamePlay = GamePlay;
+		GamePlay = GUI.Button(new Rect(316.5f, 573f, 169.5f, 36f), new GUIContent("GamePlay Video",""));
+		if (GamePlay != oldGamePlay && GamePlay ) {Action("GamePlay");onButtonClick(); }
+		onMouseOver = new Rect(316.5f, 573f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		if (oldMouseOverGamePlay != onMouseOver && onMouseOver) onOver();
+		oldMouseOverGamePlay = onMouseOver;
 		}
 	}
 

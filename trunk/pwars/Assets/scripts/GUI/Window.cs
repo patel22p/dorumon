@@ -17,7 +17,8 @@ public class Window : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -29,7 +30,8 @@ public class Window : WindowBase {
     }
     public override void ResetValues()
     {
-        
+
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -40,7 +42,7 @@ public class Window : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		if (GUI.Button(new Rect(414f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action("Close"); }
 	}

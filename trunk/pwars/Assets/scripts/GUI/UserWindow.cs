@@ -111,7 +111,8 @@ public class UserWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 		BallRender = new Rect(0f, 1.333f, 195f, 171.868f);
 		Avatar = new Rect(8f, 8f, 82f, 66f);
 
@@ -125,8 +126,23 @@ public class UserWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iUserScores = -1;
+		vSaveUser = true;
+		vUserNick = true;
+		vFirstName = true;
+		vAvatarUrl = true;
+		vDesctiption = true;
+		vBallRender = true;
+		vPrev = true;
+		vNext = true;
+		vBallImage = true;
+		vMaterialName = true;
+		vUserScores = true;
+		iUserScores = -1;
+		vtableheader = true;
+		vRefreshUserInfo = true;
+		vAvatar = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -137,7 +153,7 @@ public class UserWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		if(vSaveUser){
 		if(focusSaveUser) { focusSaveUser = false; GUI.FocusControl("SaveUser");}

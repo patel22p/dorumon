@@ -53,7 +53,8 @@ public class ScoreBoardWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -65,9 +66,15 @@ public class ScoreBoardWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        		iScore_table = -1;
+		vScore_table = true;
+		iScore_table = -1;
+		vtableHeader = true;
+		vscoreboard_orderby = true;
 		iScoreboard_orderby = -1;
+		vRefreshScoreBoard = true;
+		vfindUserName = true;
 
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -78,7 +85,7 @@ public class ScoreBoardWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.Label(new Rect(264f, 2f, 70.65334f, 21.96f), @"ScoreBoard");
 		GUI.BeginGroup(new Rect(8f, 34f, 563f, 396f), "");

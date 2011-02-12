@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static LoginWindow __LoginWindow;
     public static LoginWindow _LoginWindow { get { if (__LoginWindow == null) __LoginWindow = (LoginWindow)MonoBehaviour.FindObjectOfType(typeof(LoginWindow)); return __LoginWindow; } }
 }
-public enum LoginWindowEnum { LoginAsGuest,Login,Registr,AutoLogin, }
+public enum LoginWindowEnum { LoginAsGuest,Login,Registr, }
 public class LoginWindow : WindowBase {
 		
 	internal string Nick{ get { return PlayerPrefs.GetString(Application.platform +"Nick", @""); } set { PlayerPrefs.SetString(Application.platform +"Nick", value); } }
@@ -17,7 +17,6 @@ public class LoginWindow : WindowBase {
 	internal string LoginPassw{ get { return PlayerPrefs.GetString(Application.platform +"LoginPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"LoginPassw", value); } }
 	internal string RegNick{ get { return PlayerPrefs.GetString(Application.platform +"RegNick", @""); } set { PlayerPrefs.SetString(Application.platform +"RegNick", value); } }
 	internal string RegPassw{ get { return PlayerPrefs.GetString(Application.platform +"RegPassw", @""); } set { PlayerPrefs.SetString(Application.platform +"RegPassw", value); } }
-	internal string Email{ get { return PlayerPrefs.GetString(Application.platform +"Email", @""); } set { PlayerPrefs.SetString(Application.platform +"Email", value); } }
 	
 	internal int tabTabControl4;
 	
@@ -32,7 +31,7 @@ public class LoginWindow : WindowBase {
 	internal bool focusLoginAsGuest;
 	internal bool LoginAsGuest=false;
 	
-	internal bool vclogin = false;
+	internal bool vclogin = true;
 	
 	internal bool focusClogin;
 	
@@ -53,7 +52,7 @@ public class LoginWindow : WindowBase {
 	
 	internal bool rLoginPassw = false;
 	
-	internal bool vcreg = false;
+	internal bool vcreg = true;
 	
 	internal bool focusCreg;
 	
@@ -74,26 +73,22 @@ public class LoginWindow : WindowBase {
 	
 	internal bool rRegPassw = false;
 	
-	internal bool vEmail = true;
+	internal bool vbuild = true;
 	
-	internal bool focusEmail;
+	internal bool focusBuild;
 	
-	internal bool rEmail = false;
-	
-	internal bool vAutoLogin = true;
-	
-	internal bool focusAutoLogin;
-	internal bool AutoLogin { get { return PlayerPrefs.GetInt("AutoLogin", 1) == 1; } set { PlayerPrefs.SetInt("AutoLogin", value?1:0); } }
+	internal bool rBuild = true;
+	internal string Build = @"Build";
 	private int wndid1;
 	private bool oldMouseOverLoginAsGuest;
 	private bool oldMouseOverLogin;
 	private bool oldMouseOverRegistr;
-	private bool oldMouseOverAutoLogin;
 	
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
+		AlwaysOnTop = false;
+		wndid1 = 0;
 
 	}    
     
@@ -105,7 +100,19 @@ public class LoginWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        
+		vNick = true;
+		vLoginAsGuest = true;
+		vclogin = true;
+		vLoginNick = true;
+		vLogin = true;
+		vLoginPassw = true;
+		vcreg = true;
+		vRegNick = true;
+		vRegistr = true;
+		vRegPassw = true;
+		vbuild = true;
+
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -116,7 +123,7 @@ public class LoginWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		focusWindow = false;
 		bool onMouseOver;
 		GUI.BeginGroup(new Rect(19f, 21f, 574f, 88f), "");
 		GUI.Box(new Rect(0, 0, 574f, 88f), "");
@@ -224,29 +231,18 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		} else
 		try {RegPassw = GUI.PasswordField(new Rect(193f, 75.04f, 189.333f, 19f), RegPassw,'*',10);}catch{};
 		}
-		GUI.Label(new Rect(142f, 98.04f, 47f, 19f), @"Email");
-		if(vEmail){
-		if(focusEmail) { focusEmail = false; GUI.FocusControl("Email");}
-		GUI.SetNextControlName("Email");
-		if(rEmail){
-		GUI.Label(new Rect(193f, 99.04f, 189.333f, 19f), Email.ToString());
+		GUI.EndGroup();
+		}
+		}
+		GUI.EndGroup();
+		GUI.EndGroup();
+		if(vbuild){
+		if(focusBuild) { focusBuild = false; GUI.FocusControl("Build");}
+		GUI.SetNextControlName("Build");
+		if(rBuild){
+		GUI.Label(new Rect(19f, 4f, 574f, 17f), Build.ToString(), GUI.skin.customStyles[2]);
 		} else
-		try {Email = GUI.TextField(new Rect(193f, 99.04f, 189.333f, 19f), Email,10);}catch{};
-		}
-		GUI.EndGroup();
-		}
-		}
-		GUI.EndGroup();
-		GUI.EndGroup();
-		if(vAutoLogin){
-		if(focusAutoLogin) { focusAutoLogin = false; GUI.FocusControl("AutoLogin");}
-		GUI.SetNextControlName("AutoLogin");
-		bool oldAutoLogin = AutoLogin;
-		AutoLogin = GUI.Toggle(new Rect(45f, 333f, 83.357f, 15.96f),AutoLogin, new GUIContent("Auto Login",""));
-		if (AutoLogin != oldAutoLogin ) {Action("AutoLogin");onButtonClick(); }
-		onMouseOver = new Rect(45f, 333f, 83.357f, 15.96f).Contains(Event.current.mousePosition);
-		if (oldMouseOverAutoLogin != onMouseOver && onMouseOver) onOver();
-		oldMouseOverAutoLogin = onMouseOver;
+		try {Build = GUI.TextField(new Rect(19f, 4f, 574f, 17f), Build,100, GUI.skin.customStyles[2]);}catch{};
 		}
 	}
 

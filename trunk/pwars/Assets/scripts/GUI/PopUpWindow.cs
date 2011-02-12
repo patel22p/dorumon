@@ -30,8 +30,8 @@ public class PopUpWindow : WindowBase {
     
     
 	void Start () {
-		wndid1 = UnityEngine.Random.Range(0, 1000);
-
+		AlwaysOnTop = true;
+		wndid1 = 1008;
 	}    
     
     
@@ -42,7 +42,10 @@ public class PopUpWindow : WindowBase {
     }
     public override void ResetValues()
     {
-        
+		vtext = true;
+		vok = true;
+
+        base.ResetValues();
     }
     public override void OnGUI()
     {		
@@ -53,7 +56,7 @@ public class PopUpWindow : WindowBase {
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
-		if (AlwaysOnTop) { GUI.BringWindowToFront(id);}		focusWindow = false;
+		 GUI.BringWindowToFront(id);		focusWindow = false;
 		bool onMouseOver;
 		if(vtext){
 		if(focusText) { focusText = false; GUI.FocusControl("Text");}

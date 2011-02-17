@@ -71,10 +71,8 @@ public class InspectorSearch : EditorWindow
             GUI.BeginHorizontal();
             if (GUI.Button(inst))
             {
-                
                 Object o = GameObject.Find(inst) != null ? GameObject.Find(inst) : GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)).FirstOrDefault(a => a.name == inst);                
                 Selection.activeObject = o;
-                var p = AssetDatabase.GetAssetPath(o);
             }
             if (GUI.Button("X", GUI.ExpandWidth(false)))
                 toremove.Add(inst);
@@ -472,7 +470,7 @@ public class InspectorSearch : EditorWindow
     public static void FixMaterials()
     {
         Undo.RegisterSceneUndo("SceneInit");
-        var rs = Selection.gameObjects.SelectMany(a=>a.GetComponentsInChildren<Renderer>());
+        var rs = Selection.gameObjects.SelectMany(a=>a.GetComponentsInChildren<MeshRenderer>());
         foreach (var r in rs)
         {
             var sm = r.sharedMaterials;
@@ -538,6 +536,7 @@ public class InspectorSearch : EditorWindow
                 EditorUtility.ReplacePrefab(go, EditorUtility.GetPrefabParent(go), ReplacePrefabOptions.UseLastUploadedPrefabRoot);
                 EditorUtility.ResetGameObjectToPrefabState(go);
                 EditorUtility.ReconnectToLastPrefab(go);
+                Debug.Log("applied Prefab " + go.name);
             }
         }
         AssetDatabase.SaveAssets();

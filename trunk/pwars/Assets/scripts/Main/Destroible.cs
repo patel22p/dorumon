@@ -16,6 +16,8 @@ public abstract class Destroible : Shared
     public GameObject model;
     public float slowdowntime = 1;
     [FindAsset] public AudioClip heal;
+    [FindTransform]
+    public TextMesh title;
 
     public Team? team
     {
@@ -24,6 +26,17 @@ public abstract class Destroible : Shared
             if (OwnerID == -1) return null;
             else return _Game.players[OwnerID.GetHashCode()].team;
         }
+    }
+
+    private void UpdateTitle()
+    {
+        if (OwnerID != -1 && (team == Team.Red || team == Team.Blue))
+            title.renderer.material.color = (team == Team.Red ? Color.red : Color.blue) * .5f;
+        else
+            title.renderer.material.color = Color.green * .5f;
+
+        if (!_localPlayer.isEnemy(OwnerID))
+            title.text = "id:" + isController + " " + players[OwnerID].nick + ":" + (int)Life;        
     }
 
     public void SetLayer(int layer)
@@ -85,6 +98,7 @@ public abstract class Destroible : Shared
 
     public virtual void RPCSetFrozen(bool value)
     {
+        if (slowdowntime == 0) return;
         if (value)
             freezedt = slowdowntime;
         if (value != frozen)
@@ -105,6 +119,9 @@ public abstract class Destroible : Shared
             if (freezedt < 0 && frozen)
                 RPCSetFrozen(false);
         }
+
+        if (title != null && _localPlayer != this)
+            UpdateTitle();        
 
         isGrounded += Time.deltaTime;
         base.Update();
@@ -133,8 +150,8 @@ public abstract class Destroible : Shared
                 _Cam.Hit();
             Life = Math.Min(NwLife, MaxLife);            
             RPCSetLife(Life, killedby);
-            if (slowdowntime != 0)
-                RPCSetFrozen(true);
+            //if (slowdowntime != 0)
+            //    RPCSetFrozen(true);
 
             if (Life <= 0)
                 RPCDie(killedby);
@@ -151,13 +168,13 @@ public abstract class Destroible : Shared
     {
         Life = NwLife;
     }
-
+    public static bool isenemycheck;
     public virtual bool isEnemy(int id)
-    {
-        if (this is Zombie) return true;
-        if (id == -1) return true;
-        if (id == OwnerID) return false;
-        if (_Game.mapSettings.DeathMatch) return true;
+    {        
+        if (this is Zombie) return true; if (isenemycheck) Debug.Log("-1");
+        if (id == -1) return true; if (isenemycheck) Debug.Log("owner");
+        if (id == OwnerID) return false; if (isenemycheck) Debug.Log("death");
+        if (_Game.mapSettings.DeathMatch) return true; if (isenemycheck) Debug.Log("hz");
         if (id != -1 && players[id] != null && players[id].team != team) return true;
         return false;
     }

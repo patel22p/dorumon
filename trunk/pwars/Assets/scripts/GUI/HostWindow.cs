@@ -9,7 +9,7 @@ public partial class Base2:MonoBehaviour
     static HostWindow __HostWindow;
     public static HostWindow _HostWindow { get { if (__HostWindow == null) __HostWindow = (HostWindow)MonoBehaviour.FindObjectOfType(typeof(HostWindow)); return __HostWindow; } }
 }
-public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Gunlist,Player_Hit_Slow,Have_A_Laser,Close, }
+public enum HostWindowEnum { Kick_if_AFK,KickIfErrors,GameMode,Map,StartServer,Player_Hit_Slow,Gunlist,Have_A_Laser,Close, }
 public class HostWindow : WindowBase {
 		
 	internal string Name{ get { return PlayerPrefs.GetString(Application.platform +"Name", @"mygame"); } set { PlayerPrefs.SetString(Application.platform +"Name", value); } }
@@ -63,7 +63,7 @@ public class HostWindow : WindowBase {
 	internal bool focusMaxPing;
 	
 	internal bool rMaxPing = false;
-	internal int MaxPing = 150;
+	internal int MaxPing = 600;
 	
 	internal bool vfragCanvas = true;
 	
@@ -116,6 +116,11 @@ public class HostWindow : WindowBase {
 	internal bool rDescription = true;
 	internal string Description = @"";
 	
+	internal bool vPlayer_Hit_Slow = true;
+	
+	internal bool focusPlayer_Hit_Slow;
+	internal bool Player_Hit_Slow=false;
+	
 	internal bool vcommon = true;
 	
 	internal bool focusCommon;
@@ -148,11 +153,6 @@ public class HostWindow : WindowBase {
 	
 	internal bool focusDamageFactor;
 	internal float DamageFactor = 1f;
-	
-	internal bool vPlayer_Hit_Slow = true;
-	
-	internal bool focusPlayer_Hit_Slow;
-	internal bool Player_Hit_Slow=false;
 	
 	internal bool vHave_A_Laser = true;
 	
@@ -197,8 +197,8 @@ public class HostWindow : WindowBase {
 	private Vector2 sGameMode;
 	private Vector2 sMap;
 	private bool oldMouseOverStartServer;
-	private Vector2 sGunlist;
 	private bool oldMouseOverPlayer_Hit_Slow;
+	private Vector2 sGunlist;
 	private bool oldMouseOverHave_A_Laser;
 	
     
@@ -235,6 +235,7 @@ public class HostWindow : WindowBase {
 		iMap = -1;
 		vStartServer = true;
 		vdescription = true;
+		vPlayer_Hit_Slow = true;
 		vcommon = true;
 		vStartMoney = true;
 		vMoney_per_playerKill = true;
@@ -242,7 +243,6 @@ public class HostWindow : WindowBase {
 		iGunlist = -1;
 		vgunBullets = true;
 		vdamageFactor = true;
-		vPlayer_Hit_Slow = true;
 		vHave_A_Laser = true;
 		vums = true;
 		vStartup_Level = true;
@@ -308,7 +308,7 @@ public class HostWindow : WindowBase {
 		if(focusKick_if_AFK) { focusKick_if_AFK = false; GUI.FocusControl("Kick_if_AFK");}
 		GUI.SetNextControlName("Kick_if_AFK");
 		bool oldKick_if_AFK = Kick_if_AFK;
-		Kick_if_AFK = GUI.Toggle(new Rect(426.886f, 67.707f, 121.614f, 15.96f),Kick_if_AFK, new GUIContent("Kick if AFK",""));
+		Kick_if_AFK = GUI.Toggle(new Rect(426.886f, 67.707f, 121.614f, 15.96f),Kick_if_AFK, new GUIContent(@"Kick if AFK",""));
 		if (Kick_if_AFK != oldKick_if_AFK ) {Action("Kick_if_AFK");onButtonClick(); }
 		onMouseOver = new Rect(426.886f, 67.707f, 121.614f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverKick_if_AFK != onMouseOver && onMouseOver) onOver();
@@ -318,7 +318,7 @@ public class HostWindow : WindowBase {
 		if(focusKickIfErrors) { focusKickIfErrors = false; GUI.FocusControl("KickIfErrors");}
 		GUI.SetNextControlName("KickIfErrors");
 		bool oldKickIfErrors = KickIfErrors;
-		KickIfErrors = GUI.Toggle(new Rect(426.886f, 87.041f, 121.614f, 15.96f),KickIfErrors, new GUIContent("kick If Errors",""));
+		KickIfErrors = GUI.Toggle(new Rect(426.886f, 87.041f, 121.614f, 15.96f),KickIfErrors, new GUIContent(@"kick If Errors",""));
 		if (KickIfErrors != oldKickIfErrors ) {Action("KickIfErrors");onButtonClick(); }
 		onMouseOver = new Rect(426.886f, 87.041f, 121.614f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverKickIfErrors != onMouseOver && onMouseOver) onOver();
@@ -397,7 +397,7 @@ public class HostWindow : WindowBase {
 		if(focusStartServer) { focusStartServer = false; GUI.FocusControl("StartServer");}
 		GUI.SetNextControlName("StartServer");
 		bool oldStartServer = StartServer;
-		StartServer = GUI.Button(new Rect(480.5f, 455.834f, 101.5f, 28.333f), new GUIContent("Start",""));
+		StartServer = GUI.Button(new Rect(480.5f, 455.834f, 101.5f, 28.333f), new GUIContent(@"Start",""));
 		if (StartServer != oldStartServer && StartServer ) {Action("StartServer");onButtonClick(); }
 		onMouseOver = new Rect(480.5f, 455.834f, 101.5f, 28.333f).Contains(Event.current.mousePosition);
 		if (oldMouseOverStartServer != onMouseOver && onMouseOver) onOver();
@@ -415,9 +415,20 @@ public class HostWindow : WindowBase {
 		if(focusDescription) { focusDescription = false; GUI.FocusControl("Description");}
 		GUI.SetNextControlName("Description");
 		if(rDescription){
-		GUI.Label(new Rect(8f, 6f, 530f, 78.167f), Description.ToString(), GUI.skin.customStyles[2]);
+		GUI.Label(new Rect(8f, 6f, 538.5f, 53.333f), Description.ToString(), GUI.skin.customStyles[2]);
 		} else
-		try {Description = GUI.TextField(new Rect(8f, 6f, 530f, 78.167f), Description,100, GUI.skin.customStyles[2]);}catch{};
+		try {Description = GUI.TextField(new Rect(8f, 6f, 538.5f, 53.333f), Description,100, GUI.skin.customStyles[2]);}catch{};
+		}
+		if(vPlayer_Hit_Slow){
+		if(focusPlayer_Hit_Slow) { focusPlayer_Hit_Slow = false; GUI.FocusControl("Player_Hit_Slow");}
+		GUI.SetNextControlName("Player_Hit_Slow");
+		bool oldPlayer_Hit_Slow = Player_Hit_Slow;
+		Player_Hit_Slow = GUI.Toggle(new Rect(393f, 59.333f, 145.5f, 28.834f),Player_Hit_Slow, new GUIContent(@"Player Slow onDmg
+(hard/easy)",""));
+		if (Player_Hit_Slow != oldPlayer_Hit_Slow ) {Action("Player_Hit_Slow");onButtonClick(); }
+		onMouseOver = new Rect(393f, 59.333f, 145.5f, 28.834f).Contains(Event.current.mousePosition);
+		if (oldMouseOverPlayer_Hit_Slow != onMouseOver && onMouseOver) onOver();
+		oldMouseOverPlayer_Hit_Slow = onMouseOver;
 		}
 		}
 		if(tabTabControl14==1){
@@ -466,21 +477,11 @@ public class HostWindow : WindowBase {
 		DamageFactor = GUI.HorizontalSlider(new Rect(8f, 58f, 119f, 16f), DamageFactor, 0f, 3f);
 		GUI.Label(new Rect(127f,58f,40,15),System.Math.Round(DamageFactor,1).ToString());
 		}
-		if(vPlayer_Hit_Slow){
-		if(focusPlayer_Hit_Slow) { focusPlayer_Hit_Slow = false; GUI.FocusControl("Player_Hit_Slow");}
-		GUI.SetNextControlName("Player_Hit_Slow");
-		bool oldPlayer_Hit_Slow = Player_Hit_Slow;
-		Player_Hit_Slow = GUI.Toggle(new Rect(184f, 22f, 145.5f, 13f),Player_Hit_Slow, new GUIContent("Player Slow onDmg",""));
-		if (Player_Hit_Slow != oldPlayer_Hit_Slow ) {Action("Player_Hit_Slow");onButtonClick(); }
-		onMouseOver = new Rect(184f, 22f, 145.5f, 13f).Contains(Event.current.mousePosition);
-		if (oldMouseOverPlayer_Hit_Slow != onMouseOver && onMouseOver) onOver();
-		oldMouseOverPlayer_Hit_Slow = onMouseOver;
-		}
 		if(vHave_A_Laser){
 		if(focusHave_A_Laser) { focusHave_A_Laser = false; GUI.FocusControl("Have_A_Laser");}
 		GUI.SetNextControlName("Have_A_Laser");
 		bool oldHave_A_Laser = Have_A_Laser;
-		Have_A_Laser = GUI.Toggle(new Rect(321.5f, 64f, 105.5f, 13f),Have_A_Laser, new GUIContent("Have A Laser",""));
+		Have_A_Laser = GUI.Toggle(new Rect(321.5f, 64f, 105.5f, 13f),Have_A_Laser, new GUIContent(@"Have A Laser",""));
 		if (Have_A_Laser != oldHave_A_Laser ) {Action("Have_A_Laser");onButtonClick(); }
 		onMouseOver = new Rect(321.5f, 64f, 105.5f, 13f).Contains(Event.current.mousePosition);
 		if (oldMouseOverHave_A_Laser != onMouseOver && onMouseOver) onOver();
@@ -501,7 +502,7 @@ public class HostWindow : WindowBase {
 		Startup_Level = GUI.HorizontalSlider(new Rect(8f, 24f, 119f, 16f), Startup_Level, 0f, 50f);
 		GUI.Label(new Rect(127f,24f,40,15),System.Math.Round(Startup_Level,1).ToString());
 		}
-		GUI.Label(new Rect(8f, 8f, 110f, 16f), @"Startup Level");
+		GUI.Label(new Rect(8f, 8f, 110f, 16f), @"Stage");
 		if(vZombie_Speed){
 		if(focusZombie_Speed) { focusZombie_Speed = false; GUI.FocusControl("Zombie_Speed");}
 		GUI.SetNextControlName("Zombie_Speed");
@@ -543,7 +544,7 @@ public class HostWindow : WindowBase {
 		Money_Per_Level = GUI.HorizontalSlider(new Rect(8f, 61.333f, 119f, 16f), Money_Per_Level, 0f, 50f);
 		GUI.Label(new Rect(127f,61.333f,40,15),System.Math.Round(Money_Per_Level,1).ToString());
 		}
-		GUI.Label(new Rect(8f, 45.333f, 131f, 16f), @"Money Per Stage");
+		GUI.Label(new Rect(8f, 45.333f, 131f, 16f), @"Money * Stage");
 		GUI.EndGroup();
 		}
 		}

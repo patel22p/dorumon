@@ -107,7 +107,7 @@ public class IrcChatWindow : WindowBase {
 		if(focusIrcSend) { focusIrcSend = false; GUI.FocusControl("IrcSend");}
 		GUI.SetNextControlName("IrcSend");
 		bool oldIrcSend = IrcSend;
-		IrcSend = GUI.Button(new Rect(546f, 551f, 114f, 21.96f), new GUIContent("send",""));
+		IrcSend = GUI.Button(new Rect(546f, 551f, 114f, 21.96f), new GUIContent(@"send",""));
 		if (IrcSend != oldIrcSend && IrcSend ) {Action("IrcSend");onButtonClick(); }
 		onMouseOver = new Rect(546f, 551f, 114f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverIrcSend != onMouseOver && onMouseOver) onOver();

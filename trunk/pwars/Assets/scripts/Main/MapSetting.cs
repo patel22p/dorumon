@@ -24,7 +24,7 @@ public class MapSetting
     public int zombiesAtStart = 10;
     public float zombieLifeFactor = 1;
     public float zombieSpeedFactor = 1;
-    public float zombieSpeedGrowFactor = 1;
+    
     public bool haveALaser;
     public bool kickIfErrors;
     public bool kickIfAfk = true;
@@ -34,7 +34,7 @@ public class MapSetting
     public string title = "none";
     public GameMode gameMode;
     public int fragLimit = 20;        
-    public int maxPlayers = 4;
+    public int maxPlayers = 2;
     public float timeLimit = 15;
     public int stage;
     public bool TeamZombiSurvival { get { return false; } }

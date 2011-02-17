@@ -243,7 +243,8 @@ public class Menu : bs
             _TimerA.Clear();
             Debug.Log("start Server");
             mapSettings.fragLimit = _HostWindow.MaxFrags;
-            mapSettings.maxPlayers = Math.Min(4, _HostWindow.MaxPlayers);
+            if (LocalUser.nick != "a")
+                mapSettings.maxPlayers = Math.Min(4, _HostWindow.MaxPlayers);
             mapSettings.kickIfAfk = _HostWindow.Kick_if_AFK;
             mapSettings.kickIfErrors = _HostWindow.KickIfErrors;
             mapSettings.timeLimit = _HostWindow.MaxTime;
@@ -266,6 +267,17 @@ public class Menu : bs
 
         }
     }
+    private void CopyValuesAll(bool save)
+    {
+        if (save)
+        {
+            mapSettings.slow = _HostWindow.Player_Hit_Slow;            
+        }
+        else
+        {
+            _HostWindow.Player_Hit_Slow = mapSettings.slow;            
+        }
+    }
     private void CopyValuesCommon(bool save)
     {
         if (save)
@@ -274,7 +286,6 @@ public class Menu : bs
             mapSettings.StartMoney = (int)_HostWindow.StartMoney;
             mapSettings.damageFactor = _HostWindow.DamageFactor;
             mapSettings.pointsPerZombie = _HostWindow.Money_per_playerKill;
-            
         }
         else
         {
@@ -297,7 +308,6 @@ public class Menu : bs
             mapSettings.zombieLifeFactor = _HostWindow.Zombie_Life;
             mapSettings.zombieSpeedFactor = _HostWindow.Zombie_Speed;
             mapSettings.pointsPerPlayer = _HostWindow.Money_per_playerKill;
-            mapSettings.slow = _HostWindow.Player_Hit_Slow;
         }
         else
         {
@@ -308,7 +318,6 @@ public class Menu : bs
             _HostWindow.Zombie_Life = mapSettings.zombieLifeFactor;
             _HostWindow.Zombie_Speed = mapSettings.zombieSpeedFactor;
             _HostWindow.Money_per_playerKill = mapSettings.pointsPerPlayer;
-            _HostWindow.Player_Hit_Slow = mapSettings.slow;
         }
     }
     

@@ -10,78 +10,101 @@ public class Tower : Destroible
     [FindAsset("Detonator-Base")]
     public Detonator dt;
     public Gun gun;
-    //[PathFind("cursor")]
+    [FindTransform("cursor")]
     public GameObject cursor;
-    public string gunType = "";
+    public GunType gunType;
+    public float lifePerSecond = .5f;    
     public override void Init()
     {
-        if (Life == 0) Life = 100;
         model = GetComponentInChildren(typeof(Renderer)).gameObject;
         base.Init();
-    }    
-    public override void Start()
+    }
+    public bool Its(params GunType[] gts)
     {
+        return gts.Contains(gunType);
+    }
+    public override void Start()
+    {        
         base.Start();
+        Life = 100;
+        if (Its(GunType.pistol))
+            lifePerSecond = .5f;
+        if (Its(GunType.uzi))
+            lifePerSecond = .2f;        
+        if (Its(GunType.railgun))
+        {
+            Life = 200;
+            angle = 180;
+            lifePerSecond = .2f;
+        }
         _Game.towers.Add(this);
         if (isController)
-        {
-            _TimerA.AddMethod(delegate
-            {
-                if (gunType != "")
-                {
-                    networkView.RPC("InstanciateGun", RPCMode.AllBuffered, Network.AllocateViewID());                    
-                }
-            });
-        }
+            networkView.RPC("InstanciateGun", RPCMode.AllBuffered, Network.AllocateViewID(),(int)gunType);            
     }
     
     [RPC]
-    public void InstanciateGun(NetworkViewID id)
+    public void InstanciateGun(NetworkViewID id,int gt)
     {
-        var o = Instantiate(_Game.playerPrefab.GetComponent<Player>().guns[(int)gunType.Parse<GunType>()], cursor.transform.position, Quaternion.identity);
+        gunType = (GunType)gt;
+        var o = Instantiate(_Game.playerPrefab.GetComponent<Player>().guns[(int)gunType], cursor.transform.position, Quaternion.identity);        
         gun = (Gun)o;
         gun.networkView.viewID = id;
         gun.player = null;
+        gun.OwnerID = OwnerID;
         gun.transform.parent = this.cursor.transform;
         gun.EnableGun();
+        
+        SetLayer(gameObject);
     }
     public override void Awake()
     {
         base.Awake();
     }
-    public float range=20;
+    public float angle=30;
+    public float physxguntm;
     protected override void Update()
     {
-        //UpdateLightmap(model.renderer.materials);
-        gun.tm -= Time.deltaTime;
-
-        if (gun.tm < 0)
+        physxguntm -= Time.deltaTime;
+        if (isController)
         {
-            gun.tm = gun.interval;
+            
+            if (_TimerA.TimeElapsed(1000))
+                RPCSetLifeLocal(Life - lifePerSecond, -1);
 
-            var b = _Game.players.Union(_Game.zombies.Cast<Destroible>())
-                .Where(a => a != null && a.isEnemy(OwnerID) && a.Alive 
-                    && Math.Abs(clamp(rot.eulerAngles.y - Quaternion.LookRotation(a.pos - pos).eulerAngles.y)) < range);            
-            var z = b.OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
-            if (z != null)
+            gun.tm -= Time.deltaTime;
+            if (gun.tm < 0 && physxguntm < 0)
             {
-                Ray r = new Ray(gun.pos, z.pos - gun.pos);
+                gun.tm = gun.interval;
+                
+                var bd = _Game.players.Union(_Game.towers.Cast<Destroible>())
+                    .Union(_Game.zombies.Cast<Destroible>())
+                    .Where(a => a != null && a.isEnemy(OwnerID) && a.Alive);
 
-                if (!Physics.Raycast(r, Vector3.Distance(z.pos, gun.pos), 1 << LayerMask.NameToLayer("Level")))
+                var b = bd.Where(a => Math.Abs(clamp(rot.eulerAngles.y - Quaternion.LookRotation(a.pos - pos).eulerAngles.y)) < angle);
+                var z = b.OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+                
+                if (z != null)
                 {
-                    gun.rot = Quaternion.LookRotation(r.direction);
-                    gun.RPCShoot();
-                }
-            }
-            else
-                gun.rot = rot;
+                    var gunpos = gun.cursor[0].transform.position;
+                    Ray r = new Ray(gunpos, z.pos - gunpos);
 
+                    if (!Physics.Raycast(r, Vector3.Distance(z.pos, gunpos), 1 << LayerMask.NameToLayer("Level")))
+                    {
+                        RPCShoot(Quaternion.LookRotation(r.direction));
+                    }
+                }
+                else
+                    gun.rot = rot;
+            }
         }
         base.Update();
     }
-    public override bool isEnemy(int killedby)
+    public void RPCShoot(Quaternion q) { CallRPC("Shoot", q); }
+    [RPC]
+    public void Shoot(Quaternion q)
     {
-        return true;
+        gun.rot = q;
+        gun.Shoot();
     }
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
@@ -94,11 +117,18 @@ public class Tower : Destroible
         _Game.towers.Remove(this);
         Alive = false;
         dt.autoCreateForce = false;
-        GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);        
-        var e = g.AddComponent<Explosion>();
-        e.exp = 3000;
-        e.radius = 8;        
+        GameObject g = (GameObject)Instantiate(dt.gameObject, pos, rot);
+        Destroy(g, .6f);
+        //var e = g.AddComponent<Explosion>();
+        //e.exp = 3000;
+        //e.radius = 8;        
         RPCShow(false);
 
+    }
+    public void RPCSetType(int type) { CallRPC("SetType",type); }
+    [RPC]
+    public void SetType(int type)
+    {
+        gunType = (GunType)type;
     }
 }

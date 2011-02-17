@@ -123,7 +123,7 @@ public class ScoreBoardWindow : WindowBase {
 		if(focusRefreshScoreBoard) { focusRefreshScoreBoard = false; GUI.FocusControl("RefreshScoreBoard");}
 		GUI.SetNextControlName("RefreshScoreBoard");
 		bool oldRefreshScoreBoard = RefreshScoreBoard;
-		RefreshScoreBoard = GUI.Button(new Rect(415f, 22f, 79f, 31f), new GUIContent("Refresh",""));
+		RefreshScoreBoard = GUI.Button(new Rect(415f, 22f, 79f, 31f), new GUIContent(@"Refresh",""));
 		if (RefreshScoreBoard != oldRefreshScoreBoard && RefreshScoreBoard ) {Action("RefreshScoreBoard");onButtonClick(); }
 		onMouseOver = new Rect(415f, 22f, 79f, 31f).Contains(Event.current.mousePosition);
 		if (oldMouseOverRefreshScoreBoard != onMouseOver && onMouseOver) onOver();

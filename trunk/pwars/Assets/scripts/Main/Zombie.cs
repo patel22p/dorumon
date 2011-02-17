@@ -53,20 +53,21 @@ public class Zombie : Destroible
     }
     public override void Awake()
     {
+        _Game.zombies.Add(this);
         seeker.debugPath = _Loader.debugPath;
         base.Awake();        
     }
     public override void Start()
     {        
         ResetSpawnTm();
-        _Game.zombies.Add(this);
         base.Start();
 
     }
     public void CreateZombie(int stage)
     {
+
         zombieType = priority.Random();
-        var speed = zombieSpeedCurve.Evaluate(stage) * _Game.mapSettings.zombieSpeedFactor;
+        var speed = zombieSpeedCurve.Evaluate(stage);
         speed = Random.Range(speed, speed * .8f);
         var life = zombieLifeCurve.Evaluate(stage) * _Game.mapSettings.zombieLifeFactor;
         life = Random.Range(life, life * .3f);
@@ -78,7 +79,9 @@ public class Zombie : Destroible
     [RPC]
     public void Setup(float zombiespeed, float zombieLife, int priority)
     {
+
         Alive = true;
+
         Sync = true;
         ResetSpawn();
         SetLayer(gameObject);
@@ -139,7 +142,7 @@ public class Zombie : Destroible
     }
     public enum ZState { none, GetRay, GetPath, ZToPl }
     ZState state = ZState.none;
-    float stm;
+    
     public void RPCSetzsL(ZState z)
     {
         if (state != z && isController)
@@ -257,8 +260,12 @@ public class Zombie : Destroible
     Destroible nearest;
     private Destroible Nearest()
     {
-        if(nearest == null || _TimerA.TimeElapsed(100))            
-            nearest = players.Where(a => a != null && a.Alive && a.OwnerID == selected).OrderBy(a => Vector3.Distance(a.pos, pos)).FirstOrDefault();
+        if (nearest == null || _TimerA.TimeElapsed(100))
+            nearest = _Game.towers.Cast<Destroible>() //.Where(a => a != null && a.Alive && a.OwnerID == selected && Vector3.Distance(a.pos, pos) < 50)
+                .Union(players.Cast<Destroible>())
+                .Where(a => a != null && a.Alive && a.OwnerID == selected)
+                .OrderBy(a => Vector3.Distance(a.pos, pos))
+                .FirstOrDefault();
         return nearest;
     }
     public float speedadd;
@@ -273,25 +280,18 @@ public class Zombie : Destroible
                 v.x = v.z = 0;
                 rigidbody.velocity = v;
                 rigidbody.angularVelocity = Vector3.zero;
-                speedadd = build ? Math.Min((_Game.stageTime / 5) * _Game.mapSettings.zombieSpeedGrowFactor, 10) : 0;
-                var t = rot * new Vector3(0, 0, 1) * .5f * (speed + speedadd ) * Time.deltaTime * Time.timeScale * Time.timeScale;
-                Ray r = new Ray(pos, t);
-                if (Physics.Raycast(r, .3f, 1 << LayerMask.NameToLayer("Level")))
+                speedadd = build ? Math.Min((_Game.stageTime / 5), 10) : 0;
+                var t = rot * new Vector3(0, 0, 1) * .5f * (speed + speedadd) * _Game.mapSettings.zombieSpeedFactor * Time.deltaTime * Time.timeScale * Time.timeScale;
+                Ray r = new Ray(pos + Vector3.up, t);
+                if (Physics.Raycast(r, 2f, 1 << LayerMask.NameToLayer("Level")))
+                {
+                    t /= 2;
                     t.y++;
-                pos += t;                
+                }
+                pos += t;
             }
         }
     }
-    //private Vector3? GetPlayerPathPoint(Destroible ipl)
-    //{        
-    //    if (ipl is Player)
-    //    {
-    //        var pathPoints = ((Player)ipl).plPathPoints;
-    //        var np = FindNextPoint(pathPoints);
-    //        return np;
-    //    }
-    //    return null;
-    //}
     private Vector3? FindNextPoint(IList<Vector3> points)
     {
         if (points == null || points.Count == 0) return null;
@@ -368,10 +368,9 @@ public class Zombie : Destroible
             pos = spawns.First().transform.position;
         else
         {
-            var spawn = spawns.Where(a => loc.Any(b => b.collider.bounds.Contains(pl.pos) && b.collider.bounds.Contains(a.transform.position))).Random();            
-            var o = spawns.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
-            pos = (spawn ?? o.FirstOrDefault(a => Math.Abs(a.transform.position.y - pl.pos.y) < 3) ?? o.First()
-                ).transform.position + new Vector3(0, 1, 0);
+            var located = spawns.Where(a => loc.Any(b => b.collider.bounds.Contains(pl.pos) && b.collider.bounds.Contains(a.transform.position))).Random();
+            var ordered = spawns.OrderBy(a => Vector3.Distance(a.transform.position, pl.pos));
+            pos = (located != null ? located : ordered.First()).transform.position + new Vector3(0, 1, 0);
         }
         rot = Quaternion.identity;
         rigidbody.velocity = Vector3.zero;
@@ -391,7 +390,6 @@ public class Zombie : Destroible
         RPCSetzs((int)state);
         if (!Alive)
         {
-            Debug.Log("send zombie rpc die" + np);
             RPCDie(-1);
         }
     }
@@ -404,6 +402,6 @@ public class Zombie : Destroible
     {
         base.SetLife(NwLife, killedby);
     }
-    
-    
+
+    public float stm;    
 }

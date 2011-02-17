@@ -107,6 +107,8 @@ public partial class RTools : InspectorSearch
             FixMaterials();
             if (Selection.activeGameObject != null)
                 Inits(cspath);
+            else
+                InitValues();
         }
         GUI.EndHorizontal();
         
@@ -187,8 +189,10 @@ public partial class RTools : InspectorSearch
     public static void OnPlaymodeStateChanged ()
     {
 
-        if (EditorApplication.isPlayingOrWillChangePlaymode)
-        {
+        if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
+        {            
+            if(loader ==null)
+                Debug.LogError("wtf ");
             EditorUtility.SetDirty(loader);
             InitValues();
         }
@@ -468,6 +472,7 @@ public partial class RTools : InspectorSearch
     {
         build++;
         _Loader.buildVersion = build;
+        InitValues();
         EditorUtility.SetDirty(_Loader);
         var fn = web ? "game" : "game.exe";
         PlayerSettings.productName = "Physics Wars Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();        

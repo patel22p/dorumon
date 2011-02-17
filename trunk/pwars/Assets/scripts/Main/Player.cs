@@ -12,15 +12,11 @@ public enum Team
     Blue,
     None
 }
-//internal interface IAim
-//{
-//    void Aim(Player p);
-//}
 public class Player : Destroible
 {
     private float multikilltime;
     private int multikill;
-    private float shownicktime;
+    
     private int selectedgun;
     private float defMaxLife;
     internal MapItem mapItem;
@@ -48,11 +44,13 @@ public class Player : Destroible
     [FindAsset] public AudioClip death;
     [FindAsset] public AudioClip alive;
     [FindAsset] public AudioClip ForceField;
-    [FindTransform] public TextMesh title;
+    
     [FindTransform("speedparticles")] public ParticleEmitter speedparticles;
     [FindTransform("Guns")] public Transform guntr;
     [FindAsset] public GameObject staticField;
     [GenerateEnums("GunType")] public List<GunBase> guns = new List<GunBase>();
+    [FindAsset]
+    public GameObject Turret;
 
     public override void Init()
     {
@@ -64,6 +62,7 @@ public class Player : Destroible
         title = transform.GetComponentInChildren<TextMesh>();
         laserRender = root.GetComponentInChildren<LineRenderer>();
         fanarik = this.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Spot);
+        this.GetComponentsInChildren<Light>().FirstOrDefault(a => a.type == LightType.Point).enabled = false;         
         Energy = 10;
     }
     public override void Awake()
@@ -197,14 +196,14 @@ public class Player : Destroible
         if (Alive)
             guns[selectedgun].EnableGun();
     }
+
     protected override void Update()
     {
         MaxLife = LifeUpgrate * defMaxLife;
         if (!Alive && fanarik.enabled) fanarik.enabled = false;
         UpdateAim();
 
-        if (!isOwner)
-            UpdateTitle();        
+        
 
         if (_TimerA.TimeElapsed(100))
         {
@@ -232,6 +231,7 @@ public class Player : Destroible
         base.Update();
     }
     private float scrolintrvl;
+    
     private void LocalUpdate()
     {
         
@@ -257,28 +257,38 @@ public class Player : Destroible
                 scrolintrvl = 0;
             }
 
-            if (_TimerA.TimeElapsed(500) && Input.GetKey(KeyCode.H))
-                foreach (var a in Nearest())
-                    if (Input.GetKey(KeyCode.H) && a.Life < a.MaxLife)
-                    {
-                        a.RPCHeal(20);
-                        break;
-                    }
+
+            if (_TimerA.TimeElapsed(500))
+            {
+                var nears = players.Union(_Game.towers.Cast<Destroible>()).Where(a => a != null && a != this && !a.isEnemy(OwnerID) && Vector3.Distance(a.pos, pos) < 2);
+                foreach (var near in nears)                    
+                        if (Input.GetKey(KeyCode.H) && near.Life < near.MaxLife)
+                            near.RPCHeal(20);
+            }
 
             if (Input.GetKeyDown(KeyCode.Q) && (Energy > 20 || !build))
             {
                 Energy -= 20;
                 RPCSetShield();
             }
-            foreach (var a in Nearest())
-                if (Input.GetKeyDown(KeyCode.G) && a is Player)
+            if (Input.GetKeyDown(KeyCode.X) && (gun.towerScore != -1 && Score > gun.towerScore) && !new[] { GunType.physxgun }.Contains((GunType)gun.guntype))
+            {
+                Score -= gun.towerScore;
+                Tower t = ((GameObject)Network.Instantiate(Turret, pos + rot * Vector3.forward * 3 + Vector3.up, rot, (int)GroupNetwork.Tower)).GetComponent<Tower>();
+                t.RPCSetType(gun.guntype);                
+                t.RPCSetOwner(OwnerID);
+            }
+            
+                if (Input.GetKeyDown(KeyCode.G))
                 {
-                    var p = ((Player) a);
-                    if (Score >= 1)
-                    {
-                        p.RPCGiveMoney(1);
-                        Score -= 1;
-                        break;
+                    var near = players.Where(a => a != null && a != this && Vector3.Distance(pos, a.pos) < 10).OrderBy(a => Vector3.Distance(pos, a.pos)).FirstOrDefault(); ;
+                    if (near != null)
+                    {                        
+                        if (Score >= 1)
+                        {
+                            near.RPCGiveMoney(1);
+                            Score -= 1;                            
+                        }
                     }
                 }
             SelectGun();
@@ -294,6 +304,8 @@ public class Player : Destroible
                 _TimerA.AddMethod(10000, delegate { _Game.RPCSetTimeBomb(1); });
                 _Game.RPCSetTimeBomb(Time.timeScale*0.5f);
             }
+            
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 if (Energy > 10 || !build)
@@ -345,20 +357,7 @@ public class Player : Destroible
         else
             _GameWindow.CenterText.text = "";
     }
-    private void UpdateTitle()
-    {
-        if (OwnerID != -1 && (team == Team.Red || team == Team.Blue))
-            title.renderer.material.color = (team == Team.Red ? Color.red : Color.blue)*.5f;
-        else
-            title.renderer.material.color = Color.white*.5f;
-
-        if (shownicktime > 0 || !_localPlayer.isEnemy(OwnerID))
-            title.text = nick + ":" + Life;
-        else
-            title.text = "";
-
-        shownicktime -= Time.deltaTime;
-    }
+    
     public bool shift;
     public void RPCSetStreff(bool value)
     {
@@ -369,17 +368,8 @@ public class Player : Destroible
     {
         shift = value;
     }
-    private IEnumerable<Destroible> Nearest()
-    {
-        return
-            players.Union(_Game.towers.Cast<Destroible>()).Where(
-                a => a != null && a != this && Vector3.Distance(a.pos, pos) < 10);
-    }
-    public void Aim(Player p)
-    {
-        if (p.isOwner)
-            shownicktime = 3;
-    }
+    
+    
     public void RPCSetFanarik(bool v)
     {
         CallRPC("SetFanarik", v);
@@ -421,15 +411,20 @@ public class Player : Destroible
     {
         if (Alive)
         {
-            if (isOwner) syncRot = _Cam.transform.rotation;
+            if (isOwner) syncRot = _Cam.rot;
             guntr.rotation = syncRot;
 
             var pos = gun.cursor[0].position;
-            var ps = _Game.players //.Union(_Game.zombies.Cast<Destroible>())
-                .Where(a => a != null && a.Alive && a.isEnemy(OwnerID));
-            var t = ps.Select(a => new tmp { angle = Vector3.Angle(syncRot * Vector3.forward, a.pos - pos), b = a }).OrderBy(a => a.angle).FirstOrDefault();
-            if (t.b != null)
-                guntr.rotation = Quaternion.RotateTowards(syncRot, Quaternion.LookRotation(t.b.pos - pos), 1);
+            var ps = _Game.players.Union(_Game.zombies.Cast<Destroible>())
+                .Where(a => a != null && a.Alive && a.isEnemy(OwnerID)); //aimbot
+            var obj = ps.Select(a => new tmp { angle = Vector3.Angle(syncRot * Vector3.forward, a.pos - pos), b = a }).Where(a => a.angle < 30).OrderBy(a => Vector3.Distance(a.b.pos, pos)).FirstOrDefault();
+            if (obj.b != null)
+            {
+                var r = Quaternion.LookRotation(obj.b.pos - pos);
+                var y = Quaternion.RotateTowards(syncRot, r, 2).eulerAngles;
+                var zx = Quaternion.RotateTowards(syncRot, r, 10).eulerAngles;
+                guntr.rotation = Quaternion.Euler(topdown ? zx.x : y.x, y.y, topdown ? zx.z : y.z);
+            }
             Laser();
         }
         else
@@ -440,9 +435,7 @@ public class Player : Destroible
         Ray r = gun.GetRay();
         RaycastHit h = new RaycastHit() { point = r.origin + r.direction * 100 };
         if (Physics.Raycast(r, out h, 100, ~(1 << LayerMask.NameToLayer("Glass"))))
-        {
             h.collider.gameObject.SendMessage("Aim", this, SendMessageOptions.DontRequireReceiver);            
-        }
 
         if ((gun.laser || debug || _Game.mapSettings.haveALaser))
         {
@@ -474,10 +467,10 @@ public class Player : Destroible
             else
                 if (shift && !frozen && (Energy > 0 || !build))
                 {
-                    moveForce += md * 2; //forcemove
+                    moveForce += md * 2.6f; //forcemove
                     this.rigidbody.angularVelocity = new Vector3(md.z, 0, -md.x) * 16 / Mathf.Sqrt(Mathf.Sqrt(rigidbody.mass));
 
-                    Energy -= Time.deltaTime * 3f;
+                    Energy -= Time.deltaTime * 2f;
                     var v = this.rigidbody.velocity;
                     v.x = moveForce.x;
                     v.z = moveForce.z;
@@ -488,10 +481,9 @@ public class Player : Destroible
                 }
                 else
                 {
-                    //this.rigidbody.angularVelocity = new Vector3(md.z, 0, -md.x)*30;
                     this.rigidbody.AddTorque(new Vector3(md.z, 0, -md.x) * 1 * 5);
-                    //this.rigidbody.position += new Vector3(md.x, 0, md.z) /100;
-
+                    if (isGrounded > .2f)
+                        this.rigidbody.AddForce(new Vector3(md.x, md.y, md.z) * 10);
                 }
             if (frozen)
                 this.rigidbody.velocity *= .95f;
@@ -505,7 +497,7 @@ public class Player : Destroible
     public void Jump()
     {
         transform.rigidbody.MovePosition(rigidbody.position + new Vector3(0, 1, 0));
-        rigidbody.AddForce(_Cam.transform.rotation*new Vector3(0, 0, 1500)*rigidbody.mass*fdt);
+        rigidbody.velocity = (_Cam.rot * new Vector3(0, 0, 40) * rigidbody.mass * fdt);
         PlaySound(nitrojumpSound);
     }
     public void PrevGun()
@@ -589,7 +581,7 @@ public class Player : Destroible
     [RPC]
     public void PowerExp(Vector3 v)
     {
-        PlaySound(powerexpSound, 2);
+        PlaySound(powerexpSound, 1);
         GameObject g = (GameObject) Instantiate(WavePrefab, v, Quaternion.Euler(90, 0, 0));       
         if (isOwner)
             _Cam.exp = 1f;
@@ -795,7 +787,7 @@ public class Player : Destroible
     {
         get { return user.guest ? "[G]" + user.nick : user.nick; }
     }
-    internal bool topdown { get { return _Cam.topdown; } }
+    internal bool topdown { get { return _Cam.topdown; } set { _Cam.topdown = value; } }
     internal MapSetting mapSettings
     {
         get { return _Loader.mapSettings; }

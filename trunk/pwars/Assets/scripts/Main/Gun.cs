@@ -39,10 +39,21 @@ public class Gun : GunBase
     }
     public override void InitValues()
     {
+        soundVolume = .3f;
+
         if (Its(GunType.pistol))
-        {
-            soundVolume = .3f;
-        }
+            towerScore = 10;
+        if (Its(GunType.uzi))
+            towerScore = 30;
+        if (Its(GunType.shotgun))
+            towerScore = 20;
+        if (Its(GunType.minigun))
+            towerScore = 50;
+        if (Its(GunType.railgun))
+            towerScore = 60;
+        if (Its(GunType.ak))
+            towerScore = 30;
+
         if (Its(GunType.bazoka, GunType.granate, GunType.gravitygranate))
         {
             plDamageFactor = .5f;
@@ -124,7 +135,7 @@ public class Gun : GunBase
         defPos = (defPos * 200 + defPos2) / 201;
         transform.localPosition = defPos + transform.localPosition / 2;
 
-        if (isOwner)
+        if (isOwner && player != null)
             LocalUpdate();
 
     }    
@@ -147,7 +158,7 @@ public class Gun : GunBase
     
     [RPC]
     public void Shoot()
-    {
+    {        
         if (sound != null)
             root.audio.PlayOneShot(sound, soundVolume);
         if (player != null)
@@ -168,6 +179,7 @@ public class Gun : GunBase
             if (fireLight != null && !fireLight.enabled)
             {
                 fireLight.enabled = true;
+                if (!Application.isPlaying) Debug.LogError("ISNOTPLAYING");
                 _TimerA.AddMethod(20, delegate
                 {
                     fireLight.enabled = false;

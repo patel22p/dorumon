@@ -120,7 +120,7 @@ public class TeamSelectWindow : WindowBase {
 		if(focusTeamSelect) { focusTeamSelect = false; GUI.FocusControl("TeamSelect");}
 		GUI.SetNextControlName("TeamSelect");
 		bool oldTeamSelect = TeamSelect;
-		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent("Start",""));
+		TeamSelect = GUI.Button(new Rect(449f, 9f, 75f, 21.96f), new GUIContent(@"Start",""));
 		if (TeamSelect != oldTeamSelect && TeamSelect ) {Action("TeamSelect");onButtonClick(); }
 		onMouseOver = new Rect(449f, 9f, 75f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelect != onMouseOver && onMouseOver) onOver();

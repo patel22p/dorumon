@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Random = UnityEngine.Random;
+
 public enum MapItemType { none, door, lift, jumper, shop, money, speed, laser, trap, spotlight, timewarp, teleport, speedupgrate, lifeupgrate, antigravitation, energy, life }
 //[RequireComponent(typeof(NetworkView), typeof(AudioListener))]
 [AddComponentMenu("MapItem")]
@@ -32,7 +33,7 @@ public class MapItem : bs
     public Collider[] boundings = new Collider[0];
     public float RespawnTm = 1;    
     [FindAsset("Player")]
-    public GameObject playerPrefab;
+    public Player playerPrefab;
     [FindAsset("wave")]
     public GameObject wavePrefab;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
@@ -44,12 +45,18 @@ public class MapItem : bs
             t.gameObject.layer = LayerMask.NameToLayer("MapItem");
         }
         var g = gameObject;
+        
+        if (g.rigidbody != null)
+            DestroyImmediate(g.rigidbody);
+        if (g.GetComponents<NetworkView>().Count() > 1)
+            DestroyImmediate(g.GetComponents<NetworkView>().Last());
+
         if (!inited)
         {
-            g.AddComponent<NetworkView>();
-            g.AddComponent<AudioSource>(); 
-            if(g.rigidbody)
-                g.rigidbody.isKinematic = true;
+            //g.AddComponent<NetworkView>();
+            //g.AddComponent<AudioSource>(); 
+            //if(g.rigidbody)
+            //    g.rigidbody.isKinematic = true;
             inited = true;
         }
         if (this.networkView.observed != null)
@@ -64,7 +71,7 @@ public class MapItem : bs
         }
         if (itemType == MapItemType.shop)
         {
-            var gun = playerPrefab.GetComponent<Player>().guns[guni];
+            var gun = playerPrefab.guns[guni];
             var cur = transform.Find("cursor");
             if (cur != null && cur.childCount == 0)
             {
@@ -88,7 +95,7 @@ public class MapItem : bs
             hide = true;
             switch (gunType.Parse<GunType>())
             {
-                case GunType.gravitygranate: //gravgun
+                case GunType.gravitygranate: //gravgun                    
                     score = 150;
                     bullets = 5;
                     RespawnTm = 60 * 3;
@@ -125,8 +132,9 @@ public class MapItem : bs
                     score = 100;
                     break;
             }
-        }        
-
+            //playerPrefab.guns[(int)gunType.Parse<GunType>()].score = Score;            
+        }
+        
         if (itemType == MapItemType.timewarp)
         {
             text = "Time Warp, Press T to use";
@@ -240,8 +248,6 @@ public class MapItem : bs
     public override void Awake()
     {        
         _Game.mapitems.Add(this);        
-        //if (animation != null && animation.clip != null && Network.isServer)
-        //    animation.Stop();        
         base.Awake();
     }
     public void Aim(Player p)
@@ -278,11 +284,8 @@ public class MapItem : bs
     public override void OnPlayerConnectedBase(NetworkPlayer np)
     {
         if (isCheckOutCalled)
-        {
             RPCCheckOut(itemsLeft);
-            //if (animation != null && animation.clip.name == "Take 001")
-            //        a.Play();
-        }
+
         base.OnPlayerConnectedBase(np);
     }
     
@@ -371,7 +374,8 @@ public class MapItem : bs
     {
         get
         {
-            return (int)(score * _Game.scorefactor.Evaluate(_Game.stage) * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1));
+            //_Game.scorefactor.Evaluate(_Game.stage) 
+            return (int)(score * .1f * ((itemType == MapItemType.shop && _localPlayer.guns[guni].patronsLeft == -1) ? 3 : 1));
         }
     }
 }

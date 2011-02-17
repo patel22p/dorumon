@@ -12,7 +12,7 @@ public partial class Base2:MonoBehaviour
 public enum MenuWindowEnum { Servers,Create,Settings,About,LogOut,Score_Board,AccountInfo,ShowHelp,GamePlay, }
 public class MenuWindow : WindowBase {
 		
-	[FindAsset("1")]
+	[FindAsset("menu")]
 	public Texture imgImage2;
 	
 	internal bool vServers = true;
@@ -76,7 +76,7 @@ public class MenuWindow : WindowBase {
 	void Start () {
 		AlwaysOnTop = false;
 		wndid1 = 0;
-		Image2 = new Rect(0f, 17f, 791f, 677f);
+		Image2 = new Rect(118.5f, 75f, 709.213f, 406.5f);
 
 	}    
     
@@ -104,7 +104,7 @@ public class MenuWindow : WindowBase {
     {		
 		GUI.skin = _Loader.Skin;
         
-		GUI.Window(wndid1,new Rect(-403.5f + Screen.width/2,-365f + Screen.height/2,791f,694f), Wnd1,"", GUI.skin.customStyles[5]);
+		GUI.Window(wndid1,new Rect(-500f + Screen.width/2,-300f + Screen.height/2,984f,564f), Wnd1,"", GUI.skin.customStyles[5]);
 		base.OnGUI();
     }
 	void Wnd1(int id){
@@ -117,9 +117,9 @@ public class MenuWindow : WindowBase {
 		if(focusServers) { focusServers = false; GUI.FocusControl("Servers");}
 		GUI.SetNextControlName("Servers");
 		bool oldServers = Servers;
-		Servers = GUI.Button(new Rect(316.5f, 334f, 169.5f, 36f), new GUIContent("Server List",""));
+		Servers = GUI.Button(new Rect(250f, 212.507f, 113.333f, 25.656f), new GUIContent(@"Server List",""));
 		if (Servers != oldServers && Servers ) {Action("Servers");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 334f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 212.507f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverServers != onMouseOver && onMouseOver) onOver();
 		oldMouseOverServers = onMouseOver;
 		}
@@ -127,9 +127,9 @@ public class MenuWindow : WindowBase {
 		if(focusCreate) { focusCreate = false; GUI.FocusControl("Create");}
 		GUI.SetNextControlName("Create");
 		bool oldCreate = Create;
-		Create = GUI.Button(new Rect(316.5f, 294f, 169.5f, 36f), new GUIContent("Create Server",""));
+		Create = GUI.Button(new Rect(250f, 184f, 113.333f, 25.656f), new GUIContent(@"Create Server",""));
 		if (Create != oldCreate && Create ) {Action("Create");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 294f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 184f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverCreate != onMouseOver && onMouseOver) onOver();
 		oldMouseOverCreate = onMouseOver;
 		}
@@ -137,9 +137,9 @@ public class MenuWindow : WindowBase {
 		if(focusSettings) { focusSettings = false; GUI.FocusControl("Settings");}
 		GUI.SetNextControlName("Settings");
 		bool oldSettings = Settings;
-		Settings = GUI.Button(new Rect(316.5f, 454f, 169.5f, 36f), new GUIContent("Settings",""));
+		Settings = GUI.Button(new Rect(250f, 298.028f, 113.333f, 25.657f), new GUIContent(@"Settings",""));
 		if (Settings != oldSettings && Settings ) {Action("Settings");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 454f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 298.028f, 113.333f, 25.657f).Contains(Event.current.mousePosition);
 		if (oldMouseOverSettings != onMouseOver && onMouseOver) onOver();
 		oldMouseOverSettings = onMouseOver;
 		}
@@ -147,9 +147,9 @@ public class MenuWindow : WindowBase {
 		if(focusAbout) { focusAbout = false; GUI.FocusControl("About");}
 		GUI.SetNextControlName("About");
 		bool oldAbout = About;
-		About = GUI.Button(new Rect(316.5f, 494f, 169.5f, 36f), new GUIContent("Credits",""));
+		About = GUI.Button(new Rect(250f, 326.535f, 113.333f, 25.657f), new GUIContent(@"Credits",""));
 		if (About != oldAbout && About ) {Action("About");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 494f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 326.535f, 113.333f, 25.657f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAbout != onMouseOver && onMouseOver) onOver();
 		oldMouseOverAbout = onMouseOver;
 		}
@@ -157,9 +157,9 @@ public class MenuWindow : WindowBase {
 		if(focusLogOut) { focusLogOut = false; GUI.FocusControl("LogOut");}
 		GUI.SetNextControlName("LogOut");
 		bool oldLogOut = LogOut;
-		LogOut = GUI.Button(new Rect(316.5f, 613f, 169.5f, 36f), new GUIContent("Log Out",""));
+		LogOut = GUI.Button(new Rect(250f, 411.344f, 113.333f, 25.656f), new GUIContent(@"Log Out",""));
 		if (LogOut != oldLogOut && LogOut ) {Action("LogOut");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 613f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 411.344f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverLogOut != onMouseOver && onMouseOver) onOver();
 		oldMouseOverLogOut = onMouseOver;
 		}
@@ -167,9 +167,9 @@ public class MenuWindow : WindowBase {
 		if(focusScore_Board) { focusScore_Board = false; GUI.FocusControl("Score_Board");}
 		GUI.SetNextControlName("Score_Board");
 		bool oldScore_Board = Score_Board;
-		Score_Board = GUI.Button(new Rect(316.5f, 374f, 169.5f, 36f), new GUIContent("Score Board",""));
+		Score_Board = GUI.Button(new Rect(250f, 241.014f, 113.333f, 25.656f), new GUIContent(@"Score Board",""));
 		if (Score_Board != oldScore_Board && Score_Board ) {Action("Score_Board");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 374f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 241.014f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverScore_Board != onMouseOver && onMouseOver) onOver();
 		oldMouseOverScore_Board = onMouseOver;
 		}
@@ -177,9 +177,9 @@ public class MenuWindow : WindowBase {
 		if(focusAccountInfo) { focusAccountInfo = false; GUI.FocusControl("AccountInfo");}
 		GUI.SetNextControlName("AccountInfo");
 		bool oldAccountInfo = AccountInfo;
-		AccountInfo = GUI.Button(new Rect(316.5f, 414f, 169.5f, 36f), new GUIContent("Account",""));
+		AccountInfo = GUI.Button(new Rect(250f, 269.521f, 113.333f, 25.656f), new GUIContent(@"Account",""));
 		if (AccountInfo != oldAccountInfo && AccountInfo ) {Action("AccountInfo");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 414f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 269.521f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAccountInfo != onMouseOver && onMouseOver) onOver();
 		oldMouseOverAccountInfo = onMouseOver;
 		}
@@ -187,9 +187,9 @@ public class MenuWindow : WindowBase {
 		if(focusShowHelp) { focusShowHelp = false; GUI.FocusControl("ShowHelp");}
 		GUI.SetNextControlName("ShowHelp");
 		bool oldShowHelp = ShowHelp;
-		ShowHelp = GUI.Button(new Rect(316.5f, 533f, 169.5f, 36f), new GUIContent("Help",""));
+		ShowHelp = GUI.Button(new Rect(250f, 354.33f, 113.333f, 25.656f), new GUIContent(@"Help",""));
 		if (ShowHelp != oldShowHelp && ShowHelp ) {Action("ShowHelp");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 533f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 354.33f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverShowHelp != onMouseOver && onMouseOver) onOver();
 		oldMouseOverShowHelp = onMouseOver;
 		}
@@ -197,9 +197,9 @@ public class MenuWindow : WindowBase {
 		if(focusGamePlay) { focusGamePlay = false; GUI.FocusControl("GamePlay");}
 		GUI.SetNextControlName("GamePlay");
 		bool oldGamePlay = GamePlay;
-		GamePlay = GUI.Button(new Rect(316.5f, 573f, 169.5f, 36f), new GUIContent("GamePlay Video",""));
+		GamePlay = GUI.Button(new Rect(250f, 382.837f, 113.333f, 25.656f), new GUIContent(@"GamePlay Video",""));
 		if (GamePlay != oldGamePlay && GamePlay ) {Action("GamePlay");onButtonClick(); }
-		onMouseOver = new Rect(316.5f, 573f, 169.5f, 36f).Contains(Event.current.mousePosition);
+		onMouseOver = new Rect(250f, 382.837f, 113.333f, 25.656f).Contains(Event.current.mousePosition);
 		if (oldMouseOverGamePlay != onMouseOver && onMouseOver) onOver();
 		oldMouseOverGamePlay = onMouseOver;
 		}

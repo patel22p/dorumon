@@ -1,3 +1,4 @@
+
 using System.Linq;
 using UnityEngine;
 using System.Collections;
@@ -19,6 +20,21 @@ public class Cam : bs
     public TextMesh Levelcomplete;
     [FindTransform]
     public TextMesh ActionText;
+    public override Quaternion rot
+    {
+        get
+        {
+            if (topdown)
+            {
+                var e = base.rot.eulerAngles;
+                e.x = e.z = 0;
+                return Quaternion.Euler(e);
+            }
+            else
+                return base.rot;
+        }
+        
+    }
     public GUITexture[] blood = new GUITexture[2];
     public void Hit()
     {
@@ -42,7 +58,6 @@ public class Cam : bs
         y = angles.x;
         onEffect();
     }
-    
     public override void Init()
     {
         camera = GetComponentInChildren<Camera>();
@@ -101,15 +116,12 @@ public class Cam : bs
             oldpos = transform.position;
         }
         ft.Update();
-
-        CamUpdate();
+        //CamUpdate();        
     }
-    public bool topdown = true;
-    void Update()
-    {
-        if (DebugKey(KeyCode.J))
-            Hit();
 
+    internal bool topdown = false;
+    void LateUpdate()
+    {
         damageblurtm -= Time.deltaTime * 4;
         if (damageblurtm > 0)
         {
@@ -127,12 +139,18 @@ public class Cam : bs
         {
             x += Input.GetAxis("Mouse X") * 120 * .02f * _SettingsWindow.MouseX;
             y -= Input.GetAxis("Mouse Y") * 120 * .02f * _SettingsWindow.MouseY;
-        }
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                topdown = !topdown;
+                if (!topdown)
+                    y = 0;
+            }
+        }        
         if (topdown)
         {
             y = 90;
         }
-
+        CamUpdate();
     }
     void CamUpdate()
     {
@@ -159,7 +177,7 @@ public class Cam : bs
             var a = Time.deltaTime * 5 * (2f - _SettingsWindow.CamSmooth);
             pos = ((pos2 * a) + (pos)) / (a + 1);
         }
-        rot = rot2;
+        transform.rotation = rot2;
         camera.transform.localPosition = new Vector3(Random.Range(-exp, exp), Random.Range(-exp, exp), Random.Range(-exp, exp));
         exp -= .1f;
         if (exp < 0) exp = 0;

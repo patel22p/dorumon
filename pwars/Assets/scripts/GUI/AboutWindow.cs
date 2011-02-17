@@ -73,7 +73,7 @@ CentaSpike", GUI.skin.customStyles[7]);
 		if(focusForum) { focusForum = false; GUI.FocusControl("Forum");}
 		GUI.SetNextControlName("Forum");
 		bool oldForum = Forum;
-		Forum = GUI.Button(new Rect(491f, 482f, 216f, 39f), new GUIContent("Report bug/Discussion thread",""));
+		Forum = GUI.Button(new Rect(491f, 482f, 216f, 39f), new GUIContent(@"Report bug/Discussion thread",""));
 		if (Forum != oldForum && Forum ) {Action("Forum");onButtonClick(); }
 		onMouseOver = new Rect(491f, 482f, 216f, 39f).Contains(Event.current.mousePosition);
 		if (oldMouseOverForum != onMouseOver && onMouseOver) onOver();

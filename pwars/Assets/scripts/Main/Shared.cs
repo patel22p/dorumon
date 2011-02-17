@@ -36,9 +36,7 @@ public class Shared : bs
             t.gameObject.isStatic = false;
             t.gameObject.layer = LayerMask.NameToLayer("Default");
         }
-        var nw = gameObject.AddOrGet<NetworkView>();
-        nw.observed = this;
-        
+                
         gameObject.AddOrGet<Rigidbody>();
         gameObject.AddOrGet<AudioSource>();
 
@@ -79,7 +77,7 @@ public class Shared : bs
         }
     }
     Dictionary<Material, Color[]> defcolors = new Dictionary<Material, Color[]>();
-    public static string[] supMats = new string[] { "Bumped Specular", "Specular", "Parallax Specular", "Diffuse" };
+    public static string[] supMats = new string[] { "Bumped Specular", "Specular", "Parallax Specular", "Diffuse", "Diffuse Fast" };
     public void UpdateLightmap()
     {
         var materials = renderers.SelectMany(a => a.materials);
@@ -158,7 +156,7 @@ public class Shared : bs
     public void RPCSetOwner(int owner) { CallRPC("SetOwner", owner); }
     [RPC]
     public void SetOwner(int owner)
-    {        
+    {
         SetController(owner);
         foreach (bs bas in GetComponentsInChildren(typeof(bs)))
         {
@@ -181,13 +179,14 @@ public class Shared : bs
             bas.OwnerID = -1;
 
     }
+    public bool unReliable;
     [RPC]
     public void AddNetworkView(NetworkViewID id)
     {
         NetworkView nw = this.gameObject.AddComponent<NetworkView>();
         nw.group = (int)GroupNetwork.Shared;
         nw.observed = this;
-        nw.stateSynchronization = NetworkStateSynchronization.ReliableDeltaCompressed;
+        nw.stateSynchronization = unReliable ? NetworkStateSynchronization.Unreliable : NetworkStateSynchronization.ReliableDeltaCompressed;
         nw.viewID = id;
         name += "+" + Regex.Match(nw.viewID.ToString(), @"\d+").Value;
     }

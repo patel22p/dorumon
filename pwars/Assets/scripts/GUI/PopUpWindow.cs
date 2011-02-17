@@ -32,6 +32,7 @@ public class PopUpWindow : WindowBase {
 	void Start () {
 		AlwaysOnTop = true;
 		wndid1 = 1008;
+
 	}    
     
     
@@ -70,7 +71,7 @@ public class PopUpWindow : WindowBase {
 		if(focusOk) { focusOk = false; GUI.FocusControl("Ok");}
 		GUI.SetNextControlName("Ok");
 		bool oldOk = Ok;
-		Ok = GUI.Button(new Rect(125f, 230f, 142f, 27f), new GUIContent("OK",""));
+		Ok = GUI.Button(new Rect(125f, 230f, 142f, 27f), new GUIContent(@"OK",""));
 		if (Ok != oldOk && Ok ) {Action("Ok");onButtonClick(); }
 		onMouseOver = new Rect(125f, 230f, 142f, 27f).Contains(Event.current.mousePosition);
 		if (oldMouseOverOk != onMouseOver && onMouseOver) onOver();

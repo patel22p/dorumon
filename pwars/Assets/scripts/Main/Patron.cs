@@ -86,7 +86,9 @@ public class Patron : bs
     public bool hit;
     private int GetMask()
     {
-        int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level") | 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
+        int mask = 1 << LayerMask.NameToLayer("HitEnemyOnly") | 1 << LayerMask.NameToLayer("Default") | 1 << LayerMask.NameToLayer("Glass") | 1 << LayerMask.NameToLayer("Level")
+            | 1 << LayerMask.NameToLayer("Ally") | 1 << LayerMask.NameToLayer("Enemy");
+            //| 1 << (_localPlayer.isEnemy(OwnerID) ? LayerMask.NameToLayer("Ally") : LayerMask.NameToLayer("Enemy"));
         return mask;
     }
     private void GravitateMagnet()
@@ -150,23 +152,23 @@ public class Patron : bs
         {
             _Game.particles[(int)ParticleTypes.particle_metal].Emit(hit.point, transform.rotation);
         }
-        if (destroible != null && destroible.isController && destroible.Alive)
-        {
+        if (destroible != null && destroible.isController && destroible.Alive && destroible.isEnemy(OwnerID) )
             destroible.RPCSetLifeLocal(destroible.Life - damage * damageFactor(destroible), OwnerID);
-        }
         
         bool staticfield = g.name.ToLower().StartsWith("staticfield");
+        bool box = g.GetComponent<Box>() != null;
         if (staticfield)
             Force = Quaternion.LookRotation(hit.point - g.transform.position) * Vector3.forward * Force.magnitude;
         if (!glass && !staticfield)
         {
             probivaemost--;
-
+        }
+        if (probivaemost < 0 || box)
+        {
             if (explodeOnDestroy)
                 Explode(hit.point);
-        }
-        if(probivaemost<0)
             Destroy(gameObject);
+        }
     }    
     private void Explode(Vector3 pos)
     {

@@ -159,7 +159,7 @@ public class UserWindow : WindowBase {
 		if(focusSaveUser) { focusSaveUser = false; GUI.FocusControl("SaveUser");}
 		GUI.SetNextControlName("SaveUser");
 		bool oldSaveUser = SaveUser;
-		SaveUser = GUI.Button(new Rect(567f, 505f, 101f, 25f), new GUIContent("Save",""));
+		SaveUser = GUI.Button(new Rect(567f, 505f, 101f, 25f), new GUIContent(@"Save",""));
 		if (SaveUser != oldSaveUser && SaveUser ) {Action("SaveUser");onButtonClick(); }
 		onMouseOver = new Rect(567f, 505f, 101f, 25f).Contains(Event.current.mousePosition);
 		if (oldMouseOverSaveUser != onMouseOver && onMouseOver) onOver();
@@ -217,7 +217,7 @@ public class UserWindow : WindowBase {
 		if(focusPrev) { focusPrev = false; GUI.FocusControl("Prev");}
 		GUI.SetNextControlName("Prev");
 		bool oldPrev = Prev;
-		Prev = GUI.Button(new Rect(-2f, 176.917f, 68f, 25.083f), new GUIContent("Prev",""));
+		Prev = GUI.Button(new Rect(-2f, 176.917f, 68f, 25.083f), new GUIContent(@"Prev",""));
 		if (Prev != oldPrev && Prev ) {Action("Prev");onButtonClick(); }
 		onMouseOver = new Rect(-2f, 176.917f, 68f, 25.083f).Contains(Event.current.mousePosition);
 		if (oldMouseOverPrev != onMouseOver && onMouseOver) onOver();
@@ -227,7 +227,7 @@ public class UserWindow : WindowBase {
 		if(focusNext) { focusNext = false; GUI.FocusControl("Next");}
 		GUI.SetNextControlName("Next");
 		bool oldNext = Next;
-		Next = GUI.Button(new Rect(125f, 176.917f, 68f, 25.083f), new GUIContent("Next",""));
+		Next = GUI.Button(new Rect(125f, 176.917f, 68f, 25.083f), new GUIContent(@"Next",""));
 		if (Next != oldNext && Next ) {Action("Next");onButtonClick(); }
 		onMouseOver = new Rect(125f, 176.917f, 68f, 25.083f).Contains(Event.current.mousePosition);
 		if (oldMouseOverNext != onMouseOver && onMouseOver) onOver();
@@ -278,7 +278,7 @@ public class UserWindow : WindowBase {
 		if(focusRefreshUserInfo) { focusRefreshUserInfo = false; GUI.FocusControl("RefreshUserInfo");}
 		GUI.SetNextControlName("RefreshUserInfo");
 		bool oldRefreshUserInfo = RefreshUserInfo;
-		RefreshUserInfo = GUI.Button(new Rect(467f, 505f, 96f, 25f), new GUIContent("Refresh",""));
+		RefreshUserInfo = GUI.Button(new Rect(467f, 505f, 96f, 25f), new GUIContent(@"Refresh",""));
 		if (RefreshUserInfo != oldRefreshUserInfo && RefreshUserInfo ) {Action("RefreshUserInfo");onButtonClick(); }
 		onMouseOver = new Rect(467f, 505f, 96f, 25f).Contains(Event.current.mousePosition);
 		if (oldMouseOverRefreshUserInfo != onMouseOver && onMouseOver) onOver();

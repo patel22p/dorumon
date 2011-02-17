@@ -65,18 +65,20 @@ public class Loader : bs
             for (int i = 0; i < m.patrons.Length; i++)
                 m.patrons[i] = -1;
             m.patrons[(int)GunType.physxgun] = 30;
-            m.patrons[(int)GunType.pistol] = 100;
+            m.patrons[(int)GunType.pistol] = 1000;
             m.timeLimit = 99;
             m.zombieDamage = 8;
-            m.pointsPerZombie = 2;
             m.haveALaser = false;
             m.pointsPerPlayer = 20;
             m.slow = false;
-            m.zombiesAtStart = 20;
-            m.StartMoney = 50;
-            m.pointsPerStage = 5;
-            m.gameMode = GameMode.DeathMatch; 
+            m.zombiesAtStart = 10;
+            m.StartMoney = build ? 50 : 1000;
+            m.pointsPerStage = 10;
             m.stage = 0;
+            m.pointsPerZombie = 2;
+            m.zombieSpeedFactor = 1f;
+            m.gameMode = GameMode.ZombieSurvival; 
+                        
         }        
         base.InitValues();
     }
@@ -96,6 +98,7 @@ public class Loader : bs
     }
     public void Start()
     {
+        _Music.Play("game");
         _TimerA.AddMethod(100, delegate { loaded = true; });
         _LoginWindow.Build = "Build " + buildVersion + " Version " + Version;
         Debug.Log(_LoginWindow.Build);        
@@ -127,7 +130,7 @@ public class Loader : bs
         _Music.audio.volume = _SettingsWindow.MusicVolume;
         AudioListener.volume = disableSounds ? 0 : _SettingsWindow.SoundVolume;        
         //if (Network.sendRate != _SettingsWindow.NetworkSendRate) Network.sendRate = _SettingsWindow.NetworkSendRate;
-        if (!isWebPlayer && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.E))
+        if (!isWebPlayer && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.C))
         {
             var path = curdir + "/ScreenShots/Screenshot" + DateTime.Now.ToFileTime() + ".png";
             Debug.Log("sceenshot saved " + path);

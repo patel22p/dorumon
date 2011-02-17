@@ -87,7 +87,7 @@ public class GameWindow : bs {
             SetWidth(lifeoff, (int)_localPlayer.MaxLife);
             SetWidth(energy, (int)Mathf.Min((int)_localPlayer.Energy, energyoff.pixelInset.width));
 
-            this.gunPatrons.text = _localPlayer.gun.Text + ":" + (int)_localPlayer.gun.patronsLeft;
+            this.gunPatrons.text = _localPlayer.gun.Text + ":" + (int)_localPlayer.gun.patronsLeft + (_localPlayer.gun.towerScore > 0 ? " Build Tower: " + _localPlayer.gun.towerScore + "$" : "");
             if (_Game.mapSettings.zombi)
             {
                 this.zombiesLeft.text = "Zombies : " + _Game.AliveZombies.Count().ToString();

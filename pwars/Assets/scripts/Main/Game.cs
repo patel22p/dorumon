@@ -28,7 +28,7 @@ public class Game : bs
     internal List<Zombie> zombies = new List<Zombie>();
     internal List<Patron> patrons = new List<Patron>();
     internal List<Tower> towers = new List<Tower>();
-    internal List<Shared> boxes = new List<Shared>();
+    internal List<Box> boxes = new List<Box>();
     internal List<MapItem> mapitems = new List<MapItem>();
     
     internal int RedFrags = 0, BlueFrags = 0;
@@ -57,7 +57,7 @@ public class Game : bs
     [FindAsset("gamemode")]
     public Texture2D[] GameModeIcons;
     public bool wait;
-    public AnimationCurve scorefactor;
+    //public AnimationCurve scorefactor;
     public float nwt;
     public override void Awake()
     {
@@ -66,10 +66,11 @@ public class Game : bs
             Debug.Log("game Awake is host" + _Loader.host + " ip" + _Loader.ipaddress + " hostport " + _Loader.hostport);
             mapSettings = _Loader.mapsets.FirstOrDefault(a => a.mapName == Application.loadedLevelName).Clone();
             var u = _Loader.UserView;
-            u.nick = "a";
-            u.guest = false;
+            u.nick = "a" + Random.Range(0, 99);
+            u.guest = true;
             _Loader.passpref = "a";
             _Loader.loggedin = true;
+            //_TimerA.AddMethod(1000, delegate { _localPlayer.Score = 1000; });
         }
         _TeamSelectWindow.ResetValues();
         _GameMenuWindow.ResetValues();
@@ -96,7 +97,7 @@ public class Game : bs
     public void Start()
     {
         _PopUpWindow.enabled = false;
-        _Music.Play("game");
+        
     }
     protected override void Enable()
     {
@@ -129,9 +130,8 @@ public class Game : bs
     void Update()
     {
         if (DebugKey(KeyCode.O))
-        {
             RPCNextStage(stage + 1, 0);
-        }
+
         stageTime += Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.Return))
         {
@@ -363,6 +363,7 @@ public class Game : bs
         {
             if (zombiespawnindex < maxzombies)
             {
+
                 if (zombiespawnindex < zombies.Count)
                 {
                     zombies[zombiespawnindex].CreateZombie(stage);
@@ -408,7 +409,7 @@ public class Game : bs
         stageTime = time;// +(float)(Network.time - info.timestamp);
         PlayRandSound(stageSound);
         this.stage = stage;
-        maxzombies = _Game.mapSettings.zombiesAtStart + (stage * mapSettings.zombiesPerStage);
+        maxzombies = _Game.mapSettings.zombiesAtStart + ((stage - 1) * mapSettings.zombiesPerStage);
         zombiespawnindex = 0;
         _Cam.LevelText.text = "Stage " + stage;
         _Cam.LevelText.animation.Play();
@@ -436,12 +437,12 @@ public class Game : bs
         PlayRandSound(chatSounds);
         _GameWindow.chatOutput.text = string.Join("\r\n", chat.TakeLast(7).ToArray());
     }
-    void OnPlayerDisconnected(NetworkPlayer player)
+    void OnPlayerDisconnected(NetworkPlayer player) //destroy
     {
         int playerid = player.GetHashCode();
         RPCWriteMessage(players[playerid].nick + " Disconnected");
-        foreach (Shared box in GameObject.FindObjectsOfType(typeof(Shared)))
-            if (!(box is Player))
+        foreach (Box box in GameObject.FindObjectsOfType(typeof(Box)))
+            //if (!(box is Player))
             {
                 if (box.selected == playerid)
                     box.RPCResetOwner();

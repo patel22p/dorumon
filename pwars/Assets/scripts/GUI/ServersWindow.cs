@@ -49,7 +49,7 @@ public class ServersWindow : WindowBase {
 	internal bool focusServersTitle;
 	
 	internal bool rServersTitle = true;
-	internal string ServersTitle = @" Creator              Ver    Map                Game_Type                      Users Ping";
+	internal string ServersTitle = @" Creator                       Ver    Map              Game_Type                      Users Ping";
 	
 	internal bool vhostCount = true;
 	
@@ -124,7 +124,7 @@ public class ServersWindow : WindowBase {
 		if(focusConnect) { focusConnect = false; GUI.FocusControl("Connect");}
 		GUI.SetNextControlName("Connect");
 		bool oldConnect = Connect;
-		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent("Connect",""));
+		Connect = GUI.Button(new Rect(244f, 30f, 75f, 32f), new GUIContent(@"Connect",""));
 		if (Connect != oldConnect && Connect ) {Action("Connect");onButtonClick(); }
 		onMouseOver = new Rect(244f, 30f, 75f, 32f).Contains(Event.current.mousePosition);
 		if (oldMouseOverConnect != onMouseOver && onMouseOver) onOver();
@@ -148,7 +148,7 @@ public class ServersWindow : WindowBase {
 		if(focusRefresh) { focusRefresh = false; GUI.FocusControl("Refresh");}
 		GUI.SetNextControlName("Refresh");
 		bool oldRefresh = Refresh;
-		Refresh = GUI.Button(new Rect(633f, 4.04f, 82f, 21.96f), new GUIContent("Refresh",""));
+		Refresh = GUI.Button(new Rect(633f, 4.04f, 82f, 21.96f), new GUIContent(@"Refresh",""));
 		if (Refresh != oldRefresh && Refresh ) {Action("Refresh");onButtonClick(); }
 		onMouseOver = new Rect(633f, 4.04f, 82f, 21.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverRefresh != onMouseOver && onMouseOver) onOver();

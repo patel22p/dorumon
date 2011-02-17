@@ -10,6 +10,8 @@ public class GunBase : bs
     public float ves;
     public Texture2D GunPicture;
     public int guntype;
+    public float score;
+    public float towerScore = -1;// { get { return score * 5; } }
     public Player player;
     public List<Transform> cursor = new List<Transform>();
     public float patronsLeft = 0;
@@ -66,16 +68,15 @@ public class GunBase : bs
     }
     protected virtual void Update()
     {
-        if (enabled )
-            player.rigidbody.mass = player.defmass + ves * player.defmass - (player.SpeedUpgrate * .07f);
-
         if (isOwner)
         {
             if (GunPicture != null && player != null && isOwner)
                 _GameWindow.gunTexture.texture = GunPicture;
         }
         if (player != null)
-        {            
+        {
+            if (enabled)
+                player.rigidbody.mass = player.defmass + ves * player.defmass - (player.SpeedUpgrate * .07f);
             player.UpdateAim();
         }
     }

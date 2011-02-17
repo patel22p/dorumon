@@ -153,7 +153,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(focusLoginAsGuest) { focusLoginAsGuest = false; GUI.FocusControl("LoginAsGuest");}
 		GUI.SetNextControlName("LoginAsGuest");
 		bool oldLoginAsGuest = LoginAsGuest;
-		LoginAsGuest = GUI.Button(new Rect(261.333f, 137.04f, 79.667f, 19f), new GUIContent("Login",""));
+		LoginAsGuest = GUI.Button(new Rect(261.333f, 137.04f, 79.667f, 19f), new GUIContent(@"Login",""));
 		if (LoginAsGuest != oldLoginAsGuest && LoginAsGuest ) {Action("LoginAsGuest");onButtonClick(); }
 		onMouseOver = new Rect(261.333f, 137.04f, 79.667f, 19f).Contains(Event.current.mousePosition);
 		if (oldMouseOverLoginAsGuest != onMouseOver && onMouseOver) onOver();
@@ -179,7 +179,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(focusLogin) { focusLogin = false; GUI.FocusControl("Login");}
 		GUI.SetNextControlName("Login");
 		bool oldLogin = Login;
-		Login = GUI.Button(new Rect(302.666f, 98.04f, 79.667f, 19f), new GUIContent("Login",""));
+		Login = GUI.Button(new Rect(302.666f, 98.04f, 79.667f, 19f), new GUIContent(@"Login",""));
 		if (Login != oldLogin && Login ) {Action("Login");onButtonClick(); }
 		onMouseOver = new Rect(302.666f, 98.04f, 79.667f, 19f).Contains(Event.current.mousePosition);
 		if (oldMouseOverLogin != onMouseOver && onMouseOver) onOver();
@@ -216,7 +216,7 @@ To login, enter your name (nickname) in the text string ""Name"" and click ""Log
 		if(focusRegistr) { focusRegistr = false; GUI.FocusControl("Registr");}
 		GUI.SetNextControlName("Registr");
 		bool oldRegistr = Registr;
-		Registr = GUI.Button(new Rect(302.666f, 122.04f, 79.667f, 19f), new GUIContent("Registr",""));
+		Registr = GUI.Button(new Rect(302.666f, 122.04f, 79.667f, 19f), new GUIContent(@"Registr",""));
 		if (Registr != oldRegistr && Registr ) {Action("Registr");onButtonClick(); }
 		onMouseOver = new Rect(302.666f, 122.04f, 79.667f, 19f).Contains(Event.current.mousePosition);
 		if (oldMouseOverRegistr != onMouseOver && onMouseOver) onOver();

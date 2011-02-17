@@ -234,7 +234,7 @@ public class SettingsWindow : WindowBase {
 		if(focusFullScreen) { focusFullScreen = false; GUI.FocusControl("FullScreen");}
 		GUI.SetNextControlName("FullScreen");
 		bool oldFullScreen = FullScreen;
-		FullScreen = GUI.Toggle(new Rect(341.5f, 37f, 105f, 17f),FullScreen, new GUIContent("Full Screen",""));
+		FullScreen = GUI.Toggle(new Rect(341.5f, 37f, 105f, 17f),FullScreen, new GUIContent(@"Full Screen",""));
 		if (FullScreen != oldFullScreen ) {Action("FullScreen");onButtonClick(); }
 		onMouseOver = new Rect(341.5f, 37f, 105f, 17f).Contains(Event.current.mousePosition);
 		if (oldMouseOverFullScreen != onMouseOver && onMouseOver) onOver();
@@ -244,7 +244,7 @@ public class SettingsWindow : WindowBase {
 		if(focusBlood) { focusBlood = false; GUI.FocusControl("Blood");}
 		GUI.SetNextControlName("Blood");
 		bool oldBlood = Blood;
-		Blood = GUI.Toggle(new Rect(30.5f, 180f, 47.91333f, 15.96f),Blood, new GUIContent("Blood",""));
+		Blood = GUI.Toggle(new Rect(30.5f, 180f, 47.91333f, 15.96f),Blood, new GUIContent(@"Blood",""));
 		if (Blood != oldBlood ) {Action("Blood");onButtonClick(); }
 		onMouseOver = new Rect(30.5f, 180f, 47.91333f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverBlood != onMouseOver && onMouseOver) onOver();
@@ -254,7 +254,7 @@ public class SettingsWindow : WindowBase {
 		if(focusDecals) { focusDecals = false; GUI.FocusControl("Decals");}
 		GUI.SetNextControlName("Decals");
 		bool oldDecals = Decals;
-		Decals = GUI.Toggle(new Rect(30.5f, 199.96f, 49f, 15.96f),Decals, new GUIContent("decals",""));
+		Decals = GUI.Toggle(new Rect(30.5f, 199.96f, 49f, 15.96f),Decals, new GUIContent(@"decals",""));
 		if (Decals != oldDecals ) {Action("Decals");onButtonClick(); }
 		onMouseOver = new Rect(30.5f, 199.96f, 49f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDecals != onMouseOver && onMouseOver) onOver();
@@ -264,7 +264,7 @@ public class SettingsWindow : WindowBase {
 		if(focusAtmoSphere) { focusAtmoSphere = false; GUI.FocusControl("AtmoSphere");}
 		GUI.SetNextControlName("AtmoSphere");
 		bool oldAtmoSphere = AtmoSphere;
-		AtmoSphere = GUI.Toggle(new Rect(261.63f, 184f, 81.83667f, 15.96f),AtmoSphere, new GUIContent("Atmosphere",""));
+		AtmoSphere = GUI.Toggle(new Rect(261.63f, 184f, 81.83667f, 15.96f),AtmoSphere, new GUIContent(@"Atmosphere",""));
 		if (AtmoSphere != oldAtmoSphere ) {Action("AtmoSphere");onButtonClick(); }
 		onMouseOver = new Rect(261.63f, 184f, 81.83667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverAtmoSphere != onMouseOver && onMouseOver) onOver();
@@ -274,7 +274,7 @@ public class SettingsWindow : WindowBase {
 		if(focusSao) { focusSao = false; GUI.FocusControl("Sao");}
 		GUI.SetNextControlName("Sao");
 		bool oldSao = Sao;
-		Sao = GUI.Toggle(new Rect(261.63f, 199.96f, 60.53667f, 15.96f),Sao, new GUIContent("ambient",""));
+		Sao = GUI.Toggle(new Rect(261.63f, 199.96f, 60.53667f, 15.96f),Sao, new GUIContent(@"ambient",""));
 		if (Sao != oldSao ) {Action("Sao");onButtonClick(); }
 		onMouseOver = new Rect(261.63f, 199.96f, 60.53667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverSao != onMouseOver && onMouseOver) onOver();
@@ -284,7 +284,7 @@ public class SettingsWindow : WindowBase {
 		if(focusShadows) { focusShadows = false; GUI.FocusControl("Shadows");}
 		GUI.SetNextControlName("Shadows");
 		bool oldShadows = Shadows;
-		Shadows = GUI.Toggle(new Rect(359.5f, 184f, 64.13333f, 15.96f),Shadows, new GUIContent("Shadows",""));
+		Shadows = GUI.Toggle(new Rect(359.5f, 184f, 64.13333f, 15.96f),Shadows, new GUIContent(@"Shadows",""));
 		if (Shadows != oldShadows ) {Action("Shadows");onButtonClick(); }
 		onMouseOver = new Rect(359.5f, 184f, 64.13333f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverShadows != onMouseOver && onMouseOver) onOver();
@@ -294,7 +294,7 @@ public class SettingsWindow : WindowBase {
 		if(focusMotionBlur) { focusMotionBlur = false; GUI.FocusControl("MotionBlur");}
 		GUI.SetNextControlName("MotionBlur");
 		bool oldMotionBlur = MotionBlur;
-		MotionBlur = GUI.Toggle(new Rect(130.5f, 180f, 79.37f, 15.96f),MotionBlur, new GUIContent("motion blur",""));
+		MotionBlur = GUI.Toggle(new Rect(130.5f, 180f, 79.37f, 15.96f),MotionBlur, new GUIContent(@"motion blur",""));
 		if (MotionBlur != oldMotionBlur ) {Action("MotionBlur");onButtonClick(); }
 		onMouseOver = new Rect(130.5f, 180f, 79.37f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverMotionBlur != onMouseOver && onMouseOver) onOver();
@@ -304,7 +304,7 @@ public class SettingsWindow : WindowBase {
 		if(focusBloomAndFlares) { focusBloomAndFlares = false; GUI.FocusControl("BloomAndFlares");}
 		GUI.SetNextControlName("BloomAndFlares");
 		bool oldBloomAndFlares = BloomAndFlares;
-		BloomAndFlares = GUI.Toggle(new Rect(130.5f, 199.96f, 106.2067f, 15.96f),BloomAndFlares, new GUIContent("bloom and flares",""));
+		BloomAndFlares = GUI.Toggle(new Rect(130.5f, 199.96f, 106.2067f, 15.96f),BloomAndFlares, new GUIContent(@"bloom and flares",""));
 		if (BloomAndFlares != oldBloomAndFlares ) {Action("BloomAndFlares");onButtonClick(); }
 		onMouseOver = new Rect(130.5f, 199.96f, 106.2067f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverBloomAndFlares != onMouseOver && onMouseOver) onOver();
@@ -358,7 +358,7 @@ public class SettingsWindow : WindowBase {
 		if(focusContrast) { focusContrast = false; GUI.FocusControl("Contrast");}
 		GUI.SetNextControlName("Contrast");
 		bool oldContrast = Contrast;
-		Contrast = GUI.Toggle(new Rect(359.5f, 199.96f, 61.75667f, 15.96f),Contrast, new GUIContent("Contrast",""));
+		Contrast = GUI.Toggle(new Rect(359.5f, 199.96f, 61.75667f, 15.96f),Contrast, new GUIContent(@"Contrast",""));
 		if (Contrast != oldContrast ) {Action("Contrast");onButtonClick(); }
 		onMouseOver = new Rect(359.5f, 199.96f, 61.75667f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverContrast != onMouseOver && onMouseOver) onOver();
@@ -388,7 +388,7 @@ public class SettingsWindow : WindowBase {
 		if(focusReset) { focusReset = false; GUI.FocusControl("Reset");}
 		GUI.SetNextControlName("Reset");
 		bool oldReset = Reset;
-		Reset = GUI.Button(new Rect(94f, 8f, 100f, 24f), new GUIContent("Reset",""));
+		Reset = GUI.Button(new Rect(94f, 8f, 100f, 24f), new GUIContent(@"Reset",""));
 		if (Reset != oldReset && Reset ) {Action("Reset");onButtonClick(); }
 		onMouseOver = new Rect(94f, 8f, 100f, 24f).Contains(Event.current.mousePosition);
 		if (oldMouseOverReset != onMouseOver && onMouseOver) onOver();
@@ -429,7 +429,7 @@ public class SettingsWindow : WindowBase {
 		if(focusShowKeyboard) { focusShowKeyboard = false; GUI.FocusControl("ShowKeyboard");}
 		GUI.SetNextControlName("ShowKeyboard");
 		bool oldShowKeyboard = ShowKeyboard;
-		ShowKeyboard = GUI.Button(new Rect(115.5f, 4f, 70.667f, 31f), new GUIContent("Keyboard",""));
+		ShowKeyboard = GUI.Button(new Rect(115.5f, 4f, 70.667f, 31f), new GUIContent(@"Keyboard",""));
 		if (ShowKeyboard != oldShowKeyboard && ShowKeyboard ) {Action("ShowKeyboard");onButtonClick(); }
 		onMouseOver = new Rect(115.5f, 4f, 70.667f, 31f).Contains(Event.current.mousePosition);
 		if (oldMouseOverShowKeyboard != onMouseOver && onMouseOver) onOver();

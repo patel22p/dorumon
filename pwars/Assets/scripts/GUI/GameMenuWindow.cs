@@ -83,7 +83,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusTeamSelectButton) { focusTeamSelectButton = false; GUI.FocusControl("TeamSelectButton");}
 		GUI.SetNextControlName("TeamSelectButton");
 		bool oldTeamSelectButton = TeamSelectButton;
-		TeamSelectButton = GUI.Button(new Rect(112f, 126f, 313f, 54f), new GUIContent("Join Game",""));
+		TeamSelectButton = GUI.Button(new Rect(112f, 126f, 313f, 54f), new GUIContent(@"Join Game",""));
 		if (TeamSelectButton != oldTeamSelectButton && TeamSelectButton ) {Action("TeamSelectButton");onButtonClick(); }
 		onMouseOver = new Rect(112f, 126f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverTeamSelectButton != onMouseOver && onMouseOver) onOver();
@@ -93,7 +93,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusOptions) { focusOptions = false; GUI.FocusControl("Options");}
 		GUI.SetNextControlName("Options");
 		bool oldOptions = Options;
-		Options = GUI.Button(new Rect(112f, 184f, 313f, 54f), new GUIContent("Options",""));
+		Options = GUI.Button(new Rect(112f, 184f, 313f, 54f), new GUIContent(@"Options",""));
 		if (Options != oldOptions && Options ) {Action("Options");onButtonClick(); }
 		onMouseOver = new Rect(112f, 184f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverOptions != onMouseOver && onMouseOver) onOver();
@@ -103,7 +103,7 @@ public class GameMenuWindow : WindowBase {
 		if(focusDisconnect) { focusDisconnect = false; GUI.FocusControl("Disconnect");}
 		GUI.SetNextControlName("Disconnect");
 		bool oldDisconnect = Disconnect;
-		Disconnect = GUI.Button(new Rect(112f, 242f, 313f, 54f), new GUIContent("Disconnect",""));
+		Disconnect = GUI.Button(new Rect(112f, 242f, 313f, 54f), new GUIContent(@"Disconnect",""));
 		if (Disconnect != oldDisconnect && Disconnect ) {Action("Disconnect");onButtonClick(); }
 		onMouseOver = new Rect(112f, 242f, 313f, 54f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDisconnect != onMouseOver && onMouseOver) onOver();

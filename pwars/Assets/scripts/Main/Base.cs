@@ -15,7 +15,7 @@ public class bs : Base2
     internal const string webserver = "http://physxwars.ru/serv/";
     //internal const string webserver = "http://192.168.30.113/serv/";
     internal const int maxConId= 100;
-    internal int OwnerID = -1;
+    public int OwnerID = -1;
     internal bool isOwner { get { return OwnerID == Network.player.GetHashCode(); } }
     bool Defenabled = true;
     protected virtual void OnServerInitialized() { Enable(); }

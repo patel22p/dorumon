@@ -3,22 +3,18 @@ using UnityEngine;
 
 public class RopeEnd : MonoBehaviour
 {
-    internal bool katched;
-    void OnCollisionEnter(Collision col)
+    void OnCollisionEnter(Collision coll)
     {
-        
-        Debug.Log("hit");
-        katched = true;
-        oldpos = col.contacts[0].point;
-    }
-
-    Vector3 oldpos;
-    void Update()
-    {
-        if (katched)
+        if (gameObject.GetComponent<FixedJoint>() == null)
         {
-            transform.position = oldpos;
-            rigidbody.velocity = Vector3.zero;
+            var fx = gameObject.AddComponent<FixedJoint>();
+            fx.connectedBody = coll.rigidbody;
         }
+    }
+    public void Reset()
+    {
+        var fx = this.GetComponent<FixedJoint>();
+        if(fx!=null) 
+            GameObject.Destroy(fx);
     }
 }

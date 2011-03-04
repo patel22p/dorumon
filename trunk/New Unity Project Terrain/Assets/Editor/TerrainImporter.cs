@@ -43,7 +43,7 @@ public class TerrainImporter : AssetPostprocessor
                         }
                         else if (s == "" || s.StartsWith("//") || s.StartsWith("#"))
                         {
-                            // Ignore (comment)
+                            
                         }
                         else
                         {
@@ -110,14 +110,14 @@ public class TerrainImporter : AssetPostprocessor
         {
             Debug.LogError("terrainTile (" + tOffX + "," + tOffY + ") of size " + size + "x" + size + " "
                     + "is outside heightFile size " + hfWidth + "x" + hfHeight);
-            return; // We don't want to Seek/Read outside file bounds.
+            return; 
         }
 
-        // Stitching reuses right/bottom edges.
+        
         tOffX = (size - 1) * tOffX;
         tOffY = (size - 1) * tOffY;
 
-        int bpp = 2; // only word formats are currently supported
+        int bpp = 2; 
 
         int x;
         int y;
@@ -152,7 +152,7 @@ public class TerrainImporter : AssetPostprocessor
             }
         }
         else
-        { // r16littleendian
+        { 
             for (x = 0; x < size; ++x)
             {
                 for (y = 0; y < size; ++y)
@@ -219,7 +219,7 @@ public class TerrainImporter : AssetPostprocessor
             {
                 if (!param.ContainsKey("layer0File"))
                 {
-                    // create layer0 by remainder
+                    
                     for (x = 0; x < asize; ++x)
                     {
                         for (y = 0; y < asize; ++y)
@@ -232,7 +232,7 @@ public class TerrainImporter : AssetPostprocessor
                         }
                     }
                 }
-                // Equalize by rescaling
+                
                 for (x = 0; x < asize; ++x)
                 {
                     for (y = 0; y < asize; ++y)

@@ -50,6 +50,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Editor\AdjustHeights.cs" />
+     <None Include="Assets\Editor\HeightmapFromTexture.js" />
+     <Compile Include="Assets\Editor\TerrainImporter.cs" />
+     <None Include="Assets\Editor\TerrainImporter.js" />
+     <None Include="Assets\MyTerrain\terrain.txt" />
      <None Include="Assets\Resources\CloudsToy Shaders\CloudBright.shader" />
      <None Include="Assets\Resources\CloudsToy Shaders\CloudRealistic.shader" />
      <Compile Include="Assets\Road and Path Tool\Editor\AttachedPathEditor.cs" />
@@ -58,15 +63,13 @@
      <Compile Include="Assets\Road and Path Tool\AttachedPathScript.cs" />
      <Compile Include="Assets\Road and Path Tool\PathScript.cs" />
      <None Include="Assets\Road and Path Tool\tutorial.txt" />
-     <Compile Include="Assets\Scripts\common\Editor\AdjustHeights.cs" />
-     <Compile Include="Assets\Scripts\common\Editor\CustomEditorExample.cs" />
-     <None Include="Assets\Scripts\common\Editor\HeightmapFromTexture.js" />
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
-     <Compile Include="Assets\Scripts\common\Main\Attach.cs" />
-     <Compile Include="Assets\Scripts\common\Main\Ext.cs" />
-     <Compile Include="Assets\Scripts\common\Main\MapTag.cs" />
-     <Compile Include="Assets\Scripts\common\Main\Timer.cs" />
-     <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\common\Ext.cs" />
+     <Compile Include="Assets\Scripts\common\MapTag.cs" />
+     <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <Compile Include="Assets\Scripts\Main\Attach.cs" />
+     <Compile Include="Assets\Scripts\Main\Game.cs" />
+     <Compile Include="Assets\Scripts\Main\MyTerrain.cs" />
      <None Include="Assets\Shaders\WaterShader.shader" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />

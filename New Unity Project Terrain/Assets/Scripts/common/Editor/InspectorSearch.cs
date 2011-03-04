@@ -64,8 +64,12 @@ public class InspectorSearch : EditorWindow
                 instances.Add(Selection.activeObject.name);
                 SaveParams();
             }
-        if (GUI.Button("Refresh"))
-            RefreshProject();
+        if (GUI.Button("Init"))
+        {
+            
+            foreach (var a in Selection.gameObjects.Select(a=>a.GetComponent<MonoBehaviour>()))                
+                a.SendMessage("Init", SendMessageOptions.DontRequireReceiver);
+        }
         GUI.EndHorizontal();
         QualitySettings.shadowDistance = gui.FloatField("LightmapDist", QualitySettings.shadowDistance);
         if (Selection.activeGameObject != null) // Layer Distances
@@ -311,34 +315,7 @@ public class InspectorSearch : EditorWindow
         Debug.Log("saved to: " + file);
         Application.CaptureScreenshot(file);
     }
-    [MenuItem("File/InitTerrain")]
-    static void InitTerrain()
-    {
-        Debug.Log("Genrate Terrain");
-        var t = Terrain.activeTerrain;
-        TerrainData td = t.terrainData;
-        
-
-        var tx = (Texture2D)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Texture2D)).Where(a => a.name == "terrain").FirstOrDefault();
-        float[,] hds = new float[tx.width, tx.height];
-        for (int y = 0; y < tx.height; y++)
-            for (int x = 0; x < tx.width; x++)
-            {
-                hds[x, y] = tx.GetPixel(y, tx.width - x).grayscale;
-            }        
-        td.SetHeights(0, 0, hds);
-        
-        t.Flush();
-        var g = Terrain.CreateTerrainGameObject(td);
-        Instantiate(g);
-        //for (int y = 0; y < tx.height; y++)
-        //    for (int x = 0; x < tx.width; x++)
-        //    {
-        //        hds[x, y] = td.GetInterpolatedHeight(x, y);
-                
-        //    }
-        //td.SetHeights(0, 0, hds);
-    }
+    
     [MenuItem("GameObject/Attach Prefab")]
     static void AttachPrefabToSelectedObjects()
     {
@@ -390,39 +367,39 @@ public class InspectorSearch : EditorWindow
             //Debug.Log("rendered to cubemap");
         }
     }
-    [MenuItem("File/Refresh")]
-    static void RefreshProject()
-    {
-        if (!isPlaying)
-        {
-            //var c = EditorApplication.currentScene;
-            //EditorApplication.SaveScene(c);
-            ////EditorApplication.NewScene();
-            //var s = @"/Assets/scenes/2.unity";
-            ////EditorApplication.SaveScene("tempscene");
-            //for (int i = 0; i < 2; i++)
-            //{
-            //    EditorApplication.OpenScene(s);                                                   
-            //    EditorApplication.OpenScene(EditorApplication.currentScene);                                             
-            //}
-            //File.Delete("tempscene");
-            //EditorApplication.OpenScene(c);
+    //[MenuItem("File/Refresh")]
+    //static void RefreshProject()
+    //{
+    //    if (!isPlaying)
+    //    {
+    //        //var c = EditorApplication.currentScene;
+    //        //EditorApplication.SaveScene(c);
+    //        ////EditorApplication.NewScene();
+    //        //var s = @"/Assets/scenes/2.unity";
+    //        ////EditorApplication.SaveScene("tempscene");
+    //        //for (int i = 0; i < 2; i++)
+    //        //{
+    //        //    EditorApplication.OpenScene(s);                                                   
+    //        //    EditorApplication.OpenScene(EditorApplication.currentScene);                                             
+    //        //}
+    //        //File.Delete("tempscene");
+    //        //EditorApplication.OpenScene(c);
 
-            //if (!isPlaying)
-            {
-                var c = EditorApplication.currentScene;
-                EditorApplication.SaveScene(c);
-                for (int i = 0; i < 4; i++)
-                {
-                    EditorApplication.OpenScene("Assets/scenes/1.unity");
-                    EditorApplication.OpenScene("Assets/scenes/2.unity");
-                }
-                EditorApplication.OpenScene(c);
-                return;
-            }
+    //        //if (!isPlaying)
+    //        {
+    //            var c = EditorApplication.currentScene;
+    //            EditorApplication.SaveScene(c);
+    //            for (int i = 0; i < 4; i++)
+    //            {
+    //                EditorApplication.OpenScene("Assets/scenes/1.unity");
+    //                EditorApplication.OpenScene("Assets/scenes/2.unity");
+    //            }
+    //            EditorApplication.OpenScene(c);
+    //            return;
+    //        }
             
-        }        
-    }
+    //    }        
+    //}
     [MenuItem("GameObject/Combine")]
     static void Combine()
     {

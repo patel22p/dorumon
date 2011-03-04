@@ -16,7 +16,6 @@ using System.Xml.Serialization;
 using System.Runtime.Serialization;
 using System.Collections;
 
-
 public class InspectorSearch : EditorWindow
 {
     protected TimerA _TimerA = new TimerA();
@@ -66,25 +65,33 @@ public class InspectorSearch : EditorWindow
             }
         if (GUI.Button("Init"))
         {
-            
             foreach (var a in Selection.gameObjects.Select(a=>a.GetComponent<MonoBehaviour>()))                
                 a.SendMessage("Init", SendMessageOptions.DontRequireReceiver);
         }
         GUI.EndHorizontal();
         QualitySettings.shadowDistance = gui.FloatField("LightmapDist", QualitySettings.shadowDistance);
-        if (Selection.activeGameObject != null) // Layer Distances
+        if (Selection.activeGameObject != null)
         {
-            var ls = Camera.main.layerCullDistances;
-            var lr = Selection.activeGameObject.layer;
-            var oldv = ls[lr];
-            ls[lr] = gui.FloatField("LayerDist", ls[lr]);
-            if (oldv != ls[lr])
-                Camera.main.layerCullDistances = ls;
+            LayerDistances();
+            var bs = Selection.activeGameObject.GetComponent<Base>();
+            if (bs != null)
+                bs.OnInspectorGUI();
         }
+        
         
 
         DrawObjects();
         DrawSearch();
+    }
+
+    private static void LayerDistances()
+    {
+        var ls = Camera.main.layerCullDistances;
+        var lr = Selection.activeGameObject.layer;
+        var oldv = ls[lr];
+        ls[lr] = gui.FloatField("LayerDist", ls[lr]);
+        if (oldv != ls[lr])
+            Camera.main.layerCullDistances = ls;
     }
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
     private void DrawObjects()
@@ -991,4 +998,5 @@ public class InspectorSearch : EditorWindow
 
 
 }
+
 #endif

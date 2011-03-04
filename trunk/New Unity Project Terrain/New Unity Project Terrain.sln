@@ -1,12 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "New Unity Project Terrain", "New Unity Project Terrain.csproj", "{283C4038-8FB1-447B-0050-FF08ACC2295F}"
+
+Project("{379C8F3E-D820-6011-AE93-2C9E78172E6C}") = "New Unity Project Terrain", "New Unity Project Terrain.csproj", "{283C4038-8FB1-447B-0050-FF08ACC2295F}"
 EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -20,4 +17,5 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	
 EndGlobal

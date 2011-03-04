@@ -1,0 +1,9 @@
+[Terrain Importer]
+[MyTerrainExample]
+heightFile=terrain copy.raw
+heightFormat=r16bigendian
+terrainWidth=100
+terrainHeight=50
+terrainLength=100
+layer1File=slope.raw
+layer2File=flow.raw

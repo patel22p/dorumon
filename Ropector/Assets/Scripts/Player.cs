@@ -8,16 +8,27 @@ public class Player : MonoBehaviour {
     ClothRope rope;
     public Cam cam;
     RopeEnd ropeEnd;
+    public GameObject cursor { get { return cam.cursor; } }
     void Start()
     {
         rope = this.GetComponent<ClothRope>();
         ropeEnd = rope.ropeEnd.GetComponent<RopeEnd>();
     }
-
-
     float tm;
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            var r = new GameObject();
+            var c = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var ca = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Debug.Log("test");
+            c.transform.parent = r.transform;
+            ca.transform.parent = r.transform;
+            r.AddComponent<Rigidbody>();
+            r.transform.position = cursor.transform.position;
+        }
+
         tm -= Time.deltaTime;
         if (!Screen.lockCursor) return;
 

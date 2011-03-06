@@ -8,10 +8,14 @@ public class Cam : MonoBehaviour
     public GameObject cam;
     public GameObject player;
     private Vector3 velocity;
-
-    public void Update()
+    public void Start()
     {
+        //Screen.lockCursor = true;
+    }
+    public void Update()
+    {        
         if (Input.GetMouseButtonDown(1)) Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetMouseButtonDown(0) && !Screen.lockCursor) Screen.lockCursor = true;
     }
     public void FixedUpdate()
     {

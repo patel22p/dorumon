@@ -19,9 +19,9 @@ public class NewBehaviourScript : MonoBehaviour {
             wg.transform.parent = transform;
             wg.transform.position = t.transform.position;
             wg.transform.rotation = t.transform.rotation;
-            var rg =wg.AddComponent<Rigidbody>();
+            //var rg =wg.AddComponent<Rigidbody>();
             //rg.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rg.mass = 5;
+            //rg.mass = 5;
             var w = wg.AddComponent<WheelCollider>();
             w.radius = t.transform.localScale.y/2;
             w.suspensionSpring = new JointSpring { damper = 50, spring = 5500, targetPosition = 0 };
@@ -33,12 +33,12 @@ public class NewBehaviourScript : MonoBehaviour {
             else
                 RightWhell = w;
 
-            var jnt = gameObject.AddComponent<FixedJoint>();
-            jnt.connectedBody = wg.rigidbody;
-            //jnt.axis = Vector3.forward;
+            //var jnt = gameObject.AddComponent<FixedJoint>();
+            //jnt.connectedBody = wg.rigidbody;
+            ////jnt.axis = Vector3.forward;
 
-            SpringJoint sj = wg.AddComponent<SpringJoint>();
-            sj.connectedBody = rigidbody;
+            //SpringJoint sj = wg.AddComponent<SpringJoint>();
+            //sj.connectedBody = rigidbody;
             //sj.axis = Vector3.forward;
             //sj.spring = 9999900;
             //sj.anchor = Vector3.up;
@@ -58,7 +58,7 @@ public class NewBehaviourScript : MonoBehaviour {
         //Left.transform.position = leftWhell.transform.position - (Vector3.up * leftWhell.suspensionDistance);
         //springs
         if (Input.GetKey(KeyCode.W))
-            torq = 20;
+            torq = 40;
         else
             torq = 0;
 

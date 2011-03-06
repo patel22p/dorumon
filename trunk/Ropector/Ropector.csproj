@@ -56,9 +56,11 @@
      <Compile Include="Assets\Scripts\common\Timer.cs" />
      <Compile Include="Assets\Scripts\Rope\Editor\RopeEditor.cs" />
      <Compile Include="Assets\Scripts\Rope\ClothRope.cs" />
+     <None Include="Assets\Scripts\shader\ropeShader.shader" />
      <Compile Include="Assets\Scripts\Cam.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\RopeEnd.cs" />
+     <Compile Include="Assets\Scripts\Score.cs" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />

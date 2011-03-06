@@ -10,12 +10,16 @@ public class Cam : MonoBehaviour
     private Vector3 velocity;
     public void Start()
     {
-        //Screen.lockCursor = true;
+        if(!Application.isEditor)
+        Screen.lockCursor = true;
     }
+    
     public void Update()
-    {        
+    {
+        
         if (Input.GetMouseButtonDown(1)) Screen.lockCursor = !Screen.lockCursor;
-        if (Input.GetMouseButtonDown(0) && !Screen.lockCursor) Screen.lockCursor = true;
+        if (!Application.isEditor)
+            if (Input.GetMouseButtonDown(0) && !Screen.lockCursor) Screen.lockCursor = true;
     }
     public void FixedUpdate()
     {
@@ -27,6 +31,8 @@ public class Cam : MonoBehaviour
         faceCursor = Vector3.SmoothDamp(faceCursor, cursor.transform.position, ref velocity, 0.5f);
         if (!Screen.lockCursor) return;        
         Vector3 v= new Vector3(Input.GetAxis("Mouse X"),Input.GetAxis("Mouse Y"),0);
+        uasd = true;
         cursor.transform.position+= v;        
     }
+    public bool uasd;
 }

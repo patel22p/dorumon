@@ -50,13 +50,20 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Rope3\Editor\AttachEditor.cs" />
+     <Compile Include="Assets\Rope3\Editor\BreakawayEditor.cs" />
+     <Compile Include="Assets\Rope3\Editor\CustomPrefs.cs" />
+     <Compile Include="Assets\Rope3\Editor\NewRopeObject.cs" />
+     <Compile Include="Assets\Rope3\Editor\RopeEditor.cs" />
+     <Compile Include="Assets\Rope3\Rope.cs" />
+     <Compile Include="Assets\Rope3\Rope_AttachObjects.cs" />
+     <Compile Include="Assets\Rope3\Rope_BreakawayJoints.cs" />
+     <Compile Include="Assets\Rope3\Tube.cs" />
      <Compile Include="Assets\scenes\2\NewBehaviourScript.cs" />
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
-     <Compile Include="Assets\Scripts\Rope\Editor\RopeEditor.cs" />
-     <Compile Include="Assets\Scripts\Rope\ClothRope.cs" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />
      <Compile Include="Assets\Scripts\Cam.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />

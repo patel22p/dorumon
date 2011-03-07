@@ -75,12 +75,14 @@ public class Player : MonoBehaviour {
         tmRope -= Time.deltaTime;
         if (!Screen.lockCursor) return;
 
-        var f = 0f;
-        if (Input.GetKey(KeyCode.Q))
-            f = 1;
-        if (Input.GetKey(KeyCode.E))
-            f = -1;
-        cloth.stretchingStiffness += Mathf.Min(1, Mathf.Max(0, f * Time.deltaTime / 5));
+        if (Input.GetKeyDown(KeyCode.Space))
+            cloth.stretchingStiffness = 1;
+        //var f = 0f;
+        //if (Input.GetKey(KeyCode.Space))
+        //    f = 1;
+        //if (Input.GetKey(KeyCode.C))
+        //    f = -1;
+        //cloth.stretchingStiffness = Mathf.Min(1, Mathf.Max(0, cloth.stretchingStiffness + f * Time.deltaTime / 5));
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -92,10 +94,10 @@ public class Player : MonoBehaviour {
                 cloth.transform.position = transform.position + Vector3.up * 1;
                 tmRope = 2;
                 Enable(true);
-                cloth.stretchingStiffness = .2f;
+                cloth.stretchingStiffness = .5f;
                 var dir = cam.cursor.transform.position - transform.position;
                 dir = dir.normalized;
-                //ropeEnd.rigidbody.velocity = dir * 100;
+                ropeEnd.rigidbody.velocity = dir * 100;
                 
             }
             else if (ropeEnabled) 
@@ -108,6 +110,7 @@ public class Player : MonoBehaviour {
     }
     private void Enable(bool value)
     {
+        ropeEnd.enabled = ropeEnd.gameObject.active = true;
         ropeEnabled = ropeEnd.enabled =ropeEnd.gameObject.active = cloth.gameObject.active = value;
         ropeEnd.oldpos = null;
     

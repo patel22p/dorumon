@@ -50,6 +50,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\scenes\2\NewBehaviourScript.cs" />
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
@@ -58,6 +59,7 @@
      <Compile Include="Assets\Scripts\Rope\ClothRope.cs" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />
      <Compile Include="Assets\Scripts\Cam.cs" />
+     <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\RopeEnd.cs" />
      <Compile Include="Assets\Scripts\Score.cs" />
@@ -161,7 +163,6 @@
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\ skybox info.txt" />
-     <Compile Include="Assets\NewBehaviourScript.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

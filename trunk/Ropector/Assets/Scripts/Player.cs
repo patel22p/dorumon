@@ -4,35 +4,37 @@ using doru;
 
 public class Player : MonoBehaviour {
 
-    public TimerA timer = new TimerA();
-    ClothRope rope;
-    public Cam cam;
-    RopeEnd ropeEnd;
-    public GameObject cursor { get { return cam.cursor; } }
-    void Start()
-    {
-        rope = this.GetComponent<ClothRope>();
-        ropeEnd = rope.ropeEnd.GetComponent<RopeEnd>();
-    }
+    
     float tmRope;
     float tmWall;
     Vector3? oldp;
-    
-    public GameObject Holder;
-    private static GameObject CreateCube()
-    {
-        var holder = new GameObject();
-        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.parent = holder.transform;
-        cube.transform.localPosition = new Vector3(0, 0, .5f);
-        return holder;
-    }
-    
+    GameObject Holder;
+    bool ropeEnabled = true;
 
+    public TimerA timer = new TimerA();
+    public Cam cam;
+    public RopeEnd ropeEnd;
+    public InteractiveCloth cloth;
+    public Menu menu;
+    void Start()
+    {
+        
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P)) Debug.Break();
+        menu.txt.text = ("streching:" + cloth.stretchingStiffness);
+        UpdateWall();
+        UpdateRope();
+        var mv = new Vector3(Input.GetAxis("Horizontal"), 0);
+        var controller = rigidbody;
+        controller.MovePosition(transform.position + mv * Time.deltaTime * 10);
+        timer.Update();
+    }
     private void UpdateWall()
     {
         tmWall -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.Q))
+        if (Input.GetKey(KeyCode.B))
         {
             if (tmWall < 0)
             {
@@ -68,30 +70,56 @@ public class Player : MonoBehaviour {
             }
         }
     }
-    void Update()
-    {
-        UpdateWall();
-        UpdateRope();
-        var mv = new Vector3(Input.GetAxis("Horizontal"), 0);
-        var controller = rigidbody;
-        controller.MovePosition(transform.position + mv * Time.deltaTime * 10);
-        timer.Update();
-    }
     void UpdateRope()
     {
         tmRope -= Time.deltaTime;
         if (!Screen.lockCursor) return;
-        rope.iCloth.stretchingStiffness = Mathf.Min(1, rope.iCloth.stretchingStiffness + Time.deltaTime / 5);
-        if (Input.GetMouseButtonDown(0) && tmRope < 0)
+
+        var f = 0f;
+        if (Input.GetKey(KeyCode.Q))
+            f = 1;
+        if (Input.GetKey(KeyCode.E))
+            f = -1;
+        cloth.stretchingStiffness += Mathf.Min(1, Mathf.Max(0, f * Time.deltaTime / 5));
+
+        if (Input.GetMouseButtonDown(0))
         {
-            tmRope = 2;
-            rope.iCloth.stretchingStiffness = .005f;
-            ropeEnd.Reset();
-            var dir = cam.cursor.transform.position - transform.position;
-            dir = dir.normalized;
-            ropeEnd.rigidbody.velocity = dir * 100;
-            ropeEnd.transform.position = transform.position;
+            if (!ropeEnabled && tmRope < 0)
+            {
+                
+                Debug.Log("RopeEnable");
+                ropeEnd.transform.position = transform.position + Vector3.up * 3;
+                cloth.transform.position = transform.position + Vector3.up * 1;
+                tmRope = 2;
+                Enable(true);
+                cloth.stretchingStiffness = .2f;
+                var dir = cam.cursor.transform.position - transform.position;
+                dir = dir.normalized;
+                //ropeEnd.rigidbody.velocity = dir * 100;
+                
+            }
+            else if (ropeEnabled) 
+            {
+                Debug.Log("RopeDisable");
+                Enable(false);
+                ropeEnd.rigidbody.isKinematic = false;
+            }
         }
     }
+    private void Enable(bool value)
+    {
+        ropeEnabled = ropeEnd.enabled =ropeEnd.gameObject.active = cloth.gameObject.active = value;
+        ropeEnd.oldpos = null;
     
-}
+    }
+    private static GameObject CreateCube()
+    {
+        var holder = new GameObject();
+        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.parent = holder.transform;
+        cube.transform.localPosition = new Vector3(0, 0, .5f);
+        return holder;
+    }
+    public GameObject cursor { get { return cam.cursor; } }
+    
+} 

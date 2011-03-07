@@ -10,10 +10,12 @@ public class Player : MonoBehaviour {
     Vector3? oldp;
     GameObject Holder;
     bool ropeEnabled = true;
+    float spring = 5;
 
     public TimerA timer = new TimerA();
     public Cam cam;
     public RopeEnd ropeEnd;
+    public SpringJoint springJoint;
     public InteractiveCloth cloth;
     public Menu menu;
     void Start()
@@ -23,13 +25,19 @@ public class Player : MonoBehaviour {
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.P)) Debug.Break();
-        menu.txt.text = ("streching:" + cloth.stretchingStiffness);
+        menu.txt.text = ("streching:" + spring);
         UpdateWall();
         UpdateRope();
-        var mv = new Vector3(Input.GetAxis("Horizontal"), 0);
+        var mv = new Vector3(Input.GetAxis("Horizontal"), 0,0);
         var controller = rigidbody;
-        controller.MovePosition(transform.position + mv * Time.deltaTime * 10);
+        controller.AddForce(mv);
+        controller.AddRelativeTorque(0, 0, mv.x);
         timer.Update();
+    }
+    void CreateSpring()
+    {        
+        springJoint = this.gameObject.AddComponent<SpringJoint>();
+        springJoint.connectedBody = ropeEnd.rigidbody;
     }
     private void UpdateWall()
     {
@@ -76,14 +84,9 @@ public class Player : MonoBehaviour {
         if (!Screen.lockCursor) return;
 
         if (Input.GetKeyDown(KeyCode.Space))
-            cloth.stretchingStiffness = 1;
-        //var f = 0f;
-        //if (Input.GetKey(KeyCode.Space))
-        //    f = 1;
-        //if (Input.GetKey(KeyCode.C))
-        //    f = -1;
-        //cloth.stretchingStiffness = Mathf.Min(1, Mathf.Max(0, cloth.stretchingStiffness + f * Time.deltaTime / 5));
-
+            spring = 0.1f;
+        if(springJoint!=null)
+            springJoint.maxDistance = spring;
         if (Input.GetMouseButtonDown(0))
         {
             if (!ropeEnabled && tmRope < 0)
@@ -91,14 +94,14 @@ public class Player : MonoBehaviour {
                 
                 Debug.Log("RopeEnable");
                 ropeEnd.transform.position = transform.position + Vector3.up * 3;
-                cloth.transform.position = transform.position + Vector3.up * 1;
-                tmRope = 2;
+                cloth.transform.position = transform.position + Vector3.up * 1.5f;
+                tmRope = 1;
                 Enable(true);
-                cloth.stretchingStiffness = .5f;
+                spring = 5f;
+                //cloth.stretchingStiffness = .5f;
                 var dir = cam.cursor.transform.position - transform.position;
                 dir = dir.normalized;
                 ropeEnd.rigidbody.velocity = dir * 100;
-                
             }
             else if (ropeEnabled) 
             {
@@ -110,8 +113,12 @@ public class Player : MonoBehaviour {
     }
     private void Enable(bool value)
     {
-        ropeEnd.enabled = ropeEnd.gameObject.active = true;
-        ropeEnabled = ropeEnd.enabled =ropeEnd.gameObject.active = cloth.gameObject.active = value;
+        ropeEnd.enabled = ropeEnd.gameObject.active = value;
+        if (value)
+            CreateSpring();
+        else
+            Destroy(springJoint);
+        ropeEnabled = cloth.gameObject.active = value;
         ropeEnd.oldpos = null;
     
     }

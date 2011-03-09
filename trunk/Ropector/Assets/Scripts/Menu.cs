@@ -1,7 +1,10 @@
 ﻿using System;
 using UnityEngine;
 
-public class Menu:MonoBehaviour
+public class Menu:bs
 {
-    public GUIText txt;    
+    [FindTransform]
+    public GUIText info;
+    [FindTransform]
+    public GUIText scores;
 }

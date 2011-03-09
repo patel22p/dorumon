@@ -40,7 +40,7 @@ public static class Ext
     {
         c.GetType().GetField(str).SetValue(c, value);
     }
-
+    
     public static string[] Split(this string s, string d)
     {
         return s.Split(new string[] { d }, StringSplitOptions.RemoveEmptyEntries);
@@ -112,7 +112,7 @@ public static class Ext
     {
         for (int i = 0; ; i++)
         {
-            if (t == null || i > 2) return null;
+            if (t == null || i > 4) return null;
             var c = t.GetComponent<MonoBehaviour>();
             if (c != null) return c;
             t = t.parent;

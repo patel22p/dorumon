@@ -12,7 +12,7 @@ public class MapTag : MonoBehaviour
     public GameObject forwardAim;
     public void Awake()
     {
-        if (this.light != null)
+        if (this.light != null && lightIntensivity != 0)
         {
             this.light.intensity = lightIntensivity;
             if (disablelight) Destroy(this.light);

@@ -66,9 +66,7 @@ public class InspectorSearch : EditorWindow
             }
         if (GUI.Button("Init"))
         {
-            
-            foreach (var a in Selection.gameObjects.Select(a=>a.GetComponent<MonoBehaviour>()))                
-                a.SendMessage("Init", SendMessageOptions.DontRequireReceiver);
+            Init();            
         }
         GUI.EndHorizontal();
         QualitySettings.shadowDistance = gui.FloatField("LightmapDist", QualitySettings.shadowDistance);
@@ -86,6 +84,84 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
+    public void Init()
+    {
+        foreach (var go in Selection.gameObjects)
+        {
+            foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
+                if (anim.clip == null) DestroyImmediate(anim);
+            foreach (var scr in go.GetComponents<Base>())
+            {
+                foreach (var pf in scr.GetType().GetFields())
+                {
+                    FindAsset(scr, pf);                    
+                    FindTransform(scr, pf);
+                }                
+                scr.InitValues();
+                scr.Init();
+            }
+        }
+    }
+    private static void FindTransform(Base scr, FieldInfo pf)
+    {
+        FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
+        if (atr != null)
+        {
+            string name = (atr.name == null) ? pf.Name : atr.name;
+            try
+            {
+
+                GameObject g = atr.scene ? GameObject.Find(name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
+                if (g == null) throw new Exception();
+                if (pf.FieldType == typeof(GameObject))
+                    pf.SetValue(scr, g);
+                else
+                    pf.SetValue(scr, g.GetComponent(pf.FieldType));
+            }
+            catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
+        }
+    }
+
+    private static void FindAsset(Base scr, FieldInfo pf)
+    {
+        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
+        if (ap != null)
+        {
+            string name = (ap.name == null) ? pf.Name : ap.name;
+            object value = pf.GetValue(scr);
+            if (ap.overide || (value == null || value.Equals(null)) || (value is IEnumerable && ((IEnumerable)value).Cast<object>().Count() == 0))
+            {
+                if (value is Array)
+                {
+                    Debug.Log("FindAsset " + name);
+                    var type = value.GetType().GetElementType();
+                    var q = Base.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
+                    if (q.Count() == 0)
+                        Debug.Log("could not find folder " + name);
+
+                    pf.SetValue(scr, Cast(q, type));
+                }
+                else
+                {
+                    Debug.Log("FindAsset " + name);
+                    pf.SetValue(scr, Base.FindAsset(name, pf.FieldType));
+                }
+            }
+        }
+    }
+    private static object Cast<T>(IEnumerable<T> objectList, Type t)
+    {
+        object a = typeof(Enumerable)
+            .GetMethod("Cast", BindingFlags.Public | BindingFlags.Static)
+            .MakeGenericMethod(t)
+            .Invoke(null, new[] { objectList });
+        var b = typeof(Enumerable)
+            .GetMethod("ToArray", BindingFlags.Public | BindingFlags.Static)
+            .MakeGenericMethod(t)
+            .Invoke(null, new[] { a });
+        return b;
+    }
+
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
     private void DrawObjects()
     {
@@ -251,7 +327,33 @@ public class InspectorSearch : EditorWindow
         }
     }
     public GameObject selectedGameObject;
-    
+    private static void InitValues()
+    {
+        var dt = DateTime.Now;
+        foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
+        {
+            if (AssetDatabase.IsMainAsset(a))
+            {
+                bool mod = false;
+                var ar = a.transform.GetTransforms().ToArray();
+                foreach (var b in ar)
+                {
+                    var bs = b.GetComponent<Base>();
+                    if (bs != null)
+                    {
+                        bs.InitValues();
+                        mod = true;
+                    }
+                }
+                if (mod)
+                    EditorUtility.SetDirty(a);
+            }
+            else
+                foreach (var bs in a.GetComponentsInChildren<Base>())
+                    bs.InitValues();
+        }
+        Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
+    }
     public DateTime idletime;
     private void OnSceneUpdate(SceneView scene)
     {
@@ -304,7 +406,43 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    #region menuitems
+    public static void OnPlaymodeStateChanged()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
+            InitValues();
+    }
+    #region menuitems    
+    [MenuItem("Edit/Play %r")]    
+    private static void Play()
+    {
+        if (EditorApplication.isPlaying)
+        {
+            EditorApplication.isPaused = !EditorApplication.isPaused;
+            //if (!EditorApplication.isPaused)
+            //{
+            //    Screen.lockCursor = true;                
+            //}
+        }
+        else
+            if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
+        
+    }
+    [MenuItem("File/Backup")]    
+    private static void Backup()
+    {
+        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
+        {
+            EditorApplication.SaveAssets();
+            EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
+            var cs = EditorApplication.currentScene;
+            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Backups/";
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+            var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
+            Debug.Log("backup: " + p);
+            EditorApplication.SaveScene(p);
+        }
+    }
     [MenuItem("Edit/Capture Screenshot %e")]
     static void Capture()
     {
@@ -314,8 +452,7 @@ public class InspectorSearch : EditorWindow
         var file = dir + datetime + ".png";
         Debug.Log("saved to: " + file);
         Application.CaptureScreenshot(file);
-    }
-    
+    }    
     [MenuItem("GameObject/Attach Prefab")]
     static void AttachPrefabToSelectedObjects()
     {
@@ -909,7 +1046,7 @@ public class InspectorSearch : EditorWindow
     //    Undo.RegisterSceneUndo("rtools");
     //    int size = 256;
     //    var sc = SceneView.lastActiveSceneView.camera;
-    //    GameObject co = (GameObject)Instantiate(Base2.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
+    //    GameObject co = (GameObject)Instantiate(Base.FindAsset<GameObject>("SnapShotCamera"), sc.transform.position, sc.transform.rotation);
     //    Camera c = co.GetComponentInChildren<Camera>();
     //    RenderTexture rt = RenderTexture.GetTemporary(size, size, 0, RenderTextureFormat.ARGB32);
     //    c.targetTexture = rt;
@@ -952,7 +1089,7 @@ public class InspectorSearch : EditorWindow
     #endregion
     protected virtual void Update()
     {
-
+        EditorApplication.playmodeStateChanged = OnPlaymodeStateChanged;
 
         autosavetm += 0.01f;
         _TimerA.Update();
@@ -972,23 +1109,7 @@ public class InspectorSearch : EditorWindow
             this.Repaint();
     }
     public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
-    [MenuItem("File/Backup")]
-    private static void Backup()
-    {
-        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
-        {
-            EditorApplication.SaveAssets();
-            EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
-            var cs = EditorApplication.currentScene;
-            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Backups/";
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-
-            var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
-            Debug.Log("backup: " + p);
-            EditorApplication.SaveScene(p);
-        }
-    }
-
+    
 
 }
 #endif

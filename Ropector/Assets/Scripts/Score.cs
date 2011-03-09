@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class Score : MonoBehaviour {
+public class Score : bs {
 
-    public Player pl;
+    public bs pl { get { return Game.iplayer; } }
 	void Start () {
-
+        Game.blues.Add(this);
         this.GetComponentInChildren<Animation>()["Score"].normalizedTime = Random.value;
 	}
 	
@@ -22,6 +22,7 @@ public class Score : MonoBehaviour {
         }
         if (dist < .5f)
         {
+            Game.Player.scores++;
             Destroy(this.gameObject);
         }
 	}

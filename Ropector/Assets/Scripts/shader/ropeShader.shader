@@ -4,14 +4,8 @@ Shader "Solid" {
     }
     SubShader {
         Pass { 
-			//Color _Color 
 			Color [_Color]
-			Cull Front
-        }
-        Pass { 
-			//Color _Color 
-			Color [_Color]
-			Cull Back
-        }
+			Cull Off			
+        }   
     }
 } 

@@ -6,7 +6,7 @@ public class Cam : bs
     [FindTransform(scene=true)]
     public bs cursor;
     public Vector3 fakeCursor;
-    public bs cam;
+    public Camera cam;
     public bs player { get { return Game.iplayer; } }
     private Vector3 velocity;
     public void Start()
@@ -14,7 +14,12 @@ public class Cam : bs
         if(!Application.isEditor)
         Screen.lockCursor = true;
     }
-    
+    public override void InitValues()
+    {
+        cam.transform.position = Vector3.zero;
+        cam.transform.rotation = Quaternion.identity;
+        base.InitValues();
+    }
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;

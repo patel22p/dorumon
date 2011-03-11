@@ -2,16 +2,16 @@
 using UnityEngine;
 public class CheckPoint : bs
 {
-    public bool check;
+    public bool checkd;
 
     void Update()
     {
-        if (Vector3.Distance(Player.pos, pos) < 5)
+        if (Vector3.Distance(Player.pos, pos) < 20)
         {
-            check = true;
+            checkd = true;
             enabled = false;
-            renderer.material.color = Color.clear;
-            Player.L
+            renderer.material.color = Color.cyan;
+            Game.LastCheckPoint = this;
         }
     }
 }

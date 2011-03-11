@@ -3,32 +3,33 @@ using System.Collections;
 using doru;
 
 public class Player : bs {
-         
-    public TimerA timer = new TimerA();
-    public RopeEnd[] ropes;
+
+    internal TimerA timer = new TimerA();
+    internal RopeEnd[] ropes = new RopeEnd[2];
     
     //public Menu GameGui;
     public int scores;
     void Start()
     {
-        foreach (var r in ropes)
-            Game.alwaysUpdate.Add(r);
+        
+        ropes[0] = GameObject.Find("RopeEnd").GetComponent<RopeEnd>();
+        ropes[1] = GameObject.Find("RopeEnd2").GetComponent<RopeEnd>();
         ropes[0].renderer.material.color = Color.blue;
         ropes[1].renderer.material.color = Color.red;
+        foreach (var r in ropes)
+            Game.alwaysUpdate.Add(r);
         rigidbody.maxAngularVelocity = 30;
     }
     public override void InitValues()
     {        
-        base.InitValues();
-        ropes[0] = GameObject.Find("RopeEnd").GetComponent<RopeEnd>();
-        ropes[1] = GameObject.Find("RopeEnd2").GetComponent<RopeEnd>();
+        base.InitValues();        
     }
     void Update()
     {        
-        Menu.info.text = ("streching:" );        
+        GameGui.info.text = ("streching:" );        
         UpdateCars();
         UpdatePlayer();
-        timer.Update();
+        timer.Update();        
     }
     void UpdateCars()
     {
@@ -41,7 +42,6 @@ public class Player : bs {
             }
         }
     }
-
     private void UpdatePlayer()
     {
         if (!Screen.lockCursor) return;
@@ -60,8 +60,6 @@ public class Player : bs {
         controller.AddForce(mv * rigidbody.mass * 3); //add force /magnitde
         controller.AddRelativeTorque(0, 0, -mv.x * rigidbody.mass * 3);
     }
-
-
     public Base cursor { get { return Cam.cursor; } }
     
 } 

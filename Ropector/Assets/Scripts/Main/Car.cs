@@ -82,9 +82,9 @@ public class Car : bs {
         else
             torq = 0;
 
-        var trq = 10000;
+        var rotate = 20000;
 
-        rigidbody.AddTorque(0, 0, Input.GetAxis("Horizontal")*trq);
+        rigidbody.AddTorque(0, 0, Input.GetAxis("Horizontal") * -rotate);
         whellColliders[0].motorTorque = torq;
         if(Input.GetKeyDown(KeyCode.R))
         {            

@@ -7,8 +7,7 @@ using System.Collections.Generic;
 public class Game : bs
 {
     internal List<Car> cars = new List<Car>();
-    public List<bs> alwaysUpdate = new List<bs>();
-    public CheckPoint LastCheckPoint;
+    public List<bs> alwaysUpdate = new List<bs>();    
     public TimerA timer = new TimerA();
     [FindTransform(scene = true)]
     public Animation deadAnim;
@@ -23,6 +22,7 @@ public class Game : bs
     [FindAsset]
     public Material wallMat;
     public float fall;
+    public bool Win;
     public override void Init()
     {
         IgnoreAll("IgnoreColl");
@@ -32,21 +32,28 @@ public class Game : bs
     }
     void Update()
     {
+        GameGui.time.text = TimeSpan.FromSeconds(Time.timeSinceLevelLoad)+"";
         foreach (var a in alwaysUpdate)
             a.AlwaysUpdate();
         if (Player.pos.y < fall && Player.gameObject.active)
         {
-            
             Player.gameObject.active = false;
             deadAnim.Play();
-            timer.AddMethod(2000, delegate { LoadLevel(Application.loadedLevelName ); });
+            timer.AddMethod(2000, delegate { LoadLevel(Application.loadedLevelName); });
         }
-
-        Menu.scores.text = Player.scores + "/" + blues.Count;
+        if (Player.scores == blues.Count && !Win)
+        {
+            Win = true;
+            Game.gameObject.active = Player.gameObject.active = false;
+            deadAnim.Play();
+            PlayerPrefs.SetString(Application.loadedLevelName, "success");
+            int nextLevel = int.Parse(Application.loadedLevelName.Substring(0, 1)) + 1;
+            timer.AddMethod(2000, delegate { LoadLevel(nextLevel + ".unity"); });
+        }
+        GameGui.scores.text = Player.scores + "/" + blues.Count;
         UpdateWall();
         timer.Update();
     }
-
     public void LoadLevel(string n)
     {
         Debug.Log("loading Level" + n);
@@ -82,11 +89,12 @@ public class Game : bs
     private void UpdateWall()
     {
         tmWall -= Time.deltaTime;
-
+        if (Input.GetKeyDown(KeyCode.Return))
+            LoadLevel(Application.loadedLevelName);
         if (Input.GetKey(KeyCode.B))//create rigidbody first?
         {
             //if (tmWall < 0 && (oldp == null || Vector3.Distance(cursor.pos, oldp.Value) > 1))
-            if (oldp == null || Vector3.Distance(cursor.pos, oldp.Value) > .2F)
+            if (oldp == null || Vector3.Distance(cursor.pos, oldp.Value) > .5F)
             {
                 if (oldp != null)
                 {
@@ -114,7 +122,7 @@ public class Game : bs
         {
             if (oldp != null && Holder != null)
             {
-                //Combine(Holder);
+                Combine(Holder);
                 Holder.AddComponent<Rigidbody>();
                 Holder.AddComponent<Drawed>();
                 Holder.rigidbody.isKinematic = true;

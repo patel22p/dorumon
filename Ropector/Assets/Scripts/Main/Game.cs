@@ -8,6 +8,7 @@ public class Game : bs
 {
     internal List<Car> cars = new List<Car>();
     public List<bs> alwaysUpdate = new List<bs>();
+    public CheckPoint LastCheckPoint;
     public TimerA timer = new TimerA();
     [FindTransform(scene = true)]
     public Animation deadAnim;
@@ -170,15 +171,3 @@ public class Game : bs
         return UnityEditor.EditorApplication.currentScene.EndsWith("1.unity");
     }
 }
-
-//public void SaveCheckPoint(CheckPoint c)
-//{
-//    PlayerPrefs.SetString("CheckPoint", c.pos.x + "," + c.pos.y + "," + c.pos.z);
-//}
-//public Vector3 LoadCheckPoint()
-//{
-//    var s = PlayerPrefs.GetString("CheckPoint");
-//    if (s == null) return Vector3.zero;
-//    var ss =s.Split(',');
-//    return new Vector3(int.Parse(ss[0]), int.Parse(ss[1]), int.Parse(ss[2]));
-//}

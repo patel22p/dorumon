@@ -1,14 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-enum btn { Horizontal, Vertical, Rope, Build, EnterCar ,Brake,Rotate,Cut,Destroy,Active}
 
 public class Car : bs {
 
     public List<GameObject> whells = new List<GameObject>();
-    List<WheelCollider> whellColliders = new List<WheelCollider>();
-    public bool scnd{get{return pl.scnd;}}
-    public Player pl;
+    List<WheelCollider> whellColliders = new List<WheelCollider>();        
     
     public override void Awake()
     {
@@ -39,18 +36,18 @@ public class Car : bs {
         Debug.Log("Enter CAr"+ enter);
         if (!enter)
         {
-            Game.iplayer = pl;
-            pl.pos2 = this.pos2;
-            pl.SetActive(true);
+            Game.iplayer = Player;
+            Player.pos2 = this.pos2;
+            Player.SetActive(true);
             playerIn = false;
-            pl = null;
+            Player = null;
         }
         else
         {
             Game.iplayer = this;
             p.SetActive(false);
             playerIn = true;
-            pl = p;
+            Player = p;
         }
     }
 	void Update () {
@@ -63,7 +60,7 @@ public class Car : bs {
             return;
         }
         
-        if (Input.GetButtonDown(btn.EnterCar+""))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             EnterCar(false, null);
         }
@@ -71,7 +68,7 @@ public class Car : bs {
         {
             
             var wc = whellColliders[i];
-            if (Input.GetButton(btn.Brake+""))
+            if (Input.GetKey(KeyCode.Space))
                 wc.brakeTorque = 60;
             else
                 wc.brakeTorque = 0;
@@ -82,16 +79,16 @@ public class Car : bs {
             else
                 whells[i].transform.position = ccp - (wc.transform.up * wc.suspensionDistance);
         }
-        if (Input.GetAxis(btn.Vertical+"") < 0)
+        if (Input.GetAxis("Vertical") > 0)
             torq = 30;
         else
             torq = 0;
 
         var trq = 10000;
 
-        rigidbody.AddTorque(0, 0, Input.GetAxis(btn.Horizontal + "")*trq);
+        rigidbody.AddTorque(0, 0, Input.GetAxis("Horizontal")*trq);
         whellColliders[0].motorTorque = torq;
-        if(Input.GetButtonDown(btn.Rotate+""))
+        if(Input.GetKeyDown(KeyCode.R))
         {            
             transform.Rotate(Vector3.up, 180);            
         }

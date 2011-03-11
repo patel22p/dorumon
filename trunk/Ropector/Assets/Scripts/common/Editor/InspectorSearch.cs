@@ -66,6 +66,7 @@ public class InspectorSearch : EditorWindow
             }
         if (GUI.Button("Init"))
         {
+            InitTransforms();
             Init();            
         }
         GUI.EndHorizontal();
@@ -86,6 +87,7 @@ public class InspectorSearch : EditorWindow
     }
     public void Init()
     {
+        
         foreach (var go in Selection.gameObjects)
         {
             foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
@@ -94,13 +96,41 @@ public class InspectorSearch : EditorWindow
             {
                 foreach (var pf in scr.GetType().GetFields())
                 {
-                    FindAsset(scr, pf);                    
+                    FindAsset(scr, pf);
                     FindTransform(scr, pf);
                 }                
                 scr.InitValues();
                 scr.Init();
             }
         }
+    }
+    [MenuItem("Edit/InitValues")]    
+    private static void StartInitValues()
+    {
+        var dt = DateTime.Now;
+        foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
+        {
+            if (AssetDatabase.IsMainAsset(a))
+            {
+                bool mod = false;
+                var ar = a.transform.GetTransforms().ToArray();
+                foreach (var b in ar)
+                {
+                    var bs = b.GetComponent<Base>();
+                    if (bs != null)
+                    {
+                        bs.InitValues();                        
+                        mod = true;
+                    }
+                }
+                if (mod)
+                    EditorUtility.SetDirty(a);
+            }
+            else
+                foreach (var bs in a.GetComponentsInChildren<Base>())
+                    bs.InitValues();
+        } 
+        Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
     }
     private static void FindTransform(Base scr, FieldInfo pf)
     {
@@ -110,7 +140,6 @@ public class InspectorSearch : EditorWindow
             string name = (atr.name == null) ? pf.Name : atr.name;
             try
             {
-
                 GameObject g = atr.scene ? GameObject.Find(name).gameObject : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
                 if (g == null) throw new Exception();
                 if (pf.FieldType == typeof(GameObject))
@@ -327,33 +356,7 @@ public class InspectorSearch : EditorWindow
         }
     }
     public GameObject selectedGameObject;
-    private static void InitValues()
-    {
-        var dt = DateTime.Now;
-        foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
-        {
-            if (AssetDatabase.IsMainAsset(a))
-            {
-                bool mod = false;
-                var ar = a.transform.GetTransforms().ToArray();
-                foreach (var b in ar)
-                {
-                    var bs = b.GetComponent<Base>();
-                    if (bs != null)
-                    {
-                        bs.InitValues();
-                        mod = true;
-                    }
-                }
-                if (mod)
-                    EditorUtility.SetDirty(a);
-            }
-            else
-                foreach (var bs in a.GetComponentsInChildren<Base>())
-                    bs.InitValues();
-        }
-        Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
-    }
+    
     public DateTime idletime;
     private void OnSceneUpdate(SceneView scene)
     {
@@ -409,7 +412,20 @@ public class InspectorSearch : EditorWindow
     public static void OnPlaymodeStateChanged()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
-            InitValues();
+        {
+            StartInitValues();            
+        }
+    }
+
+    private static void InitTransforms()
+    {
+        foreach (bs bs in GameObject.FindObjectsOfType(typeof(bs)))
+        {
+            //var bs = a.GetComponent<bs>();
+            //if (bs != null)
+                foreach (var pf in bs.GetType().GetFields())
+                    FindTransform(bs, pf);
+        }
     }
     #region menuitems    
     [MenuItem("Edit/Play %r")]    
@@ -468,16 +484,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    [MenuItem("GameObject/Child")]
-    static void CreateChild()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        var t = Selection.activeTransform;
-        var nwt = new GameObject("Child").transform;
-        nwt.position = t.position;
-        nwt.rotation = t.rotation;
-        nwt.parent = t;
-    }
+    
     [MenuItem("GameObject/Duplicate100")]
     static void Duplicate()
     {
@@ -541,80 +548,12 @@ public class InspectorSearch : EditorWindow
     static void Combine()
     {
         Undo.RegisterSceneUndo("rtools");
-        var generateTriangleStrips = true;
+        
         var g = Selection.activeGameObject;
-        Component[] filters = g.GetComponentsInChildren(typeof(MeshFilter));
-        Matrix4x4 myTransform = g.transform.worldToLocalMatrix;
-        Hashtable materialToMesh = new Hashtable();
-
-        for (int i = 0; i < filters.Length; i++)
-        {
-            MeshFilter filter = (MeshFilter)filters[i];
-            Renderer curRenderer = filters[i].renderer;
-            MeshCombineUtility.MeshInstance instance = new MeshCombineUtility.MeshInstance();
-            instance.mesh = filter.sharedMesh;
-            if (curRenderer != null && curRenderer.enabled && instance.mesh != null)
-            {
-                instance.transform = myTransform * filter.transform.localToWorldMatrix;
-
-                Material[] materials = curRenderer.sharedMaterials;
-                for (int m = 0; m < materials.Length; m++)
-                {
-                    instance.subMeshIndex = System.Math.Min(m, instance.mesh.subMeshCount - 1);
-
-                    ArrayList objects = (ArrayList)materialToMesh[materials[m]];
-                    if (objects != null)
-                    {
-                        objects.Add(instance);
-                    }
-                    else
-                    {
-                        objects = new ArrayList();
-                        objects.Add(instance);
-                        materialToMesh.Add(materials[m], objects);
-                    }
-                }
-
-                curRenderer.enabled = false;
-            }
-        }
-
-        foreach (DictionaryEntry de in materialToMesh)
-        {
-            ArrayList elements = (ArrayList)de.Value;
-            MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
-
-            // We have a maximum of one material, so just attach the mesh to our own game object
-            if (materialToMesh.Count == 1)
-            {
-                // Make sure we have a mesh filter & renderer
-                if (g.GetComponent(typeof(MeshFilter)) == null)
-                    g.gameObject.AddComponent(typeof(MeshFilter));
-                if (!g.GetComponent("MeshRenderer"))
-                    g.gameObject.AddComponent("MeshRenderer");
-
-                MeshFilter filter = (MeshFilter)g.GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
-                g.renderer.material = (Material)de.Key;
-                g.renderer.enabled = true;
-            }
-            // We have multiple materials to take care of, build one mesh / gameobject for each material
-            // and parent it to this object
-            else
-            {
-                GameObject go = new GameObject("Combined mesh");
-                go.transform.parent = g.transform;
-                go.transform.localScale = Vector3.one;
-                go.transform.localRotation = Quaternion.identity;
-                go.transform.localPosition = Vector3.zero;
-                go.AddComponent(typeof(MeshFilter));
-                go.AddComponent("MeshRenderer");
-                go.renderer.material = (Material)de.Key;
-                MeshFilter filter = (MeshFilter)go.GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
-            }
-        }
+        Base.Combine(g);
     }
+
+    
     [MenuItem("GameObject/Parent")]
     static void CreateParent()
     {
@@ -625,7 +564,20 @@ public class InspectorSearch : EditorWindow
         t2.rotation = t.rotation;
         t2.parent = t.parent;
         t.parent = t2;
+        t2.name = t.name;
     }
+    [MenuItem("GameObject/Child")]
+    static void CreateChild()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var t = Selection.activeTransform;
+        var nwt = new GameObject("Child").transform;
+        nwt.position = t.position;
+        nwt.rotation = t.rotation;
+        nwt.parent = t;
+        nwt.name = t.name;
+    }
+
     [MenuItem("GameObject/UnParent")]
     static void UnParent()
     {

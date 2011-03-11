@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_2_0;UNITY_3_2;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -55,16 +55,19 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <Compile Include="Assets\Scripts\Main\bs.cs" />
+     <Compile Include="Assets\Scripts\Main\Button.cs" />
+     <Compile Include="Assets\Scripts\Main\Cam.cs" />
+     <Compile Include="Assets\Scripts\Main\Car.cs" />
+     <Compile Include="Assets\Scripts\Main\Drawed.cs" />
+     <Compile Include="Assets\Scripts\Main\Game.cs" />
+     <Compile Include="Assets\Scripts\Main\Menu.cs" />
+     <Compile Include="Assets\Scripts\Main\Player.cs" />
+     <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />
+     <Compile Include="Assets\Scripts\Main\Score.cs" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />
-     <Compile Include="Assets\Scripts\bs.cs" />
-     <Compile Include="Assets\Scripts\Cam.cs" />
-     <Compile Include="Assets\Scripts\Car.cs" />
-     <Compile Include="Assets\Scripts\Drawed.cs" />
-     <Compile Include="Assets\Scripts\Game.cs" />
-     <Compile Include="Assets\Scripts\Menu.cs" />
-     <Compile Include="Assets\Scripts\Player.cs" />
-     <Compile Include="Assets\Scripts\RopeEnd.cs" />
-     <Compile Include="Assets\Scripts\Score.cs" />
+     <Compile Include="Assets\Scripts\Turret\Patron.cs" />
+     <Compile Include="Assets\Scripts\Turret\Turret.cs" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />
@@ -76,6 +79,8 @@
      <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\EdgeDetectEffectNormalsEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\SunShaftsEditor.js" />
+     <Compile Include="Assets\Standard Assets\Editor\Water3\Water3Editor.cs" />
+     <None Include="Assets\Standard Assets\Glass Refraction (Pro Only)\Sources\Shaders\Glass-Stained-BumpDistort.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Adaptation.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Luminance.shader" />
@@ -165,6 +170,16 @@
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
      <None Include="Assets\Standard Assets\Skyboxes\ skybox info.txt" />
+     <Compile Include="Assets\Standard Assets\Water (Pro Only)\Sources\Scripts\Water.cs" />
+     <None Include="Assets\Standard Assets\Water (Pro Only)\Sources\Shaders\FX-Water.shader" />
+     <None Include="Assets\Standard Assets\Water (Pro Only)\Sources\Shaders\RiverWater.shader" />
+     <None Include="Assets\Standard Assets\Water (Pro Only)\Sources\Shaders\RiverWaterVertexColor.shader" />
+     <Compile Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Scripts\Water3.cs" />
+     <Compile Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Scripts\Water3Float.cs" />
+     <Compile Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Scripts\Water3Manager.cs" />
+     <Compile Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Scripts\Water3UnderwaterEffect.cs" />
+     <None Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Shaders\FX-Water3.shader" />
+     <None Include="Assets\Standard Assets\Water (Pro Only)\Water3\Sources\Shaders\Water3Underwater.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

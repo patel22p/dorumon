@@ -6,7 +6,7 @@ public class Player : bs {
          
     public TimerA timer = new TimerA();
     public RopeEnd[] ropes;
-
+    
     //public Menu GameGui;
     public int scores;
     void Start()
@@ -25,7 +25,7 @@ public class Player : bs {
     }
     void Update()
     {        
-        GameGui.info.text = ("streching:" );        
+        Menu.info.text = ("streching:" );        
         UpdateCars();
         UpdatePlayer();
         timer.Update();

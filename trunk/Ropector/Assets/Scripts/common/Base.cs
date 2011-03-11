@@ -5,7 +5,7 @@ using System.Linq;
 using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
-[AddComponentMenu("Base")]
+
 public class Base : MonoBehaviour
 {
     public void SetLayer(int l)

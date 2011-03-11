@@ -20,23 +20,18 @@ using System.Collections;
 public class InspectorSearch : EditorWindow
 {
     protected TimerA _TimerA = new TimerA();
-    float autosavetm = 0;
-    public List<string> instances = new List<string>();
+    float autosavetm = 0;    
     List<Object> lastUsed = new List<Object>();
     string search = "";
+    Vector3 oldpos;
+    public List<string> instances = new List<string>();
     public bool SetPivot;
     public bool SetCam;
-    
+    public bool bake;
     public float curentLayerDist;
-    Vector3 oldpos;
-    public static string datetime
-    {
-        get
-        {
-            return DateTime.Now.Ticks + "";
-            //return DateTime.Now.ToString("yyyy-MM-dd hh-mm");
-        }
-    }
+
+    float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
+    float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
     public virtual void Awake()
     {
         PlayerSettings.runInBackground = true;
@@ -65,10 +60,7 @@ public class InspectorSearch : EditorWindow
                 SaveParams();
             }
         if (GUI.Button("Init"))
-        {
-            InitTransforms();
-            Init();            
-        }
+            Inits();            
         GUI.EndHorizontal();
         QualitySettings.shadowDistance = gui.FloatField("LightmapDist", QualitySettings.shadowDistance);
         if (Selection.activeGameObject != null) // Layer Distances
@@ -80,12 +72,103 @@ public class InspectorSearch : EditorWindow
             if (oldv != ls[lr])
                 Camera.main.layerCullDistances = ls;
         }
-        
-
+        GUI.BeginHorizontal();
+        bake = GUI.Toggle(bake, "Bake", GUI.ExpandWidth(false));
+        lfactor = EditorGUILayout.FloatField(lfactor, GUI.Width(30));
+        GUI.Label("ambient", GUI.Width(30));
+        dfactor = EditorGUILayout.FloatField(dfactor, GUI.Width(30));
+        GUI.Label("Directional", GUI.Width(30));
+        if (GUI.Button("SetupLevel"))
+            LevelSetup();
+        GUI.EndHorizontal();
         DrawObjects();
         DrawSearch();
     }
-    public void Init()
+
+    class DTR
+    {
+        public Transform transform;
+        public string path = "";
+    }
+    static IEnumerable<DTR> GetTransforms2(DTR ts)
+    {
+        yield return ts;
+        foreach (Transform t in ts.transform)
+        {
+            foreach (var t2 in GetTransforms2(new DTR { path = (ts.path + "/" + t.name), transform = t }))
+                yield return t2;
+        }
+    }
+    private void LevelSetup()
+    {
+        var Level = GameObject.Find("Level");
+        var oldl = Level.transform.Find("level");
+        if (oldl != null)
+            DestroyImmediate(oldl.gameObject);
+        string path = EditorApplication.currentScene.Split('.')[0] + "/";
+        path = path.Substring("Assets/".Length);
+        Debug.Log("setup level: " + path);
+        var nl = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
+        nl.transform.parent = Level.transform;
+        nl.transform.position = Level.transform.position;
+        nl.name = "level";
+        Selection.activeGameObject = nl;        
+        
+
+        foreach (var d in GetTransforms2(new DTR { transform = Selection.activeGameObject.transform }))
+        {
+            var g = d.transform.gameObject;
+            var pathA = d.path.TrimStart(new char[] { '/' });
+            var p = Selection.activeGameObject.transform.parent.Find(pathA);
+            if (p != null)
+            {
+                var mt = p.GetComponent<MapTag>();
+                if (!(mt != null && mt.skipResetPos))
+                {
+                    p.transform.position = g.transform.position;
+                    p.transform.rotation = g.transform.rotation;
+                    p.transform.localScale = g.transform.localScale;
+                }
+                Clear(g, true);
+            }
+        }
+        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
+        {
+            t.gameObject.layer = LayerMask.NameToLayer("Level");
+            t.gameObject.isStatic = true;
+        }
+        Inits();
+
+        _TimerA.AddMethod(delegate
+        {
+            if (bake)
+            {
+                var old = RenderSettings.ambientLight;
+                RenderSettings.ambientLight = Color.white * lfactor;
+                var en = new Queue<LightShadows>();
+                var q = new Queue<float>();
+                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                {
+
+                    q.Enqueue(a.intensity);
+                    en.Enqueue(a.shadows);
+                    if (a.type == LightType.Directional)
+                        a.intensity = dfactor;
+                    a.shadows = LightShadows.Soft;
+                }
+                Lightmapping.BakeAsync();
+                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
+                {
+                    a.intensity = q.Dequeue();
+                    a.shadows = en.Dequeue();
+                }
+                RenderSettings.ambientLight = old;
+
+            }
+        });
+    }
+
+    public void Inits()
     {
         
         foreach (var go in Selection.gameObjects)
@@ -107,7 +190,7 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Edit/InitValues")]    
     private static void StartInitValues()
     {
-        var dt = DateTime.Now;
+        //var dt = DateTime.Now;
         foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
         {
             if (AssetDatabase.IsMainAsset(a))
@@ -130,7 +213,7 @@ public class InspectorSearch : EditorWindow
                 foreach (var bs in a.GetComponentsInChildren<Base>())
                     bs.InitValues();
         } 
-        Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
+        //Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
     }
     private static void FindTransform(Base scr, FieldInfo pf)
     {
@@ -335,26 +418,7 @@ public class InspectorSearch : EditorWindow
     {
         EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
     }
-    protected virtual void SetupLevel()
-    {
-        foreach (Transform g in Selection.activeGameObject.transform)
-        {
-            bool glow = g.tag == "Glow";
-            if (g.tag == "glass" || glow)
-            {
-                foreach (var t in g.GetTransforms())
-                {
-                    if (glow && t.collider != null)
-                        t.collider.isTrigger = true;
-                    t.gameObject.layer = LayerMask.NameToLayer("Glass");
-                    if (t.GetComponent<Renderer>() != null)
-                    {
-                        t.renderer.castShadows = false;
-                    }
-                }
-            }
-        }
-    }
+    
     public GameObject selectedGameObject;
     
     public DateTime idletime;
@@ -417,16 +481,7 @@ public class InspectorSearch : EditorWindow
         }
     }
 
-    private static void InitTransforms()
-    {
-        foreach (bs bs in GameObject.FindObjectsOfType(typeof(bs)))
-        {
-            //var bs = a.GetComponent<bs>();
-            //if (bs != null)
-                foreach (var pf in bs.GetType().GetFields())
-                    FindTransform(bs, pf);
-        }
-    }
+    
     #region menuitems    
     [MenuItem("Edit/Play %r")]    
     private static void Play()
@@ -1061,7 +1116,23 @@ public class InspectorSearch : EditorWindow
             this.Repaint();
     }
     public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
-    
-
+    public static string datetime
+    {
+        get
+        {
+            return DateTime.Now.Ticks + "";
+            //return DateTime.Now.ToString("yyyy-MM-dd hh-mm");
+        }
+    }
+    IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
+    {
+        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
+        {
+            string f = f2.Replace(@"\", "/").Replace("//", "/");
+            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));
+            if (a != null)
+                yield return a;
+        }
+    }
 }
 #endif

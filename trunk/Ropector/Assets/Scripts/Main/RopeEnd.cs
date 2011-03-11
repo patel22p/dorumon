@@ -7,7 +7,7 @@ public class RopeEnd : bs
     float tmRope;
     //bool enabled = true;
     public float RopeFactor = 1;
-    public float ShootFactor = 1;
+    //public float ShootFactor = 1;
     public float ObjectMagnetFactor = 1;
     public LineRenderer line;
 
@@ -31,7 +31,7 @@ public class RopeEnd : bs
     {
         
         RopeFactor = 1000f;
-        ShootFactor = 700f;
+        //ShootFactor = 700f;
         ObjectMagnetFactor = 500;
         base.InitValues();
     }
@@ -56,7 +56,7 @@ public class RopeEnd : bs
             else if (v.magnitude > 3)
             {
                 //Player.pos += v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude);
-                Player.rigidbody.AddForce(v * -1 * this.ShootFactor * Time.deltaTime / v.magnitude*3);
+                Player.rigidbody.AddForce(new Vector3(700 * v.x, 1200 * v.y, 700 * v.z) * -1 * Time.deltaTime / v.magnitude * 3);
             }
         }
         else

@@ -122,8 +122,8 @@ public class InspectorSearch : EditorWindow
             var p = Selection.activeGameObject.transform.parent.Find(pathA);
             if (p != null)
             {
-                var mt = p.GetComponent<MapTag>();
-                if (!(mt != null && mt.skipResetPos))
+                var mt = p.GetComponent<Base>();
+                if (!(mt != null && mt.dontResetPos))
                 {
                     p.transform.position = g.transform.position;
                     p.transform.rotation = g.transform.rotation;
@@ -184,6 +184,17 @@ public class InspectorSearch : EditorWindow
                 }                
                 scr.InitValues();
                 scr.Init();
+            }
+        }
+    }
+    static void InitTransforms()
+    {
+        foreach (Base bs in GameObject.FindObjectsOfType(typeof(Base)))
+        {
+            //if (bs.name == "Game") Debug.Log("found");
+            foreach (var pf in bs.GetType().GetFields())
+            {
+                FindTransform(bs, pf);
             }
         }
     }
@@ -477,7 +488,8 @@ public class InspectorSearch : EditorWindow
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
         {
-            StartInitValues();            
+            StartInitValues();
+            InitTransforms();
         }
     }
 
@@ -690,7 +702,7 @@ public class InspectorSearch : EditorWindow
     }
     private static bool clothcollider(GameObject g)
     {
-        return g.GetComponent<MapTag>() != null && g.GetComponent<MapTag>().SpawnType == SpawnType.clothcollider;
+        return g.GetComponent<Base>() != null && g.GetComponent<Base>().ObjectType == ObjectType.clothCollider;
     }
     [MenuItem("Assets/Clear Labels %y")]
     static void ClearLabels()

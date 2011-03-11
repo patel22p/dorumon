@@ -13,11 +13,14 @@ public class Cam : bs
     {
         if(!Application.isEditor)
         Screen.lockCursor = true;
+        cam = Camera.main;
+        cam.transform.parent = this.transform;
+        cam.transform.position = cam.transform.parent.position;
+        cam.transform.rotation = cam.transform.parent.rotation;
+        cam.GetComponent<GUILayer>().enabled = true;
     }
     public override void InitValues()
-    {
-        cam.transform.position = Vector3.zero;
-        cam.transform.rotation = Quaternion.identity;
+    {        
         base.InitValues();
     }
     public void Update()
@@ -32,7 +35,7 @@ public class Cam : bs
     {
         fake = Mathf.SmoothDamp(fake, Player.rigidbody.velocity.sqrMagnitude, ref vel, 0.95f);
         var pp = player.pos;
-        pos = new Vector3(pp.x, pp.y+10, -40 - Mathf.Sqrt(fake));        
+        pos = new Vector3(pp.x, pp.y + 10, -30 - Mathf.Sqrt(fake));
         cam.transform.LookAt(fakeCursor);
         fakeCursor = Vector3.SmoothDamp(fakeCursor, cursor.pos, ref velocity, 0.5f);
         if (!Screen.lockCursor) return;

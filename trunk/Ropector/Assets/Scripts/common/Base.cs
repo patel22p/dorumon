@@ -5,9 +5,11 @@ using System.Linq;
 using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
-
+public enum ObjectType { none, clothCollider }
 public class Base : MonoBehaviour
 {
+    public ObjectType ObjectType;
+    public bool dontResetPos;
     public void SetLayer(int l)
     {
         foreach (var t in this.transform.GetTransforms())
@@ -126,5 +128,12 @@ public class Base : MonoBehaviour
             }
         }
     }
-    
+    public static string TimeToString(TimeSpan t)
+    {
+        var s = t.ToString();
+        if (s.IndexOf(".") != -1)
+            return s.Substring(0, s.IndexOf("."));
+        else
+            return s;
+    }   
 }

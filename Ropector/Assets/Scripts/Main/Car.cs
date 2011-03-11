@@ -39,15 +39,13 @@ public class Car : bs {
             Game.iplayer = Player;
             Player.pos2 = this.pos2;
             Player.SetActive(true);
-            playerIn = false;
-            Player = null;
+            playerIn = false;            
         }
         else
         {
             Game.iplayer = this;
             p.SetActive(false);
-            playerIn = true;
-            Player = p;
+            playerIn = true;            
         }
     }
 	void Update () {

@@ -10,10 +10,10 @@ public class RopeEnd : bs
     public float ShootFactor = 1;
     public float ObjectMagnetFactor = 1;
     public LineRenderer line;
-    public override void AlwaysUpdate()
+
+    void Start()
     {
-        tmRope -= Time.deltaTime;
-        base.AlwaysUpdate();
+        EnableRope(false);
     }
     void Update()
     {
@@ -21,6 +21,11 @@ public class RopeEnd : bs
         HitTest();
         line.SetPosition(0, Player.pos);
         line.SetPosition(1, this.pos);
+    }
+    public override void AlwaysUpdate()
+    {
+        tmRope -= Time.deltaTime;
+        base.AlwaysUpdate();
     }
     public override void InitValues()
     {
@@ -49,7 +54,10 @@ public class RopeEnd : bs
                     r.AddForceAtPosition(v * this.ObjectMagnetFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude), this.transform.position);
             }
             else if (v.magnitude > 3)
-                Player.rigidbody.AddForce(v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude));
+            {
+                //Player.pos += v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude);
+                Player.rigidbody.AddForce(v * -1 * this.ShootFactor * Time.deltaTime / v.magnitude*3);
+            }
         }
         else
             this.rigidbody.AddForce(v * this.RopeFactor * Time.deltaTime);
@@ -95,9 +103,15 @@ public class RopeEnd : bs
     bool attached { get { return rigidbody.isKinematic; } }
     void OnColl(Vector3 point, Transform t)
     {
-        this.rigidbody.isKinematic = true;
-        transform.parent = t;
-        transform.position = point;
+        var bs = t.gameObject.GetComponent<bs>();
+        if (bs != null && bs.attachRope)
+        {
+            this.rigidbody.isKinematic = true;
+            transform.parent = t;
+            transform.position = point;
+        }
+        else
+            EnableRope(false);
     }
     public void EnableRope(bool value)
     {

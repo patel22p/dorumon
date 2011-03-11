@@ -3,20 +3,61 @@ using UnityEngine;
 using doru;
 using System.Collections.Generic;
 
+
 public class Game : bs
 {
+    internal List<Car> cars = new List<Car>();
     public List<bs> alwaysUpdate = new List<bs>();
     public TimerA timer = new TimerA();
+    [FindTransform(scene = true)]
+    public Animation deadAnim;
     [FindTransform]
     public Base cursor;
-    [FindTransform("Player",scene=true)]
+    [FindTransform("Player", scene = true)]
     public bs iplayer;
     public List<Score> blues = new List<Score>();
+    float tmWall;
+    Vector3? oldp;
+    GameObject Holder;
+    [FindAsset]
+    public Material wallMat;
+    public float fall;
     public override void Init()
     {
+        IgnoreAll("IgnoreColl");
         IgnoreAll("Button");
         AddColl("Button", "Player");        
         base.Init();
+    }
+    void Update()
+    {
+        foreach (var a in alwaysUpdate)
+            a.AlwaysUpdate();
+        if (Player.pos.y < fall && Player.gameObject.active)
+        {
+            
+            Player.gameObject.active = false;
+            deadAnim.Play();
+            timer.AddMethod(2000, delegate { LoadLevel(Application.loadedLevelName ); });
+        }
+
+        Menu.scores.text = Player.scores + "/" + blues.Count;
+        UpdateWall();
+        timer.Update();
+    }
+
+    public void LoadLevel(string n)
+    {
+        Debug.Log("loading Level" + n);
+        timer.Clear();
+        Application.LoadLevel(n);
+    }
+    public override void InitValues()
+    {
+        if (isLevel(1))
+            fall = -7f;
+
+        base.InitValues();
     }
     private static void AddColl(string a,string b)
     {
@@ -26,21 +67,6 @@ public class Game : bs
     {
         for (int i = 1; i < 31; i++)
             Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
-    }
-    internal List<Car> cars = new List<Car>();
-
-    float tmWall;
-    Vector3? oldp;
-    GameObject Holder;
-    [FindAsset]
-    public Material wallMat;    
-    void Update()
-    {
-        foreach (var a in alwaysUpdate)
-            a.AlwaysUpdate();
-        GameGui.scores.text = Player.scores + "/" + blues.Count;
-        UpdateWall();
-        timer.Update();
     }
     private GameObject CreateCube()
     {
@@ -52,7 +78,6 @@ public class Game : bs
         cube.transform.localPosition = new Vector3(0, 0, .5f);
         return holder;
     }
-
     private void UpdateWall()
     {
         tmWall -= Time.deltaTime;
@@ -140,4 +165,20 @@ public class Game : bs
         }
 
     }
+    bool isLevel(int id)
+    {
+        return UnityEditor.EditorApplication.currentScene.EndsWith("1.unity");
+    }
 }
+
+//public void SaveCheckPoint(CheckPoint c)
+//{
+//    PlayerPrefs.SetString("CheckPoint", c.pos.x + "," + c.pos.y + "," + c.pos.z);
+//}
+//public Vector3 LoadCheckPoint()
+//{
+//    var s = PlayerPrefs.GetString("CheckPoint");
+//    if (s == null) return Vector3.zero;
+//    var ss =s.Split(',');
+//    return new Vector3(int.Parse(ss[0]), int.Parse(ss[1]), int.Parse(ss[2]));
+//}

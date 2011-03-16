@@ -5,9 +5,11 @@ using System.Linq;
 using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
+using System.Text.RegularExpressions;
 public enum ObjectType { none, clothCollider }
 public partial class Base : MonoBehaviour
 {
+    public static bool debug { get { return PlayerPrefs.GetInt("Debug") == 1; } }
     public ObjectType ObjectType;
     public bool dontResetPos;    
     public void SetLayer(int l)
@@ -26,7 +28,14 @@ public partial class Base : MonoBehaviour
     public float z { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }
     public Vector3 lpos { get { return transform.localPosition; } set { transform.localPosition = value; } }
     public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
-    
+    public static string CreateTable(string source) //create table parse table
+    {
+        string table = "";
+        MatchCollection m = Regex.Matches(source, @"\w*\s*");
+        for (int i = 0; i < m.Count - 1; i++)
+            table += "{" + i + ",-" + m[i].Length + "}";
+        return table;
+    }
     public static string[] files;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public static IEnumerable<string> GetFiles()
@@ -45,7 +54,7 @@ public partial class Base : MonoBehaviour
         return aset;
     }
 #endif
-    public virtual void InitValues()
+    public virtual void InitValues() // this function called when you press start or pause in editor
     {
     }
     public virtual void Init()

@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 
-public class Dragable : bs
+public class Dragable : bs //this drag effect only applies to be in menu 
 {
     public SpringJoint spr;
     [FindTransform(scene = true)]
@@ -17,15 +17,12 @@ public class Dragable : bs
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         Physics.Raycast(ray, out hit, 1000, 1 << LayerMask.NameToLayer("Default"));
-        spr = gameObject.AddComponent<SpringJoint>();
-        spr.anchor = this.transform.InverseTransformPoint(cursor.transform.position);
-        spr.connectedBody = cursor.rigidbody;
         Plane.transform.position = hit.point;
     }
-    void OnMouseDrag()
+    void Update()
     {
-
-        renderer.material.color -= Color.white * Time.deltaTime;
+        if(Input.GetMouseButton(0))
+            this.rigidbody.AddExplosionForce(-100 * Time.deltaTime , cursor.transform.position, 10);
     }
     void OnMouseUp()
     {

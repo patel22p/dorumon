@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-[AddComponentMenu("Base")]
-public class bs : Base
+[AddComponentMenu("Game/Base")]
+public class bs : Base // contains static pointers to other objects
 {
-    public bool debug { get { return _Loader.debug ; } }
+    
     public static string TimeToSTr(float ts)
     {
         var t = TimeSpan.FromSeconds(ts);

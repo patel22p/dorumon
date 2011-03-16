@@ -82,6 +82,7 @@ public class InspectorSearch : EditorWindow
         }
         GUI.BeginHorizontal();
         bake = GUI.Toggle(bake, "Bake", GUI.ExpandWidth(false));
+        
         lfactor = EditorGUILayout.FloatField(lfactor, GUI.Width(30));
         GUI.Label("ambient", GUI.Width(30));
         dfactor = EditorGUILayout.FloatField(dfactor, GUI.Width(30));
@@ -89,10 +90,13 @@ public class InspectorSearch : EditorWindow
         if (GUI.Button("SetupLevel"))
             LevelSetup();
         GUI.EndHorizontal();
+        
+        debug = GUI.Toggle(debug, "Debug", GUI.ExpandWidth(false));
+        PlayerPrefs.SetInt("debug", debug ? 1 : 0);        
         DrawObjects();
         DrawSearch();
     }
-
+    bool debug;
     class DTR
     {
         public Transform transform;

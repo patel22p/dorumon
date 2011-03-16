@@ -16,7 +16,7 @@ public class Score : bs {
         {
             //Debug.Log("asd");
             var norm = (pl.transform.position - transform.position).normalized;
-            transform.position += norm * (d - dist) * .2f;
+            transform.position += norm * (d - dist) * Time.deltaTime ;
             //animation.Stop();
             //transform.position += norm;
         }

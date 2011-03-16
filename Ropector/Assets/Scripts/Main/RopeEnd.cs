@@ -57,11 +57,15 @@ public class RopeEnd : bs
                 if(v.magnitude > 3)
                     r.AddForceAtPosition(v * this.ObjectMagnetFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude), this.transform.position);
             }
-            if (v.magnitude > 3)
+            var m = v.magnitude - 5;
+            if (m > 0)
             {
+                var vn = v.normalized;
                 //Player.pos += v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude);
                 var fctr= AttachedTo.RopeForce;
-                Player.rigidbody.AddForce(new Vector3(fctr.x * v.x, fctr.y * v.y, fctr.z * v.z) * 700 * -1 * Time.deltaTime / v.magnitude * 3);
+                var va = new Vector3(fctr.x * vn.x, fctr.y * vn.y*.6f, fctr.z * vn.z);
+                Player.rigidbody.AddForce(va * -3400 * m * Time.deltaTime / Mathf.Max(1, Mathf.Sqrt(Player.rigidbody.velocity.magnitude)));
+                //Player.transform.position -= new Vector3(fctr.x * v.x, fctr.y * v.y, fctr.z * v.z);
             }
         }
         else
@@ -70,25 +74,26 @@ public class RopeEnd : bs
             EnableRope(false);
     }
     //shoot
-    public void MouseClick()
+    public void MouseDown()
     {
-        if (!enabled && tmRope < 0)
+        if (!enabled)
         {
-            Debug.Log("RopeEnable");
             tmRope = 1;
             this.oldpos = this.transform.position = Player.pos;
             EnableRope(true);
             var dir = Cam.cursor.transform.position - Player.pos;
             dir = dir.normalized;
             this.rigidbody.velocity = dir * 100;
+        }
+        
+    }
 
-        }
-        else if (enabled)
-        {
-            Debug.Log("RopeDisable");
-            EnableRope(false);
-        }
+    public void MouseUp()
+    {
+        EnableRope(false);
     } 
+
+
     private void HitTest()
     {
         if (attached) return;

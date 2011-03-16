@@ -260,7 +260,7 @@ public class FindAsset : Attribute
         name = from;
     }
 }
-public class FindTransform : Attribute
+public class FindTransform : Attribute // with this attribute this variable will be assigned automaticly in editor
 {
     public string name;
     public FindTransform() { }

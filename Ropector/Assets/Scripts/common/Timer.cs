@@ -5,8 +5,7 @@ using UnityEngine;
 using System.Linq;
 namespace doru
 {
-    //[Serializable]
-    public class TimerA
+    public class TimerA // this helper class adds - invoke method,fps count,time elapsed functions
     {
         public int _Ticks = Environment.TickCount;
         public int oldtime;
@@ -93,7 +92,7 @@ namespace doru
                 return true;
             else
                 return false;
-        }
+        } //if seconds elapsed from last Update() call this function will be called
         public void AddMethod(Action _Action2)
         {
             AddMethod(-1, _Action2, null);

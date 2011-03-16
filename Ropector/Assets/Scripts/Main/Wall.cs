@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-
+[AddComponentMenu("Game/Wall")]
 public class Wall : bs
 {
     public bool attachRope = true;

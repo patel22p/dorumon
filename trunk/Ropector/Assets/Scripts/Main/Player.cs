@@ -7,7 +7,6 @@ public class Player : bs {
     internal TimerA timer = new TimerA();
     public Wall Trigger;
     public RopeEnd[] ropes = new RopeEnd[2];
-    //public Menu GameGui;
     public int scores;
     public override void Awake()
     {
@@ -25,10 +24,9 @@ public class Player : bs {
         rigidbody.maxAngularVelocity = 30;
 
     }
-    
     void Update()
     {
-        if (Game.prestartTm > 0 && !_Loader.debug) return;
+        if (Game.prestartTm > 0 && !debug) return;
         UpdateCars();
         UpdatePlayer();
         timer.Update();        
@@ -44,7 +42,6 @@ public class Player : bs {
             }
         }
     }
-    
     private void UpdatePlayer()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -54,9 +51,15 @@ public class Player : bs {
         if (!Screen.lockCursor) return;
         
         if (Input.GetMouseButtonDown(0))
-            this.ropes[0].MouseClick();
+            this.ropes[0].MouseDown();
+
+        if (Input.GetMouseButtonUp(0))
+            this.ropes[0].MouseUp();
+
         if (Input.GetMouseButtonDown(1))
-            this.ropes[1].MouseClick();
+            this.ropes[1].MouseDown();
+        if (Input.GetMouseButtonUp(1))
+            this.ropes[1].MouseUp();
         
         var mv = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
         var controller = rigidbody;
@@ -69,5 +72,4 @@ public class Player : bs {
 
     }
     public Base cursor { get { return Cam.cursor; } }
-    
 } 

@@ -10,9 +10,9 @@ public class Menu : bs
     public GameObject cursor;
     [FindTransform(scene = true)]
     public GameObject Plane;
-    public IEnumerator Start()
+    public IEnumerator Start() //creates cubes in menu
     {
-        //_MenuWindow.Show(_Loader);
+        _MenuWindow.Show(_Loader);
         var cs = new GameObject("cubes");
 
         if (Text.gameObject.active)
@@ -26,7 +26,9 @@ public class Menu : bs
                     drg.cursor = cursor;
                     cb.transform.parent = cs.transform;
                     yield return null;
-                }        
+                }
+
+        
         yield return new WaitForSeconds(1);
         Text.rigidbody.isKinematic = false;
         Text.rigidbody.WakeUp();
@@ -34,7 +36,7 @@ public class Menu : bs
 
     }
     
-    void Update()
+    void Update() 
     {
         if (Input.GetKeyDown(KeyCode.P)) Debug.Break();
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

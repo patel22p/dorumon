@@ -6,10 +6,10 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 public enum ObjectType { none, clothCollider }
-public class Base : MonoBehaviour
+public partial class Base : MonoBehaviour
 {
     public ObjectType ObjectType;
-    public bool dontResetPos;
+    public bool dontResetPos;    
     public void SetLayer(int l)
     {
         foreach (var t in this.transform.GetTransforms())
@@ -26,9 +26,7 @@ public class Base : MonoBehaviour
     public float z { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }
     public Vector3 lpos { get { return transform.localPosition; } set { transform.localPosition = value; } }
     public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
-    public virtual void Awake()
-    {
-    }
+    
     public static string[] files;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public static IEnumerable<string> GetFiles()

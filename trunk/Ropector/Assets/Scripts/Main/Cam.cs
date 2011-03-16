@@ -11,8 +11,8 @@ public class Cam : bs
     private Vector3 velocity;
     public void Start()
     {
-        if(!Application.isEditor)
-        Screen.lockCursor = true;
+        if (!Application.isEditor)
+            Screen.lockCursor = true;
         cam = Camera.main;
         cam.transform.parent = this.transform;
         cam.transform.position = cam.transform.parent.position;
@@ -23,24 +23,47 @@ public class Cam : bs
     {        
         base.InitValues();
     }
+    public bool disableTips;
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
-        if (!Application.isEditor)
-            if (Input.GetMouseButtonDown(0) && !Screen.lockCursor) Screen.lockCursor = true;
+        if (QualitySettings.currentLevel == QualityLevel.Fastest && cam.renderingPath != RenderingPath.VertexLit)
+        {
+            Debug.Log("Vertex Lit");
+            cam.renderingPath = RenderingPath.VertexLit;
+        }
+        else if (cam.renderingPath == RenderingPath.VertexLit && QualitySettings.currentLevel != QualityLevel.Fastest)
+        {
+            Debug.Log("Deffered");
+            cam.renderingPath = RenderingPath.DeferredLighting;
+        }
+        if (disableTips != _MenuWindow.Disable_Tips)
+        {
+            disableTips = _MenuWindow.Disable_Tips;
+            if (_MenuWindow.Disable_Tips)
+                cam.cullingMask = ~(1 << LayerMask.NameToLayer("Tips"));
+            else
+                cam.cullingMask = ~0;
+        }
+        if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;        
     }
     float vel;
     float fake;
+    float camoffset= 30;
     public void FixedUpdate()
     {
+
+        camoffset += Input.GetAxis("Mouse ScrollWheel") * -20;
+        camoffset = Mathf.Min(Mathf.Max(camoffset, 30), 200);
+
         fake = Mathf.SmoothDamp(fake, Player.rigidbody.velocity.sqrMagnitude, ref vel, 0.95f);
         var pp = player.pos;
-        pos = new Vector3(pp.x, pp.y + 10, -30 - Mathf.Sqrt(fake));
+        pos = new Vector3(pp.x, pp.y + 10, -camoffset - Mathf.Sqrt(fake));
         cam.transform.LookAt(fakeCursor);
         fakeCursor = Vector3.SmoothDamp(fakeCursor, cursor.pos, ref velocity, 0.5f);
-        if (!Screen.lockCursor) return;
-        Vector2 v = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        cursorpos += v;
+        if (!Screen.lockCursor) return;       
+        Vector2 v = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * _MenuWindow.MouseSensivity;
+        if (v.magnitude < 20)
+            cursorpos += v;
         cursor.pos2 = player.pos2 + cursorpos;
     }
     Vector2 cursorpos;

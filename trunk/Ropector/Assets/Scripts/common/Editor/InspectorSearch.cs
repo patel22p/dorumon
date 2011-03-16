@@ -37,6 +37,14 @@ public class InspectorSearch : EditorWindow
         PlayerSettings.runInBackground = true;
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
     }
+    public static void OnPlaymodeStateChanged()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
+        {
+            StartInitValues();
+            InitTransforms();
+        }
+    }
     protected virtual void OnGUI()
     {
         if (Camera.main == null)
@@ -170,7 +178,8 @@ public class InspectorSearch : EditorWindow
 
     public void Inits()
     {
-        
+        InitTransforms();
+        StartInitValues();
         foreach (var go in Selection.gameObjects)
         {
             foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
@@ -180,9 +189,9 @@ public class InspectorSearch : EditorWindow
                 foreach (var pf in scr.GetType().GetFields())
                 {
                     FindAsset(scr, pf);
-                    FindTransform(scr, pf);
+                    //FindTransform(scr, pf);
                 }                
-                scr.InitValues();
+                //scr.InitValues();
                 scr.Init();
             }
         }
@@ -484,14 +493,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    public static void OnPlaymodeStateChanged()
-    {
-        if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
-        {
-            StartInitValues();
-            InitTransforms();
-        }
-    }
+    
 
     
     #region menuitems    
@@ -741,7 +743,7 @@ public class InspectorSearch : EditorWindow
             a.sharedMaterials = ms;
         }
     }
-    [MenuItem("GameObject/Create Prefab")]
+    [MenuItem("GameObject/Create Other/Prefab", priority =-1)]
     static void CreatePrefabs()
     {
         Undo.RegisterSceneUndo("rtools");

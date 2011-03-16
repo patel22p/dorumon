@@ -51,20 +51,26 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
+     <Compile Include="Assets\Scripts\common\Window\WindowBase.cs" />
      <Compile Include="Assets\Scripts\common\Base.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
-     <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <Compile Include="Assets\Scripts\GUI\MenuWindow.cs" />
+     <Compile Include="Assets\Scripts\GUI\Window.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Button.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
      <Compile Include="Assets\Scripts\Main\Car.cs" />
-     <Compile Include="Assets\Scripts\Main\Drawed.cs" />
+     <Compile Include="Assets\Scripts\Main\Dragable.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
      <Compile Include="Assets\Scripts\Main\GameGui.cs" />
+     <Compile Include="Assets\Scripts\Main\Loader.cs" />
+     <Compile Include="Assets\Scripts\Main\Menu.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />
      <Compile Include="Assets\Scripts\Main\Score.cs" />
+     <Compile Include="Assets\Scripts\Main\Trigger.cs" />
+     <Compile Include="Assets\Scripts\Main\Wall.cs" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />
      <Compile Include="Assets\Scripts\Turret\Patron.cs" />
      <Compile Include="Assets\Scripts\Turret\Turret.cs" />

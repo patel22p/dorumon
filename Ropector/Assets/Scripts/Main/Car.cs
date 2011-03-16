@@ -9,6 +9,7 @@ public class Car : bs {
     
     public override void Awake()
     {
+        base.Awake();
         Game.cars.Add(this);
         foreach (GameObject t in whells)
         {
@@ -49,8 +50,12 @@ public class Car : bs {
         }
     }
 	void Update () {
+        if(playerIn)
+            Player.pos2 = this.pos2; 
 
-
+        rigidbody.drag = rigidbody.velocity.magnitude / 250;
+        rigidbody.angularDrag = rigidbody.velocity.magnitude / 150;
+        
         if (!playerIn)
         {
             foreach(var wc in whellColliders)

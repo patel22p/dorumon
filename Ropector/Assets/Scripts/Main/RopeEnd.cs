@@ -5,18 +5,25 @@ public class RopeEnd : bs
 {
     public Vector3? oldpos;
     float tmRope;
-    //bool enabled = true;
     public float RopeFactor = 1;
-    //public float ShootFactor = 1;
     public float ObjectMagnetFactor = 1;
     public LineRenderer line;
-
+    [FindAsset("cloth")]
+    public GameObject clothPrefab;
+    public GameObject cloth;
     void Start()
     {
         EnableRope(false);
     }
     void Update()
     {
+        if (cloth != null)
+        {
+            var fx1 = cloth.transform.Find("s1");
+            fx1.transform.position = Player.pos;
+            var fx2 = cloth.transform.Find("s2");
+            fx2.transform.position = this.transform.position;
+        }
         Gravity();
         HitTest();
         line.SetPosition(0, Player.pos);
@@ -29,9 +36,7 @@ public class RopeEnd : bs
     }
     public override void InitValues()
     {
-        
         RopeFactor = 1000f;
-        //ShootFactor = 700f;
         ObjectMagnetFactor = 500;
         base.InitValues();
     }
@@ -39,24 +44,24 @@ public class RopeEnd : bs
     {
         OnColl(coll.contacts[0].point, coll.transform);
     }
+
     private void Gravity()
     {
         var v = Player.transform.position - this.transform.position;
         
         if (this.attached)
         {
-            
             var r = this.transform.parent.GetComponentInParrent<Rigidbody>(); //interactive
-
             if (r != null && !r.isKinematic)
             {
                 if(v.magnitude > 3)
                     r.AddForceAtPosition(v * this.ObjectMagnetFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude), this.transform.position);
             }
-            else if (v.magnitude > 3)
+            if (v.magnitude > 3)
             {
                 //Player.pos += v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude);
-                Player.rigidbody.AddForce(new Vector3(700 * v.x, 1200 * v.y, 700 * v.z) * -1 * Time.deltaTime / v.magnitude * 3);
+                var fctr= AttachedTo.RopeForce;
+                Player.rigidbody.AddForce(new Vector3(fctr.x * v.x, fctr.y * v.y, fctr.z * v.z) * 700 * -1 * Time.deltaTime / v.magnitude * 3);
             }
         }
         else
@@ -96,27 +101,40 @@ public class RopeEnd : bs
 
             if (Physics.Raycast(r, out h, Vector3.Distance(transform.position, oldpos.Value), ~(1 << LayerMask.NameToLayer("Player"))))
                 OnColl(h.point, h.transform);
-
         }
         oldpos = transform.position;
     }
     bool attached { get { return rigidbody.isKinematic; } }
+    public Wall AttachedTo;
     void OnColl(Vector3 point, Transform t)
     {
-        var bs = t.gameObject.GetComponent<bs>();
-        if (bs != null && bs.attachRope)
-        {
+        AttachedTo= t.gameObject.GetComponent<Wall>();
+        if (AttachedTo != null && AttachedTo.attachRope)
+        {            
             this.rigidbody.isKinematic = true;
             transform.parent = t;
             transform.position = point;
         }
-        else
-            EnableRope(false);
+        if (!rigidbody.isKinematic)
+        {
+            transform.position = point + (Player.pos - this.pos).normalized;
+            rigidbody.angularVelocity = rigidbody.velocity = Vector3.zero;
+        }
+        //else
+        //    EnableRope(false);
     }
-    public void EnableRope(bool value)
+    
+    public void EnableRope(bool enableCloth)
     {
-        this.gameObject.active = value;
-        enabled = value;
+
+        if (cloth != null)
+            Destroy(cloth);
+        if (enableCloth)
+        {
+            cloth = (GameObject)Instantiate(clothPrefab,Player.pos,Quaternion.identity);            
+        }
+        this.gameObject.active = enableCloth;
+        enabled = enableCloth;
         oldpos = Player.pos;
         line.SetPosition(0, Vector3.zero);
         line.SetPosition(1, Vector3.zero);

@@ -91,12 +91,17 @@ public class InspectorSearch : EditorWindow
             LevelSetup();
         GUI.EndHorizontal();
         
-        debug = GUI.Toggle(debug, "Debug", GUI.ExpandWidth(false));
-        PlayerPrefs.SetInt("debug", debug ? 1 : 0);        
+        EditorPrefs.SetBool("Debug", GUI.Toggle(EditorPrefs.GetBool("Debug"), "debug", GUI.ExpandWidth(false)));
+        web = GUI.Toggle(web, "web", GUI.ExpandWidth(false));
+        if (GUI.Button("Build"))
+        {
+            Build();
+            return;
+        }
         DrawObjects();
         DrawSearch();
     }
-    bool debug;
+    
     class DTR
     {
         public Transform transform;
@@ -178,6 +183,46 @@ public class InspectorSearch : EditorWindow
 
             }
         });
+    }
+    bool web;
+    private void Build()
+    {
+        var fn = web ? "game" : "game.exe";
+        PlayerSettings.productName = "Ropector Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        var path = @"Builds/";
+        CrDir(path);
+        path += fn;
+        Debug.Log("build1 " + BuildPipeline.BuildPlayer(scenes , path, web ? BuildTarget.WebPlayerStreamed : BuildTarget.StandaloneWindows, BuildOptions.None));
+        if (web)
+        {
+            CrDir("t2");
+            Debug.Log("build2 " + BuildPipeline.BuildPlayer(new[] { scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development));
+            Directory.Delete("t2", true);
+        }
+    }
+    string[] scenes
+    {
+        get
+        {
+            return new string[] { 
+            "Assets/scenes/Menu.unity",
+            "Assets/scenes/1.unity",
+            "Assets/scenes/2.unity",
+            "Assets/scenes/3.unity",
+            "Assets/scenes/4.unity",
+            "Assets/scenes/5.unity",
+            "Assets/scenes/6.unity",
+            "Assets/scenes/7.unity",
+            "Assets/scenes/8.unity",
+            "Assets/scenes/9.unity",
+            "Assets/scenes/10.unity",
+        };
+        }
+    }
+    private static void CrDir(string pt)
+    {
+        if (Directory.Exists(pt)) Directory.Delete(pt, true);
+        Directory.CreateDirectory(pt);
     }
 
     public void Inits()

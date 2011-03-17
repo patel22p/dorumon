@@ -24,10 +24,14 @@ public class RopeEnd : bs
             var fx2 = cloth.transform.Find("s2");
             fx2.transform.position = this.transform.position;
         }
-        Gravity();
+        
         HitTest();
         line.SetPosition(0, Player.pos);
         line.SetPosition(1, this.pos);
+    }
+    void FixedUpdate()
+    {
+        Gravity();
     }
     public override void AlwaysUpdate()
     {
@@ -57,15 +61,16 @@ public class RopeEnd : bs
                 if(v.magnitude > 3)
                     r.AddForceAtPosition(v * this.ObjectMagnetFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude), this.transform.position);
             }
-            var m = v.magnitude - 5;
+            
+            var m = v.magnitude - 4*AttachedTo.RopeLength;
             if (m > 0)
             {
+                var fctr = AttachedTo.RopeForce;
                 var vn = v.normalized;
-                //Player.pos += v * -1 * this.ShootFactor * Time.deltaTime / Mathf.Sqrt(v.magnitude);
-                var fctr= AttachedTo.RopeForce;
-                var va = new Vector3(fctr.x * vn.x, fctr.y * vn.y*.6f, fctr.z * vn.z);
-                Player.rigidbody.AddForce(va * -3400 * m * Time.deltaTime / Mathf.Max(1, Mathf.Sqrt(Player.rigidbody.velocity.magnitude)));
-                //Player.transform.position -= new Vector3(fctr.x * v.x, fctr.y * v.y, fctr.z * v.z);
+                var va = new Vector3(fctr.x * vn.x, fctr.y * vn.y * .6f, fctr.z * vn.z);
+                Player.rigidbody.AddForce(va * -400 * m * Time.deltaTime);
+                Player.rigidbody.position -= v * Time.deltaTime * .5f;
+                Player.rigidbody.AddForce(Vector3.up * Time.deltaTime * 20);
             }
         }
         else

@@ -4,7 +4,8 @@ using UnityEngine;
 [AddComponentMenu("Game/Base")]
 public class bs : Base // contains static pointers to other objects
 {
-    
+    internal const string webserver = "http://physxwars.ru/serv/";
+
     public static string TimeToSTr(float ts)
     {
         var t = TimeSpan.FromSeconds(ts);
@@ -18,6 +19,8 @@ public class bs : Base // contains static pointers to other objects
     public static Cam Cam { get { if (_Cam == null) _Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return _Cam; } }
     static GameGui _GameGui;
     public static GameGui GameGui { get { if (_GameGui == null) _GameGui = (GameGui)MonoBehaviour.FindObjectOfType(typeof(GameGui)); return _GameGui; } }
+    static Music _Music;
+    public static Music Music { get { if (_Music == null) _Music = (Music)MonoBehaviour.FindObjectOfType(typeof(Music)); return _Music; } }
     static Player _Player;
     public static Player Player { get { if (_Player == null) _Player = (Player)MonoBehaviour.FindObjectOfType(typeof(Player)); return _Player; } }
     public virtual void AlwaysUpdate() { }

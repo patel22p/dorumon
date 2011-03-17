@@ -25,17 +25,7 @@ public class Cam : bs
     }
     public bool disableTips;
     public void Update()
-    {
-        if (QualitySettings.currentLevel == QualityLevel.Fastest && cam.renderingPath != RenderingPath.VertexLit)
-        {
-            Debug.Log("Vertex Lit");
-            cam.renderingPath = RenderingPath.VertexLit;
-        }
-        else if (cam.renderingPath == RenderingPath.VertexLit && QualitySettings.currentLevel != QualityLevel.Fastest)
-        {
-            Debug.Log("Deffered");
-            cam.renderingPath = RenderingPath.DeferredLighting;
-        }
+    {       
         if (disableTips != _MenuWindow.Disable_Tips)
         {
             disableTips = _MenuWindow.Disable_Tips;
@@ -44,7 +34,11 @@ public class Cam : bs
             else
                 cam.cullingMask = ~0;
         }
-        if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;        
+        if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
+
+        Vector2 v = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * _MenuWindow.MouseSensivity;
+        //if (v.magnitude < 20)
+            cursorpos += v;
     }
     float vel;
     float fake;
@@ -61,9 +55,7 @@ public class Cam : bs
         cam.transform.LookAt(fakeCursor);
         fakeCursor = Vector3.SmoothDamp(fakeCursor, cursor.pos, ref velocity, 0.5f);
         if (!Screen.lockCursor) return;       
-        Vector2 v = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * _MenuWindow.MouseSensivity;
-        if (v.magnitude < 20)
-            cursorpos += v;
+        
         cursor.pos2 = player.pos2 + cursorpos;
     }
     Vector2 cursorpos;

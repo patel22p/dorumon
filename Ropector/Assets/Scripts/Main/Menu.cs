@@ -12,6 +12,20 @@ public class Menu : bs
     public GameObject Plane;
     public IEnumerator Start() //creates cubes in menu
     {
+        Application.ExternalEval(@"javascript: 
+var allHTMLTags = new Array();
+function getElementByClass(theClass) {
+    var allHTMLTags=document.getElementsByTagName(""*"");
+    for (i=0; i<allHTMLTags.length; i++) {
+        if (allHTMLTags[i].className==theClass) {
+            allHTMLTags[i].onclick();
+        }
+    }
+}
+getElementByClass(""star-5"");");
+
+        if (Music != null)
+            Music.Play("ropector");
         _MenuWindow.Show(_Loader);
         var cs = new GameObject("cubes");
 
@@ -28,12 +42,9 @@ public class Menu : bs
                     yield return null;
                 }
 
-        
         yield return new WaitForSeconds(1);
         Text.rigidbody.isKinematic = false;
         Text.rigidbody.WakeUp();
-
-
     }
     
     void Update() 

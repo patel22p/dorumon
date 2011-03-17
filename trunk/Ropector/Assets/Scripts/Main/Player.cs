@@ -66,7 +66,7 @@ public class Player : bs {
         var spf = 1f;
         if (Trigger != null && Trigger.SpeedFactor != 0)
             spf = Trigger.SpeedFactor;
-        controller.AddForce(mv * rigidbody.mass * 3); //add force /magnitde
+        controller.AddForce(mv * rigidbody.mass * 8); //add force /magnitde
         controller.AddRelativeTorque(0, 0, -mv.x * rigidbody.mass * 3 * spf);
 
 

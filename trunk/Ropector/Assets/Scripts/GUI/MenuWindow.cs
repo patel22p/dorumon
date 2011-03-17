@@ -58,6 +58,13 @@ public class MenuWindow : WindowBase {
 	
 	internal bool focusDisable_Tips;
 	internal bool Disable_Tips { get { return PlayerPrefs.GetInt("Disable_Tips", 0) == 1; } set { PlayerPrefs.SetInt("Disable_Tips", value?1:0); } }
+	
+	internal bool vtabble_Copy = true;
+	
+	internal bool focusTabble_Copy;
+	
+	internal bool rTabble_Copy = true;
+	internal string Tabble_Copy = @"Training Levels";
 	private int wndid1;
 	private Vector2 sSelectLevel;
 	private Vector2 sQualitySettings;
@@ -92,6 +99,7 @@ public class MenuWindow : WindowBase {
 		vNewGame = true;
 		vtabble = true;
 		vDisable_Tips = true;
+		vtabble_Copy = true;
 
         base.ResetValues();
     }
@@ -109,8 +117,8 @@ public class MenuWindow : WindowBase {
 		if(vSelectLevel){
 		if(focusSelectLevel) { focusSelectLevel = false; GUI.FocusControl("SelectLevel");}
 		GUI.SetNextControlName("SelectLevel");
-		GUI.Box(new Rect(61f, 106f, 240f, 308f), "");
-		sSelectLevel = GUI.BeginScrollView(new Rect(61f, 106f, 240f, 308f), sSelectLevel, new Rect(0,0, 230f, lSelectLevel.Length* 15f));
+		GUI.Box(new Rect(61f, 142f, 240f, 308f), "");
+		sSelectLevel = GUI.BeginScrollView(new Rect(61f, 142f, 240f, 308f), sSelectLevel, new Rect(0,0, 230f, lSelectLevel.Length* 15f));
 		int oldSelectLevel = iSelectLevel;
 		iSelectLevel = GUI.SelectionGrid(new Rect(0,0, 230f, lSelectLevel.Length* 15f), iSelectLevel, lSelectLevel,1,GUI.skin.customStyles[0]);
 		if (iSelectLevel != oldSelectLevel) Action(MenuWindowEnum.SelectLevel);
@@ -166,9 +174,9 @@ public class MenuWindow : WindowBase {
 		if(focusTabble) { focusTabble = false; GUI.FocusControl("Tabble");}
 		GUI.SetNextControlName("Tabble");
 		if(rTabble){
-		GUI.Label(new Rect(61f, 90f, 240f, 21.96f), Tabble.ToString(), GUI.skin.customStyles[2]);
+		GUI.Label(new Rect(61f, 126f, 240f, 21.96f), Tabble.ToString(), GUI.skin.customStyles[2]);
 		} else
-		try {Tabble = GUI.TextField(new Rect(61f, 90f, 240f, 21.96f), Tabble,100, GUI.skin.customStyles[2]);}catch{};
+		try {Tabble = GUI.TextField(new Rect(61f, 126f, 240f, 21.96f), Tabble,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		GUI.Label(new Rect(366f, 91.96f, 74f, 21.96f), @"Quality");
 		GUI.Label(new Rect(314f, 371f, 135f, 21.96f), @"Mouse Sensivity");
@@ -181,6 +189,14 @@ public class MenuWindow : WindowBase {
 		onMouseOver = new Rect(334.616f, 345.04f, 88.537f, 15.96f).Contains(Event.current.mousePosition);
 		if (oldMouseOverDisable_Tips != onMouseOver && onMouseOver) onOver();
 		oldMouseOverDisable_Tips = onMouseOver;
+		}
+		if(vtabble_Copy){
+		if(focusTabble_Copy) { focusTabble_Copy = false; GUI.FocusControl("Tabble_Copy");}
+		GUI.SetNextControlName("Tabble_Copy");
+		if(rTabble_Copy){
+		GUI.Label(new Rect(61f, 112f, 240f, 21.96f), Tabble_Copy.ToString(), GUI.skin.customStyles[2]);
+		} else
+		try {Tabble_Copy = GUI.TextField(new Rect(61f, 112f, 240f, 21.96f), Tabble_Copy,100, GUI.skin.customStyles[2]);}catch{};
 		}
 		if (GUI.Button(new Rect(486f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action(MenuWindowEnum.Close); }
 	}

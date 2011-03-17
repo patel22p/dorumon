@@ -70,11 +70,13 @@ public class WindowBase : Base
 
     public void onOver()
     {
-        transform.root.audio.PlayOneShot(mouseOver);
+        if (transform.root.audio != null)
+            transform.root.audio.PlayOneShot(mouseOver);
     }
     public void onButtonClick()
     {
-        transform.root.audio.PlayOneShot(mouseclick);
+        if (transform.root.audio != null)
+            transform.root.audio.PlayOneShot(mouseclick);
     }
     public void Hide()
     {

@@ -40,7 +40,7 @@ public class Game : bs
     public Material woodMat;
 
     public float fall;
-    public bool Win;
+    public bool Stop;
     public float Wall;
     public float WallSticky;
     public float WallDynamic;
@@ -56,6 +56,8 @@ public class Game : bs
             Wall = 100;
         if (isLevel(5))
             WallSticky = 100;
+        if (isLevel(9, 10))
+            WallSticky = Wall = 1000;
         base.Awake();
     }
     public override void InitValues() // this function called when you press start or pause in editor, usualy used for variables init in editor
@@ -74,8 +76,6 @@ public class Game : bs
         timer.Update();
         prestartTm -= Time.deltaTime;
 
-     
-
         if (prestartTm > 0 && !debug)
         {
             GameGui.CenterTime.text = (Mathf.Ceil(prestartTm)) + "";
@@ -83,22 +83,23 @@ public class Game : bs
         }
         else
             GameGui.CenterTime.enabled = false;
-        if (Win) return;
+        if (Stop) return;
         TimeElapsed += Time.deltaTime;                
         GameGui.time.text = TimeToSTr(TimeElapsed);
 
         foreach (var a in alwaysUpdate) // calls update function if object enabled or not enabled;
             a.AlwaysUpdate();
 
-        if (Player.pos.y < fall && Player.gameObject.active) // if player fall then we reload level
+        if (Player.pos.y < fall && !Stop) // if player fall then we reload level
         {
+            Stop = true;
             Player.gameObject.active = false;
             deadAnim.Play();
-            timer.AddMethod(2000, delegate { LoadLevel(Application.loadedLevelName); });
+            timer.AddMethod(2000, delegate { _Loader.ResetLevel(); });
         }
-        if (Player.scores == blues.Count && !Win) // if player win we play animation, save scores and load next level
+        if (Player.scores == blues.Count && !Stop) // if player win we play animation, save scores and load next level
         {
-            Win = true;
+            Stop = true;
             deadAnim.Play();
             var f = PlayerPrefs.GetFloat(Application.loadedLevelName);
             if (TimeElapsed < f || f == 0)
@@ -107,8 +108,8 @@ public class Game : bs
                 PlayerPrefs.SetFloat(Application.loadedLevelName, TimeElapsed);
                 _Loader.RefreshRecords();
             }
-            int nextLevel = int.Parse(Application.loadedLevelName.Substring(0, 1)) + 1;
-            timer.AddMethod(2000, delegate { LoadLevel(nextLevel + ""); });
+            
+            timer.AddMethod(2000, delegate { _Loader.NextLevel(); });
             Player.gameObject.active = false;
         }
         GameGui.scores.text = Player.scores + "/" + blues.Count; 
@@ -119,7 +120,7 @@ public class Game : bs
     {
         tmWall -= Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.Return))
-            LoadLevel(Application.loadedLevelName);
+            _Loader.ResetLevel();
 
         bool build = Input.GetKey(KeyCode.B) && Wall > 0;
         bool buildSticky = Input.GetKey(KeyCode.V) && WallSticky > 0;
@@ -191,7 +192,7 @@ public class Game : bs
             var mh = h.transform.GetMonoBehaviorInParrent() as Wall;
             if (mh != null)
             {
-                Debug.Log("Found");
+                //Debug.Log("Found");
                 if (clear || cut)
                 {
                     var rp = mh.GetComponentsInChildren<RopeEnd>();
@@ -236,10 +237,5 @@ public class Game : bs
             if (Application.loadedLevelName == i.ToString()) return true;
         return false;
     }
-    public void LoadLevel(string n)
-    {
-        Debug.Log("loading Level" + n);
-        timer.Clear();
-        Application.LoadLevel(n);
-    }
+    
 }

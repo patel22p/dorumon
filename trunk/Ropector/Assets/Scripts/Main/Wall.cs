@@ -6,15 +6,17 @@ public class Wall : bs
 {
     public bool attachRope = true;
     public Vector3 RopeForce = new Vector3(1, 1f, 1);
+    public float RopeLength = 1f;
     public Vector3 bounchyForce;
     public Vector3 ClickForce;
     public float SpeedFactor;
     public Collider[] Ignore;
     void Start()
     {
-        foreach (Collider a in this.transform.GetTransforms().Where(a=>a.collider!=null).Select(a=>a.collider))
-            foreach (Collider b in Ignore)
-                Physics.IgnoreCollision(a, b);
+        if (Ignore != null)
+            foreach (Collider a in this.transform.GetTransforms().Where(a => a.collider != null).Select(a => a.collider))
+                foreach (Collider b in Ignore)
+                    Physics.IgnoreCollision(a, b);
     }
     public override void InitValues()
     {        

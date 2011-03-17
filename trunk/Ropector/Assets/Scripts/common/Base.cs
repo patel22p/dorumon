@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 public enum ObjectType { none, clothCollider }
 public partial class Base : MonoBehaviour
 {
-    public static bool debug { get { return PlayerPrefs.GetInt("Debug") == 1; } }
+    
     public ObjectType ObjectType;
     public bool dontResetPos;    
     public void SetLayer(int l)
@@ -37,7 +37,19 @@ public partial class Base : MonoBehaviour
         return table;
     }
     public static string[] files;
+    public static bool debug
+    {
+        get
+        {
+            #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+            return UnityEditor.EditorPrefs.GetBool("Debug");
+#else
+            return false;
+#endif
+        }
+    }
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+    
     public static IEnumerable<string> GetFiles()
     {
         if (files == null)

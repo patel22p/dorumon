@@ -58,13 +58,6 @@ public class MenuWindow : WindowBase {
 	
 	internal bool focusDisable_Tips;
 	internal bool Disable_Tips { get { return PlayerPrefs.GetInt("Disable_Tips", 0) == 1; } set { PlayerPrefs.SetInt("Disable_Tips", value?1:0); } }
-	
-	internal bool vtabble_Copy = true;
-	
-	internal bool focusTabble_Copy;
-	
-	internal bool rTabble_Copy = true;
-	internal string Tabble_Copy = @"Training Levels";
 	private int wndid1;
 	private Vector2 sSelectLevel;
 	private Vector2 sQualitySettings;
@@ -99,7 +92,6 @@ public class MenuWindow : WindowBase {
 		vNewGame = true;
 		vtabble = true;
 		vDisable_Tips = true;
-		vtabble_Copy = true;
 
         base.ResetValues();
     }
@@ -190,14 +182,7 @@ public class MenuWindow : WindowBase {
 		if (oldMouseOverDisable_Tips != onMouseOver && onMouseOver) onOver();
 		oldMouseOverDisable_Tips = onMouseOver;
 		}
-		if(vtabble_Copy){
-		if(focusTabble_Copy) { focusTabble_Copy = false; GUI.FocusControl("Tabble_Copy");}
-		GUI.SetNextControlName("Tabble_Copy");
-		if(rTabble_Copy){
-		GUI.Label(new Rect(61f, 112f, 240f, 21.96f), Tabble_Copy.ToString(), GUI.skin.customStyles[2]);
-		} else
-		try {Tabble_Copy = GUI.TextField(new Rect(61f, 112f, 240f, 21.96f), Tabble_Copy,100, GUI.skin.customStyles[2]);}catch{};
-		}
+		GUI.Label(new Rect(119f, 112f, 126f, 21.96f), @"Training Levels");
 		if (GUI.Button(new Rect(486f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action(MenuWindowEnum.Close); }
 	}
 

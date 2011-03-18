@@ -71,7 +71,7 @@ public class Game : bs
     }
     
     void Update()
-    {
+    {        
         
         timer.Update();
         prestartTm -= Time.deltaTime;

@@ -13,6 +13,9 @@ public class bs : Base // contains static pointers to other objects
     }
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
     //public bool attachRope;    
+    static Console _Console;
+    public static Console Console { get { if (_Console == null) _Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return _Console; } }
+
     static Game _Game;
     public static Game Game { get { if (_Game == null) _Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return _Game; } }
     static Cam _Cam;

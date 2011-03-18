@@ -63,7 +63,11 @@ public class Loader : bs //this class entry point class, also it will not remove
     int fps;
     void Update()
     {
-
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Q))
+        {
+            Console.enabled = !Console.enabled;
+            Debug.Log("sad");
+        }
         if (QualitySettings.currentLevel == QualityLevel.Fastest && Camera.main.renderingPath != RenderingPath.VertexLit)
         {
             Debug.Log("Vertex Lit");

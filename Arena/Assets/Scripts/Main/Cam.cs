@@ -4,38 +4,44 @@ using System.Collections;
 public class Cam : bs {
 
     Camera cam;
-    //[FindTransform]
-    public Transform Place;
-    void Start()
-    {
-        cam = Camera.main;
-        cam.transform.parent = Place;
-        cam.transform.position = Place.position;
-        cam.transform.rotation = Place.rotation;
-        cam.GetComponent<GUILayer>().enabled = true;
-    }
-
     Vector3 cursorpos;
     Vector3 fakeCursor;
     Vector3 velocity;
-    
-    //[FindTransform]
-    public Animation CamFadeAnim;
     float camFade;
     float fCamFade;
     public bool secondMode;
     public Quaternion oldrot;
     public Quaternion frot;
+    [FindTransform("CamAnim")]
+    public Transform Place;
+    [FindTransform("CamAnim")]
+    public Animation CamFadeAnim;
+
+    public override void Awake()
+    {
+        AddToNetwork();
+        CamFadeAnim["CamFade"].enabled = false;
+    }
+    void Start()
+    {
+        Debug.Log("Cam Start");
+        cam = Camera.main;
+        cam.animation.Stop();
+        cam.transform.parent = Place;
+        pos = cam.transform.position;
+        //rot = cam.transform.rotation;
+        cam.transform.position = Place.position;
+        cam.transform.rotation = Place.rotation;        
+    }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.C))
             secondMode = !secondMode;
-        if (Input.GetKeyDown(KeyCode.Tab))
-            Screen.lockCursor = !Screen.lockCursor;
+        
 
         if (Screen.lockCursor)
         {
-            Vector3 plCur = _Cursor.pos - _Player.pos;
+            Vector3 plCur = _Cursor.pos - _PlayerOwn.pos;
             plCur.y = 0;
             if (secondMode)
             {
@@ -47,19 +53,19 @@ public class Cam : bs {
             
             Vector3 v = rot * new Vector3(Input.GetAxis("Mouse X"), 0, Input.GetAxis("Mouse Y"));            
             cursorpos = Vector3.ClampMagnitude(cursorpos + v, 10);
-            _Cursor.pos = _Player.pos + cursorpos;
+            _Cursor.pos = _PlayerOwn.pos + cursorpos;
             if (fCamFade == 0)
-                fakeCursor = (_Player.pos + _Cursor.pos) / 2;                 
+                fakeCursor = (_PlayerOwn.pos + _Cursor.pos) / 2;                 
             else
-                fakeCursor = _Player.pos; 
+                fakeCursor = _PlayerOwn.pos; 
             pos = Vector3.SmoothDamp(pos, fakeCursor, ref velocity, .1f);
         }
         camFade = (Mathf.Lerp(camFade, fCamFade, 1f / 30f));
         //camFade = (camFade * 30 + fCamFade) / 31;
 
-        
-        var st = CamFadeAnim["CamAnim"];
+        var st = CamFadeAnim["CamFade"];
         st.time = camFade;
+        
         st.enabled = true;
         CamFadeAnim.Sample();
         st.enabled = false;

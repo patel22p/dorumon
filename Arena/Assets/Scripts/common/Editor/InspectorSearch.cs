@@ -38,14 +38,7 @@ public class InspectorSearch : EditorWindow
         PlayerSettings.runInBackground = true;
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
     }
-    public static void OnPlaymodeStateChanged()
-    {
-        //if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPaused)
-        //{
-        //    StartInitValues();
-        //    InitTransforms();
-        //}
-    }
+    
     protected virtual void OnGUI()
     {
         if (Camera.main == null)
@@ -100,10 +93,15 @@ public class InspectorSearch : EditorWindow
             Build();
             return;
         }
+        if (Selection.activeGameObject != null)
+        {
+            var bs2 = Selection.activeGameObject.GetComponent<Base>();
+            if (bs2 != null)
+                bs2.OnEditorGui();
+        }
         DrawObjects();
         DrawSearch();
     }
-    
     class DTR
     {
         public Transform transform;
@@ -118,7 +116,6 @@ public class InspectorSearch : EditorWindow
                 yield return t2;
         }
     }
-
     [MenuItem("File/SetupLevel")]    
     private void LevelSetup()
     {
@@ -189,19 +186,14 @@ public class InspectorSearch : EditorWindow
             }
         });
     }
-    
-    
-    
     private static void CrDir(string pt)
     {
         if (Directory.Exists(pt)) Directory.Delete(pt, true);
         Directory.CreateDirectory(pt);
     }
-
     public void Inits()
     {
         InitTransforms();
-        StartInitValues();
         foreach (var go in Selection.gameObjects)
         {
             foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
@@ -213,7 +205,6 @@ public class InspectorSearch : EditorWindow
                     FindAsset(scr, pf);
                     //FindTransform(scr, pf);
                 }                
-                //scr.InitValues();
                 scr.Init();
             }
         }
@@ -229,34 +220,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    [MenuItem("Edit/InitValues")]    
-    private static void StartInitValues()
-    {
-        //var dt = DateTime.Now;
-        foreach (GameObject a in GameObject.FindObjectsOfTypeIncludingAssets(typeof(GameObject)))
-        {
-            if (AssetDatabase.IsMainAsset(a))
-            {
-                bool mod = false;
-                var ar = a.transform.GetTransforms().ToArray();
-                foreach (var b in ar)
-                {
-                    var bs = b.GetComponent<Base>();
-                    if (bs != null)
-                    {
-                        bs.InitValues();                        
-                        mod = true;
-                    }
-                }
-                if (mod)
-                    EditorUtility.SetDirty(a);
-            }
-            else
-                foreach (var bs in a.GetComponentsInChildren<Base>())
-                    bs.InitValues();
-        } 
-        //Debug.Log("InitValues" + (DateTime.Now - dt).TotalSeconds);
-    }
+    
     private static void FindTransform(Base scr, FieldInfo pf)
     {
         FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
@@ -265,7 +229,8 @@ public class InspectorSearch : EditorWindow
             string name = (atr.name == null) ? pf.Name : atr.name;
             try
             {
-                GameObject g  = scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
+
+                GameObject g = atr.self ? scr.gameObject : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
                 if (g == null) g = GameObject.Find(name).gameObject;
                 if (g == null) throw new Exception();
                 if (pf.FieldType == typeof(GameObject))
@@ -276,7 +241,6 @@ public class InspectorSearch : EditorWindow
             catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
         }
     }
-
     private static void FindAsset(Base scr, FieldInfo pf)
     {
         FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
@@ -316,7 +280,6 @@ public class InspectorSearch : EditorWindow
             .Invoke(null, new[] { a });
         return b;
     }
-
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
     private void DrawObjects()
     {
@@ -382,7 +345,6 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-
     private void SetMultiSelect(Object m, SerializedProperty pr)
     {
         switch (pr.propertyType)
@@ -461,9 +423,7 @@ public class InspectorSearch : EditorWindow
     {
         EditorPrefs.SetString(EditorApplication.applicationPath, string.Join(",", instances.ToArray()));
     }
-    
     public GameObject selectedGameObject;
-    
     public DateTime idletime;
     private void OnSceneUpdate(SceneView scene)
     {
@@ -516,13 +476,11 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    
-
-    
     #region menuitems    
-    [MenuItem("Edit/Play %r")]    
+    [MenuItem("Edit/Play % ")]    
     private static void Play()
     {
+        Debug.Log("PLay");
         if (EditorApplication.isPlaying)
         {
             EditorApplication.isPaused = !EditorApplication.isPaused;
@@ -542,13 +500,13 @@ public class InspectorSearch : EditorWindow
         {
             EditorApplication.SaveAssets();
             EditorApplication.SaveScene(EditorApplication.currentScene); //autosave
-            var cs = EditorApplication.currentScene;
-            var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Backups/";
-            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            //var cs = EditorApplication.currentScene;
+            //var dir = Path.GetDirectoryName(cs) + "/" + Path.GetFileNameWithoutExtension(cs) + "/Backups/";
+            //if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
-            var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
-            Debug.Log("backup: " + p);
-            EditorApplication.SaveScene(p);
+            //var p = dir + Path.GetFileNameWithoutExtension(cs) + datetime + Path.GetExtension(cs);
+            //Debug.Log("backup: " + p);
+            //EditorApplication.SaveScene(p);
         }
     }
     [MenuItem("Edit/Capture Screenshot %e")]
@@ -1131,10 +1089,17 @@ public class InspectorSearch : EditorWindow
     //    DestroyImmediate(co);
     //}
     #endregion
+    void OnSelectionChange()
+    {
+        this.Repaint();
+        //Debug.Log(Selection.activeGameObject.GetComponent<bs>());
+
+        //Update();
+    }
     protected virtual void Update()
     {
-        EditorApplication.playmodeStateChanged = OnPlaymodeStateChanged;
-
+        
+        //EditorApplication.playmodeStateChanged = OnPlaymodeStateChanged;
         autosavetm += 0.01f;
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;
@@ -1171,37 +1136,16 @@ public class InspectorSearch : EditorWindow
                 yield return a;
         }
     }
-    string[] scenes
-    {
-        get
-        {
-            return new string[] { 
-            "Assets/scenes/Menu.unity",
-            "Assets/scenes/12.unity",
-            "Assets/scenes/11.unity",
-            "Assets/scenes/9.unity",
-            "Assets/scenes/10.unity",
-            "Assets/scenes/1.unity",
-            "Assets/scenes/2.unity",
-            "Assets/scenes/3.unity",
-            "Assets/scenes/4.unity",
-            "Assets/scenes/5.unity",
-            "Assets/scenes/6.unity",
-            "Assets/scenes/7.unity",
-            "Assets/scenes/8.unity",
-            
-        };
-        }
-    }
+    
     private void Build()
     {
-        PlayerSettings.productName = "Ropector Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        PlayerSettings.productName = "Arena Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         if (!web)
         {
             var fn = "game.exe";
             var path = @"Builds/";
             CrDir(path);
-            BuildPipeline.BuildPlayer(scenes, path + fn, BuildTarget.StandaloneWindows, BuildOptions.Development);
+            BuildPipeline.BuildPlayer(Base.scenes, path + fn, BuildTarget.StandaloneWindows, BuildOptions.Development);
             Debug.Log("Stand Alone Bulid success");
         }
         if (web)
@@ -1211,9 +1155,9 @@ public class InspectorSearch : EditorWindow
             //var folder = "Web/" + dt;
             //if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);            
             if (Directory.Exists("Index")) Directory.Delete("Index",true);
-            BuildPipeline.BuildPlayer(scenes, "Index", BuildTarget.WebPlayerStreamed, BuildOptions.None);
+            BuildPipeline.BuildPlayer(Base.scenes, "Index", BuildTarget.WebPlayerStreamed, BuildOptions.None);
             CrDir("t2");
-            BuildPipeline.BuildPlayer(new[] { scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development);
+            BuildPipeline.BuildPlayer(new[] { Base.scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development);
             Directory.Delete("t2", true);
             Debug.Log("Web Bulid success");
         }

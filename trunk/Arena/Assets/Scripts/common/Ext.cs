@@ -262,6 +262,7 @@ public class FindAsset : Attribute
 }
 public class FindTransform : Attribute 
 {
+    public bool self;
     public string name;
     public FindTransform() { }
     public FindTransform(string enumName)

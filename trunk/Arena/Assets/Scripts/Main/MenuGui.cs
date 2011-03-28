@@ -7,7 +7,6 @@ public class MenuGui : bs {
 	void Start () {
 	
 	}
-    
     void OnGUI()
     {
         if (gui.Button("Wait For Player"))
@@ -18,13 +17,10 @@ public class MenuGui : bs {
             SendAction(MenuAction.single);
 
     }
-
     private void SendAction( MenuAction a)
     {
         transform.parent.SendMessage("Action", a);
     }
-
-    
 	void Update () {
 	
 	}

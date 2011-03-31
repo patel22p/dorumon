@@ -9,7 +9,15 @@ using System.Text.RegularExpressions;
 public enum ObjectType { none, clothCollider }
 public partial class Base : MonoBehaviour
 {
-    
+    public static string[] scenes
+    {
+        get
+        {
+            return new string[] { 
+            "Assets/scenes/1.unity",                        
+        };
+        }
+    }    
     public ObjectType ObjectType;
     public bool dontResetPos;    
     public void SetLayer(int l)
@@ -66,11 +74,13 @@ public partial class Base : MonoBehaviour
         return aset;
     }
 #endif
-    public virtual void InitValues() // this function called when you press start or pause in editor
-    {
-    }
+    
     public virtual void Init()
     {
+    }
+    public virtual void OnEditorGui()
+    {
+
     }
     public static void Combine(GameObject g)
     {

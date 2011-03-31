@@ -8,22 +8,16 @@ public class RopeEnd : bs
     public float RopeFactor = 1;
     public float ObjectMagnetFactor = 1;
     public LineRenderer line;
-    [FindAsset("cloth")]
-    public GameObject clothPrefab;
-    public GameObject cloth;
+    
     void Start()
     {
         EnableRope(false);
+        RopeFactor = 1000f;
+        ObjectMagnetFactor = 500;
     }
     void Update()
     {
-        if (cloth != null)
-        {
-            var fx1 = cloth.transform.Find("s1");
-            fx1.transform.position = Player.pos;
-            var fx2 = cloth.transform.Find("s2");
-            fx2.transform.position = this.transform.position;
-        }
+        
         
         HitTest();
         line.SetPosition(0, Player.pos);
@@ -38,12 +32,7 @@ public class RopeEnd : bs
         tmRope -= Time.deltaTime;
         base.AlwaysUpdate();
     }
-    public override void InitValues()
-    {
-        RopeFactor = 1000f;
-        ObjectMagnetFactor = 500;
-        base.InitValues();
-    }
+    
     void OnCollisionEnter(Collision coll)
     {
         OnColl(coll.contacts[0].point, coll.transform);
@@ -79,15 +68,13 @@ public class RopeEnd : bs
             EnableRope(false);
     }
     //shoot
-    public void MouseDown()
+    public void MouseDown(Vector3 dir)
     {
         if (!enabled)
         {
             tmRope = 1;
             this.oldpos = this.transform.position = Player.pos;
-            EnableRope(true);
-            var dir = Cam.cursor.transform.position - Player.pos;
-            dir = dir.normalized;
+            EnableRope(true);                        
             this.rigidbody.velocity = dir * 100;
         }
         
@@ -135,14 +122,7 @@ public class RopeEnd : bs
     }
     
     public void EnableRope(bool enableCloth)
-    {
-
-        if (cloth != null)
-            Destroy(cloth);
-        if (enableCloth)
-        {
-            cloth = (GameObject)Instantiate(clothPrefab,Player.pos,Quaternion.identity);            
-        }
+    {        
         this.gameObject.active = enableCloth;
         enabled = enableCloth;
         oldpos = Player.pos;

@@ -20,15 +20,16 @@ public class Game : bs
     Vector3 dragpos;
     Rigidbody drb;
     bool isdrag;
-
+    
+    
     internal List<Car> cars = new List<Car>();    
     public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
-    [FindTransform(scene = true)] // with this attribute this variable will be assigned automaticly in editor
+    [FindTransform()] // with this attribute this variable will be assigned automaticly in editor
     public Animation deadAnim;
     [FindTransform]
     public Base cursor;
-    [FindTransform("Player", scene = true)]
+    [FindTransform("Player")]
     public bs iplayer; // player or car pointer(if player is in car)
     public List<Score> blues = new List<Score>();
     float tmWall;
@@ -37,8 +38,7 @@ public class Game : bs
     [FindAsset]
     public Material wallMat;
     [FindAsset]
-    public Material woodMat;
-
+    public Material woodMat;    
     public float fall;
     public bool Stop;
     public float Wall;
@@ -47,6 +47,8 @@ public class Game : bs
     public float prestartTm = 3;
     public float TimeElapsed; 
     public bool SecondRope;
+
+    public float graphicsCheck;
     public override void Awake()
     {
         Debug.Log("Game Awake");
@@ -56,25 +58,32 @@ public class Game : bs
             Wall = 100;
         if (isLevel(5))
             WallSticky = 100;
-        if (isLevel(9, 10))
+        if (isLevel(9, 10, 11, 12))
             WallSticky = Wall = 1000;
         base.Awake();
     }
-    public override void InitValues() // this function called when you press start or pause in editor, usualy used for variables init in editor
+    void Start()
     {
-        IgnoreAll("Ignore Raycast"); //ignores colision for layer
+        Network.InitializeServer(200, 5400, false);
+    }
+    public override void Init()
+    {
+        IgnoreAll("Ignore Raycast"); 
         IgnoreAll("IgnoreColl");
         IgnoreAll("Button");
         IgnoreAll("Water");
         AddColl("Button", "Player");        
-        base.InitValues();
+
+        base.Init();
     }
-    
+    float TimeSpeed = 1;
+    bool enableTimeWarp;
     void Update()
     {        
-        
         timer.Update();
         prestartTm -= Time.deltaTime;
+
+        TimeWarp();
 
         if (prestartTm > 0 && !debug)
         {
@@ -84,6 +93,7 @@ public class Game : bs
         else
             GameGui.CenterTime.enabled = false;
         if (Stop) return;
+
         TimeElapsed += Time.deltaTime;                
         GameGui.time.text = TimeToSTr(TimeElapsed);
 
@@ -97,6 +107,35 @@ public class Game : bs
             deadAnim.Play();
             timer.AddMethod(2000, delegate { _Loader.ResetLevel(); });
         }
+        
+        GameGui.scores.text = Player.scores + "/" + blues.Count;
+        PlayerScores();
+        UpdateWall();
+        UpdateEditWall();
+
+    }
+
+    private void TimeWarp()
+    {
+        if (enableTimeWarp)
+            TimeSpeed = ((TimeSpeed * 5) + .1f) / 6f;
+        if (!enableTimeWarp)
+            TimeSpeed = ((TimeSpeed * 5) + 1) / 6f;
+        //Debug.Log(TimeSpeed);
+        Music.audio.pitch = TimeSpeed;
+        Time.timeScale = TimeSpeed;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.Log("TimeWarp");
+            enableTimeWarp = true;
+            timer.AddMethod(5000, delegate { enableTimeWarp = false; });
+        }
+    }
+
+    private void PlayerScores()
+    {
         if (Player.scores == blues.Count && !Stop) // if player win we play animation, save scores and load next level
         {
             Stop = true;
@@ -106,15 +145,11 @@ public class Game : bs
             {
                 GameGui.time.text = "New Record:" + TimeToSTr(TimeElapsed);
                 PlayerPrefs.SetFloat(Application.loadedLevelName, TimeElapsed);
-                _Loader.RefreshRecords();
             }
-            
+
             timer.AddMethod(2000, delegate { _Loader.NextLevel(); });
             Player.gameObject.active = false;
         }
-        GameGui.scores.text = Player.scores + "/" + blues.Count; 
-        UpdateWall();
-        UpdateEditWall();
     }
     private void UpdateWall() //handles when player press b. and build wall 
     {
@@ -152,8 +187,11 @@ public class Game : bs
                     cubetr.position = o;
                     cubetr.LookAt(cursor.transform.position);
                     var e = cubetr.transform.rotation.eulerAngles;
+                    if (e == new Vector3(270, 0, 0))
+                        cubetr.transform.rotation = Quaternion.Euler(270, 90, 0);
                     if (e == new Vector3(90, 0, 0))
                         cubetr.transform.rotation = Quaternion.Euler(90, 90, 0);
+
                     cubetr.transform.parent = Holder.transform;
 
                 }
@@ -181,12 +219,10 @@ public class Game : bs
 
         bool clear = Input.GetKey(KeyCode.C);
         bool cut = Input.GetKey(KeyCode.X);
-        //if (clear || cut)
-        //{
-        
         var vr = cursor.pos - Cam.pos;
         var r = new Ray(Cam.pos, vr);
         RaycastHit h;
+    
         if (Physics.Raycast(r, out h, vr.magnitude, 1 << LayerMask.NameToLayer("Default")))
         {
             var mh = h.transform.GetMonoBehaviorInParrent() as Wall;
@@ -195,9 +231,10 @@ public class Game : bs
                 //Debug.Log("Found");
                 if (clear || cut)
                 {
+                    Debug.Log("test");
                     var rp = mh.GetComponentsInChildren<RopeEnd>();
                     foreach (var a in rp)
-                        a.EnableRope(false);
+                        a.EnableRope(false);    
                     if (cut)
                         Destroy(h.collider.gameObject);
                     else

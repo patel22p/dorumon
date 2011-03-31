@@ -25,11 +25,31 @@ public class Player : bs {
 
     }
     void Update()
-    {
+    {        
+        
         if (Game.prestartTm > 0 && !debug) return;
         UpdateCars();
         UpdatePlayer();
-        timer.Update();        
+        timer.Update();
+        UpdateIphone();
+    }
+    public Touch[] ot;
+    private void UpdateIphone()
+    {
+        if (ot != null)
+        {
+            var ts = Input.touches;
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                var touch = ts[i];
+                if (touch.phase != ot[i].phase)
+                {
+                    touch.phase == TouchPhase.Began
+                }
+            }
+        }
+        ot = Input.touches;
+
     }
     void UpdateCars()
     {
@@ -42,6 +62,24 @@ public class Player : bs {
             }
         }
     }
+    void FixedUpdate()
+    {
+        rigidbody.AddForce(new Vector3(0, -10, 0));
+    }
+    void OnCollisionStay(Collision col)
+    {
+        //Debug.Log(col.rigidbody.velocity);
+        
+        //var c = col.gameObject.GetComponent<Animated>();
+        
+        //if (c != null)
+        //{
+        //    Debug.Log(c.vel);
+        //    rigidbody.transform.position += c.vel ;
+        //    this.rigidbody.AddForceAtPosition(c.vel * 100, col.contacts[0].point);
+
+        //}
+    }
     private void UpdatePlayer()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -50,16 +88,7 @@ public class Player : bs {
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
         if (!Screen.lockCursor) return;
         
-        if (Input.GetMouseButtonDown(0))
-            this.ropes[0].MouseDown();
-
-        if (Input.GetMouseButtonUp(0))
-            this.ropes[0].MouseUp();
-
-        if (Input.GetMouseButtonDown(1))
-            this.ropes[1].MouseDown();
-        if (Input.GetMouseButtonUp(1))
-            this.ropes[1].MouseUp();
+        
         
         var mv = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
         var controller = rigidbody;
@@ -71,5 +100,5 @@ public class Player : bs {
 
 
     }
-    public Base cursor { get { return Cam.cursor; } }
+    
 } 

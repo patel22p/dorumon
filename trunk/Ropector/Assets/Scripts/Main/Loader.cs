@@ -1,18 +1,20 @@
-﻿using System;
+﻿
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using doru;
-
+using System.Collections;
+using System.Linq;
 public class Loader : bs //this class entry point class, also it will not removed when new scene loads(all other objects will be destroyed but this after LoadLevel() Call)
 {
     public int currentLevel = -1;
     public int errorcount;
     public int exceptionCount;
     [FindTransform]
-    public GUIText info;
+    public GUIText info;        
+    TimerA timer = new TimerA();
 
     
-    TimerA timer = new TimerA();
     static string LastError = "";
     public void onLog(string c, string stackTrace, LogType type)
     {
@@ -25,48 +27,37 @@ public class Loader : bs //this class entry point class, also it will not remove
     {
         Application.RegisterLogCallback(onLog);
         Debug.Log("Loader Awake");
-        _MenuWindow.lQualitySettings = Enum.GetNames(typeof(QualityLevel));
-        RefreshRecords();
         Application.targetFrameRate = 60;
         DontDestroyOnLoad(this.transform.root);
     }
-    int[] lvl = new int[] { 9,10, 1, 2, 3, 4, 5, 6, 7, 8 };
-    public void RefreshRecords()
-    {
-        List<string> fls = new List<string>();
-        for (int n = 0; n < lvl.Length; n++)
-        {
-            var i = lvl[n];
-            var f = PlayerPrefs.GetFloat(i + "");
-            var loadProgress = (int)(Application.GetStreamProgressForLevel(i + "") * 100);
-            fls.Add(string.Format(CreateTable(_MenuWindow.Tabble), "", n + 1, TimeToSTr(f), loadProgress));
-        }        
-        _MenuWindow.lSelectLevel = fls.ToArray();
-    }
+    static string[] lvl { get { return Base.scenes; } }
  
-    void Action(MenuWindowEnum s) //this function called when menu button pressed
-    {        
-        if (s == MenuWindowEnum.NewGame)
-            LoadLevel(0);
-        if (s == MenuWindowEnum.QualitySettings)
-            QualitySettings.currentLevel = (QualityLevel)_MenuWindow.iQualitySettings;           
-        if (s == MenuWindowEnum.SelectLevel)
-            LoadLevel(_MenuWindow.iSelectLevel);
-        if (s == MenuWindowEnum.DisableMusic)
-        {
-            Music.audio.Stop();
-            Music.enabled = false;
-        }
-        if (s == MenuWindowEnum.DisableSounds)
-            AudioListener.volume = _MenuWindow.DisableSounds ? 0 : 1;
+    List<float> avverageFps = ResetFps();
+    public static List<float> ResetFps()
+    {
+        return Enumerable.Repeat(100f, 4).ToList();
     }
-    int fps;
+    public int fps = 100;
     void Update()
     {
+
+        if (timer.TimeElapsed(1000))
+        {
+            avverageFps.RemoveAt(0);
+            avverageFps.Add((float)timer.GetFps());
+            fps = (int)avverageFps.Average();
+            if (fps < 40 && QualitySettings.currentLevel != QualityLevel.Fastest)
+            {
+                Debug.Log("Low");
+                avverageFps = ResetFps();
+                QualitySettings.DecreaseLevel();
+            }
+        }
+
+        
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Q))
         {
             Console.enabled = !Console.enabled;
-            Debug.Log("sad");
         }
         if (QualitySettings.currentLevel == QualityLevel.Fastest && Camera.main.renderingPath != RenderingPath.VertexLit)
         {
@@ -79,15 +70,7 @@ public class Loader : bs //this class entry point class, also it will not remove
             Camera.main.renderingPath = RenderingPath.DeferredLighting;
         }
 
-        if (_MenuWindow.enabled && timer.TimeElapsed(1000))
-            RefreshRecords();
-
-        if(timer.TimeElapsed(1000))
-           fps = (int)timer.GetFps() ;
-
-        info.text = "FPS:"+fps + " W:" + errorcount + " E:" + exceptionCount+ " "+ LastError;
-        if (Input.GetKeyDown(KeyCode.Escape))
-            _MenuWindow.Show(this);
+        info.text = "FPS:" + fps + " W:" + errorcount + " E:" + exceptionCount + " " + LastError;
         timer.Update();
     }
     public void NextLevel()
@@ -101,7 +84,6 @@ public class Loader : bs //this class entry point class, also it will not remove
     public void LoadLevel(int n)
     {
         currentLevel = n;
-        _MenuWindow.HideAll();
-        Application.LoadLevel(lvl[n] + "");
+        Application.LoadLevelAsync(lvl[n] + "");
     }
 }

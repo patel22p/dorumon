@@ -10,6 +10,7 @@ using doru;
 public class Game : bs
 {
     public hostDebug hostDebug;
+    public AnimationCurve SpeedCurv;
     
     [FindAsset("Player")]
     public GameObject PlayerPrefab;
@@ -18,12 +19,11 @@ public class Game : bs
 
     public new Player _PlayerOwn;
     public new Player _PlayerOther;
-    public bool singlePlayer;
-    public List<bs> networkItems = new List<bs>();
-    public List<Zombie> Zombies = new List<Zombie>();
-    public List<ZombieSpawn> ZombieSpawns = new List<ZombieSpawn>();
-    
-    public TimerA timer = new TimerA();
+    internal bool singlePlayer;
+    internal List<bs> networkItems = new List<bs>();
+    internal List<Zombie> Zombies = new List<Zombie>();
+    internal List<ZombieSpawn> ZombieSpawns = new List<ZombieSpawn>();
+    internal TimerA timer = new TimerA();
     public override void Awake()
     {
         
@@ -36,7 +36,7 @@ public class Game : bs
     {
 
         Screen.lockCursor = true;
-        var g = (GameObject)Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)NetworkGroup.Player);
+        Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)NetworkGroup.Player);
         _MenuGui.enabled = false;
         networkView.RPC("Test", RPCMode.Others);
     }
@@ -56,8 +56,7 @@ public class Game : bs
         if (timer.TimeElapsed(2000) && Network.isServer && Zombies.Count < 10)
         {
             var zsp = ZombieSpawns.Random();
-            var zmb = Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);            
-            
+            Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
         }
         if (DebugKey(KeyCode.Q))
         {
@@ -101,7 +100,8 @@ public class Game : bs
         _Loader.WriteDebug("Connected");
         var nws = networkItems.Where(a => a is Game).Union(networkItems);
         foreach (var n in nws)
-            n.enabled = true;
+            if (n != null)
+                n.enabled = true;
     }
     void onDisconnect()
     {

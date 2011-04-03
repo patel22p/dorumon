@@ -227,18 +227,19 @@ public class InspectorSearch : EditorWindow
         if (atr != null)
         {
             string name = (atr.name == null) ? pf.Name : atr.name;
+            Transform g;
             try
             {
 
-                GameObject g = atr.self ? scr.gameObject : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name).gameObject;
-                if (g == null) g = GameObject.Find(name).gameObject;
+                g = atr.self ? scr.transform : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name);
+                //if (g == null) g = GameObject.Find(name).transform;
                 if (g == null) throw new Exception();
                 if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, g);
+                    pf.SetValue(scr, g.gameObject);
                 else
                     pf.SetValue(scr, g.GetComponent(pf.FieldType));
             }
-            catch { Debug.Log("cound not find path " + scr.name + "+" + name); }
+            catch { Debug.Log(scr.name + " cound not find path " + scr.name + "+" + name); }
         }
     }
     private static void FindAsset(Base scr, FieldInfo pf)
@@ -263,7 +264,11 @@ public class InspectorSearch : EditorWindow
                 else
                 {
                     Debug.Log("FindAsset " + name);
-                    pf.SetValue(scr, Base.FindAsset(name, pf.FieldType));
+                    try
+                    {
+                        pf.SetValue(scr, Base.FindAsset(name, pf.FieldType));
+                    }
+                    catch (Exception e) { Debug.Log(scr.name + ":" + e.Message); }
                 }
             }
         }

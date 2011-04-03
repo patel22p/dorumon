@@ -6,10 +6,13 @@ public class Player : Shared {
 
     public Vector3 syncVel;
     public Vector3 vel;
-    [FindTransform]
-    public GameObject model;
+    
     public override void Awake()
     {
+        if (Check()) return;
+
+        base.Awake();   
+
         if (networkView.isMine)
             _Game._PlayerOwn = this;
         else
@@ -20,6 +23,8 @@ public class Player : Shared {
         run.wrapMode = WrapMode.Loop;
         sleft.wrapMode = WrapMode.Loop;
         sright.wrapMode = WrapMode.Loop;
+        Shoot.layer = 1;
+        Shoot.wrapMode = WrapMode.Clamp;
     }
     
     void Update()
@@ -40,18 +45,27 @@ public class Player : Shared {
         vel *= .98f;
 
         Vector3 speed = Quaternion.Inverse(transform.rotation) * controller.velocity;
-        _Loader.WriteVar(speed);
-        var sn = speed.normalized;                
-        if (Mathf.Abs(speed.z) > 1f)
-            Fade(run, sn.z);
-        else if (speed.x < -1f)
-            Fade(sleft, Mathf.Abs(sn.x));
-        else if (speed.x > 1f)
-            Fade(sright, Mathf.Abs(sn.x));
-        else 
-            Fade(idle, 1);
         
-	}
+        
+        var sn = speed.normalized;
+        _Loader.WriteVar("Player vel" + sn);
+
+        //if (Input.GetMouseButtonDown(0))
+        //    an.CrossFadeQueued(Shoot.name, 0f, QueueMode.PlayNow);
+        float LFlim = .3f;
+
+        if (sn.x < -LFlim)
+            Fade(sn.z > -LFlim ? sleft : sright, 1);
+        else if (sn.x > LFlim)
+            Fade(sn.z > -LFlim ? sright : sleft, 1);
+        else if (Mathf.Abs(sn.z) > .1f)
+            Fade(run, 1);
+        else //if (Mathf.Abs(sn.magnitude) < .1f)
+            Fade(idle, 1);
+        //else
+
+
+    }
  
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
@@ -73,15 +87,12 @@ public class Player : Shared {
         }
     }
 
-    private void Fade(AnimationState s, float speed)
-    {
-        an.CrossFade(s.name);
-        s.speed = speed;
-    }
-    public Animation an { get { return model.animation; } }
+    
     AnimationState idle { get { return an["idle"]; } }
     AnimationState run { get { return an["run"]; } }
-    AnimationState sleft { get { return an["sleft"]; } }
-    AnimationState sright { get { return an["sright"]; } }
+    AnimationState sleft { get { return an["StrafeLeft"]; } }
+    AnimationState sright { get { return an["StrafeRight"]; } }
+    AnimationState Shoot { get { return an["Shoot"]; } }
+    
 }
   

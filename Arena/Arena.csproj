@@ -66,6 +66,7 @@
      <Compile Include="Assets\Scripts\Main\Shared.cs" />
      <Compile Include="Assets\Scripts\Main\Zombie.cs" />
      <Compile Include="Assets\Scripts\Main\ZombieSpawn.cs" />
+     <None Include="Assets\Scripts\shaders\Reflect-BumpSpec.shader" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />

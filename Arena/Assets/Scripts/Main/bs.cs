@@ -7,6 +7,23 @@ public enum hostDebug { showMenu, singlePlayer }
 
 public class bs : Base
 {
+    public virtual void Awake()
+    {        
+        InitLoader();
+    }
+    public bool Check()
+    {
+        if (!name.Contains("(Clone)")) { Destroy(this.gameObject); return true; }
+        return false;
+    }
+    private static void InitLoader()
+    {
+        if (__Loader == null)
+            __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault();
+        if (__Loader == null)
+            __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
+    }
+
     public void FindTransform(ref GameObject g, string name) 
     {
         if(g==null)
@@ -58,15 +75,5 @@ public class bs : Base
         }
     }
 
-    private static void InitLoader()
-    {
-        if (__Loader == null)
-            __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault();
-        if (__Loader == null)
-            __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
-    }
-    public virtual void Awake()
-    {
-        InitLoader();
-    }
+    
 }

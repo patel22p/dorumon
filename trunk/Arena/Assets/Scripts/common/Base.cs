@@ -64,13 +64,13 @@ public partial class Base : MonoBehaviour
             files = Directory.GetFiles("./", "*.*", SearchOption.AllDirectories);
         return files.Select(a => a.Replace("\\", "/").Substring(2));
     }
-    public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
+    //public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
     public static Object FindAsset(string name, Type t)
     {
         var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)
             .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, t))
             .Where(a => a != null).FirstOrDefault();
-        if (aset == null) Debug.Log("could not find asset " + name);
+        if (aset == null) throw new Exception("could not find asset " + name);
         return aset;
     }
 #endif
@@ -90,7 +90,7 @@ public partial class Base : MonoBehaviour
         Hashtable materialToMesh = new Hashtable();
 
         for (int i = 0; i < filters.Length; i++)
-        {
+        {			
             MeshFilter filter = (MeshFilter)filters[i];
             Renderer curRenderer = filters[i].renderer;
             MeshCombineUtility.MeshInstance instance = new MeshCombineUtility.MeshInstance();

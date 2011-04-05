@@ -869,6 +869,12 @@ public class InspectorSearch : EditorWindow
         tocopy = Selection.objects;
         move = false;
     }
+    [MenuItem("Assets/Cut")]
+    static void CutAsset()
+    {
+        tocopy = Selection.objects;
+        move = true;
+    }
     [MenuItem("Assets/Paste")]
     static void PasteAsset()
     {
@@ -895,12 +901,7 @@ public class InspectorSearch : EditorWindow
         else
             return AssetDatabase.CopyAsset(a, b) ? "success" : "failed";
     }
-    [MenuItem("Assets/Move")]
-    static void MoveAsset()
-    {
-        tocopy = Selection.objects;
-        move = true;
-    }
+    
     [MenuItem("GameObject/ReconnectAll")]
     static void ReconnectAll()
     {

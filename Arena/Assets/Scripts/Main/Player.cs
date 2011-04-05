@@ -1,15 +1,23 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using doru;
 
 public class Player : Shared {
 
     public Vector3 syncVel;
     public Vector3 vel;
-    
+    AnimationState idle { get { return an["idle"]; } }
+    AnimationState run { get { return an["run"]; } }
+    AnimationState sleft { get { return an["sleft"]; } }
+    AnimationState sright { get { return an["sright"]; } }
+    AnimationState runback { get { return an["runback"]; } }    
+    AnimationState Shoot { get { return an["Shoot"]; } }
     public override void Awake()
     {
-        if (Check()) return;
+        if (NotInstance()) return;
+        foreach (var t in upperbody)
+            Shoot.AddMixingTransform(t);
 
         base.Awake();   
 
@@ -17,8 +25,8 @@ public class Player : Shared {
             _Game._PlayerOwn = this;
         else
             _Game._PlayerOther = this;
-    }
-	void Start () {                
+
+
         an.wrapMode = WrapMode.Loop;
         run.wrapMode = WrapMode.Loop;
         sleft.wrapMode = WrapMode.Loop;
@@ -27,13 +35,17 @@ public class Player : Shared {
         Shoot.wrapMode = WrapMode.Clamp;
     }
     
-    void Update()
+	void Start () {                
+        
+    }
+    bool shoting;
+    public TimerA timer = new TimerA();
+    void LateUpdate()
     {
         name = "Player" + "+" + GetId();
         if (networkView.isMine)
         {
             vel = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            //if (_Cam.secondMode)
             vel = _Cam.oldrot * vel.normalized;
             vel += vel * 5;
             var v = _Cursor.pos - _PlayerOwn.pos;
@@ -46,27 +58,71 @@ public class Player : Shared {
 
         Vector3 speed = Quaternion.Inverse(transform.rotation) * controller.velocity;
         
+        if (Input.GetMouseButtonDown(0))
+        {
+            an.CrossFade(Shoot.name);
+            Shoot.speed = 0;
+            timer.AddMethod(500, delegate { Shoot.speed = 1; });
+        }
+        
         
         var sn = speed.normalized;
         _Loader.WriteVar("Player vel" + sn);
 
-        //if (Input.GetMouseButtonDown(0))
-        //    an.CrossFadeQueued(Shoot.name, 0f, QueueMode.PlayNow);
-        float LFlim = .3f;
+        if (sn != Vector3.zero)
+        {
+            float LFlim = .9f;
+            var q = Quaternion.LookRotation(sn).eulerAngles;
+            Debug.Log(sn);
 
-        if (sn.x < -LFlim)
-            Fade(sn.z > -LFlim ? sleft : sright, 1);
-        else if (sn.x > LFlim)
-            Fade(sn.z > -LFlim ? sright : sleft, 1);
-        else if (Mathf.Abs(sn.z) > .1f)
-            Fade(run, 1);
-        else //if (Mathf.Abs(sn.magnitude) < .1f)
-            Fade(idle, 1);
+            if (sn.x < -LFlim)
+                Fade(sn.z > -LFlim ? sleft : sright);
+            else if (sn.x > LFlim)
+                Fade(sn.z > -LFlim ? sright : sleft);
+            else
+            {
+                if (sn.z > 0)
+                    Fade(run);
+                else
+                {
+                    Fade(runback);
+                    q.y += 180;
+                }
+                foreach (var a in downbody)
+                {
+                    var r = a.rotation.eulerAngles;
+                    r.y += q.y;
+                    a.rotation = Quaternion.Lerp(a.rotation, Quaternion.Euler(r), .8f);
+                }
+            }
+            //if (!(q.y < 90 || q.y > 360 - 90))
+            //{
+            //    q.y += 180;
+            //    Fade(runback);
+            //}
+            //else
+            //    Fade(run);
+            
+            
+            //Debug.Log(q.y);
+        }
+        else
+            Fade(idle);
+
+
+        //else
+        //    if (Mathf.Abs(sn.z) > .1f)
+        //    Fade(run, 1);
+        //else //if (Mathf.Abs(sn.magnitude) < .1f)
+        
         //else
 
-
+        timer.Update();
     }
- 
+    //void LateUpdate()
+    //{
+    //    //upperbody[0].rotation = Quaternion.identity;
+    //}
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (stream.isWriting)
@@ -88,11 +144,7 @@ public class Player : Shared {
     }
 
     
-    AnimationState idle { get { return an["idle"]; } }
-    AnimationState run { get { return an["run"]; } }
-    AnimationState sleft { get { return an["StrafeLeft"]; } }
-    AnimationState sright { get { return an["StrafeRight"]; } }
-    AnimationState Shoot { get { return an["Shoot"]; } }
+
     
 }
   

@@ -11,7 +11,7 @@ public class bs : Base
     {        
         InitLoader();
     }
-    public bool Check()
+    public bool NotInstance()
     {
         if (!name.Contains("(Clone)")) { Destroy(this.gameObject); return true; }
         return false;

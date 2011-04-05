@@ -9,33 +9,45 @@ public class Zombie : Shared
     
     AnimationState walk { get { return an["walk"]; } }
     AnimationState run { get { return an["run"]; } }
+    AnimationState hitstay { get { return an["hit"]; } }
+    AnimationState upperHit { get { return an["upperHit"]; } }
     AnimationState idle { get { return an["idle"]; } }
     public Player selected;
     TimerA timer = new TimerA();
+    
     public override void Awake()
     {
-        if (Check()) return;
-
+        //an.AddClip(hitstay.clip, "upperHit");
+        //foreach (var t in upperbody)
+        //    upperHit.AddMixingTransform(t);
+        
+        if (NotInstance()) return;
         base.Awake();
         _Game.Zombies.Add(this);
         AddToNetwork();
         an.wrapMode = WrapMode.Loop;
+        upperHit.wrapMode = WrapMode.Clamp;
         idle.wrapMode = walk.wrapMode = WrapMode.Loop;
+        upperHit.layer = 1;
     }
     public void Start()
     {
         networkView.RPC("AddNetworkView", RPCMode.AllBuffered, Network.AllocateViewID());
     }
     float fspeed;
+    float hittm;
+    float blendtm;
     public void Update()
     {
         
+        hittm -= Time.deltaTime;
         name = "Zombie" + "+" + GetId() + "+" + (selected == _PlayerOwn ? "Owner" : "");
         if (timer.TimeElapsed(100))
             if (selected != _PlayerOwn && (_PlayerOther == null || Vector3.Distance(pos, _PlayerOwn.pos) < Vector3.Distance(pos, _PlayerOther.pos)))
             {
                 networkView.RPC("RPCSelectPlayer", RPCMode.All, _PlayerOwn.id);
             }
+        
         if (selected != null)
         {
             var ztopl = (selected.pos - pos).normalized;
@@ -43,25 +55,26 @@ public class Zombie : Shared
 
             var dist = Vector3.Distance(selected.pos, pos);
             float speed = _Game.SpeedCurv.Evaluate(dist);
-            float normspeed = speed / _Game.SpeedCurv.Evaluate(_Game.SpeedCurv.length);
-            controller.SimpleMove(ztopl * speed);
-            
-            if (normspeed < .1f)
-                Fade(idle, 1);
-            if (dist < 5)
-                Fade(run, 1);
+
+            var nm = controller.velocity.magnitude /_Game.SpeedCurv.Evaluate(_Game.SpeedCurv.length);
+        
+
+            if (dist > 1f)
+                controller.SimpleMove(ztopl * speed);
+
+            bool stay = nm < .1f;
+            if (stay)            
+                Fade(idle);
+            else if (dist < 5)
+                Fade(run);
             else
-                Fade(walk, 1);
+                Fade(walk);
 
-            //fspeed = Mathf.Lerp(speed, fspeed, .5f);
-            //Debug.Log(speed);
-            run.speed = walk.speed = .3f * speed;
+            if (dist < 2f && !upperHit.enabled)
+                an.CrossFade(stay ? hitstay.name : upperHit.name);
+            walk.speed = Mathf.Sqrt(Mathf.Sqrt(.3f * speed));
+            run.speed = Mathf.Sqrt(Mathf.Sqrt(.1f * speed));
             model.transform.rotation = Quaternion.LookRotation(ztopl);
-
-            //if (selected == _PlayerOwn)
-            //{
-            //    var v = (_PlayerOwn.pos - pos).normalized;
-            //}
         }
         timer.Update();
     }

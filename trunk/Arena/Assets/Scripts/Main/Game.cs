@@ -4,8 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using doru;
-
-
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
+using gui = UnityEditor.EditorGUILayout;
+#endif
 
 public class Game : bs
 {
@@ -32,28 +33,18 @@ public class Game : bs
         //if (hostDebug == hostDebug.singlePlayer)
         //    Action(MenuAction.single);
     }
+    
     void Start()
     {
 
         Screen.lockCursor = true;
         Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)NetworkGroup.Player);
         _MenuGui.enabled = false;
-        networkView.RPC("Test", RPCMode.Others);
     }
-    [RPC]
-    void Test()
-    {
-        Debug.Log("test");
-        networkView.RPC("Test2", RPCMode.Others);
-    }
-    [RPC]
-    void Test2()
-    {
-        Debug.Log("Test2");
-    }
+   
     void Update()
     {
-        if (timer.TimeElapsed(2000) && Network.isServer && Zombies.Count < 10)
+        if (timer.TimeElapsed(2000) && Network.isServer && Zombies.Count < 10 && enableZombies)
         {
             var zsp = ZombieSpawns.Random();
             Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
@@ -65,10 +56,12 @@ public class Game : bs
         }
         timer.Update();
     }
+    public bool enableZombies;
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     public override void OnEditorGui()
     {
-        hostDebug = (hostDebug)UnityEditor.EditorGUILayout.EnumPopup(hostDebug);
+        //hostDebug = (hostDebug)UnityEditor.EditorGUILayout.EnumPopup(hostDebug);
+        enableZombies = gui.Toggle("zombies", enableZombies);
         base.OnEditorGui();
     }
 #endif

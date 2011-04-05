@@ -14,7 +14,7 @@ public class Loader:bs
     public TimerA timer = new TimerA();
     public override void Awake()
     {
-        if (Check()) return;
+        if (NotInstance()) return;
         base.Awake();
         Application.RegisterLogCallbackThreaded(log);
         Camera.main.GetComponent<GUILayer>().enabled = true;

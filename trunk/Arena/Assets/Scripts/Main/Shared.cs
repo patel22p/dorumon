@@ -4,7 +4,9 @@ using System.Text.RegularExpressions;
 
 public class Shared : bs
 {
-    
+
+    public Transform[] upperbody;
+    public Transform[] downbody;
     void Start()
     {
         
@@ -22,10 +24,9 @@ public class Shared : bs
     public GameObject model;
     public Animation an { get { return model.animation; } }
 
-    public void Fade(AnimationState s, float speed)
+    public void Fade(AnimationState s)
     {
         an.CrossFade(s.name);
-        s.speed = speed;
     }
 
     public int id { get { return Network.player.GetHashCode(); } }

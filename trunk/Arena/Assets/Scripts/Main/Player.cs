@@ -2,22 +2,27 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using doru;
-
+using System.Linq;
 public class Player : Shared {
 
     public Vector3 syncVel;
     public Vector3 vel;
+    [FindTransform()]
+    public Trigger trigger;
     AnimationState idle { get { return an["idle"]; } }
     AnimationState run { get { return an["run"]; } }
-    AnimationState sleft { get { return an["sleft"]; } }
-    AnimationState sright { get { return an["sright"]; } }
+    AnimationState sleft { get { return an["sleft2"]; } }
+    AnimationState sright { get { return an["sright2"]; } }
     AnimationState runback { get { return an["runback"]; } }    
     AnimationState Shoot { get { return an["Shoot"]; } }
+    AnimationState punch { get { return an["punch"]; } }
     public override void Awake()
     {
         if (NotInstance()) return;
         foreach (var t in upperbody)
             Shoot.AddMixingTransform(t);
+        foreach (var t in upperbody)
+            punch.AddMixingTransform(t);
 
         base.Awake();   
 
@@ -31,8 +36,8 @@ public class Player : Shared {
         run.wrapMode = WrapMode.Loop;
         sleft.wrapMode = WrapMode.Loop;
         sright.wrapMode = WrapMode.Loop;
-        Shoot.layer = 1;
-        Shoot.wrapMode = WrapMode.Clamp;
+        punch.layer =  Shoot.layer = 1;
+        punch.wrapMode = Shoot.wrapMode = WrapMode.Clamp;
     }
     
 	void Start () {                
@@ -43,6 +48,10 @@ public class Player : Shared {
     void LateUpdate()
     {
         name = "Player" + "+" + GetId();
+
+        
+        
+
         if (networkView.isMine)
         {
             vel = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -57,8 +66,18 @@ public class Player : Shared {
         vel *= .98f;
 
         Vector3 speed = Quaternion.Inverse(transform.rotation) * controller.velocity;
-        
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !punch.enabled)
+        {
+            foreach (Zombie z in trigger.colliders.Where(a => a is Zombie))
+            {
+
+            }
+            an.CrossFade(punch.name);
+            punch.speed = 0;
+            timer.AddMethod(100, delegate { punch.speed = 1; });
+
+        }
+        if (Input.GetMouseButtonDown(1) && !Shoot.enabled)
         {
             an.CrossFade(Shoot.name);
             Shoot.speed = 0;
@@ -66,14 +85,15 @@ public class Player : Shared {
         }
         
         
-        var sn = speed.normalized;
+        var sn = speed;
+        sn.y = 0;
+        sn = sn.normalized;
         _Loader.WriteVar("Player vel" + sn);
 
         if (sn != Vector3.zero)
         {
             float LFlim = .9f;
             var q = Quaternion.LookRotation(sn).eulerAngles;
-            Debug.Log(sn);
 
             if (sn.x < -LFlim)
                 Fade(sn.z > -LFlim ? sleft : sright);
@@ -95,34 +115,15 @@ public class Player : Shared {
                     a.rotation = Quaternion.Lerp(a.rotation, Quaternion.Euler(r), .8f);
                 }
             }
-            //if (!(q.y < 90 || q.y > 360 - 90))
-            //{
-            //    q.y += 180;
-            //    Fade(runback);
-            //}
-            //else
-            //    Fade(run);
-            
-            
-            //Debug.Log(q.y);
+ 
         }
         else
             Fade(idle);
 
 
-        //else
-        //    if (Mathf.Abs(sn.z) > .1f)
-        //    Fade(run, 1);
-        //else //if (Mathf.Abs(sn.magnitude) < .1f)
-        
-        //else
-
         timer.Update();
     }
-    //void LateUpdate()
-    //{
-    //    //upperbody[0].rotation = Quaternion.identity;
-    //}
+
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (stream.isWriting)

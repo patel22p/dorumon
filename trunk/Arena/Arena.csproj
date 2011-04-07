@@ -64,6 +64,7 @@
      <Compile Include="Assets\Scripts\Main\MenuGui.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\Shared.cs" />
+     <Compile Include="Assets\Scripts\Main\Trigger.cs" />
      <Compile Include="Assets\Scripts\Main\Zombie.cs" />
      <Compile Include="Assets\Scripts\Main\ZombieSpawn.cs" />
      <None Include="Assets\Scripts\shaders\Reflect-BumpSpec.shader" />
@@ -166,6 +167,7 @@
      <None Include="Assets\Standard Assets\Scripts\General Scripts\DragRigidbody.js" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\CombineChildren.cs" />
      <Compile Include="Assets\Standard Assets\Scripts\Utility Scripts\MeshCombineUtility.cs" />
+     <None Include="Assets\Standard Assets\Skyboxes\ skybox info.txt" />
      <None Include="Assets\Standard Assets\Skyboxes\skybox info.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

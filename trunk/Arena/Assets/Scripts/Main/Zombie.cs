@@ -78,6 +78,10 @@ public class Zombie : Shared
         }
         timer.Update();
     }
+    public void Damage()
+    {
+
+    }
     protected virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (selected == _PlayerOwn || stream.isReading)

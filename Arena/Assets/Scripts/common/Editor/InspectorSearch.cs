@@ -220,7 +220,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    
+
     private static void FindTransform(Base scr, FieldInfo pf)
     {
         FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
@@ -230,7 +230,6 @@ public class InspectorSearch : EditorWindow
             Transform g;
             try
             {
-
                 g = atr.self ? scr.transform : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name);
                 //if (g == null) g = GameObject.Find(name).transform;
                 if (g == null) throw new Exception();

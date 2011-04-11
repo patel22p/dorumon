@@ -14,10 +14,23 @@ public partial class Base : MonoBehaviour
         get
         {
             return new string[] { 
-            "Assets/scenes/1.unity",                        
+            "Assets/scenes/Menu.unity",
+            "Assets/scenes/12.unity",
+            "Assets/scenes/11.unity",
+            "Assets/scenes/9.unity",
+            "Assets/scenes/10.unity",
+            "Assets/scenes/1.unity",
+            "Assets/scenes/2.unity",
+            "Assets/scenes/3.unity",
+            "Assets/scenes/4.unity",
+            "Assets/scenes/5.unity",
+            "Assets/scenes/6.unity",
+            "Assets/scenes/7.unity",
+            "Assets/scenes/8.unity",
+            
         };
         }
-    }    
+    }
     public ObjectType ObjectType;
     public bool dontResetPos;    
     public void SetLayer(int l)
@@ -74,13 +87,11 @@ public partial class Base : MonoBehaviour
         return aset;
     }
 #endif
-    
-    public virtual void Init()
+    public virtual void InitValues() // this function called when you press start or pause in editor
     {
     }
-    public virtual void OnEditorGui()
+    public virtual void Init()
     {
-
     }
     public static void Combine(GameObject g)
     {

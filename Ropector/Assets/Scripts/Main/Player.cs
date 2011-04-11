@@ -30,26 +30,7 @@ public class Player : bs {
         if (Game.prestartTm > 0 && !debug) return;
         UpdateCars();
         UpdatePlayer();
-        timer.Update();
-        UpdateIphone();
-    }
-    public Touch[] ot;
-    private void UpdateIphone()
-    {
-        if (ot != null)
-        {
-            var ts = Input.touches;
-            for (int i = 0; i < Input.touchCount; i++)
-            {
-                var touch = ts[i];
-                if (touch.phase != ot[i].phase)
-                {
-                    touch.phase == TouchPhase.Began
-                }
-            }
-        }
-        ot = Input.touches;
-
+        timer.Update();        
     }
     void UpdateCars()
     {
@@ -88,7 +69,16 @@ public class Player : bs {
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ;
         if (!Screen.lockCursor) return;
         
-        
+        if (Input.GetMouseButtonDown(0))
+            this.ropes[0].MouseDown();
+
+        if (Input.GetMouseButtonUp(0))
+            this.ropes[0].MouseUp();
+
+        if (Input.GetMouseButtonDown(1))
+            this.ropes[1].MouseDown();
+        if (Input.GetMouseButtonUp(1))
+            this.ropes[1].MouseUp();
         
         var mv = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
         var controller = rigidbody;
@@ -100,5 +90,5 @@ public class Player : bs {
 
 
     }
-    
+    public Base cursor { get { return Cam.cursor; } }
 } 

@@ -16,6 +16,9 @@ public class bs : Base // contains static pointers to other objects
     static Console _Console;
     public static Console Console { get { if (_Console == null) _Console = (Console)MonoBehaviour.FindObjectOfType(typeof(Console)); return _Console; } }
     
+    static Menu _Menu;    
+    public static Menu Menu { get { if (_Menu == null) _Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return _Menu; } }
+
     static Game _Game;
     public static Game Game { get { if (_Game == null) _Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return _Game; } }
     static Cam _Cam;

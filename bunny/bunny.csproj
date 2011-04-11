@@ -54,6 +54,7 @@
      <Compile Include="Assets\Editor\PaintableWindow.cs" />
      <Compile Include="Assets\Editor\PaintDummy.cs" />
      <Compile Include="Assets\Editor\ReplaceShader.cs" />
+     <Compile Include="Assets\Editor\vertexPainter.cs" />
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\Scripts\common\Window\WindowBase.cs" />
      <Compile Include="Assets\Scripts\common\Base.cs" />
@@ -74,6 +75,8 @@
      <None Include="Assets\Scripts\Shaders\Terrain.shader" />
      <None Include="Assets\Scripts\Shaders\Transparent_OneSided.shader" />
      <None Include="Assets\Scripts\Shaders\Transparent_TwoSided.shader" />
+     <None Include="Assets\Shaders\Cameramapping.shader" />
+     <None Include="Assets\Shaders\VertexColorsOnly.shader" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\BloomAndFlaresEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\ColorCorrectionCurvesEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
@@ -184,6 +187,16 @@
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Particles Additive Culled.shader" />
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Vertex Colored.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Lightmap Shaders (Legacy)\Mobile Lightmap AlphaTest.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Lightmap Shaders (Legacy)\Mobile Lightmap Only.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Lightmap Shaders (Legacy)\Mobile Lightmap Reflective.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Miscellaneous Shaders\Flat_Color.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Miscellaneous Shaders\Mobile Background.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Miscellaneous Shaders\Mobile Detail.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Multiply Culled.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Particles Additive Culled.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
+     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Vertex Colored.shader" />
      <None Include="Assets\StrumpyShaderEditor\Editor\Resources\Internal\Temp\TempShader.shader" />
      <None Include="Assets\StrumpyShaderEditor\Editor\Resources\Internal\TextureCopy.shader" />
      <Compile Include="Assets\StrumpyShaderEditor\Editor\Scripts\NodeEditorWindow.cs" />

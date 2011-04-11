@@ -19,7 +19,7 @@ using System.Collections;
 
 public class InspectorSearch : EditorWindow
 {
-    bool web;
+    
     protected TimerA _TimerA = new TimerA();
     float autosavetm = 0;    
     List<Object> lastUsed = new List<Object>();
@@ -28,13 +28,12 @@ public class InspectorSearch : EditorWindow
     public List<string> instances = new List<string>();
     public bool SetPivot;
     public bool SetCam;
-    public bool bake;
-    public float curentLayerDist;
-
-    float lfactor { get { return EditorPrefs.GetFloat("lightmap" + EditorApplication.currentScene, .2f); } set { EditorPrefs.SetFloat("lightmap" + EditorApplication.currentScene, value); } }
-    float dfactor { get { return EditorPrefs.GetFloat("lightmapDT" + EditorApplication.currentScene, .1f); } set { EditorPrefs.SetFloat("lightmapDT" + EditorApplication.currentScene, value); } }
+    
+    
+    
     public virtual void Awake()
     {
+        PlayerSettings.productName = "Arena Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         PlayerSettings.runInBackground = true;
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
     }
@@ -65,34 +64,14 @@ public class InspectorSearch : EditorWindow
             Inits();            
         GUI.EndHorizontal();
         QualitySettings.shadowDistance = gui.FloatField("LightmapDist", QualitySettings.shadowDistance);
-        if (Selection.activeGameObject != null) // Layer Distances
-        {
-            var ls = Camera.main.layerCullDistances;
-            var lr = Selection.activeGameObject.layer;
-            var oldv = ls[lr];
-            ls[lr] = gui.FloatField("LayerDist", ls[lr]);
-            if (oldv != ls[lr])
-                Camera.main.layerCullDistances = ls;
-        }
         GUI.BeginHorizontal();
-        bake = GUI.Toggle(bake, "Bake", GUI.ExpandWidth(false));
         
-        lfactor = EditorGUILayout.FloatField(lfactor, GUI.Width(30));
-        GUI.Label("ambient", GUI.Width(30));
-        dfactor = EditorGUILayout.FloatField(dfactor, GUI.Width(30));
-        GUI.Label("Directional", GUI.Width(30));
-        //if (GUI.Button("SetupLevel"))
-        //    LevelSetup();
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         EditorPrefs.SetBool("Debug", GUI.Toggle(EditorPrefs.GetBool("Debug"), "debug", GUI.ExpandWidth(false)));
-        web = GUI.Toggle(web, "web", GUI.ExpandWidth(false));
+        
         GUI.EndHorizontal();
-        if (GUI.Button("Build"))
-        {
-            Build();
-            return;
-        }
+
         if (Selection.activeGameObject != null)
         {
             var bs2 = Selection.activeGameObject.GetComponent<Base>();
@@ -102,90 +81,8 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
-    class DTR
-    {
-        public Transform transform;
-        public string path = "";
-    }
-    static IEnumerable<DTR> GetTransforms2(DTR ts)
-    {
-        yield return ts;
-        foreach (Transform t in ts.transform)
-        {
-            foreach (var t2 in GetTransforms2(new DTR { path = (ts.path + "/" + t.name), transform = t }))
-                yield return t2;
-        }
-    }
-    [MenuItem("File/SetupLevel")]    
-    private void LevelSetup()
-    {
-        Undo.RegisterSceneUndo("rtools");
-
-        var Level = GameObject.Find("Level");
-        var oldl = Level.transform.Find("level");
-        if (oldl != null)
-            DestroyImmediate(oldl.gameObject);
-        string path = EditorApplication.currentScene.Split('.')[0] + "/";
-        path = path.Substring("Assets/".Length);
-        Debug.Log("setup level: " + path);
-        var nl = (GameObject)EditorUtility.InstantiatePrefab(GetAssets<GameObject>(path, "*.FBX").FirstOrDefault());
-        nl.transform.parent = Level.transform;
-        nl.transform.position = Level.transform.position;
-        nl.name = "level";
-        Selection.activeGameObject = nl;
 
 
-        foreach (var d in GetTransforms2(new DTR { transform = Selection.activeGameObject.transform }))
-        {
-            var g = d.transform.gameObject;
-            var pathA = d.path.TrimStart(new char[] { '/' });
-            var p = Selection.activeGameObject.transform.parent.Find(pathA);
-            if (p != null)
-            {
-                var mt = p.GetComponent<Base>();
-                if (!(mt != null && mt.dontResetPos))
-                {
-                    p.transform.position = g.transform.position;
-                    p.transform.rotation = g.transform.rotation;
-                    p.transform.localScale = g.transform.localScale;
-                }
-                Clear(g, true);
-            }
-        }
-        foreach (Transform t in Selection.activeGameObject.GetComponentsInChildren<Transform>())
-        {
-            t.gameObject.layer = LayerMask.NameToLayer("Level");
-            t.gameObject.isStatic = true;
-        }
-        Inits();
-
-        _TimerA.AddMethod(delegate
-        {
-            if (bake)
-            {
-                var old = RenderSettings.ambientLight;
-                RenderSettings.ambientLight = Color.white * lfactor;
-                var en = new Queue<LightShadows>();
-                var q = new Queue<float>();
-                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
-                {
-
-                    q.Enqueue(a.intensity);
-                    en.Enqueue(a.shadows);
-                    if (a.type == LightType.Directional)
-                        a.intensity = dfactor;
-                    a.shadows = LightShadows.Soft;
-                }
-                Lightmapping.BakeAsync();
-                foreach (Light a in GameObject.FindObjectsOfType(typeof(Light)))
-                {
-                    a.intensity = q.Dequeue();
-                    a.shadows = en.Dequeue();
-                }
-                RenderSettings.ambientLight = old;
-            }
-        });
-    }
     private static void CrDir(string pt)
     {
         if (Directory.Exists(pt)) Directory.Delete(pt, true);
@@ -728,7 +625,7 @@ public class InspectorSearch : EditorWindow
             a.sharedMaterials = ms;
         }
     }
-    [MenuItem("GameObject/Create Other/Prefab", priority =-1)]
+    [MenuItem("Assets/Create/Prefab", priority =0)]
     static void CreatePrefabs()
     {
         Undo.RegisterSceneUndo("rtools");
@@ -1141,31 +1038,27 @@ public class InspectorSearch : EditorWindow
                 yield return a;
         }
     }
-    
-    private void Build()
+
+    private static void Build()
+    {        
+        var fn = "game.exe";
+        var path = @"Builds/";
+        CrDir(path);
+        BuildPipeline.BuildPlayer(Base.scenes, path + fn, BuildTarget.StandaloneWindows, BuildOptions.Development);
+        Debug.Log("Stand Alone Bulid success");
+    }
+    public static void BuildWeb()
     {
-        PlayerSettings.productName = "Arena Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        if (!web)
-        {
-            var fn = "game.exe";
-            var path = @"Builds/";
-            CrDir(path);
-            BuildPipeline.BuildPlayer(Base.scenes, path + fn, BuildTarget.StandaloneWindows, BuildOptions.Development);
-            Debug.Log("Stand Alone Bulid success");
-        }
-        if (web)
-        {
-            //var d = DateTime.Now;
-            //var dt = d.Year + "-" + d.Month + "-" + d.Day + " " + d.Hour + "-" + d.Minute + "-" + d.Second + "/";
-            //var folder = "Web/" + dt;
-            //if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);            
-            if (Directory.Exists("Index")) Directory.Delete("Index",true);
-            BuildPipeline.BuildPlayer(Base.scenes, "Index", BuildTarget.WebPlayerStreamed, BuildOptions.None);
-            CrDir("t2");
-            BuildPipeline.BuildPlayer(new[] { Base.scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development);
-            Directory.Delete("t2", true);
-            Debug.Log("Web Bulid success");
-        }
+        //var d = DateTime.Now;
+        //var dt = d.Year + "-" + d.Month + "-" + d.Day + " " + d.Hour + "-" + d.Minute + "-" + d.Second + "/";
+        //var folder = "Web/" + dt;
+        //if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);            
+        if (Directory.Exists("Index")) Directory.Delete("Index", true);
+        BuildPipeline.BuildPlayer(Base.scenes, "Index", BuildTarget.WebPlayerStreamed, BuildOptions.None);
+        CrDir("t2");
+        BuildPipeline.BuildPlayer(new[] { Base.scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development);
+        Directory.Delete("t2", true);
+        Debug.Log("Web Bulid success");
     }
 }
 #endif

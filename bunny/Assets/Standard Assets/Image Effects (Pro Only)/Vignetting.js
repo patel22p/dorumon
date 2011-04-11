@@ -1,20 +1,15 @@
 
 
-public var vignetteIntensity : float = 0.375;
-public var chromaticAberrationIntensity : float = 0.0;
-public var blurVignette : float = 0.0;
-
-
 @script ExecuteInEditMode
 @script RequireComponent (Camera)
 
 @script AddComponentMenu ("Image Effects/Vignette")
-
-// NEEDED SHADERS
-//  NOTE:
-//  usually hidden in the inspector by proper editor scripts
 		
 class Vignetting extends PostEffectsBase {
+	
+	public var vignetteIntensity : float = 0.375;
+	public var chromaticAberrationIntensity : float = 0.0;
+	public var blurVignette : float = 0.0;
 	
     // needed shaders & materials
 	
@@ -28,43 +23,20 @@ class Vignetting extends PostEffectsBase {
 	private var _chromAberrationMaterial : Material;
 
 
-	function Start () {
-		CreateMaterials ();	
+	function Start () 
+	{
+		CreateMaterials ();
+		CheckSupport(false);
 	}
 	
-	function CreateMaterials () {			
-
-		if (!_vignetteMaterial) {
-			if(!CheckShader(vignetteShader)) {
-				enabled = false;
-				return;
-			}
-			_vignetteMaterial = new Material (vignetteShader);
-			_vignetteMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}					
-
-		if (!_separableBlurMaterial) {
-			if(!CheckShader(separableBlurShader)) {
-				enabled = false;
-				return;
-			}
-			_separableBlurMaterial = new Material (separableBlurShader);
-			_separableBlurMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}
-		
-		if (!_chromAberrationMaterial) {
-			if(!CheckShader(chromAberrationShader)) {
-				enabled = false;
-				return;
-			}
-			_chromAberrationMaterial = new Material (chromAberrationShader);
-			_chromAberrationMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
+	function CreateMaterials () 
+	{			
+		_vignetteMaterial = CheckShaderAndCreateMaterial(vignetteShader,_vignetteMaterial);
+		_separableBlurMaterial = CheckShaderAndCreateMaterial(separableBlurShader,_separableBlurMaterial);
+		_chromAberrationMaterial = CheckShaderAndCreateMaterial(chromAberrationShader,_chromAberrationMaterial);
 	}
 	
-	function OnEnable () {				
-	
-	}
+	function OnEnable () { }
 	
 	function OnRenderImage (source : RenderTexture, destination : RenderTexture)
 	{	
@@ -78,7 +50,7 @@ class Vignetting extends PostEffectsBase {
 		var secondQuarterRezColor : RenderTexture = RenderTexture.GetTemporary(source.width / 4.0, source.height / 4.0, 0);	
 		
 		// do the downsample and blur
-		Graphics.Blit (source, halfRezColor);
+		Graphics.Blit (source, halfRezColor, _chromAberrationMaterial, 0);
 		Graphics.Blit (halfRezColor, quarterRezColor);	
 				
 		// blur the result to get a nicer bloom radius
@@ -95,7 +67,7 @@ class Vignetting extends PostEffectsBase {
 		Graphics.Blit(source, color,_vignetteMaterial); 				
 		
 		_chromAberrationMaterial.SetFloat ("chromaticAberrationIntensity", chromaticAberrationIntensity);
-		Graphics.Blit (color, destination, _chromAberrationMaterial);	
+		Graphics.Blit (color, destination, _chromAberrationMaterial, 1);	
 		
 		RenderTexture.ReleaseTemporary (color);
 		RenderTexture.ReleaseTemporary (halfRezColor);			

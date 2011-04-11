@@ -18,16 +18,16 @@ CGPROGRAM
 uniform sampler2D _MainTex;
 uniform sampler2D _RampTex;
 
-half4 frag (v2f_img i) : COLOR
+fixed4 frag (v2f_img i) : COLOR
 {
-	float4 orig = tex2D(_MainTex, i.uv);
+	fixed4 orig = tex2D(_MainTex, i.uv);
 	
-	half rr = tex2D(_RampTex, orig.rr).r + 0.00001; // numbers to workaround Cg's bug at D3D code generation :(
-	half gg = tex2D(_RampTex, orig.gg).g + 0.00002;
-	half bb = tex2D(_RampTex, orig.bb).b + 0.00003;
+	fixed rr = tex2D(_RampTex, orig.rr).r + 0.00001; // numbers to workaround Cg's bug at D3D code generation :(
+	fixed gg = tex2D(_RampTex, orig.gg).g + 0.00002;
+	fixed bb = tex2D(_RampTex, orig.bb).b + 0.00003;
 	
-	half4 color = half4(rr, gg, bb, orig.a);
-	
+	fixed4 color = fixed4(rr, gg, bb, orig.a);
+
 	return color;
 }
 ENDCG

@@ -1,30 +1,21 @@
 
-
-public var strengthX : float = 0.05;
-public var strengthY : float = 0.05;
-
-
 @script ExecuteInEditMode
 @script AddComponentMenu ("Image Effects/Fisheye")
 
 class Fisheye extends PostEffectsBase {
-	
+	public var strengthX : float = 0.05;
+	public var strengthY : float = 0.05;
+
 	public var fishEyeShader : Shader = null;
 	private var _fisheyeMaterial : Material = null;	
 	
 	function CreateMaterials () {
-		if (!_fisheyeMaterial) {
-			if(!CheckShader(fishEyeShader)) {
-				enabled = false;
-				return;	
-			}
-			_fisheyeMaterial = new Material (fishEyeShader);	
-			_fisheyeMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
+		_fisheyeMaterial = CheckShaderAndCreateMaterial(fishEyeShader,_fisheyeMaterial);
 	}
 	
 	function Start () {
 		CreateMaterials ();
+		CheckSupport(false);
 	}
 	
 	function OnRenderImage (source : RenderTexture, destination : RenderTexture)

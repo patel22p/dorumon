@@ -25,9 +25,20 @@ Shader "Hidden/ChromaticAberrationShader" {
 	v2f vert( appdata_img v ) {
 		v2f o;
 		o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		
+		#ifdef SHADER_API_D3D9
+		if (_MainTex_TexelSize.y < 0)
+			 v.texcoord.y = 1.0 - v.texcoord.y ;
+		#endif
+		
 		o.uv = v.texcoord.xy;
 		return o;
 	} 
+	
+	half4 fragSimpleCopy(v2f i) : COLOR {
+		return tex2D(_MainTex, i.uv.xy);
+	}
+
 	
 	half4 frag(v2f i) : COLOR {
 		half2 coords = i.uv;
@@ -51,6 +62,15 @@ Shader "Hidden/ChromaticAberrationShader" {
 	
 Subshader {
  Pass {
+	  ZTest Always Cull Off ZWrite Off
+	  Fog { Mode off }      
+
+      CGPROGRAM
+      #pragma vertex vert
+      #pragma fragment fragSimpleCopy
+      ENDCG
+  }
+Pass {
 	  ZTest Always Cull Off ZWrite Off
 	  Fog { Mode off }      
 

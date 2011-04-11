@@ -13,10 +13,11 @@ public class ReplaceShader : EditorWindow {
 	static Vector2 scrollPosition;
 
 	
-	[MenuItem ("Custom/Replace Shaders")]
+	[MenuItem ("Window/Replace Shaders")]
 	static void Init () {
 		// Get existing open window or if none, make a new one:
-		ReplaceShader window = (ReplaceShader)EditorWindow.GetWindow (typeof (ReplaceShader));
+        //ReplaceShader window = (ReplaceShader)
+            EditorWindow.GetWindow (typeof (ReplaceShader));
 	}
 	
 	/*

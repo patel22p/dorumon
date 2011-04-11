@@ -4,30 +4,68 @@
 
 class PostEffectsBase extends MonoBehaviour 
 {	
+	function CheckShaderAndCreateMaterial(s : Shader, m2Create : Material) : Material 
+	{
+		if(m2Create && m2Create.shader == s) return m2Create;
+		if(!s) { 
+			Debug.Log("Missing shader in "+this.ToString());
+			enabled = false;
+			return null;
+		}
+		
+		if(!s.isSupported) 
+		{
+			ReportNotSupported();
+			Debug.LogError("The shader " + s.ToString() + " on effect "+this.ToString()+" is not supported on this platform!");
+			return null;
+		}
+		else 
+		{
+			m2Create = new Material(s);	
+			m2Create.hideFlags = HideFlags.HideAndDontSave;		
+			if(m2Create) return m2Create;
+			else return null;
+		}
+	}
+		
+	function CheckSupport(needDepth : boolean) : boolean
+	{
+		if (!SystemInfo.supportsImageEffects || !SystemInfo.supportsRenderTextures) 
+		{
+			ReportNotSupported();
+			enabled = false;
+			return false;
+		}		
+		
+		if(needDepth && !SystemInfo.SupportsRenderTextureFormat (RenderTextureFormat.Depth))
+		{
+			ReportNotSupported();
+			enabled = false;
+			return false;
+		}
+		
+		return true;
+	}
+	
+	// Was used by Image Effect scripts in 3.0/3.1, keeping it here so that old
+	// scripts still work.
 	function CheckShader(s : Shader) : boolean {
+		Debug.Log("The shader " + s.ToString() + " on effect "+this.ToString()+" is not part of the Unity 3.2 effects suite anymore. For best performance and quality, please ensure you are using the latest Standard Assets Image Effects (Pro only) package.");		
 		if(!s.isSupported) {
 			ReportNotSupported ();
 			return false;
-		}
-		else
-			return true;
-	}
-
-	function Start () {
-		// Disable if we don't support image effectsor render textures
-		if (!SystemInfo.supportsImageEffects || !SystemInfo.supportsRenderTextures) {
-			Debug.LogError ("Image effects or render textures are not supported.");
-			ReportNotSupported ();
+		} else {
+			return false;
 		}
 	}
 	
-	function ReportNotSupported () {
-		Debug.LogError ("The image effect is not supported on this platform!");
+	function ReportNotSupported() {
+		Debug.LogError("The image effect " + this.ToString() + " on "+this.name+" is not supported on this platform!");
 		enabled = false;
 		return;
 	}
 	
-	function OnRenderImage (source : RenderTexture, destination : RenderTexture) {
+	function OnRenderImage(source : RenderTexture, destination : RenderTexture) {
 		Debug.Log("OnRenderImage in Base called ...");
 	}
 	

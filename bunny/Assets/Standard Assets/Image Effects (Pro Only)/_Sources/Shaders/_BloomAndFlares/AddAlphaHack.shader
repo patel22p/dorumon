@@ -27,7 +27,7 @@ Shader "Hidden/AddAlphaHack" {
 	}
 	
 	half4 frag(v2f i) : COLOR {
-		return half4(0, 0, 0, 1) * tex2D(_MainTex, i.uv);
+		return half4(0, 0, 0, 10.0) * tex2D(_MainTex, i.uv);
 	}
 
 	ENDCG
@@ -36,7 +36,8 @@ Subshader {
  Blend One One
  ZWrite Off
  ZTest LEqual
- Tags { "RenderType"="Opaque" "Queue" = "Overlay+1000" }
+ 
+ Tags { "RenderType"="Opaque" "RenderQueue" = "Transparent+1000" }
   Pass {
 
       CGPROGRAM
@@ -54,7 +55,8 @@ Subshader {
  Blend One One
  ZWrite Off
  ZTest LEqual
- Tags { "RenderType"="Transparent" "Queue" = "Overlay+2000" }
+ 
+ Tags { "RenderType"="Transparent" "RenderQueue" = "Transparent+1000" }
   Pass {
 
       CGPROGRAM

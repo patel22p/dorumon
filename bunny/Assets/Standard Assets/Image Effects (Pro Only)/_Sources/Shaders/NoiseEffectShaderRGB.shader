@@ -28,7 +28,7 @@ uniform sampler2D _ScratchTex;
 
 uniform float4 _GrainOffsetScale;
 uniform float4 _ScratchOffsetScale;
-uniform float4 _Intensity; // x=grain, y=scratch
+uniform fixed4 _Intensity; // x=grain, y=scratch
 
 v2f vert (appdata_img v)
 {
@@ -40,16 +40,16 @@ v2f vert (appdata_img v)
 	return o;
 }
 
-half4 frag (v2f i) : COLOR
+fixed4 frag (v2f i) : COLOR
 {
-	half4 col = tex2D(_MainTex, i.uv);
+	fixed4 col = tex2D(_MainTex, i.uv);
 	
 	// sample noise texture and do a signed add
-	half3 grain = tex2D(_GrainTex, i.uvg).rgb * 2 - 1;
+	fixed3 grain = tex2D(_GrainTex, i.uvg).rgb * 2 - 1;
 	col.rgb += grain * _Intensity.x;
 
 	// sample scratch texture and do a signed add
-	half3 scratch = tex2D(_ScratchTex, i.uvs).rgb * 2 - 1;
+	fixed3 scratch = tex2D(_ScratchTex, i.uvs).rgb * 2 - 1;
 	col.rgb += scratch * _Intensity.y;
 
 	return col;

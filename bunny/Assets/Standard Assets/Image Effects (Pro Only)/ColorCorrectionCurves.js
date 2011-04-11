@@ -1,35 +1,5 @@
 
 
-public var redChannel : AnimationCurve;
-public var greenChannel : AnimationCurve;
-public var blueChannel : AnimationCurve;
-
-public var useDepthCorrection : boolean = false;
-
-public var zCurve : AnimationCurve;
-public var depthRedChannel : AnimationCurve;
-public var depthGreenChannel : AnimationCurve;
-public var depthBlueChannel : AnimationCurve;
-
-private var _ccMaterial : Material;
-private var _ccDepthMaterial : Material;
-private var _selectiveCcMaterial : Material;
-
-private var _rgbChannelTex : Texture2D;
-private var _rgbDepthChannelTex : Texture2D;
-
-private var _zCurve : Texture2D;
-
-public var selectiveCc : boolean = false;
-
-public var selectiveFromColor : Color = Color.white;
-public var selectiveToColor : Color = Color.white;
-
-
-public var updateTextures : boolean = true;
-
-// GENERAL stuff
-
 @script ExecuteInEditMode
 @script AddComponentMenu ("Image Effects/Color Correction (Curves)")
 
@@ -38,53 +8,54 @@ enum ColorCorrectionMode {
 	Advanced = 1	
 }
 
-public var mode : ColorCorrectionMode;
-
-// SHADERS
-
-public var colorCorrectionCurvesShader : Shader = null;
-public var simpleColorCorrectionCurvesShader : Shader = null;
-public var colorCorrectionSelectiveShader : Shader = null;
-
 class ColorCorrectionCurves extends PostEffectsBase 
 {
+	public var redChannel : AnimationCurve;
+	public var greenChannel : AnimationCurve;
+	public var blueChannel : AnimationCurve;
+	
+	public var useDepthCorrection : boolean = false;
+	
+	public var zCurve : AnimationCurve;
+	public var depthRedChannel : AnimationCurve;
+	public var depthGreenChannel : AnimationCurve;
+	public var depthBlueChannel : AnimationCurve;
+	
+	private var _ccMaterial : Material;
+	private var _ccDepthMaterial : Material;
+	private var _selectiveCcMaterial : Material;
+	
+	private var _rgbChannelTex : Texture2D;
+	private var _rgbDepthChannelTex : Texture2D;
+	
+	private var _zCurve : Texture2D;
+	
+	public var selectiveCc : boolean = false;
+	
+	public var selectiveFromColor : Color = Color.white;
+	public var selectiveToColor : Color = Color.white;
+	
+	public var mode : ColorCorrectionMode;
+	
+	public var updateTextures : boolean = true;		
+	
+	// SHADERS
+	
+	public var colorCorrectionCurvesShader : Shader = null;
+	public var simpleColorCorrectionCurvesShader : Shader = null;
+	public var colorCorrectionSelectiveShader : Shader = null;
+		
 	function Start () {
 		updateTextures = true;
+		
 		CreateMaterials ();		
+		CheckSupport(true);
 	}
 	
 	function CreateMaterials () {
-		if (!_ccMaterial) {
-			if(!CheckShader(simpleColorCorrectionCurvesShader)) {
-				enabled = false;
-				return;
-			}
-			_ccMaterial = new Material (simpleColorCorrectionCurvesShader);	
-			_ccMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
-
-		if (!_ccDepthMaterial) {
-			if(!CheckShader(colorCorrectionCurvesShader)) {
-				enabled = false;
-				return;
-			}
-			_ccDepthMaterial = new Material (colorCorrectionCurvesShader);	
-			_ccDepthMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}	
-		
-		if (!_selectiveCcMaterial) {
-			if(!CheckShader(colorCorrectionSelectiveShader)) {
-				enabled = false;
-				return;
-			}
-			_selectiveCcMaterial = new Material (colorCorrectionSelectiveShader);
-			_selectiveCcMaterial.hideFlags = HideFlags.HideAndDontSave;	
-		}
-		
-		if(!SystemInfo.SupportsRenderTextureFormat (RenderTextureFormat.Depth)) {
-			enabled = false;
-			return;	
-		}
+		_ccMaterial = CheckShaderAndCreateMaterial(simpleColorCorrectionCurvesShader,_ccMaterial);
+		_ccDepthMaterial = CheckShaderAndCreateMaterial(colorCorrectionCurvesShader,_ccDepthMaterial);
+		_selectiveCcMaterial = CheckShaderAndCreateMaterial(colorCorrectionSelectiveShader,_selectiveCcMaterial);
 		
 		// sample all curves, create textures
 		if (!_rgbChannelTex) {
@@ -107,8 +78,8 @@ class ColorCorrectionCurves extends PostEffectsBase
 	}
 	
 	function OnEnable() {
-	if(useDepthCorrection)
-		camera.depthTextureMode |= DepthTextureMode.Depth;	
+		if(useDepthCorrection)
+			camera.depthTextureMode |= DepthTextureMode.Depth;	
 	}
 	
 	function OnDisable () {

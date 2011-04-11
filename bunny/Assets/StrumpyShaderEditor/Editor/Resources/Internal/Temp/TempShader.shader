@@ -3,15 +3,15 @@ Shader "ShaderEditor/EditorShaderCache"
 	Properties 
 	{
 _Color("_Color", Color) = (1,1,1,1)
-_MainTex("_MainTex", 2D) = "black" {}
-_UpFacing("_UpFacing", 2D) = "white" {}
-_DownFacing("_DownFacing", 2D) = "gray" {}
-_UpFacing_Detail("_UpFacing_Detail", 2D) = "black" {}
-_Detail("_Detail", 2D) = "black" {}
-_LightColor("_LightColor", Color) = (1,1,1,1)
-_Silhouette("_Silhouette", 2D) = "black" {}
-_Silhouette_Movement("_Silhouette_Movement", Vector) = (0,0,0,0)
-_EditorTime("_EditorTime",Vector) = (0.0,0.0,0.0,0.0)
+_Color_BLACK("_Color_BLACK", Color) = (1,1,1,1)
+_BLACK("_BLACK", 2D) = "white" {}
+_RED("_RED", 2D) = "white" {}
+_GREEN("_GREEN", 2D) = "white" {}
+_BLUE("_BLUE", 2D) = "white" {}
+_ALPHA("_ALPHA", 2D) = "white" {}
+_Cavity("_Cavity", 2D) = "white" {}
+_RimlightColor("_RimlightColor", Color) = (0,0,0,1)
+_RimlightSpread("_RimlightSpread", Float) = 2
 
 	}
 	
@@ -35,20 +35,20 @@ Fog{
 
 
 		CGPROGRAM
-#pragma surface surf BlinnPhongEditor  vertex:vert
-#pragma target 3.0
+#pragma surface surf BlinnPhongEditor  noforwardadd approxview halfasview vertex:vert
+#pragma target 2.0
 
 
 float4 _Color;
-sampler2D _MainTex;
-sampler2D _UpFacing;
-sampler2D _DownFacing;
-sampler2D _UpFacing_Detail;
-sampler2D _Detail;
-float4 _LightColor;
-sampler2D _Silhouette;
-float4 _Silhouette_Movement;
-float4 _EditorTime;
+float4 _Color_BLACK;
+sampler2D _BLACK;
+sampler2D _RED;
+sampler2D _GREEN;
+sampler2D _BLUE;
+sampler2D _ALPHA;
+sampler2D _Cavity;
+float4 _RimlightColor;
+float _RimlightSpread;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -88,14 +88,14 @@ return c;
 			}
 			
 			struct Input {
-				float2 uv_MainTex;
-float2 uv_UpFacing;
-float2 uv_UpFacing_Detail;
+				float2 uv_BLACK;
+float2 uv_RED;
 float4 color : COLOR;
-float3 sWorldNormal;
-float2 uv_DownFacing;
-float2 uv_Silhouette;
-float2 uv_Detail;
+float2 uv_GREEN;
+float2 uv_BLUE;
+float2 uv_ALPHA;
+float2 uv_Cavity;
+float3 viewDir;
 
 			};
 
@@ -105,7 +105,6 @@ float4 VertexOutputMaster0_1_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_2_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 
-o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 
 			}
 			
@@ -119,46 +118,34 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_MainTex,(IN.uv_MainTex.xyxy).xy);
-float4 Tex2D1=tex2D(_UpFacing,(IN.uv_UpFacing.xyxy).xy);
-float4 Tex2D3=tex2D(_UpFacing_Detail,(IN.uv_UpFacing_Detail.xyxy).xy);
-float4 Invert1= float4(1.0, 1.0, 1.0, 1.0) - Tex2D1.aaaa;
-float4 Splat1=IN.color.z;
-float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - Splat1;
-float4 Add2=Invert1 + Invert0;
-float4 Saturate2=saturate(Add2);
-float4 Multiply2=Saturate2 * Invert0;
-float4 Lerp2=lerp(Tex2D1,Tex2D3,Multiply2);
-float4 Splat4=float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).y;
-float4 Add0=Tex2D1.aaaa + Splat4;
-float4 Saturate0=saturate(Add0);
-float4 Multiply0=Saturate0 * Splat4;
-float4 Lerp0=lerp(Tex2D0,Lerp2,Multiply0);
-float4 Tex2D2=tex2D(_DownFacing,(IN.uv_DownFacing.xyxy).xy);
-float4 Negative0= -Splat4; 
- float4 Add1=Tex2D2.aaaa + Negative0;
-float4 Saturate1=saturate(Add1);
-float4 Multiply1=Saturate1 * Negative0;
-float4 Lerp1=lerp(Lerp0,Tex2D2,Multiply1);
-float4 SplatAlpha1=_LightColor.w;
-float4 Multiply7=SplatAlpha1 * float4( 10,10,10,10 );
-float4 Multiply6=_LightColor * Multiply7;
-float4 Multiply9=_Silhouette_Movement * _EditorTime;
-float4 Multiply10=float4( 1.6,1.6,1.6,1.6 ) * Multiply9;
-float4 Add4=(IN.uv_Silhouette.xyxy) + Multiply10;
-float4 Tex2D5=tex2D(_Silhouette,Add4.xy);
-float4 Multiply11=(IN.uv_Silhouette.xyxy) * float4( -1,1,0,0);
-float4 Add3=Multiply9 + Multiply11;
-float4 Tex2D6=tex2D(_Silhouette,Add3.xy);
-float4 Lerp7=lerp(Tex2D5.aaaa,Tex2D6.aaaa,Tex2D6.aaaa);
-float4 Lerp5=lerp(Multiply6,float4( 0.0, 0.0, 0.0, 0.0 ),Lerp7);
-float4 Splat2=IN.color.y;
-float4 Lerp4=lerp(Lerp1,Lerp5,Splat2);
-float4 Tex2D4=tex2D(_Detail,(IN.uv_Detail.xyxy).xy);
-float4 SplatAlpha0=IN.color.w;
-float4 Multiply3=Tex2D4.aaaa * SplatAlpha0;
-float4 Lerp3=lerp(Lerp4,Tex2D4,Multiply3);
-float4 Multiply4=Lerp3 * Lerp3;
+float4 SplatAlpha1=_Color.w;
+float4 Multiply13=SplatAlpha1 * float4( 10,10,10,10 );
+float4 Tex2D0=tex2D(_BLACK,(IN.uv_BLACK.xyxy).xy);
+float4 Tex2D1=tex2D(_RED,(IN.uv_RED.xyxy).xy);
+float4 Splat0=IN.color.x;
+float4 Lerp0=lerp(Tex2D0,Tex2D1,Splat0);
+float4 Tex2D2=tex2D(_GREEN,(IN.uv_GREEN.xyxy).xy);
+float4 Splat1=IN.color.y;
+float4 Lerp2=lerp(Lerp0,Tex2D2,Splat1);
+float4 Tex2D5=tex2D(_BLUE,(IN.uv_BLUE.xyxy).xy);
+float4 Splat3=IN.color.z;
+float4 Lerp1=lerp(Lerp2,Tex2D5,Splat3);
+float4 Tex2D3=tex2D(_ALPHA,(IN.uv_ALPHA.xyxy).xy);
+float4 Splat2=IN.color.w;
+float4 Multiply2=Tex2D3.aaaa * Splat2;
+float4 Lerp4=lerp(Lerp1,Tex2D3,Multiply2);
+float4 Multiply9=Multiply13 * Lerp4;
+float4 Tex2D4=tex2D(_Cavity,(IN.uv_Cavity.xyxy).xy);
+float4 Multiply0=Multiply9 * Tex2D4.aaaa;
+float4 Multiply4=_Color * Multiply0;
+float4 Fresnel0_1_NoInput = float4(0,0,1,1);
+float4 Fresnel0=(1.0 - dot( normalize( float4( IN.viewDir.x, IN.viewDir.y,IN.viewDir.z,1.0 ).xyz), normalize( Fresnel0_1_NoInput.xyz ) )).xxxx;
+float4 Pow0=pow(Fresnel0,_RimlightSpread.xxxx);
+float4 Multiply3=Pow0 * _RimlightColor;
+float4 SplatAlpha0=_RimlightColor.w;
+float4 Multiply11=SplatAlpha0 * float4( 10,10,10,10 );
+float4 Multiply12=Multiply3 * Multiply11;
+float4 Add0=Multiply4 + Multiply12;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
@@ -166,7 +153,7 @@ float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Multiply4;
+o.Albedo = Add0;
 
 				o.Normal = normalize(o.Normal);
 			}

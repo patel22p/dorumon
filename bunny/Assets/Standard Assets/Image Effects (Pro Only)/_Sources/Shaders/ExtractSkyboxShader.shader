@@ -29,7 +29,7 @@ Shader "Hidden/ExtractSkyboxShader" {
 		float4 sky = (tex2D (_Skybox, i.uv.xy));
 		float4 color = (tex2D (_MainTex, i.uv.xy));
 		
-		if(length(sky.rgb-color.rgb)>0.2)
+		if(Luminance(sky.rgb-color.rgb)>0.2)
 			return 0;
 		else
 			return sky;

@@ -1,12 +1,6 @@
 
 @script ExecuteInEditMode()
-
 @CustomEditor (BloomAndFlares)
-
-enum TweakMode {
-	Simple = 0,
-	Advanced = 1,
-}
 		
 class BloomAndFlaresEditor extends Editor 
 {	
@@ -38,7 +32,6 @@ class BloomAndFlaresEditor extends Editor
 	
 	var blurWidth : SerializedProperty;
 
-
 	function OnEnable () {
 		serObj = new SerializedObject (target);
 		
@@ -63,7 +56,6 @@ class BloomAndFlaresEditor extends Editor
 		flareColorC = serObj.FindProperty("flareColorC");
 		flareColorD = serObj.FindProperty("flareColorD");		
 		
-		
 		blurWidth = serObj.FindProperty("blurWidth");
 		
 		tweakMode = serObj.FindProperty("tweakMode");
@@ -71,6 +63,8 @@ class BloomAndFlaresEditor extends Editor
     		
     function OnInspectorGUI ()
     {        
+		serObj.Update();
+		
     	//tweakMode = EditorGUILayout.EnumPopup("Mode", tweakMode, EditorStyles.popup);
 		EditorGUILayout.PropertyField (tweakMode, new GUIContent("Mode"));	
     	
@@ -131,15 +125,10 @@ class BloomAndFlaresEditor extends Editor
     	}
     	
     	EditorGUILayout.Separator ();
-    	
-    	if(0==tweakMode.intValue) {
-    		
-    	} 
-    	else if (1==tweakMode.intValue) 
-    	{		
-    		
 
-    			//EditorGUILayout.PropertyField (bloomThisTag, new GUIContent("Extra Bloom Tag","If you want to always have objects of a certain tag to be 'glowing', select the tag here and tag the game objects in question. These objects will start glowing/blooming no matter what their material writes to the alpha channel."));    
+    	if (1==tweakMode.intValue) 
+    	{		
+			//EditorGUILayout.PropertyField (bloomThisTag, new GUIContent("Extra Bloom Tag","If you want to always have objects of a certain tag to be 'glowing', select the tag here and tag the game objects in question. These objects will start glowing/blooming no matter what their material writes to the alpha channel."));    
     		GUILayout.Label("Add extra bloom on tagged objects?");
     		EditorGUILayout.BeginHorizontal();		
     		GUILayout.Label(" Tag");

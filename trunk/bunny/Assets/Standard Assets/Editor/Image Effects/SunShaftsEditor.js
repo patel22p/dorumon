@@ -36,13 +36,11 @@ class SunShaftsEditor extends Editor
 		
 		useDepthTexture = serObj.FindProperty("useDepthTexture");
 	}
-	
-	var _dist : float = 500.0;
     		
     function OnInspectorGUI ()
     {        
 		var oldVal : boolean = useDepthTexture.boolValue;
-		EditorGUILayout.PropertyField (useDepthTexture, new GUIContent("Depth Texture"));
+		EditorGUILayout.PropertyField (useDepthTexture, new GUIContent("Use Depth Texture"));
 		
 		GUILayout.Label(" Camera depth texture mode: "+target.camera.depthTextureMode);
 		
@@ -61,15 +59,11 @@ class SunShaftsEditor extends Editor
     	EditorGUILayout.PropertyField (sunTransform, new GUIContent("Sun caster", "Chose a transform that acts as a root point for the produced sun shafts"));
     	
     	if(target.sunTransform && target.camera) {
-    		GUILayout.Label(" Sun placement");
-    		GUILayout.BeginHorizontal();
-    		_dist = EditorGUILayout.FloatField("Distance", _dist);
     		if( GUILayout.Button("Align to viewport center")) {
     			var ray : Ray = target.camera.ViewportPointToRay(Vector3(0.5,0.5,0));
-    			target.sunTransform.position = ray.origin + ray.direction * _dist;
+    			target.sunTransform.position = ray.origin + ray.direction * 500.0;
     			target.sunTransform.LookAt(target.transform);
     		}
-    		GUILayout.EndHorizontal();
     	}
     	
     	EditorGUILayout.PropertyField (sunColor,  new GUIContent("Sun color"));

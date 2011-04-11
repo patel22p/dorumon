@@ -20,7 +20,7 @@ Category {
 
 				struct v2f {
 					float4 pos : POSITION;
-					float2 uv : TEXCOORD0;
+					half2 uv : TEXCOORD0;
 				};
 
 				float4 _MainTex_TexelSize;
@@ -35,9 +35,9 @@ Category {
 				}
 
 				sampler2D _MainTex;
-				float4 _Color;
+				fixed4 _Color;
 
-				half4 frag( v2f i ) : COLOR
+				fixed4 frag( v2f i ) : COLOR
 				{
 					return 2.0f * _Color * tex2D( _MainTex, i.uv );
 				}

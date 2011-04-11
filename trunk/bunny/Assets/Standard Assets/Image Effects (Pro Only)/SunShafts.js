@@ -1,30 +1,29 @@
 
+
+@script ExecuteInEditMode
+@script RequireComponent (Camera)
+@script AddComponentMenu ("Image Effects/Sun Shafts")
+
 enum SunShaftsResolution {
     Low = 0,
     Normal = 1,
 	High = 2,
 }
-
-public var resolution : SunShaftsResolution;
-
-public var sunTransform : Transform;
-public var radialBlurIterations : int = 2;
-public var sunColor : Color = Color.white;
-public var sunShaftBlurRadius : float = 0.0164;
-public var sunShaftIntensity : float = 1.25;
-public var useSkyBoxAlpha : float = 0.75;
-
-public var maxRadius : float = 1.25;
-
-public var useDepthTexture : boolean = true;
-
-@script ExecuteInEditMode
-@script RequireComponent (Camera)
-@script AddComponentMenu ("Image Effects/Sun Shafts")
 		
 class SunShafts extends PostEffectsBase 
 {	
-    // needed shaders & materials
+	public var resolution : SunShaftsResolution;
+	
+	public var sunTransform : Transform;
+	public var radialBlurIterations : int = 2;
+	public var sunColor : Color = Color.white;
+	public var sunShaftBlurRadius : float = 0.0164;
+	public var sunShaftIntensity : float = 1.25;
+	public var useSkyBoxAlpha : float = 0.75;
+	
+	public var maxRadius : float = 1.25;
+	
+	public var useDepthTexture : boolean = true;
 	
 	public var clearShader : Shader;
 	private var _clearMaterial : Material;
@@ -44,83 +43,29 @@ class SunShafts extends PostEffectsBase
 	public var compShader : Shader;
 	private var _compMaterial : Material;
 
-	function Start () {
-		CreateMaterials ();	
+	
+	function CreateMaterials () 
+	{			
+		_clearMaterial = CheckShaderAndCreateMaterial(clearShader,_clearMaterial);
+		_sunShaftsMaterial = CheckShaderAndCreateMaterial(sunShaftsShader,_sunShaftsMaterial);
+		_encodeDepthRGBA8Material = CheckShaderAndCreateMaterial(depthDecodeShader,_encodeDepthRGBA8Material);
+		_radialDepthBlurMaterial = CheckShaderAndCreateMaterial(depthBlurShader,_radialDepthBlurMaterial);
+		_simpleClearMaterial = CheckShaderAndCreateMaterial(simpleClearShader,_simpleClearMaterial);
+		_compMaterial = CheckShaderAndCreateMaterial(compShader,_compMaterial);
 	}
 	
-	function CreateMaterials () {			
-
-		if (!_clearMaterial) {
-			if(!CheckShader(clearShader)) {
-				enabled = false;
-				return;
-			}
-			_clearMaterial = new Material (clearShader);
-			_clearMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}
+	function Start () 
+	{		
+		CreateMaterials();	
+		CheckSupport(useDepthTexture);
 		
-		if (!_sunShaftsMaterial) {
-			if(!CheckShader(sunShaftsShader)) {
-				enabled = false;
-				return;
-			}
-			_sunShaftsMaterial = new Material (sunShaftsShader);
-			_sunShaftsMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}
-
-		if (!_encodeDepthRGBA8Material) {
-			if(!CheckShader(depthDecodeShader)) {
-				enabled = false;
-				return;
-			}
-			_encodeDepthRGBA8Material = new Material (depthDecodeShader);
-			_encodeDepthRGBA8Material.hideFlags = HideFlags.HideAndDontSave; 
-		}
-		
-		if (!_radialDepthBlurMaterial) {
-			if(!CheckShader(depthBlurShader)) {
-				enabled = false;
-				return;
-			}
-			_radialDepthBlurMaterial = new Material (depthBlurShader);	
-			_radialDepthBlurMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}
-
-		if (!_simpleClearMaterial) {
-			if(!CheckShader(simpleClearShader)) {
-				enabled = false;
-				return;
-			}
-			_simpleClearMaterial = new Material (simpleClearShader);
-			_simpleClearMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		} 
-		
-		//_compMaterial
- 		if (!_compMaterial) {
-			if(!CheckShader(compShader)) {
-				enabled = false;
-				return;
-			}
-			_compMaterial = new Material (compShader);
-			_compMaterial.hideFlags = HideFlags.HideAndDontSave; 
-		}        
-	}
-	
-	function OnEnable () {		
-		// only enable depth texture if we support it
-		if(useDepthTexture && SystemInfo.SupportsRenderTextureFormat (RenderTextureFormat.Depth)) { 
+		if(useDepthTexture) { 
 			camera.depthTextureMode |= DepthTextureMode.Depth;	
 		}
 	}
 	
 	function OnRenderImage (source : RenderTexture, destination : RenderTexture)
 	{	
-		// only enable depth texture if we support it
-		if(useDepthTexture && !SystemInfo.SupportsRenderTextureFormat (RenderTextureFormat.Depth)) {
-			useDepthTexture = false;
-		}
-		
-		// needed for most of the new and improved image FX
 		CreateMaterials ();	
 		
         var divider : float = 4.0;
@@ -144,7 +89,7 @@ class SunShafts extends PostEffectsBase
 			GL.ClearWithSkybox(false, camera);
 			
 			_compMaterial.SetTexture("_Skybox", tmpBuffer);
-			Graphics.Blit (source, tmpBuffer, _compMaterial);
+			Graphics.Blit (source, source, _compMaterial);
 			
 			RenderTexture.ReleaseTemporary(tmpBuffer);
 		}
@@ -192,7 +137,7 @@ class SunShafts extends PostEffectsBase
 
 		
 		RenderTexture.ReleaseTemporary (lrDepthBuffer);	
-		RenderTexture.ReleaseTemporary (secondQuarterRezColor);		
+		RenderTexture.ReleaseTemporary (secondQuarterRezColor);	
 	}
 
 }

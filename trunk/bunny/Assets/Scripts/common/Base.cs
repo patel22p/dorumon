@@ -17,7 +17,13 @@ public partial class Base : MonoBehaviour
             "Assets/scenes/1.unity",                        
         };
         }
-    }    
+    }
+    public static void IgnoreAll(string name)
+    {
+        for (int i = 1; i < 31; i++)
+            Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
+    }
+
     public ObjectType ObjectType;
     public bool dontResetPos;    
     public void SetLayer(int l)

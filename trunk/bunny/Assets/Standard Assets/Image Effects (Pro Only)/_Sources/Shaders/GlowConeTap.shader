@@ -19,7 +19,7 @@ Category {
 
 				struct v2f {
 					float4 pos : POSITION;
-					float4 uv[2] : TEXCOORD0;
+					half4 uv[2] : TEXCOORD0;
 				};
 
 				float4 _MainTex_TexelSize;
@@ -42,11 +42,11 @@ Category {
 				}
 				
 				sampler2D _MainTex;
-				float4 _Color;
+				fixed4 _Color;
 
-				half4 frag( v2f i ) : COLOR
+				fixed4 frag( v2f i ) : COLOR
 				{
-					half4 c;
+					fixed4 c;
 					c  = tex2D( _MainTex, i.uv[0].xy );
 					c += tex2D( _MainTex, i.uv[0].zw );
 					c += tex2D( _MainTex, i.uv[1].xy );

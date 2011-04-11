@@ -17,11 +17,12 @@ public class PaintableWindow : EditorWindow
     // Dummy object
     GameObject paintDummy;
 
-    [MenuItem("Object Paint/Paint Menu")]
+    [MenuItem("Window/Paint Menu")]
     static void Init()
     {
         // Initialization.
-        PaintableWindow window = (PaintableWindow)EditorWindow.GetWindow(typeof(PaintableWindow));
+        //PaintableWindow window = (PaintableWindow)
+            EditorWindow.GetWindow(typeof(PaintableWindow));
         PaintVariables.Init(); // Set the variables okAY
     }
 

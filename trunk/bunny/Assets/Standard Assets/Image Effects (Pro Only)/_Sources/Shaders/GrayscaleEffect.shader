@@ -17,14 +17,14 @@ CGPROGRAM
 
 uniform sampler2D _MainTex;
 uniform sampler2D _RampTex;
-uniform float _RampOffset;
+uniform half _RampOffset;
 
-float4 frag (v2f_img i) : COLOR
+fixed4 frag (v2f_img i) : COLOR
 {
-	float4 original = tex2D(_MainTex, i.uv);
-	float grayscale = Luminance(original.rgb);
-	float2 remap = float2 (grayscale + _RampOffset, .5);
-	float4 output = tex2D(_RampTex, remap);
+	fixed4 original = tex2D(_MainTex, i.uv);
+	fixed grayscale = Luminance(original.rgb);
+	half2 remap = half2 (grayscale + _RampOffset, .5);
+	fixed4 output = tex2D(_RampTex, remap);
 	output.a = original.a;
 	return output;
 }

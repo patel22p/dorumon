@@ -1,14 +1,14 @@
 
-public var intensity : float = 0.5;
-public var softness : int = 1;
-public var spread : float = 1.0;
-
 @script ExecuteInEditMode
 
 @script RequireComponent (Camera)
 @script AddComponentMenu ("Image Effects/Crease")
 
 class Crease extends PostEffectsBase {
+
+	public var intensity : float = 0.5;
+	public var softness : int = 1;
+	public var spread : float = 1.0;
 	
 	public var blurShader : Shader;
 	private var _blurMaterial : Material = null;	
@@ -19,42 +19,17 @@ class Crease extends PostEffectsBase {
 	public var creaseApplyShader : Shader;
 	private var _creaseApplyMaterial : Material = null;	
 	
-	function CreateMaterials () {
-		if (!_blurMaterial) {
-			if(!CheckShader(blurShader)) {
-				enabled = false;
-				 return;
-			}
-			_blurMaterial = new Material(blurShader);	
-			_blurMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
-		
-		if (!_depthFetchMaterial) {
-			if(!CheckShader(depthFetchShader)) {
-				enabled = false;
-				 return;
-			}
-			_depthFetchMaterial = new Material(depthFetchShader);	
-			_depthFetchMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
-		
-		if (!_creaseApplyMaterial) {
-			if(!CheckShader(creaseApplyShader)) {
-				enabled = false;
-				return;
-			}
-			_creaseApplyMaterial = new Material(creaseApplyShader);	
-			_creaseApplyMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
-		
-		if(!SystemInfo.SupportsRenderTextureFormat (RenderTextureFormat.Depth)) {
-			enabled = false;
-			return;	
-		}
+	function CreateMaterials () 
+	{
+		_blurMaterial = CheckShaderAndCreateMaterial(blurShader, _blurMaterial);
+		_depthFetchMaterial = CheckShaderAndCreateMaterial(depthFetchShader,_depthFetchMaterial);
+		_creaseApplyMaterial = CheckShaderAndCreateMaterial(creaseApplyShader,_creaseApplyMaterial);
 	}
 	
-	function Start () {
-		CreateMaterials ();
+	function Start () 
+	{
+		CreateMaterials();
+		CheckSupport(true);
 	}
 	
 	function OnEnable() {

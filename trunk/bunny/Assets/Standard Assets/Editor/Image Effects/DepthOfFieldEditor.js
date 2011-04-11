@@ -6,8 +6,7 @@
 class DepthOfFieldEditor extends Editor 
 {	
 	var serObj : SerializedObject;	
-		
-	var resolution : SerializedProperty; // = DofResolutionSetting.Normal;
+		 
 	var quality : SerializedProperty; // = DofQualitySetting.High;
 
 	var focalZDistance : SerializedProperty;//float = 0.0;
@@ -15,86 +14,120 @@ class DepthOfFieldEditor extends Editor
 	var focalZEnd : SerializedProperty;//float = 10000.0;
 	var focalFalloff : SerializedProperty;//float = 1.0;
 
-	var focusOnThis : SerializedProperty;//Transform = null;
-	var focusOnScreenCenterDepth : SerializedProperty;//boolean = false;
+	var objectFocus : SerializedProperty;//Transform = null;
 	var focalSize : SerializedProperty;//float = 0.0375;
-	var focalChangeSpeed : SerializedProperty;//float = 2.275;
 
 	var blurIterations : SerializedProperty;//int = 2;
-	var foregroundBlurIterations : SerializedProperty;//int = 2;
-
 	var blurSpread : SerializedProperty;//float = 1.5;
-	var foregroundBlurSpread : SerializedProperty;//float = 1.5;
-	var foregroundBlurStrength : SerializedProperty;//float = 1.5;
-	var foregroundBlurThreshhold : SerializedProperty;//float = 0.001;
+	var foregroundBlurIterations : SerializedProperty;// : float = 1.0;
+	var foregroundBlurSpread : SerializedProperty;// : float = 1.0;
+	var foregroundBlurWeight : SerializedProperty;
 	
+	var divider : SerializedProperty;
+	var enableBokeh : SerializedProperty;
+	var enableNoise : SerializedProperty;
+	var noiseAmount : SerializedProperty;
+	var bokehFalloff : SerializedProperty;
+	
+	var debugBlurRegions : SerializedProperty;
+	
+	var bokehThreshhold : SerializedProperty;
+	var downsampleRadius : SerializedProperty;
+	  
 	function OnEnable () {
 		serObj = new SerializedObject (target);
 		
-		resolution = serObj.FindProperty("resolution");
 		quality = serObj.FindProperty("quality");
 		
+		
         focalZDistance = serObj.FindProperty("focalZDistance");
-        focalZStart = serObj.FindProperty("focalZStart");
-        focalZEnd = serObj.FindProperty("focalZEnd");
+        focalZStart = serObj.FindProperty("focalStartCurve");
+        focalZEnd = serObj.FindProperty("focalEndCurve");
         focalFalloff = serObj.FindProperty("focalFalloff");
         
-        focusOnThis = serObj.FindProperty("focusOnThis");
-        focusOnScreenCenterDepth = serObj.FindProperty("focusOnScreenCenterDepth");
+        objectFocus = serObj.FindProperty("objectFocus");
         focalSize = serObj.FindProperty("focalSize");
-        focalChangeSpeed = serObj.FindProperty("focalChangeSpeed");
         
         blurIterations = serObj.FindProperty("blurIterations");
         foregroundBlurIterations = serObj.FindProperty("foregroundBlurIterations");
-        
+                
         blurSpread = serObj.FindProperty("blurSpread");
-        foregroundBlurSpread = serObj.FindProperty("foregroundBlurSpread");
-        foregroundBlurStrength = serObj.FindProperty("foregroundBlurStrength");
-        foregroundBlurThreshhold = serObj.FindProperty("foregroundBlurThreshhold");
+        downsampleRadius = serObj.FindProperty("downsampleRadius");
+        
+        enableNoise = serObj.FindProperty("enableNoise");
+        noiseAmount = serObj.FindProperty("noiseAmount");
+        bokehThreshhold = serObj.FindProperty("bokehThreshhold");
+        enableBokeh = serObj.FindProperty("enableBokeh");
+        bokehFalloff = serObj.FindProperty("bokehFalloff"); 
+        divider = serObj.FindProperty("divider");
+
+		foregroundBlurIterations = serObj.FindProperty("foregroundBlurIterations");
+		foregroundBlurSpread = serObj.FindProperty("foregroundBlurSpread");
+		foregroundBlurWeight = serObj.FindProperty("foregroundBlurWeight");
+				
+		debugBlurRegions = serObj.FindProperty("debugBlurRegions");
 	}
     		
     function OnInspectorGUI ()
-    {        
-    	EditorGUILayout.PropertyField (resolution,  new GUIContent("Resolution"));
-            
-        EditorGUILayout.PropertyField (quality,  new GUIContent("Quality"));
-        
-        EditorGUILayout.Separator ();
-        
-        focalZDistance.floatValue = EditorGUILayout.FloatField("Focal Distance", focalZDistance.floatValue);
-        focalZStart.floatValue = EditorGUILayout.FloatField("Focal Start", focalZStart.floatValue);
-        focalZEnd.floatValue = EditorGUILayout.FloatField("Focal End", focalZEnd.floatValue);
-        focalFalloff.floatValue = EditorGUILayout.FloatField("Focal Falloff", focalFalloff.floatValue);
-        
-        EditorGUILayout.Separator ();
-          
-        EditorGUILayout.PropertyField (focusOnScreenCenterDepth, new GUIContent("Focus On Center", "This will enable automatic depth buffer read to focus on the area centered around a raycast throught the center of the screen."));
-        
-        if(focusOnScreenCenterDepth.boolValue) 
-        {
-        	EditorGUILayout.PropertyField (focalSize, new GUIContent("Focal Size"));
-        	EditorGUILayout.PropertyField (focalChangeSpeed, new GUIContent("Adjust Speed"));
-        } 
-        else 
-        {
-        	EditorGUILayout.PropertyField (focusOnThis,  new GUIContent("Focus on transform")); 	
-        }
-        
-        EditorGUILayout.Separator ();
-        
-        blurIterations.intValue = EditorGUILayout.IntSlider ("Blur Iterations", blurIterations.intValue, 1,10);
-        blurSpread.floatValue = EditorGUILayout.Slider ("Blur Spread",blurSpread.floatValue,0.0,5.0);
-        
-        EditorGUILayout.Separator ();
-        
-        if (quality.intValue > 1) {
-        	GUILayout.Label("Foreground Blur Settings");
-            foregroundBlurIterations.intValue = EditorGUILayout.IntSlider ("Iterations", foregroundBlurIterations.intValue, 1,5);
-            foregroundBlurSpread.floatValue = EditorGUILayout.Slider ("Spread",foregroundBlurSpread.floatValue,0.0,5.0);   
-            foregroundBlurStrength.floatValue = EditorGUILayout.FloatField ("Strength",foregroundBlurStrength.floatValue);   
-            foregroundBlurThreshhold.floatValue = EditorGUILayout.FloatField ("Threshhold",foregroundBlurThreshhold.floatValue);   
-        }
+    {       
+    	serObj.Update();
     	
+		GUILayout.Label("Defines performance and quality");
+        EditorGUILayout.PropertyField (quality,  new GUIContent("Quality"));
+        divider.floatValue = Mathf.Floor( EditorGUILayout.Slider(new GUIContent("Downsample"),divider.floatValue,1.0,4.0));
+        
+        
+        EditorGUILayout.Separator ();
+        
+        focalZDistance.floatValue = EditorGUILayout.FloatField(new GUIContent("Focal Distance","Camera focal point in [nearClip, farClip]"), focalZDistance.floatValue);
+        focalSize.floatValue = EditorGUILayout.Slider(new GUIContent("Focal Size", "Camera focal size in [0, 1]"),focalSize.floatValue,0.0,0.2);
+        
+        EditorGUILayout.Separator ();
+        GUILayout.Label("Curve tweaking");
+        EditorGUILayout.BeginHorizontal();
+        focalZStart.floatValue = EditorGUILayout.FloatField("Start Curve", focalZStart.floatValue);
+        focalZEnd.floatValue = EditorGUILayout.FloatField("End Curve", focalZEnd.floatValue);
+        EditorGUILayout.EndHorizontal();
+        focalFalloff.floatValue = EditorGUILayout.FloatField("Global Curve", focalFalloff.floatValue);
+		
+		EditorGUILayout.Separator ();
+          
+        GUILayout.Label("Autofocus settings");
+        
+        EditorGUILayout.PropertyField (objectFocus,  new GUIContent("Object focus")); 	
+        
+
+        EditorGUILayout.Separator ();
+        
+        EditorGUILayout.PropertyField (enableBokeh, new GUIContent("Bokeh"));
+         EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PropertyField (bokehThreshhold, new GUIContent("Cutoff"));
+        EditorGUILayout.PropertyField (bokehFalloff, new GUIContent("Amplify"));
+       // EditorGUILayout.PropertyField (noiseAmount, new GUIContent("Noise"));
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Separator ();
+        
+        if(quality.intValue > 1)
+        	GUILayout.Label("Background Blur");
+        else
+        	GUILayout.Label("General Blur");
+        	
+        blurSpread.floatValue = EditorGUILayout.Slider ("Spread",blurSpread.floatValue,0.0,5.0);
+        blurIterations.intValue = EditorGUILayout.IntSlider ("Iterations", blurIterations.intValue, 1,2);
+        
+        EditorGUILayout.Separator ();
+	        
+       	GUILayout.Label("Foreground Blur (HQ only)");
+       	
+       	foregroundBlurSpread.floatValue = EditorGUILayout.Slider ("Spread", foregroundBlurSpread.floatValue,0.0,5.0);  
+       	foregroundBlurIterations.intValue = EditorGUILayout.IntSlider("Iterations", foregroundBlurIterations.intValue, 0,2); 
+        foregroundBlurWeight.floatValue = EditorGUILayout.Slider ("Weight",foregroundBlurWeight.floatValue,0.0,7.0);
+
+		EditorGUILayout.Separator();
+
+		// will come back
+        //EditorGUILayout.PropertyField (debugBlurRegions,  new GUIContent("Debug Blur Areas","Enable this to see the blur amounts and radii in red and green")); 	
+		    	
     	serObj.ApplyModifiedProperties();
     	
     	

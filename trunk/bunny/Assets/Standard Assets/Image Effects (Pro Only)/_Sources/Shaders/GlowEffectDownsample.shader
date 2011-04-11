@@ -54,11 +54,11 @@ CGPROGRAM
 #pragma fragmentoption ARB_precision_hint_fastest
 
 sampler2D _MainTex;
-float4 _Color;
+fixed4 _Color;
 
-half4 frag( v2f i ) : COLOR
+fixed4 frag( v2f i ) : COLOR
 {
-	half4 c;
+	fixed4 c;
 	c  = tex2D( _MainTex, i.uv[0].xy );
 	c += tex2D( _MainTex, i.uv[1].xy );
 	c += tex2D( _MainTex, i.uv[2].xy );

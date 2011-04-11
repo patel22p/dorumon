@@ -10,10 +10,10 @@ public class Cursor : bs
         if (Player == null) return;
         var dir = (pos - Player.pos).normalized;
         if (Input.GetMouseButtonDown(0))
-            Player.ropes[0].MouseDown(dir);
+            Player.ropes[0].MouseDown();
         
         if (Input.GetMouseButtonDown(1))
-            Player.ropes[1].MouseDown(dir);
+            Player.ropes[1].MouseDown();
 
         if (Input.GetMouseButtonUp(0))
             Player.ropes[0].MouseUp();

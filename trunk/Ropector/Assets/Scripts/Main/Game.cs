@@ -22,7 +22,7 @@ public class Game : bs
     bool isdrag;
     
     
-    internal List<Car> cars = new List<Car>();    
+    
     public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
     [FindTransform(scene = true)] // with this attribute this variable will be assigned automaticly in editor
@@ -64,7 +64,15 @@ public class Game : bs
     }
     void Start()
     {
-        Network.InitializeServer(200, 5400, false);
+        timer.AddMethod(800, delegate
+        {
+            Screen.lockCursor = true;
+            timer.AddMethod(200,delegate
+            {
+                cursor.pos = Vector3.zero;
+            });
+        });                
+        
     }
     public override void InitValues() // this function called when you press start or pause in editor, usualy used for variables init in editor
     {
@@ -109,8 +117,7 @@ public class Game : bs
         
         GameGui.scores.text = Player.scores + "/" + blues.Count;
         PlayerScores();
-        UpdateWall();
-        UpdateEditWall();
+        
     }
 
     private void TimeWarp()
@@ -150,104 +157,9 @@ public class Game : bs
             Player.gameObject.active = false;
         }
     }
-    private void UpdateWall() //handles when player press b. and build wall 
-    {
-        tmWall -= Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Return))
-            _Loader.ResetLevel();
-
-        bool build = Input.GetKey(KeyCode.B) && Wall > 0;
-        bool buildSticky = Input.GetKey(KeyCode.V) && WallSticky > 0;
-        bool buildDynamic = Input.GetKey(KeyCode.N) && WallDynamic > 0;
-        if (build || buildSticky || buildDynamic)
-        {
-            if (oldp == null || Vector3.Distance(cursor.pos, oldp.Value) > .5F) 
-            {
-                if (build) Wall--;
-                if (buildSticky) WallSticky--;
-                if (buildDynamic) WallDynamic--;
-                if (oldp != null)
-                {
-                    if (Holder == null)
-                    {
-                        Holder = new GameObject("Wall");
-                        var r = Holder.AddComponent<Rigidbody>();
-                        r.isKinematic = true;
-                        var dr = Holder.AddComponent<Wall>();
-                        dr.attachRope = buildSticky || buildDynamic;                        
-                        if (buildDynamic)
-                            Holder.rigidbody.constraints = (RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ);
-                    }
-                    var o = oldp.Value;
-                    var cube = CreateCube(buildSticky ? woodMat : wallMat);
-                    var cubetr = cube.transform;
-                    Vector3 v = cursor.transform.position - o;
-                    cubetr.localScale = new Vector3(5, .1f, v.magnitude);
-                    cubetr.position = o;
-                    cubetr.LookAt(cursor.transform.position);
-                    var e = cubetr.transform.rotation.eulerAngles;
-                    if (e == new Vector3(270, 0, 0))
-                        cubetr.transform.rotation = Quaternion.Euler(270, 90, 0);
-                    if (e == new Vector3(90, 0, 0))
-                        cubetr.transform.rotation = Quaternion.Euler(90, 90, 0);
-
-                    cubetr.transform.parent = Holder.transform;
-
-                }
-                oldp = cursor.transform.position;
-                tmWall = .05f;
-            }
-        }
-        else
-        {
-            if (oldp != null && Holder != null)
-            {
-                Combine(Holder);
-
-                foreach (Transform t in Holder.GetComponentsInChildren<Transform>())
-                    t.gameObject.layer = LayerMask.NameToLayer("Default");
-                Holder = null;
-                oldp = null;
-            }
-            oldp = null;
-        }
-    }
     
-    void UpdateEditWall()
-    {
-
-        bool clear = Input.GetKey(KeyCode.C);
-        bool cut = Input.GetKey(KeyCode.X);
-        var vr = cursor.pos - Cam.pos;
-        var r = new Ray(Cam.pos, vr);
-        RaycastHit h;
     
-        if (Physics.Raycast(r, out h, vr.magnitude, 1 << LayerMask.NameToLayer("Default")))
-        {
-            var mh = h.transform.GetMonoBehaviorInParrent() as Wall;
-            if (mh != null)
-            {
-                //Debug.Log("Found");
-                if (clear || cut)
-                {
-                    Debug.Log("test");
-                    var rp = mh.GetComponentsInChildren<RopeEnd>();
-                    foreach (var a in rp)
-                        a.EnableRope(false);    
-                    if (cut)
-                        Destroy(h.collider.gameObject);
-                    else
-                        Destroy(h.transform.gameObject);
-                }
-                if (Input.GetKeyDown(KeyCode.F) && mh.ClickForce !=Vector3.zero)
-                {
-                    mh.rigidbody.AddForce(mh.ClickForce*mh.rigidbody.mass   );
-        
-                }
-            }
-        }
-
-    }
+    
     private static void AddColl(string a, string b)
     {
         Physics.IgnoreLayerCollision(LayerMask.NameToLayer(a), LayerMask.NameToLayer(b), false);

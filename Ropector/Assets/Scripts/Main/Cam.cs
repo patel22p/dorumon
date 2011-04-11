@@ -49,7 +49,7 @@ public class Cam : bs
         camoffset += Input.GetAxis("Mouse ScrollWheel") * -20;
         camoffset = Mathf.Min(Mathf.Max(camoffset, 30), 200);
 
-        fake = Mathf.SmoothDamp(fake, Player.rigidbody.velocity.sqrMagnitude, ref vel, 0.95f);
+        fake = Mathf.SmoothDamp(fake, Player.controller.velocity.sqrMagnitude, ref vel, 0.95f);
         var pp = player.pos;
         pos = new Vector3(pp.x, pp.y + 10, -camoffset - Mathf.Sqrt(fake));
         cam.transform.LookAt(fakeCursor);

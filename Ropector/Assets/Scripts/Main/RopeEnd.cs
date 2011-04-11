@@ -68,9 +68,12 @@ public class RopeEnd : bs
                 var fctr = AttachedTo.RopeForce;
                 var vn = v.normalized;
                 var va = new Vector3(fctr.x * vn.x, fctr.y * vn.y * .6f, fctr.z * vn.z);
-                Player.rigidbody.AddForce(va * -400 * m * Time.deltaTime);
-                Player.rigidbody.position -= v * Time.deltaTime * .5f;
-                Player.rigidbody.AddForce(Vector3.up * Time.deltaTime * 20);
+                var f = .05f;
+                Player.veloticy += va * -400 * m * Time.deltaTime * f;
+                Player.veloticy += Vector3.up * Time.deltaTime * 20 * f;
+                //Player.rigidbody.AddForce(va * -400 * m * Time.deltaTime);
+                //Player.rigidbody.position -= v * Time.deltaTime * .5f;
+                //Player.rigidbody.AddForce(Vector3.up * Time.deltaTime * 20);
             }
         }
         else
@@ -78,11 +81,12 @@ public class RopeEnd : bs
         if (v.magnitude > 27)
             EnableRope(false);
     }
-    //shoot
+    public bool ropedown;
     public void MouseDown()
     {
         if (!enabled)
         {
+            ropedown = true;
             tmRope = 1;
             this.oldpos = this.transform.position = Player.pos;
             EnableRope(true);
@@ -95,6 +99,7 @@ public class RopeEnd : bs
 
     public void MouseUp()
     {
+        ropedown = false;
         EnableRope(false);
     } 
 

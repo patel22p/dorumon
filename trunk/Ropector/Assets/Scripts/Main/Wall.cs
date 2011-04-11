@@ -19,12 +19,14 @@ public class Wall : bs
             foreach (Collider a in this.transform.GetTransforms().Where(a => a.collider != null).Select(a => a.collider))
                 foreach (Collider b in Ignore)
                     Physics.IgnoreCollision(a, b);
-
+    }
+    public override void InitValues()
+    {        
+        //SetLayer(LayerMask.NameToLayer("Default"));
         if (rigidbody != null)
             rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;
-
+        base.InitValues();
     }
-    
     
     void OnTriggerEnter(Collider coll)
     {

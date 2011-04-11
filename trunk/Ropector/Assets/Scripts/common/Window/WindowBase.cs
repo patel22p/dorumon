@@ -11,9 +11,10 @@ public class WindowBase : Base
     public AudioClip mouseclick;
     [FindAsset]
     public GUISkin Skin;
-    
+
     void Awake()
-    {        
+    {
+        
         enabled = false;
     }
     public void Action(object name, params object[] param)

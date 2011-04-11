@@ -25,11 +25,11 @@ public class Game : bs
     internal List<Car> cars = new List<Car>();    
     public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
-    [FindTransform()] // with this attribute this variable will be assigned automaticly in editor
+    [FindTransform(scene = true)] // with this attribute this variable will be assigned automaticly in editor
     public Animation deadAnim;
     [FindTransform]
     public Base cursor;
-    [FindTransform("Player")]
+    [FindTransform("Player", scene = true)]
     public bs iplayer; // player or car pointer(if player is in car)
     public List<Score> blues = new List<Score>();
     float tmWall;
@@ -66,15 +66,14 @@ public class Game : bs
     {
         Network.InitializeServer(200, 5400, false);
     }
-    public override void Init()
+    public override void InitValues() // this function called when you press start or pause in editor, usualy used for variables init in editor
     {
-        IgnoreAll("Ignore Raycast"); 
+        IgnoreAll("Ignore Raycast"); //ignores colision for layer
         IgnoreAll("IgnoreColl");
         IgnoreAll("Button");
         IgnoreAll("Water");
         AddColl("Button", "Player");        
-
-        base.Init();
+        base.InitValues();
     }
     float TimeSpeed = 1;
     bool enableTimeWarp;
@@ -112,7 +111,6 @@ public class Game : bs
         PlayerScores();
         UpdateWall();
         UpdateEditWall();
-
     }
 
     private void TimeWarp()
@@ -145,6 +143,7 @@ public class Game : bs
             {
                 GameGui.time.text = "New Record:" + TimeToSTr(TimeElapsed);
                 PlayerPrefs.SetFloat(Application.loadedLevelName, TimeElapsed);
+                _Loader.RefreshRecords();
             }
 
             timer.AddMethod(2000, delegate { _Loader.NextLevel(); });

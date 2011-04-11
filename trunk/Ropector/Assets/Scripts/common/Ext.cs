@@ -260,16 +260,20 @@ public class FindAsset : Attribute
         name = from;
     }
 }
-public class FindTransform : Attribute 
+public class FindTransform : Attribute // with this attribute this variable will be assigned automaticly in editor
 {
-    public bool self;
     public string name;
     public FindTransform() { }
     public FindTransform(string enumName)
     {
         name = enumName;
     }
-
+    public bool scene;
+    public FindTransform(string enumName, bool FindInScene)
+    {
+        scene = FindInScene;
+        name = enumName;
+    }
 }
 public class GenerateEnums : Attribute
 {

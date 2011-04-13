@@ -1,4 +1,4 @@
-Shader "ShaderEditor/EditorShaderCache"
+Shader "test"
 {
 	Properties 
 	{
@@ -27,7 +27,7 @@ Fog{
 
 		CGPROGRAM
 #pragma surface surf BlinnPhongEditor  vertex:vert
-#pragma target 2.0
+#pragma target 3.0
 
 
 sampler2D _tet;
@@ -94,7 +94,8 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_tet,float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).xy);
+float4 VxM0=mul( float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ), _Object2World );
+float4 Tex2D0=tex2D(_tet,VxM0.xy);
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);

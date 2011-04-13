@@ -1,8 +1,10 @@
-Shader "ShaderEditor/EditorShaderCache"
+Shader "Bunny/Foliage"
 {
 	Properties 
 	{
-_tet("_tet", 2D) = "white" {}
+_AlphaCutoff("_AlphaCutoff", Float) = 0.5
+_Diffuse("_Diffuse", 2D) = "black" {}
+_Lighting("_Lighting", Color) = (1,1,1,1)
 
 	}
 	
@@ -10,27 +12,30 @@ _tet("_tet", 2D) = "white" {}
 	{
 		Tags
 		{
-"Queue"="Geometry"
+"Queue"="Transparent+100"
 "IgnoreProjector"="False"
-"RenderType"="Opaque"
+"RenderType"="Transparent"
 
 		}
 
 		
-Cull Back
+Cull Off
 ZWrite On
 ZTest LEqual
 ColorMask RGBA
+Blend One Zero
 Fog{
 }
 
 
 		CGPROGRAM
-#pragma surface surf BlinnPhongEditor  vertex:vert
+#pragma surface surf BlinnPhongEditor  noforwardadd approxview halfasview vertex:vert
 #pragma target 2.0
 
 
-sampler2D _tet;
+float _AlphaCutoff;
+sampler2D _Diffuse;
+float4 _Lighting;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -44,11 +49,8 @@ sampler2D _tet;
 			
 			inline half4 LightingBlinnPhongEditor_PrePass (EditorSurfaceOutput s, half4 light)
 			{
-half3 spec = light.a * s.Gloss;
-half4 c;
-c.rgb = (s.Albedo * light.rgb + light.rgb * spec);
-c.a = s.Alpha;
-return c;
+float4 Multiply0=float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 ) * _Lighting;
+return Multiply0;
 
 			}
 
@@ -70,7 +72,7 @@ return c;
 			}
 			
 			struct Input {
-				float3 sWorldNormal;
+				float2 uv_Diffuse;
 
 			};
 
@@ -80,7 +82,6 @@ float4 VertexOutputMaster0_1_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_2_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 
-o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 
 			}
 			
@@ -94,19 +95,22 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_tet,float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).xy);
+float4 Tex2D0=tex2D(_Diffuse,(IN.uv_Diffuse.xyxy).xy);
+float4 Multiply1=Tex2D0 * Tex2D0;
+float4 Add1=Multiply1 + Tex2D0;
+float4 Subtract0=Tex2D0.aaaa - _AlphaCutoff.xxxx;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
-float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Tex2D0;
+clip( Subtract0 );
+o.Albedo = Add1;
 
 				o.Normal = normalize(o.Normal);
 			}
 		ENDCG
 	}
-	Fallback "Diffuse"
+	Fallback "Bunny/Mobile/Foliage"
 }

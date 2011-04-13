@@ -1,8 +1,14 @@
-Shader "ShaderEditor/EditorShaderCache"
+Shader "Bunny/Xtra/Foliage_Wind"
 {
 	Properties 
 	{
-_tet("_tet", 2D) = "white" {}
+_Color("_Color", Color) = (1,1,1,1)
+_AlphaCutoff("_AlphaCutoff", Float) = 0.5
+_Diffuse("_Diffuse", 2D) = "black" {}
+_Frequency("_Frequency", Float) = 1
+_Scale("_Scale", Float) = 0.5
+_Fade("_Fade", Float) = 0.5
+_Distance("_Distance", Float) = 0
 
 	}
 	
@@ -10,17 +16,18 @@ _tet("_tet", 2D) = "white" {}
 	{
 		Tags
 		{
-"Queue"="Geometry"
+"Queue"="Transparent+100"
 "IgnoreProjector"="False"
 "RenderType"="Opaque"
 
 		}
 
 		
-Cull Back
+Cull Off
 ZWrite On
 ZTest LEqual
 ColorMask RGBA
+Blend SrcAlpha OneMinusSrcAlpha
 Fog{
 }
 
@@ -30,7 +37,14 @@ Fog{
 #pragma target 2.0
 
 
-sampler2D _tet;
+float4 _Color;
+float _AlphaCutoff;
+sampler2D _Diffuse;
+float _Frequency;
+float _Scale;
+float _Fade;
+float _Distance;
+sampler2D _CameraDepthTexture;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -70,17 +84,26 @@ return c;
 			}
 			
 			struct Input {
-				float3 sWorldNormal;
+				float2 uv_Diffuse;
+float4 screenPos;
 
 			};
 
 			void vert (inout appdata_full v, out Input o) {
-float4 VertexOutputMaster0_0_NoInput = float4(0,0,0,0);
+float4 Splat1=v.color.y;
+float4 Add0=v.vertex + _Time;
+float4 Splat0=Add0.y;
+float4 Multiply0=Splat0 * _Frequency.xxxx;
+float4 Sin0=sin(Multiply0);
+float4 Mask0=float4(Sin0.x,0.0,Sin0.z,0.0);
+float4 Multiply1=_Scale.xxxx * Mask0;
+float4 Multiply2=Splat1 * Multiply1;
+float4 Add1=Multiply2 + v.vertex;
 float4 VertexOutputMaster0_1_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_2_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
+v.vertex = Add1;
 
-o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 
 			}
 			
@@ -94,19 +117,30 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_tet,float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).xy);
+float4 Multiply2=_Color * float4( 3,3,3,3 );
+float4 Tex2D0=tex2D(_Diffuse,(IN.uv_Diffuse.xyxy).xy);
+float4 Multiply1=Multiply2 * Tex2D0;
+float4 Add1=Multiply1 + Tex2D0;
+float4 ScreenDepthDiff0= LinearEyeDepth (tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(IN.screenPos)).r) - IN.screenPos.z;
+float4 Pow0=pow(_Fade.xxxx,ScreenDepthDiff0);
+float4 Saturate0=saturate(Pow0);
+float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - Saturate0;
+float4 ScreenDepth0= LinearEyeDepth (tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD( IN.screenPos)).r);
+float4 Pow1=pow(_Distance.xxxx,ScreenDepth0);
+float4 Multiply0=Invert0 * Pow1;
+float4 Subtract0=Tex2D0.aaaa - _AlphaCutoff.xxxx;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
-float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
-float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Tex2D0;
+clip( Subtract0 );
+o.Albedo = Add1;
+o.Alpha = Multiply0;
 
 				o.Normal = normalize(o.Normal);
 			}
 		ENDCG
 	}
-	Fallback "Diffuse"
+	Fallback ""
 }

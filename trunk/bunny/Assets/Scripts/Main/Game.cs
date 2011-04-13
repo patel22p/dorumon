@@ -4,40 +4,41 @@ using System.Collections;
 using gui = UnityEditor.EditorGUILayout;
 using GUI = UnityEngine.GUILayout;
 using UnityEditor;
+using System.Collections.Generic;
 public class Game : bs {
-
+    
 	void Start () {
-	
+	    
 	}
-	
+    [FindTransform]
+    public GUIText score;
+    public int scores;
+    public PowerType powerType;
+    [FindTransform]
+    public GUITexture powerIcon;
+    
+    public Texture2D[] powerTextures;
+    internal float powerTime;
 	void Update () {
+        UpdatePower();
+
         if (Input.GetKeyDown(KeyCode.Tab))
             Screen.lockCursor = !Screen.lockCursor;
+        score.text = scores + "";
 	}
-    public override void OnEditorGui()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        if (GUI.Button("Desttroy Mono"))
-        {
-            var ar = GameObject.FindObjectsOfType(typeof(GameObject)).ToArray();
-            Debug.Log(ar.Count());
-            int c=0;
-            
-            foreach (GameObject a in ar)
-            {
-                //Debug.Log(a.name);
-                if (a.GetComponent<Base>() == null)
-                {
 
-                    foreach (var b in a.GetComponents<Behaviour>())
-                    {
-                        c++;
-                        DestroyImmediate(b);
-                    }
-                }
-            }
-            Debug.Log(c );
-        }
-        base.OnEditorGui();
+    private void UpdatePower()
+    {
+        var c = powerIcon.color;
+        c.a = Mathf.Max(0, powerTime) / 20;
+        powerIcon.color = c;
+
+        if (powerType != PowerType.none)
+            powerIcon.texture = powerTextures[(int)powerType];
+
+        powerTime -= Time.deltaTime;
+        if (powerTime < 0)
+            powerType = PowerType.none;
     }
+  
 }

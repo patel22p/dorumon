@@ -1,8 +1,11 @@
-Shader "ShaderEditor/EditorShaderCache"
+Shader "Bunny/Sky"
 {
 	Properties 
 	{
-_tet("_tet", 2D) = "white" {}
+_SkyColor("_SkyColor", Color) = (0.5895523,0.8105626,1,1)
+_CloudsCube("_CloudsCube", Cube) = "black" {}
+_Clouds("Clouds", Color) = (1,1,1,1)
+_WindSpeed("WindSpeed", Float) = 0
 
 	}
 	
@@ -17,11 +20,13 @@ _tet("_tet", 2D) = "white" {}
 		}
 
 		
-Cull Back
-ZWrite On
+Cull Off
+ZWrite Off
 ZTest LEqual
 ColorMask RGBA
 Fog{
+Mode Linear
+Range 0,2000
 }
 
 
@@ -30,7 +35,10 @@ Fog{
 #pragma target 2.0
 
 
-sampler2D _tet;
+float4 _SkyColor;
+samplerCUBE _CloudsCube;
+float4 _Clouds;
+float _WindSpeed;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -70,7 +78,7 @@ return c;
 			}
 			
 			struct Input {
-				float3 sWorldNormal;
+				float4 meshUV;
 
 			};
 
@@ -80,7 +88,8 @@ float4 VertexOutputMaster0_1_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_2_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 
-o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
+o.meshUV.xy = v.texcoord.xy;
+o.meshUV.zw = v.texcoord1.xy;
 
 			}
 			
@@ -94,15 +103,25 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_tet,float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).xy);
+float4 SplatAlpha0=_SkyColor.w;
+float4 Multiply0=SplatAlpha0 * float4( 10,10,10,10 );
+float4 Multiply5=_WindSpeed.xxxx * _Time;
+float4 Add1=(IN.meshUV.xyxy) + Multiply5;
+float4 TexCUBE0=texCUBE(_CloudsCube,Add1);
+float4 Multiply2=TexCUBE0.aaaa * _Clouds;
+float4 SplatAlpha1=_Clouds.w;
+float4 Multiply3=SplatAlpha1 * float4( 10,10,10,10 );
+float4 Multiply4=Multiply2 * Multiply3;
+float4 Add0=_SkyColor + Multiply4;
+float4 Multiply1=Multiply0 * Add0;
+float4 Master0_0_NoInput = float4(0,0,0,0);
 float4 Master0_1_NoInput = float4(0,0,1,1);
-float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Tex2D0;
+o.Emission = Multiply1;
 
 				o.Normal = normalize(o.Normal);
 			}

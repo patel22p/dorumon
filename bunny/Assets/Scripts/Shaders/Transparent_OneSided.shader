@@ -1,8 +1,13 @@
-Shader "ShaderEditor/EditorShaderCache"
+Shader "Bunny/Transparent_OneSided"
 {
 	Properties 
 	{
-_tet("_tet", 2D) = "white" {}
+_RimlightSpread("_RimlightSpread", Range(0,3) ) = 1.095238
+_Color("_Color", Color) = (1,1,1,0.4313726)
+_AlphaCutoff("_AlphaCutoff", Range(0,1) ) = 0
+_Rimlight_Strength("_Rimlight_Strength", Float) = 1
+_MainTex("_MainTex", 2D) = "gray" {}
+_Rimlight_Color("_Rimlight_Color", Color) = (1,0.03529412,1,0.9411765)
 
 	}
 	
@@ -10,9 +15,9 @@ _tet("_tet", 2D) = "white" {}
 	{
 		Tags
 		{
-"Queue"="Geometry"
+"Queue"="Transparent+10"
 "IgnoreProjector"="False"
-"RenderType"="Opaque"
+"RenderType"="Transparent"
 
 		}
 
@@ -21,6 +26,7 @@ Cull Back
 ZWrite On
 ZTest LEqual
 ColorMask RGBA
+Blend One One
 Fog{
 }
 
@@ -30,7 +36,12 @@ Fog{
 #pragma target 2.0
 
 
-sampler2D _tet;
+float _RimlightSpread;
+float4 _Color;
+float _AlphaCutoff;
+float _Rimlight_Strength;
+sampler2D _MainTex;
+float4 _Rimlight_Color;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -44,11 +55,7 @@ sampler2D _tet;
 			
 			inline half4 LightingBlinnPhongEditor_PrePass (EditorSurfaceOutput s, half4 light)
 			{
-half3 spec = light.a * s.Gloss;
-half4 c;
-c.rgb = (s.Albedo * light.rgb + light.rgb * spec);
-c.a = s.Alpha;
-return c;
+return float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 );
 
 			}
 
@@ -70,7 +77,8 @@ return c;
 			}
 			
 			struct Input {
-				float3 sWorldNormal;
+				float2 uv_MainTex;
+float3 viewDir;
 
 			};
 
@@ -80,7 +88,6 @@ float4 VertexOutputMaster0_1_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_2_NoInput = float4(0,0,0,0);
 float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 
-o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 
 			}
 			
@@ -94,15 +101,28 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Tex2D0=tex2D(_tet,float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).xy);
+float4 Tex2D0=tex2D(_MainTex,(IN.uv_MainTex.xyxy).xy);
+float4 Multiply0=_Color * Tex2D0;
+float4 SplatAlpha1=_Rimlight_Color.w;
+float4 Multiply4=float4( 10,10,10,10 ) * SplatAlpha1;
+float4 Fresnel0_1_NoInput = float4(0,0,1,1);
+float4 Fresnel0=(1.0 - dot( normalize( float4( IN.viewDir.x, IN.viewDir.y,IN.viewDir.z,1.0 ).xyz), normalize( Fresnel0_1_NoInput.xyz ) )).xxxx;
+float4 Pow0=pow(Fresnel0,_RimlightSpread.xxxx);
+float4 Multiply3=Pow0 * _Rimlight_Color;
+float4 Multiply2=Multiply4 * Multiply3;
+float4 SplatAlpha0=_Color.w;
+float4 Multiply1=SplatAlpha0 * Tex2D0.aaaa;
+float4 Add0=Multiply2 + Multiply1;
+float4 Saturate0=saturate(Add0);
+float4 Subtract0=Tex2D0.aaaa - _AlphaCutoff.xxxx;
 float4 Master0_1_NoInput = float4(0,0,1,1);
-float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
-float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
-float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Tex2D0;
+clip( Subtract0 );
+o.Albedo = Multiply0;
+o.Emission = Multiply2;
+o.Alpha = Saturate0;
 
 				o.Normal = normalize(o.Normal);
 			}

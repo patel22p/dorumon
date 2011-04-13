@@ -14,6 +14,7 @@ public class Cam : bs {
 	
     float rx, ry;
 	void LateUpdate () {
+        
         if (Screen.lockCursor)
         {
             rx += Input.GetAxis("Mouse X");
@@ -21,6 +22,14 @@ public class Cam : bs {
         }
 	    this.rot = Quaternion.Euler(new Vector2(ry,rx));
         pos = _Player.pos;
+
+        var v = Place.position - _Player.pos;
+        RaycastHit h;
+        if (Physics.Raycast(new Ray(_Player.pos, v.normalized), out h, v.magnitude - .5f, ~(1 << LayerMask.NameToLayer("Player"))))
+            Camera.main.transform.position = h.point;
+        else
+            Camera.main.transform.localPosition = Vector3.zero;
 	}
+  
 
 }

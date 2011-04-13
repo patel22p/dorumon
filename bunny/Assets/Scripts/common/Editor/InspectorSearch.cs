@@ -33,6 +33,7 @@ public class InspectorSearch : EditorWindow
     
     public virtual void Awake()
     {
+        
         PlayerSettings.productName = "Arena Build " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         PlayerSettings.runInBackground = true;
         instances = EditorPrefs.GetString(EditorApplication.applicationPath).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -994,14 +995,11 @@ public class InspectorSearch : EditorWindow
     void OnSelectionChange()
     {
         this.Repaint();
-        //Debug.Log(Selection.activeGameObject.GetComponent<bs>());
-
         //Update();
     }
     protected virtual void Update()
     {
-        
-        //EditorApplication.playmodeStateChanged = OnPlaymodeStateChanged;
+
         autosavetm += 0.01f;
         _TimerA.Update();
         SceneView.onSceneGUIDelegate = OnSceneUpdate;

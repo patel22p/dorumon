@@ -3,68 +3,61 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
-public class Player : bs
+public class Player : Shaded
 {
     [FindTransform]
     public Trigger trigger;
 
-    [FindTransform]
-    public GameObject model;
-    public Animation an { get { return model.animation; } }
-    AnimationState idle { get { return an["idle"]; } }
-    AnimationState run { get { return an["run"]; } }
-    AnimationState jump { get { return an["jump"]; } } //todo
-    AnimationState fll { get { return an["midair"]; } }
-    AnimationState land { get { return an["landing"]; } }
-    AnimationState hit { get { return an["pawhit1"]; } }
-    AnimationState jumphit { get { return an["aerialattack1"]; } }
-    
-    
+    public AnimationState idle { get { return an["idle"]; } }
+    public AnimationState run { get { return an["run"]; } }
+    public AnimationState walk { get { return an["walk"]; } }
+    public AnimationState jump { get { return an["jump"]; } } //todo
+    public AnimationState fll { get { return an["midair"]; } }
+    public AnimationState land { get { return an["landing"]; } }
+    public AnimationState hit { get { return an["pawhit1"]; } }
+    public AnimationState jumphit { get { return an["aerialattack1"]; } }
+
     public List<Transform> hands = new List<Transform>();
     public List<Transform> legs = new List<Transform>();
-    
-
     public Transform HitEffectTrail;
-    void Start()
-    {
 
-        fll.wrapMode = idle.wrapMode = run.wrapMode = WrapMode.Loop;
+
+    public override void Start()
+    {
+        base.Start();
+        
+        fll.wrapMode = WrapMode.Loop;
+        idle.wrapMode = WrapMode.Loop;
+        run.wrapMode = WrapMode.Loop;
         jumphit.wrapMode = hit.wrapMode = land.wrapMode = jump.wrapMode = WrapMode.Clamp;
-        hit.layer = land.layer = fll.layer = jump.layer = 1;        
+        hit.layer = land.layer = fll.layer = jump.layer = 1;
         jumphit.layer = 2;
 
-        foreach (var a in legs)
+        foreach (var a in legs.Union(hands))
             ((Transform)Instantiate(HitEffectTrail, a.transform.position, a.transform.rotation)).parent = a;
 
+
     }
-    Vector3 vel;
-
-    [FindTransform(self = true)]
-    public CharacterController controller;
+    
     public bool scndJump;
-    void Update()
+    public override void  Update()
     {
-        
-
-
-        foreach (var a in legs)
-            foreach (Transform b in a)
-                b.gameObject.active = jumphit.enabled;
+        base.Update();
+        HitEffect();
 
         run.speed = 1.5f;
         land.speed = 1.4f;
         bool attackbtn = Input.GetMouseButton(0) && !hit.enabled;
         bool jumpbtn = Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space);
-        AnimationsUpdate();
+        
         if (scndJump && controller.isGrounded)
             scndJump = false;
 
+        if (fll.enabled && controller.isGrounded)
+            fll.enabled = false;
+
         if (controller.isGrounded)
-        {
             vel *= .86f;
-            if (fll.enabled)
-                fll.enabled = false;
-        }
 
         if (jumpbtn && (controller.isGrounded || (!scndJump && _Game.powerType == PowerType.doubleJump)))
         {
@@ -77,6 +70,16 @@ public class Player : bs
         AtackUpdate(attackbtn);
     }
 
+    private void HitEffect()
+    {
+        foreach (var a in hands)
+            foreach (Transform b in a)
+                b.gameObject.active = hit.enabled;
+
+        foreach (var a in legs)
+            foreach (Transform b in a)
+                b.gameObject.active = jumphit.enabled;
+    }
     private void AtackUpdate(bool attackbtn)
     {
         if (attackbtn)
@@ -91,8 +94,7 @@ public class Player : bs
                     br.Hit();
         }
     }
-
-    private void AnimationsUpdate()
+    public override void AnimationsUpdate()
     {
         var l = controller.velocity.normalized;
         l.y = 0;
@@ -103,20 +105,25 @@ public class Player : bs
 
         if (vel.y > .5f)
             an.CrossFade(fll.name);
+
+        base.AnimationsUpdate();
     }
 
     private void MoveUpdate(bool attackbtn)
     {
-        var move = Vector3.zero;
-        var keydir = _Cam.rot * new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
+        
+        var keydir = _Cam.rot * new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        keydir.y = 0;
+        keydir = keydir.normalized;
         var atackdir = keydir;
         if (attackbtn)
             atackdir = _Cam.rot * Vector3.forward;
-        atackdir.y = keydir.y = 0;
+        atackdir.y =  0;
 
         if (keydir != Vector3.zero || attackbtn)
             rot = Quaternion.LookRotation(atackdir);
 
+        var move = Vector3.zero;
         move += keydir * Time.deltaTime * 6;
         move += vel * Time.deltaTime;
         vel += Physics.gravity * Time.deltaTime;
@@ -125,10 +132,10 @@ public class Player : bs
     }
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (Mathf.Abs(controller.velocity.y) > 8)
+        if (Mathf.Abs(controller.velocity.y) > 8 && !controller.isGrounded)
         {
             an.CrossFade(land.name);
+            vel = Vector3.zero;
         }
     }
-
 }

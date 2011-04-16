@@ -18,10 +18,11 @@ public partial class Base : MonoBehaviour
         };
         }
     }
-    public static void IgnoreAll(string name)
+    public static void IgnoreAll(string name, params string[] layers)
     {
         for (int i = 1; i < 31; i++)
-            Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
+            if (!layers.Contains(LayerMask.LayerToName(i)))
+                Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
     }
 
     public ObjectType ObjectType;
@@ -85,6 +86,10 @@ public partial class Base : MonoBehaviour
     {
     }
     public virtual void OnEditorGui()
+    {
+
+    }
+    public virtual void OnSceneGUI()
     {
 
     }

@@ -50,25 +50,30 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Editor\PaintableObjectEditor.cs" />
-     <Compile Include="Assets\Editor\PaintableWindow.cs" />
-     <Compile Include="Assets\Editor\PaintDummy.cs" />
-     <Compile Include="Assets\Editor\ReplaceShader.cs" />
-     <Compile Include="Assets\Editor\vertexPainter.cs" />
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearch.cs" />
      <Compile Include="Assets\Scripts\common\Window\WindowBase.cs" />
      <Compile Include="Assets\Scripts\common\Base.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <Compile Include="Assets\Scripts\Editor\MyNodeEditor.cs" />
+     <Compile Include="Assets\Scripts\Editor\WaypointNodeEditor.cs" />
+     <Compile Include="Assets\Scripts\Main\Quest\Quest.cs" />
+     <Compile Include="Assets\Scripts\Main\Quest\QuestEvent.cs" />
+     <Compile Include="Assets\Scripts\Main\Quest\QuestManager.cs" />
      <Compile Include="Assets\Scripts\Main\Barrel.cs" />
      <Compile Include="Assets\Scripts\Main\Berry.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
      <Compile Include="Assets\Scripts\Main\GuiResize.cs" />
+     <Compile Include="Assets\Scripts\Main\MyNodes.cs" />
+     <Compile Include="Assets\Scripts\Main\Node.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\PowerUp.cs" />
+     <Compile Include="Assets\Scripts\Main\Raccoon.cs" />
+     <Compile Include="Assets\Scripts\Main\Shared.cs" />
      <Compile Include="Assets\Scripts\Main\Trigger.cs" />
+     <Compile Include="Assets\Scripts\Main\WaypointNodeParent.cs" />
      <None Include="Assets\Scripts\Shaders\Xtra\Foliage_Wind.shader" />
      <None Include="Assets\Scripts\Shaders\Berry.shader" />
      <None Include="Assets\Scripts\Shaders\Cameramapping.shader" />
@@ -88,6 +93,11 @@
      <None Include="Assets\Standard Assets\Editor\Image Effects\DepthOfFieldEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\EdgeDetectEffectNormalsEditor.js" />
      <None Include="Assets\Standard Assets\Editor\Image Effects\SunShaftsEditor.js" />
+     <Compile Include="Assets\Standard Assets\Editor\PaintableObjectEditor.cs" />
+     <Compile Include="Assets\Standard Assets\Editor\PaintableWindow.cs" />
+     <Compile Include="Assets\Standard Assets\Editor\PaintDummy.cs" />
+     <Compile Include="Assets\Standard Assets\Editor\ReplaceShader.cs" />
+     <Compile Include="Assets\Standard Assets\Editor\vertexPainter.cs" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Adaptation.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Luminance.shader" />

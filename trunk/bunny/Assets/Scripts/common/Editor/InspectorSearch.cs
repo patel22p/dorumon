@@ -82,7 +82,68 @@ public class InspectorSearch : EditorWindow
         DrawObjects();
         DrawSearch();
     }
+    //void OnSceneGUI()
+    //{
+    //    Debug.Log("test");
+        
+    //}
+    private void OnSceneUpdate(SceneView scene)
+    {
+        if (Selection.activeGameObject != null)
+        {
+            var bs2 = Selection.activeGameObject.GetComponent<Base>();
+            if (bs2 != null)
+                bs2.OnSceneGUI();
+        }
+        if (Event.current.isMouse) idletime = DateTime.Now;
+        var ago = Selection.activeGameObject;
+        if (SetPivot)
+        {
+            var move = oldpos - ago.transform.position;
+            foreach (Transform t in ago.transform)
+            {
+                t.position += move;
+            }
+        }
+        if (ago != null)
+            oldpos = ago.transform.position;
+        var scenecam = scene.camera;
+        if (SetCam)
+        {
+            //if (EditorApplication.isPlaying && !EditorApplication.isPaused)
+            //{
+            //    var t = Camera.main.transform;
+            //    scene.LookAt(t.position,t.rotation,3);
+            //    Camera.main.GetComponent<GUILayer>().enabled = true;
+            //}
+            //else
+            {
+                var t = Camera.main.transform;
+                t.position = scene.camera.transform.position;
+                t.rotation = scene.camera.transform.rotation;
+                Camera.main.GetComponent<GUILayer>().enabled = false;
+            }
+        }
+        var e = Event.current;
+        var p = e.mousePosition;
+        if (e.keyCode == KeyCode.G && e.type == EventType.KeyUp)
+        {
+            Ray r = HandleUtility.GUIPointToWorldRay(new Vector2(p.x, p.y));
+            RaycastHit h;
 
+            if (Physics.Raycast(r, out h))
+                scene.LookAt(h.point - 5 * r.direction, scenecam.transform.rotation, 5);
+            if (e.modifiers == EventModifiers.Control && Selection.activeGameObject != null)
+            {
+                Undo.RegisterSceneUndo("rtools");
+                var o = (GameObject)EditorUtility.InstantiatePrefab(Selection.activeGameObject);
+                o.transform.localPosition = Vector3.zero;
+                o.transform.position = h.point;
+                o.transform.rotation = Quaternion.AngleAxis(90, Vector3.up) * Quaternion.LookRotation(h.normal);
+                //* Quaternion.LookRotation(h.point - SceneView.lastActiveSceneView.camera.transform.position);
+            }
+        }
+    }
 
     private static void CrDir(string pt)
     {
@@ -122,22 +183,24 @@ public class InspectorSearch : EditorWindow
     private static void FindTransform(Base scr, FieldInfo pf)
     {
         FindTransform atr = (FindTransform)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindTransform);
-        if (atr != null)
-        {
-            string name = (atr.name == null) ? pf.Name : atr.name;
-            Transform g;
-            try
+        if (pf.GetValue(scr) == null)
+            if (atr != null)
             {
-                g = atr.self ? scr.transform : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name);
-                //if (g == null) g = GameObject.Find(name).transform;
-                if (g == null) throw new Exception();
-                if (pf.FieldType == typeof(GameObject))
-                    pf.SetValue(scr, g.gameObject);
-                else
-                    pf.SetValue(scr, g.GetComponent(pf.FieldType));
+                string name = (atr.name == null) ? pf.Name : atr.name;
+                Transform g;
+                try
+                {
+                    g = atr.self ? scr.transform : scr.transform.GetTransforms().FirstOrDefault(a => a.name == name);
+                    //if (g == null) g = GameObject.Find(name).transform;
+                    if (g == null) throw new Exception();
+
+                    if (pf.FieldType == typeof(GameObject))
+                        pf.SetValue(scr, g.gameObject);
+                    else
+                        pf.SetValue(scr, g.GetComponent(pf.FieldType));
+                }
+                catch { Debug.Log(scr.name + " cound not find path " + scr.name + "+" + name); }
             }
-            catch { Debug.Log(scr.name + " cound not find path " + scr.name + "+" + name); }
-        }
     }
     private static void FindAsset(Base scr, FieldInfo pf)
     {
@@ -327,57 +390,7 @@ public class InspectorSearch : EditorWindow
     }
     public GameObject selectedGameObject;
     public DateTime idletime;
-    private void OnSceneUpdate(SceneView scene)
-    {
-        if (Event.current.isMouse) idletime = DateTime.Now;
-        var ago = Selection.activeGameObject;
-        if (SetPivot)
-        {
-            var move = oldpos - ago.transform.position;
-            foreach (Transform t in ago.transform)
-            {
-                t.position += move;
-            }
-        }
-        if (ago != null)
-            oldpos = ago.transform.position;
-        var scenecam = scene.camera;
-        if (SetCam)
-        {
-            //if (EditorApplication.isPlaying && !EditorApplication.isPaused)
-            //{
-            //    var t = Camera.main.transform;
-            //    scene.LookAt(t.position,t.rotation,3);
-            //    Camera.main.GetComponent<GUILayer>().enabled = true;
-            //}
-            //else
-            {
-                var t = Camera.main.transform;
-                t.position = scene.camera.transform.position;
-                t.rotation = scene.camera.transform.rotation;
-                Camera.main.GetComponent<GUILayer>().enabled = false;
-            }
-        }
-        var e = Event.current;
-        var p = e.mousePosition;
-        if (e.keyCode == KeyCode.G && e.type == EventType.KeyUp)
-        {
-            Ray r = HandleUtility.GUIPointToWorldRay(new Vector2(p.x, p.y));
-            RaycastHit h;
-
-            if (Physics.Raycast(r, out h))
-                scene.LookAt(h.point - 5 * r.direction, scenecam.transform.rotation, 5);
-            if (e.modifiers == EventModifiers.Control && Selection.activeGameObject != null)
-            {
-                Undo.RegisterSceneUndo("rtools");
-                var o = (GameObject)EditorUtility.InstantiatePrefab(Selection.activeGameObject);
-                o.transform.localPosition = Vector3.zero;
-                o.transform.position = h.point;
-                o.transform.rotation = Quaternion.AngleAxis(90, Vector3.up) * Quaternion.LookRotation(h.normal);
-                //* Quaternion.LookRotation(h.point - SceneView.lastActiveSceneView.camera.transform.position);
-            }
-        }
-    }
+    
     #region menuitems    
     [MenuItem("Edit/Play % ")]    
     private static void Play()
@@ -997,6 +1010,7 @@ public class InspectorSearch : EditorWindow
         this.Repaint();
         //Update();
     }
+    
     protected virtual void Update()
     {
 

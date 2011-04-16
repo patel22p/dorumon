@@ -8,7 +8,7 @@ public class PowerUp : bs
     {
         var dist = Vector3.Distance(_Player.pos, this.pos);
 
-        if (dist < 3)
+        if (dist < 1)
         {
 
             _Game.powerType = powerType;

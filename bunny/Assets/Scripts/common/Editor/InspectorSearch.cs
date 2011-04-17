@@ -69,7 +69,9 @@ public class InspectorSearch : EditorWindow
         
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
-        EditorPrefs.SetBool("Debug", GUI.Toggle(EditorPrefs.GetBool("Debug"), "debug", GUI.ExpandWidth(false)));
+        //EditorPrefs.SetBool("Debug", GUI.Toggle(EditorPrefs.GetBool("Debug"), "debug", GUI.ExpandWidth(false)));
+        Base.debug = GUI.Toggle(Base.debug, "debug", GUI.ExpandWidth(false));
+        Base.disableScripts = GUI.Toggle(Base.disableScripts, "disableScripts", GUI.ExpandWidth(false));        
         
         GUI.EndHorizontal();
 
@@ -110,13 +112,13 @@ public class InspectorSearch : EditorWindow
         var scenecam = scene.camera;
         if (SetCam)
         {
-            //if (EditorApplication.isPlaying && !EditorApplication.isPaused)
-            //{
-            //    var t = Camera.main.transform;
-            //    scene.LookAt(t.position,t.rotation,3);
-            //    Camera.main.GetComponent<GUILayer>().enabled = true;
-            //}
-            //else
+            if (EditorApplication.isPlaying && !EditorApplication.isPaused)
+            {
+                var t = Camera.main.transform;
+                scene.LookAt(t.position, t.rotation, 3);
+                Camera.main.GetComponent<GUILayer>().enabled = true;
+            }
+            else
             {
                 var t = Camera.main.transform;
                 t.position = scene.camera.transform.position;

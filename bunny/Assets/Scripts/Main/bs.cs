@@ -3,6 +3,7 @@ using System.Collections;
 
 public class bs : Base {
 
+    
     static MyNodes m_MyNodes;
     public static MyNodes _MyNodes { get { if (m_MyNodes == null) m_MyNodes = (MyNodes)MonoBehaviour.FindObjectOfType(typeof(MyNodes)); return m_MyNodes; } }
 

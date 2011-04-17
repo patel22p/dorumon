@@ -16,13 +16,18 @@ public class Barrel : bs
         var br = this;
         if (br.DestroyEffect != null)
             Destroy(Instantiate(br.DestroyEffect, br.pos, br.rot), SecondsToDestroy);
+        Explode();
+        Destroy(this.gameObject);
+    }
+
+    private void Explode()
+    {
         for (int i = 0; i < nutsDropped; i++)
         {
             GameObject nut = (GameObject)Instantiate(nutPrefab, pos + Vector3.up, Quaternion.identity);
-            Rigidbody rig =  nut.AddComponent<Rigidbody>();
+            Rigidbody rig = nut.AddComponent<Rigidbody>();
             rig.constraints = RigidbodyConstraints.FreezeRotation;
-            rig.velocity = (UnityEngine.Random.onUnitSphere + Vector3.up)*4;
+            rig.velocity = (UnityEngine.Random.onUnitSphere + Vector3.up) * 4;
         }
-        Destroy(this.gameObject);
     }
 }

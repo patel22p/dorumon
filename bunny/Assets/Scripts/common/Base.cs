@@ -6,9 +6,11 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
+using UnityEditor;
 public enum ObjectType { none, clothCollider }
 public partial class Base : MonoBehaviour
 {
+    public bool selected { get { return UnityEditor.Selection.activeGameObject == this.gameObject; } }
     public static string[] scenes
     {
         get
@@ -52,17 +54,30 @@ public partial class Base : MonoBehaviour
         return table;
     }
     public static string[] files;
+
+#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public static bool debug
     {
         get
         {
-            #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-            return UnityEditor.EditorPrefs.GetBool("Debug");
-#else
-            return false;
-#endif
+            return EditorPrefs.GetBool("Debug");            
         }
+        set { EditorPrefs.SetBool("Debug", value); }
     }
+    public static bool disableScripts
+    {
+        get
+        {
+            return EditorPrefs.GetBool("disableScripts");
+        }
+        set { EditorPrefs.SetBool("disableScripts", value); }
+    }
+
+#else
+    public static bool DissableAllScripts;
+#endif
+    
+
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     
     public static IEnumerable<string> GetFiles()

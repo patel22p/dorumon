@@ -1,11 +1,18 @@
 ﻿using System;
 using UnityEngine;
-
+using System.Linq;
+public enum BerryType { Berry, Nut } 
 public class Berry : bs
 {
+    public BerryType berryType;
     public int points = 1;
     float timetoactive=2;
     public Animation anim;
+    void Awake()
+    {
+        if (disableScripts)
+            enabled = false;
+    }
     void Start()
     {
         if (anim != null)
@@ -14,24 +21,36 @@ public class Berry : bs
             r.time = UnityEngine.Random.Range(0, r.length);
         }
     }
+    
     void Update()
     {
-        //transform.Rotate(Vector3.up * Time.deltaTime * 100);
         timetoactive -= Time.deltaTime;
         if (timetoactive > 0)
             return;
-        var dist = Vector3.Distance(_Player.pos, this.pos);
-        var d = 3;
-        if (dist < d)
+        
+        foreach (var p in _Game.shareds)
         {
-            var norm = (_Player.pos - transform.position).normalized;
-            transform.position += norm * (d - dist) * Time.deltaTime * 5;
+            var dist = Vector3.Distance(p.pos, this.pos);
+            var d = 3;
+            if (dist < d)
+            {
+                var norm = (p.pos - transform.position).normalized;
+                transform.position += norm * (d - dist) * Time.deltaTime * 5;
+            }
+            if (dist < 0.25f)
+            {
+                if (p is Player)
+                {
+                    _Game.scores += points;
+                    _Game.score.animation.Play();
+                }
+                if (berryType == BerryType.Berry)
+                    p.berries++;
+                else
+                    p.nuts++;
+                Destroy(this.gameObject);
+            }
         }
-        if (dist < 0.25f)
-        {
-            _Game.scores += points;
-            _Game.score.animation.Play();
-            Destroy(this.gameObject);
-        }
+
     }
 }

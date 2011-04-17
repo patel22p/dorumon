@@ -6,7 +6,7 @@ using System;
 using GUI = UnityEngine.GUILayout;
 public class MyNodes : bs{
 
-       
+    public bool ShowPaths = true;
     public GameObject NodePrefab;
 
     public override void OnEditorGui()
@@ -48,9 +48,9 @@ public class MyNodes : bs{
     }
     void OnDrawGizmos()
     {
-        
-        //return;
-        if (Selection.activeGameObject == this.gameObject || transform.Cast<Transform>().Any(a => a == Selection.activeTransform))
+        //var ac = Selection.activeGameObject;
+        //if (ac != null && ShowPaths && (ac == this.gameObject || ac.GetComponent<Node>() != null))
+        if(ShowPaths)
         {
             foreach (Transform a in transform)
             {

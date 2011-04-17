@@ -14,16 +14,14 @@ public class Shared : bs
     }
     public virtual void Update()
     {
-        AnimationsUpdate();
+        UpdateAnimations();
     }
-    public virtual void AnimationsUpdate()
+    public virtual void UpdateAnimations()
     {
 
     }
 
-    public Vector3 vel;
-    [FindTransform(self = true)]
-    public CharacterController controller;
+    
     [FindTransform]
     public GameObject model;
     public Animation an { get { return model.animation; } }

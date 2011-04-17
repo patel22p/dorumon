@@ -120,12 +120,12 @@ public class Raccoon : Shared
  
     private void UpdateCheckStuck()
     {
-        if (controller.velocity.magnitude < .5f && !CantMove)
+        if (rigidbody.velocity.magnitude < .5f && !CantMove)
         {
             if (timer.TimeElapsed(TmJump))
             {
                 if (selected) Debug.Log("stuck jump");
-                vel = Vector3.up * 7f;
+                Jump();
             }
             if (timer.TimeElapsed(TmChange))
             {
@@ -134,6 +134,11 @@ public class Raccoon : Shared
                 lastNode = node;
             }
         }
+    }
+
+    private void Jump()
+    {
+        rigidbody.AddForce(Vector3.up * JumpPower);
     }
     public static T Cofient<T>(T[] a, float[] p)
     {
@@ -167,7 +172,7 @@ public class Raccoon : Shared
    
 
             if (oldnode.Jump && node.Land)
-                vel = Vector3.up * JumpPower;
+                Jump();
 
             if (node == null)
                 node = lastNode;
@@ -177,17 +182,17 @@ public class Raccoon : Shared
     }
     private void UpdateMove()
     {
-        if (fll.enabled && controller.isGrounded)
-            fll.enabled = false;
+        //if (fll.enabled && controller.isGrounded)
+        //    fll.enabled = false;
 
-        if (controller.isGrounded)
-            vel *= .86f;
+        //if (controller.isGrounded)
+        //    vel *= .86f;
 
         Vector3 dir = (node.pos - pos);
         dir.y = 0;
         dir = dir.normalized;
 
-        fakedir = Vector3.Lerp(fakedir, dir, .02f * controller.velocity.magnitude);
+        fakedir = Vector3.Lerp(fakedir, dir, .02f * rigidbody.velocity.magnitude);
         if (fakedir != Vector3.zero) transform.rotation = Quaternion.LookRotation(fakedir);
 
         var move = Vector3.zero;
@@ -195,9 +200,12 @@ public class Raccoon : Shared
         if (state == State.run) move *= 3;
         if (CantMove) move *= 0;
 
-        move += vel * Time.deltaTime;
-        vel += Physics.gravity * Time.deltaTime;
-        controller.Move(move);
+        //move += vel * Time.deltaTime;
+        //vel += Physics.gravity * Time.deltaTime;
+        move.y += rigidbody.velocity.y;
+
+        rigidbody.velocity = move;
+        //controller.Move(move);
 
     }
 
@@ -207,11 +215,11 @@ public class Raccoon : Shared
         life --;
     }
     
-    public override void AnimationsUpdate()
+    public override void UpdateAnimations()
     {
 
-        sneak.speed = walk.speed = controller.velocity.magnitude;
-        var v = controller.velocity;
+        sneak.speed = walk.speed = rigidbody.velocity.magnitude;
+        var v = rigidbody.velocity;
         v.y = 0;
         if (state == State.sneak)
             an.CrossFade(sneak.name);
@@ -224,25 +232,35 @@ public class Raccoon : Shared
         else
             an.CrossFade(idle.name);
 
-        if (vel.y > 1f)
+        if (rigidbody.velocity.y > 1f)
             an.CrossFade(fll.name);
 
 
-        base.AnimationsUpdate();
+        base.UpdateAnimations();
     }
     private void NodeUpdate()
     {
         
     }
-    void OnControllerColliderHit(ControllerColliderHit hit)
+    void OnCollisionEnter(Collision col)
     {
-        if (!controller.isGrounded)
-            if (Mathf.Abs(controller.velocity.y) > 3)
-            {
-                an.CrossFade(land.name);
-                //vel = Vector3.zero;
-            }
+        
+        if (Mathf.Abs(col.frictionForceSum.y) > 3)
+        {
+            fll.enabled = false;
+            an.CrossFade(land.name);
+            //vel = Vector3.zero;
+        }
     }
+    //void OnControllerColliderHit(ControllerColliderHit hit)
+    //{
+    //    if (!controller.isGrounded)
+    //        if (Mathf.Abs(controller.velocity.y) > 3)
+    //        {
+    //            an.CrossFade(land.name);
+    //            //vel = Vector3.zero;
+    //        }
+    //}
     bool CantMove
     {
         get { return state == State.crouch || getHitA.enabled; }

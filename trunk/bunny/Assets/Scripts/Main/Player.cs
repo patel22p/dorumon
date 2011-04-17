@@ -12,7 +12,7 @@ public class Player : Shared
     public AnimationState run { get { return an["run"]; } }
     public AnimationState walk { get { return an["walk"]; } }
     public AnimationState jump { get { return an["jump"]; } } //todo
-    public AnimationState fll { get { return an["midair"]; } }
+    public AnimationState fall { get { return an["midair"]; } }
     public AnimationState land { get { return an["landing"]; } }
     public AnimationState hit { get { return an["pawhit1"]; } }
     public AnimationState jumphit { get { return an["aerialattack1"]; } }
@@ -20,18 +20,18 @@ public class Player : Shared
     public List<Transform> legs = new List<Transform>();
     public Transform HitEffectTrail;
     public bool scndJump;
-
+    
     public override void Start()
     {
         _Game.shareds.Add(this);
         base.Start();
         
-        fll.wrapMode = WrapMode.Loop;
+        fall.wrapMode = WrapMode.Loop;
         idle.wrapMode = WrapMode.Loop;
         run.wrapMode = WrapMode.Loop;
         jumphit.wrapMode = hit.wrapMode = land.wrapMode = jump.wrapMode = WrapMode.Clamp;
         
-        hit.layer = land.layer = fll.layer = jump.layer = 1;
+        hit.layer = land.layer = jump.layer = 1;
         jumphit.layer = 2;
 
         foreach (var a in legs.Union(hands))
@@ -41,30 +41,28 @@ public class Player : Shared
     {
         base.Update();
         HitEffect();
+        bool attackbtn = UpdateOther();
+
+        UpdateMove(attackbtn);
+        UpdateAtack(attackbtn);
+    }
+    public bool isGrounded;// { get { return ground.colliders.Count > 1; } }
+    private bool UpdateOther()
+    {
 
         run.speed = 1.5f;
         land.speed = 1.4f;
         bool attackbtn = Input.GetMouseButton(0) && !hit.enabled;
         bool jumpbtn = Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space);
-        
-        if (scndJump && controller.isGrounded)
-            scndJump = false;
 
-        if (fll.enabled && controller.isGrounded)
-            fll.enabled = false;
 
-        if (controller.isGrounded)
-            vel *= .86f;
-
-        if (jumpbtn && (controller.isGrounded || (!scndJump && _Game.powerType == PowerType.doubleJump)))
+        if (jumpbtn && (isGrounded || (!scndJump && _Game.powerType == PowerType.doubleJump)))
         {
-            if (!controller.isGrounded)
+            if (!isGrounded)
                 scndJump = true;
-            vel = Vector3.up * JumpPower * (_Game.powerType == PowerType.HighJump ? 1.5f : 1);
+            rigidbody.AddForce(Vector3.up * 400 * (_Game.powerType == PowerType.HighJump ? 1.5f : 1));
         }
-
-        UpdateNive(attackbtn);
-        UpdateAtack(attackbtn);
+        return attackbtn;
     }
     private void HitEffect()
     {
@@ -80,7 +78,7 @@ public class Player : Shared
     {
         if (attackbtn)
         {
-            if (controller.isGrounded)
+            if (isGrounded)
                 an.CrossFade(hit.name);
             else
                 an.CrossFade(jumphit.name);
@@ -92,47 +90,67 @@ public class Player : Shared
                 r.Hit();
         }
     }
-    public override void AnimationsUpdate()
+    float groundtime;
+    public override void UpdateAnimations()
     {
-        var l = controller.velocity.normalized;
+        if (isGrounded) groundtime += Time.deltaTime;
+        else
+            groundtime = 0;
+        var l = rigidbody.velocity;
         l.y = 0;
-        if (l != Vector3.zero)
+        if (l.magnitude > 1f)
             an.CrossFade(run.name);
         else
             an.CrossFade(idle.name);
 
-        if (vel.y > .5f)
-            an.CrossFade(fll.name);
+        if(groundtime<.05f)
+            an.CrossFade(fall.name);
 
-        base.AnimationsUpdate();
+        base.UpdateAnimations();
     }
-    private void UpdateNive(bool attackbtn)
+    private void UpdateMove(bool attackbtn)
     {
-        
+        rigidbody.WakeUp();
         var keydir = _Cam.rot * new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         keydir.y = 0;
         keydir = keydir.normalized;
         var atackdir = keydir;
         if (attackbtn)
             atackdir = _Cam.rot * Vector3.forward;
-        atackdir.y =  0;
+        atackdir.y = 0;
 
         if (keydir != Vector3.zero || attackbtn)
             rot = Quaternion.LookRotation(atackdir);
 
         var move = Vector3.zero;
-        move += keydir * Time.deltaTime * 6;
-        move += vel * Time.deltaTime;
-        vel += Physics.gravity * Time.deltaTime;
+        move += keydir * Time.deltaTime * (isGrounded ? 250f : 100f);
+     
+        var rv = rigidbody.velocity;
+
+        rv.y = 0;
         if (!land.enabled)
-            controller.Move(move);
+            rigidbody.AddForce((move - rv)*10);
     }
-    void OnControllerColliderHit(ControllerColliderHit hit)
+    float groundy = -.4f;
+    void OnCollisionExit(Collision col)
     {
-        if (Mathf.Abs(controller.velocity.y) > 8 && !controller.isGrounded)
-        {
-            an.CrossFade(land.name);
-            vel = Vector3.zero;
-        }
+        foreach (var a in col.contacts)
+            if ((a.point - pos).y < groundy)
+                isGrounded = false;
+        
+    }
+    void OnCollisionStay(Collision col)
+    {
+
+        foreach (var a in col.contacts)
+            if ((a.point - pos).y < groundy)
+                isGrounded = true;
+    }
+    void OnCollisionEnter(Collision col)
+    {
+        if (Mathf.Abs(col.impactForceSum.y) > 8)
+            an.CrossFade(land.name);            
+
+        scndJump = false;
     }
 }

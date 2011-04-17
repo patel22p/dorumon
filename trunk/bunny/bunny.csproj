@@ -63,8 +63,10 @@
      <Compile Include="Assets\Scripts\Main\Berry.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
+     <Compile Include="Assets\Scripts\Main\Class1.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
      <Compile Include="Assets\Scripts\Main\GuiResize.cs" />
+     <Compile Include="Assets\Scripts\Main\MyController.cs" />
      <Compile Include="Assets\Scripts\Main\MyNodes.cs" />
      <Compile Include="Assets\Scripts\Main\Node.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />

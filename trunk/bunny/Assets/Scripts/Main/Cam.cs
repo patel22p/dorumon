@@ -24,8 +24,7 @@ public class Cam : bs
     {
         mousedelta = Mathf.Clamp(mousedelta + Input.GetAxis("Mouse ScrollWheel"), .4f, 1.5f);
         Smothmousedelta = Mathf.Lerp(Smothmousedelta, mousedelta, .10f);
-        transform.localScale = Vector3.one * Smothmousedelta;
-        //Debug.Log(Smothmousedelta);
+        transform.localScale = Vector3.one * Smothmousedelta;        
         if (Screen.lockCursor)
         {
             rx += Input.GetAxis("Mouse X");
@@ -40,6 +39,10 @@ public class Cam : bs
         else
             Camera.main.transform.localPosition = Vector3.zero;
     }
-  
+    //void FixedUpdate()
+    //{
+    //    this.rot = Quaternion.Euler(new Vector2(ry, rx));
+    //    pos = Vector3.Lerp(pos, _Player.pos, .1f);
+    //}
 
 }

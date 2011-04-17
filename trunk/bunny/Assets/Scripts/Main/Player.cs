@@ -3,11 +3,11 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
-public class Player : Shaded
+public class Player : Shared
 {
     [FindTransform]
     public Trigger trigger;
-
+    
     public AnimationState idle { get { return an["idle"]; } }
     public AnimationState run { get { return an["run"]; } }
     public AnimationState walk { get { return an["walk"]; } }
@@ -16,30 +16,27 @@ public class Player : Shaded
     public AnimationState land { get { return an["landing"]; } }
     public AnimationState hit { get { return an["pawhit1"]; } }
     public AnimationState jumphit { get { return an["aerialattack1"]; } }
-
     public List<Transform> hands = new List<Transform>();
     public List<Transform> legs = new List<Transform>();
     public Transform HitEffectTrail;
-
+    public bool scndJump;
 
     public override void Start()
     {
+        _Game.shareds.Add(this);
         base.Start();
         
         fll.wrapMode = WrapMode.Loop;
         idle.wrapMode = WrapMode.Loop;
         run.wrapMode = WrapMode.Loop;
         jumphit.wrapMode = hit.wrapMode = land.wrapMode = jump.wrapMode = WrapMode.Clamp;
+        
         hit.layer = land.layer = fll.layer = jump.layer = 1;
         jumphit.layer = 2;
 
         foreach (var a in legs.Union(hands))
             ((Transform)Instantiate(HitEffectTrail, a.transform.position, a.transform.rotation)).parent = a;
-
-
     }
-    
-    public bool scndJump;
     public override void  Update()
     {
         base.Update();
@@ -63,13 +60,12 @@ public class Player : Shaded
         {
             if (!controller.isGrounded)
                 scndJump = true;
-            vel = Vector3.up * 7f * (_Game.powerType == PowerType.HighJump ? 1.5f : 1);
+            vel = Vector3.up * JumpPower * (_Game.powerType == PowerType.HighJump ? 1.5f : 1);
         }
 
-        MoveUpdate(attackbtn);
-        AtackUpdate(attackbtn);
+        UpdateNive(attackbtn);
+        UpdateAtack(attackbtn);
     }
-
     private void HitEffect()
     {
         foreach (var a in hands)
@@ -80,7 +76,7 @@ public class Player : Shaded
             foreach (Transform b in a)
                 b.gameObject.active = jumphit.enabled;
     }
-    private void AtackUpdate(bool attackbtn)
+    private void UpdateAtack(bool attackbtn)
     {
         if (attackbtn)
         {
@@ -92,6 +88,8 @@ public class Player : Shaded
             foreach (Barrel br in trigger.colliders.Where(a => a is Barrel))
                 if (br != null)
                     br.Hit();
+            foreach (Raccoon r in trigger.colliders.Where(a => a is Raccoon))
+                r.Hit();
         }
     }
     public override void AnimationsUpdate()
@@ -108,8 +106,7 @@ public class Player : Shaded
 
         base.AnimationsUpdate();
     }
-
-    private void MoveUpdate(bool attackbtn)
+    private void UpdateNive(bool attackbtn)
     {
         
         var keydir = _Cam.rot * new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));

@@ -1,10 +1,13 @@
 ﻿using System;
 using UnityEngine;
 
-public class Shaded : bs
+public class Shared : bs
 {
     
-
+    public int JumpPower = 10;
+    public float life = 2;
+    public int berries;
+    public int nuts;
     public virtual void Start()
     {
         

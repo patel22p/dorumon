@@ -5,46 +5,44 @@ using gui = UnityEditor.EditorGUILayout;
 using GUI = UnityEngine.GUILayout;
 using UnityEditor;
 using System.Collections.Generic;
+using doru;
 public class Game : bs
 {
-
-
+    public List<Shared> shareds = new List<Shared>();
     [FindTransform]
     public GUIText score;
-
     public int scores;
-
     public PowerType powerType;
     [FindTransform]
     public GUITexture powerIcon;
-
     public Texture2D[] powerTextures;
     internal float powerTime;
+    public TimerA timer = new TimerA();
     public override void Init()
     {
         IgnoreAll("Nut", "Level");
-        
+        IgnoreAll("Dead", "Level");
         //Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Nut"), ~(1 << LayerMask.NameToLayer("Level")));
         base.Init();
     }
     void Awake()
     {
-
+        //Time.maximumDeltaTime = 1 / 3;
     }
     void Start()
     {
 
     }
-
     void Update()
     {
+        
         UpdatePower();
 
         if (Input.GetKeyDown(KeyCode.Tab))
             Screen.lockCursor = !Screen.lockCursor;
         score.text = scores + "";
+        timer.Update();
     }
-
     private void UpdatePower()
     {
         var c = powerIcon.color;
@@ -58,5 +56,4 @@ public class Game : bs
         if (powerTime < 0)
             powerType = PowerType.none;
     }
-
 }

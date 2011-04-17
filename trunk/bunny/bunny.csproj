@@ -56,7 +56,6 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
      <Compile Include="Assets\Scripts\Editor\MyNodeEditor.cs" />
-     <Compile Include="Assets\Scripts\Editor\WaypointNodeEditor.cs" />
      <Compile Include="Assets\Scripts\Main\Quest\Quest.cs" />
      <Compile Include="Assets\Scripts\Main\Quest\QuestEvent.cs" />
      <Compile Include="Assets\Scripts\Main\Quest\QuestManager.cs" />
@@ -73,7 +72,6 @@
      <Compile Include="Assets\Scripts\Main\Raccoon.cs" />
      <Compile Include="Assets\Scripts\Main\Shared.cs" />
      <Compile Include="Assets\Scripts\Main\Trigger.cs" />
-     <Compile Include="Assets\Scripts\Main\WaypointNodeParent.cs" />
      <None Include="Assets\Scripts\Shaders\Xtra\Foliage_Wind.shader" />
      <None Include="Assets\Scripts\Shaders\Berry.shader" />
      <None Include="Assets\Scripts\Shaders\Cameramapping.shader" />

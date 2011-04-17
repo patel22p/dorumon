@@ -10,7 +10,7 @@ public class Node : bs
     public List<Node> nodes = new List<Node>();
     public bool Jump;
     public bool Land;
-    public float JumpPower = 7f;
+    //public float JumpPower = 7f;
     public void Start()
     {
         gameObject.active = false;

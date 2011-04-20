@@ -50,10 +50,15 @@ public class Wall : bs
     public bool PlayOnRopeHit = true;
     public bool PlayOnPlayerHit;
     public void OnHit()
-    {       
-        
-        var anim = this.GetComponent<PhysAnimObj>().original.animation;
-        if (anim != null && anim.clip != null)
-            anim.Play();
+    {               
+        var ph = this.GetComponent<PhysAnimObj>();
+        if (ph != null)
+        {
+            var anim = ph.AnimObj.animation;
+            if (anim != null && anim.clip != null)
+                anim.Play();
+        }
+        else if (animation != null && animation.clip != null)
+            this.animation.Play();
     }
 }

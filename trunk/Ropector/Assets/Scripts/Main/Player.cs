@@ -61,7 +61,7 @@ public class Player : bs {
         if (Input.GetMouseButtonUp(1))
             this.ropes[1].MouseUp();
 
-        var mv = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
+        var mv = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
         
         var spf = .5f;
         if (Trigger != null && Trigger.SpeedFactor != 0)

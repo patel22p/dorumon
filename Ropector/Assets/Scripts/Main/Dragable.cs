@@ -8,9 +8,9 @@ using UnityEngine;
 public class Dragable : bs //this drag effect only applies to be in menu 
 {
     public SpringJoint spr;
-    [FindTransform(scene = true)]
+    
     public GameObject cursor;
-    [FindTransform(scene = true)]
+    
     public GameObject Plane;
     void OnMouseDown()
     {

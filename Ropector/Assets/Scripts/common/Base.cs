@@ -6,33 +6,28 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
-public enum ObjectType { none, clothCollider }
+#if (UNITY_EDITOR)
+using UnityEditor;
+#endif
 public partial class Base : MonoBehaviour
 {
+    public bool selected { get { return UnityEditor.Selection.activeGameObject == this.gameObject; } }
     public static string[] scenes
     {
         get
         {
             return new string[] { 
-            "Assets/scenes/Menu.unity",
-            "Assets/scenes/12.unity",
-            "Assets/scenes/11.unity",
-            "Assets/scenes/9.unity",
-            "Assets/scenes/10.unity",
-            "Assets/scenes/1.unity",
-            "Assets/scenes/2.unity",
-            "Assets/scenes/3.unity",
-            "Assets/scenes/4.unity",
-            "Assets/scenes/5.unity",
-            "Assets/scenes/6.unity",
-            "Assets/scenes/7.unity",
-            "Assets/scenes/8.unity",
-            
+            "Assets/scenes/1.unity",                        
         };
         }
     }
-    public ObjectType ObjectType;
-    public bool dontResetPos;    
+    public static void IgnoreAll(string name, params string[] layers)
+    {
+        for (int i = 1; i < 31; i++)
+            if (!layers.Contains(LayerMask.LayerToName(i)))
+                Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
+    }
+   
     public void SetLayer(int l)
     {
         foreach (var t in this.transform.GetTransforms())
@@ -58,17 +53,30 @@ public partial class Base : MonoBehaviour
         return table;
     }
     public static string[] files;
+
+#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public static bool debug
     {
         get
         {
-            #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-            return UnityEditor.EditorPrefs.GetBool("Debug");
-#else
-            return false;
-#endif
+            return EditorPrefs.GetBool("Debug");            
         }
+        set { EditorPrefs.SetBool("Debug", value); }
     }
+    public static bool disableScripts
+    {
+        get
+        {
+            return EditorPrefs.GetBool("disableScripts");
+        }
+        set { EditorPrefs.SetBool("disableScripts", value); }
+    }
+
+#else
+    public static bool DissableAllScripts;
+#endif
+    
+
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     
     public static IEnumerable<string> GetFiles()
@@ -77,21 +85,27 @@ public partial class Base : MonoBehaviour
             files = Directory.GetFiles("./", "*.*", SearchOption.AllDirectories);
         return files.Select(a => a.Replace("\\", "/").Substring(2));
     }
-    public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
+    //public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
     public static Object FindAsset(string name, Type t)
     {
         var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)
             .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, t))
             .Where(a => a != null).FirstOrDefault();
-        if (aset == null) Debug.Log("could not find asset " + name);
+        if (aset == null) throw new Exception("could not find asset " + name);
         return aset;
     }
 #endif
-    public virtual void InitValues() // this function called when you press start or pause in editor
-    {
-    }
+    
     public virtual void Init()
     {
+    }
+    public virtual void OnEditorGui()
+    {
+
+    }
+    public virtual void OnSceneGUI()
+    {
+
     }
     public static void Combine(GameObject g)
     {
@@ -101,7 +115,7 @@ public partial class Base : MonoBehaviour
         Hashtable materialToMesh = new Hashtable();
 
         for (int i = 0; i < filters.Length; i++)
-        {
+        {			
             MeshFilter filter = (MeshFilter)filters[i];
             Renderer curRenderer = filters[i].renderer;
             MeshCombineUtility.MeshInstance instance = new MeshCombineUtility.MeshInstance();

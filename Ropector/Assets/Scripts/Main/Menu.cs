@@ -5,12 +5,12 @@ using System.Collections;
 public class Menu : bs
 {
     public GameObject Box;
-    [FindTransform(scene=true)]
+
     public TextMesh Press;
     public GameObject Text;
-    [FindTransform(scene=true)]
+
     public GameObject cursor;
-    [FindTransform(scene = true)]
+    
     public GameObject Plane;
     public IEnumerator Start() //creates cubes in menu
     {

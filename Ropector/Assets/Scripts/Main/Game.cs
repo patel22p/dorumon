@@ -3,17 +3,6 @@ using UnityEngine;
 using doru;
 using System.Collections.Generic;
 
-//bs.cs     base class all clases are derived from it, contains static pointers to other class objects
-//Game.cs   game logic, check for win , check player fall, handling 
-//Menu.cs   menu scene effects
-//Loader.cs Menu window handling, loads first, and will be never destroyed.
-//Cam.cs    Handles camera
-//Wall.cs   Wall settings- ,sticky, bounchy, 
-//RopeE.cs  The rope end collider, handles rope collisions to wall, player wall/dynamicObjects interaction
-//Score.cs  Blue Bals on scene
-//Button.cs Button in game ,it opens door. 
-//Car.cs    Car player can enter/exit in it.
-
 
 public class Game : bs
 {
@@ -22,15 +11,13 @@ public class Game : bs
     bool isdrag;
     
     
-    
+    internal List<Car> cars = new List<Car>();    
     public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
-    [FindTransform(scene = true)] // with this attribute this variable will be assigned automaticly in editor
     public Animation deadAnim;
     [FindTransform]
     public Base cursor;
-    [FindTransform("Player", scene = true)]
-    public bs iplayer; // player or car pointer(if player is in car)
+    public bs iplayer; 
     public List<Score> blues = new List<Score>();
     float tmWall;
     Vector3? oldp;
@@ -64,27 +51,19 @@ public class Game : bs
     }
     void Start()
     {
-        timer.AddMethod(800, delegate
-        {
-            Screen.lockCursor = true;
-            timer.AddMethod(200,delegate
-            {
-                cursor.pos = Vector3.zero;
-            });
-        });                
-        
+        Network.InitializeServer(200, 5400, false);
     }
-    public override void InitValues() // this function called when you press start or pause in editor, usualy used for variables init in editor
+    
+    public override void Init()
     {
-        IgnoreAll("Ignore Raycast"); //ignores colision for layer
+        IgnoreAll("Ignore Raycast"); 
         IgnoreAll("IgnoreColl");
         IgnoreAll("Button");
         IgnoreAll("Water");
         AddColl("Button", "Player");        
-        base.InitValues();
+        base.Init();
     }
     float TimeSpeed = 1;
-    bool enableTimeWarp;
     void Update()
     {        
         timer.Update();
@@ -117,31 +96,27 @@ public class Game : bs
         
         GameGui.scores.text = Player.scores + "/" + blues.Count;
         PlayerScores();
-        
+        UpdateWall();
+        UpdateEditWall();
     }
 
     private void TimeWarp()
     {
-        if (enableTimeWarp)
+        if (Input.GetKey(KeyCode.Space))
             TimeSpeed = ((TimeSpeed * 5) + .1f) / 6f;
-        if (!enableTimeWarp)
+        else
             TimeSpeed = ((TimeSpeed * 5) + 1) / 6f;
         //Debug.Log(TimeSpeed);
         Music.audio.pitch = TimeSpeed;
         Time.timeScale = TimeSpeed;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            Debug.Log("TimeWarp");
-            enableTimeWarp = true;
-            timer.AddMethod(5000, delegate { enableTimeWarp = false; });
-        }
+        
     }
 
     private void PlayerScores()
     {
-        if (Player.scores == blues.Count && !Stop) // if player win we play animation, save scores and load next level
+        if (Player.scores == blues.Count && !Stop && !debug) // if player win we play animation, save scores and load next level
         {
             Stop = true;
             deadAnim.Play();
@@ -157,9 +132,104 @@ public class Game : bs
             Player.gameObject.active = false;
         }
     }
+    private void UpdateWall() //handles when player press b. and build wall 
+    {
+        tmWall -= Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.Return))
+            _Loader.ResetLevel();
+
+        bool build = Input.GetKey(KeyCode.B) && Wall > 0;
+        bool buildSticky = Input.GetKey(KeyCode.V) && WallSticky > 0;
+        bool buildDynamic = Input.GetKey(KeyCode.N) && WallDynamic > 0;
+        if (build || buildSticky || buildDynamic)
+        {
+            if (oldp == null || Vector3.Distance(cursor.pos, oldp.Value) > .5F) 
+            {
+                if (build) Wall--;
+                if (buildSticky) WallSticky--;
+                if (buildDynamic) WallDynamic--;
+                if (oldp != null)
+                {
+                    if (Holder == null)
+                    {
+                        Holder = new GameObject("Wall");
+                        var r = Holder.AddComponent<Rigidbody>();
+                        r.isKinematic = true;
+                        var dr = Holder.AddComponent<Wall>();
+                        dr.attachRope = buildSticky || buildDynamic;                        
+                        if (buildDynamic)
+                            Holder.rigidbody.constraints = (RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezePositionZ);
+                    }
+                    var o = oldp.Value;
+                    var cube = CreateCube(buildSticky ? woodMat : wallMat);
+                    var cubetr = cube.transform;
+                    Vector3 v = cursor.transform.position - o;
+                    cubetr.localScale = new Vector3(5, .1f, v.magnitude);
+                    cubetr.position = o;
+                    cubetr.LookAt(cursor.transform.position);
+                    var e = cubetr.transform.rotation.eulerAngles;
+                    if (e == new Vector3(270, 0, 0))
+                        cubetr.transform.rotation = Quaternion.Euler(270, 90, 0);
+                    if (e == new Vector3(90, 0, 0))
+                        cubetr.transform.rotation = Quaternion.Euler(90, 90, 0);
+
+                    cubetr.transform.parent = Holder.transform;
+
+                }
+                oldp = cursor.transform.position;
+                tmWall = .05f;
+            }
+        }
+        else
+        {
+            if (oldp != null && Holder != null)
+            {
+                Combine(Holder);
+
+                foreach (Transform t in Holder.GetComponentsInChildren<Transform>())
+                    t.gameObject.layer = LayerMask.NameToLayer("Default");
+                Holder = null;
+                oldp = null;
+            }
+            oldp = null;
+        }
+    }
     
+    void UpdateEditWall()
+    {
+
+        bool clear = Input.GetKey(KeyCode.C);
+        bool cut = Input.GetKey(KeyCode.X);
+        var vr = cursor.pos - Cam.pos;
+        var r = new Ray(Cam.pos, vr);
+        RaycastHit h;
     
-    
+        if (Physics.Raycast(r, out h, vr.magnitude, 1 << LayerMask.NameToLayer("Default")))
+        {
+            var mh = h.transform.GetMonoBehaviorInParrent() as Wall;
+            if (mh != null)
+            {
+                //Debug.Log("Found");
+                if (clear || cut)
+                {
+                    Debug.Log("test");
+                    var rp = mh.GetComponentsInChildren<RopeEnd>();
+                    foreach (var a in rp)
+                        a.EnableRope(false);    
+                    if (cut)
+                        Destroy(h.collider.gameObject);
+                    else
+                        Destroy(h.transform.gameObject);
+                }
+                if (Input.GetKeyDown(KeyCode.F) && mh.ClickForce !=Vector3.zero)
+                {
+                    mh.rigidbody.AddForce(mh.ClickForce*mh.rigidbody.mass   );
+        
+                }
+            }
+        }
+
+    }
     private static void AddColl(string a, string b)
     {
         Physics.IgnoreLayerCollision(LayerMask.NameToLayer(a), LayerMask.NameToLayer(b), false);

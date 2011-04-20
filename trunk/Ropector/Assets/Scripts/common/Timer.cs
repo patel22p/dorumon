@@ -87,7 +87,7 @@ namespace doru
         }
         public bool TimeElapsed(int _Milisecconds)
         {
-            if (_MilisecondsElapsed > _Milisecconds) return true;
+            if (_MilisecondsElapsed > _Milisecconds || _Milisecconds == 0) return true;
             if (miliseconds % _Milisecconds < _oldTime % _Milisecconds)
                 return true;
             else

@@ -11,11 +11,18 @@ public partial class Base:MonoBehaviour
 }
 public enum WindowEnum { Close, }
 public class Window : WindowBase {
+		
 	private int wndid1;
+	
+    
+    
 	void Start () {
 		AlwaysOnTop = false;
 		wndid1 = 0;
+
 	}    
+    
+    
     bool focusWindow;
     void OnEnable()
     {
@@ -23,12 +30,15 @@ public class Window : WindowBase {
     }
     public override void ResetValues()
     {
+
         base.ResetValues();
     }
     public override void OnGUI()
     {		
 		base.OnGUI();
+        
 		GUI.Window(wndid1,new Rect(-226.5f + Screen.width/2,-243f + Screen.height/2,414f,371f), Wnd1,"");
+
     }
 	void Wnd1(int id){
 		if (focusWindow) {GUI.FocusWindow(id);GUI.BringWindowToFront(id);}
@@ -36,6 +46,9 @@ public class Window : WindowBase {
 		bool onMouseOver;
 		if (GUI.Button(new Rect(414f - 25, 5, 20, 15), "X")) { enabled = false;onButtonClick();Action(WindowEnum.Close); }
 	}
+
+
 	void Update () {
+	
 	}
 }

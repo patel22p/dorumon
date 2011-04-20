@@ -4,14 +4,14 @@ using UnityEngine;
 [AddComponentMenu("Game/Wall")]
 public class Wall : bs
 {
-    //slighshot
-    //mouse click 
     public bool attachRope = true;
     public Vector3 RopeForce = new Vector3(1, 1f, 1);
     public float RopeLength = 1f;
+    
     public Vector3 bounchyForce;
     public Vector3 ClickForce;
     public float SpeedFactor;
+    //public bool playOnHit;
     public Collider[] Ignore;
     void Start()
     {
@@ -20,12 +20,11 @@ public class Wall : bs
                 foreach (Collider b in Ignore)
                     Physics.IgnoreCollision(a, b);
     }
-    public override void InitValues()
-    {        
-        //SetLayer(LayerMask.NameToLayer("Default"));
+    public override void Init()
+    {
         if (rigidbody != null)
-            rigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;
-        base.InitValues();
+            rigidbody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;
+        base.Init();
     }
     
     void OnTriggerEnter(Collider coll)
@@ -37,14 +36,24 @@ public class Wall : bs
         if(Player.Trigger == this)
             Player.Trigger = null;
     }
-    
     void OnCollisionEnter(Collision coll)
     {
+        if(PlayOnPlayerHit)
+            OnHit();
+
         if (bounchyForce != Vector3.zero)
         {
-            //Debug.Log(coll.frictionForceSum.magnitude);
-            var f = coll.impactForceSum.magnitude*10;
+            var f = coll.impactForceSum.magnitude * 10;
             coll.rigidbody.AddForce(bounchyForce.x * f, bounchyForce.y * f, bounchyForce.z * f);
         }
+    }
+    public bool PlayOnRopeHit = true;
+    public bool PlayOnPlayerHit;
+    public void OnHit()
+    {       
+        
+        var anim = this.GetComponent<PhysAnimObj>().original.animation;
+        if (anim != null && anim.clip != null)
+            anim.Play();
     }
 }

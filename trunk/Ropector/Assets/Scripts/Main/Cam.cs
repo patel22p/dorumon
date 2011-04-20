@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class Cam : bs
 {
-    [FindTransform(scene = true)]
+    
     public bs cursor;
     public Vector3 fakeCursor;
     public Camera cam;
     public bs player { get { return Game.iplayer; } }
-    private Vector3 velocity;
+
     public void Start()
     {
         if (!Application.isEditor)
@@ -18,14 +18,12 @@ public class Cam : bs
         cam.transform.position = cam.transform.parent.position;
         cam.transform.rotation = cam.transform.parent.rotation;
         cam.GetComponent<GUILayer>().enabled = true;
+        cursor.pos = Player.pos;
     }
-    public override void InitValues()
-    {
-        base.InitValues();
-    }
+
     public bool disableTips;
     public void Update()
-    {
+    {       
         if (disableTips != _MenuWindow.Disable_Tips)
         {
             disableTips = _MenuWindow.Disable_Tips;
@@ -36,27 +34,30 @@ public class Cam : bs
         }
         if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
 
-        Vector2 v = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * _MenuWindow.MouseSensivity;
+        Vector2 v =  new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * _MenuWindow.MouseSensivity;
         //if (v.magnitude < 20)
-        cursorpos += v;
+        cursorpos = Vector3.ClampMagnitude(cursorpos + v, 25);
     }
-    float vel;
     float fake;
-    float camoffset = 30;
+    float fakescale;
+    float camoffset= 30;
     public void FixedUpdate()
     {
 
         camoffset += Input.GetAxis("Mouse ScrollWheel") * -20;
         camoffset = Mathf.Min(Mathf.Max(camoffset, 30), 200);
+        fakescale = Mathf.Lerp(camoffset, fakescale, .8f);
 
-        fake = Mathf.SmoothDamp(fake, Player.controller.velocity.sqrMagnitude, ref vel, 0.95f);
-        var pp = player.pos;
-        pos = new Vector3(pp.x, pp.y + 10, -camoffset - Mathf.Sqrt(fake));
+        fake = Mathf.Lerp(fake, Player.rigidbody.velocity.sqrMagnitude, 0.095f);
+        var pv = player.pos;
+        pos = new Vector3(pv.x, pv.y + 10, -fakescale - Mathf.Sqrt(fake));
         cam.transform.LookAt(fakeCursor);
-        fakeCursor = Vector3.SmoothDamp(fakeCursor, cursor.pos, ref velocity, 0.5f);
-        if (!Screen.lockCursor) return;
-
-        cursor.pos2 = player.pos2 + cursorpos;
+        fakeCursor = Vector3.Lerp(cursor.pos, fakeCursor, 0.95f);
+        
+        if (!Screen.lockCursor)
+            cursor.pos2 = player.pos2;
+        else
+            cursor.pos2 = player.pos2 + cursorpos;
     }
     Vector2 cursorpos;
-}
+} 

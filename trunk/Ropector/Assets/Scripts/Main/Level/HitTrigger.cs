@@ -2,16 +2,16 @@ using UnityEngine;
 using System.Collections;
 
 public class HitTrigger : bs {
-    public Animation[] animationToPlay;
+    public PhysAnimObj[] animationToPlay;
     void OnCollisionEnter(Collision coll)
     {
-        PlayAnimation();
-        //networkView.RPC("PlayAnimation", RPCMode.All);
+        //PlayAnimation();
+        networkView.RPC("PlayAnimation", RPCMode.All);
     }
     [RPC]
     private void PlayAnimation()
     {
         foreach (var a in animationToPlay)
-            a.Play();
+            a.AnimObj.animation.Play();
     }
 }

@@ -140,11 +140,16 @@ public class Game : bs
         {
             foreach (Wall a in GameObject.FindObjectsOfType(typeof(Wall)))
             {
-                if (a.networkView != null)
-                    DestroyImmediate(a.networkView);
+                //if (a.networkView != null)
+                //    DestroyImmediate(a.networkView);
+                if (a.networkView == null)
+                    a.gameObject.AddComponent<NetworkView>();
+                a.networkView.observed = null;
+                a.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+
                 //if (a.animation != null && a.animation.clip != null)
                 //{
-                //    if(a.networkView==null)
+                //    if (a.networkView == null)
                 //        a.gameObject.AddComponent<NetworkView>();
                 //    a.networkView.observed = a.animation;
                 //}

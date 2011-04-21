@@ -9,7 +9,7 @@ public class PhysAnimObj : bs
 {
     
     Quaternion oldRot;
-    internal Transform AnimObj;
+    internal Transform PhysObj;
     public WrapMode wrapMode;
     public override void Awake()
     {
@@ -21,25 +21,44 @@ public class PhysAnimObj : bs
     {
         if(animation!=null)
             animation.wrapMode = wrapMode;
-        rigidbody.useGravity = false;
-        rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
-        
-        AnimObj = ((Transform)Instantiate(this.transform, pos, rot));
-        AnimObj.parent = this.transform.parent;
-        foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
-            Destroy(a);  
-        
-        Destroy(animation);
-    }
+                
+        PhysObj = ((Transform)Instantiate(this.transform, pos, rot));
+        PhysObj.parent = this.transform.parent;
 
-    void FixedUpdate()
-    {        
-        if (this.rigidbody != null)
+        PhysObj.rigidbody.useGravity = false;
+        PhysObj.rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+        PhysObj.rigidbody.mass = this.rigidbody.mass;
+        var w = PhysObj.GetComponent<Wall>();
+        if (w != null) w.Anim = this.animation;
+        foreach (var a in this.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation) && !(a is PhysAnimObj) && !(a is NetworkView)))
+            Destroy(a);
+
+        if (PhysObj.networkView != null)
         {
-            var pc = AnimObj.position - this.pos;
-            var rc = Mathf.DeltaAngle((rot * Quaternion.Inverse(oldRot)).eulerAngles.z, (AnimObj.rotation * Quaternion.Inverse(oldRot)).eulerAngles.z);
-            this.rigidbody.velocity = pc * 5 * this.rigidbody.mass*strength;
-            this.rigidbody.angularVelocity = new Vector3(0, 0, rc) * this.rigidbody.mass;
+            Destroy(PhysObj.networkView);
+            //PhysObj.networkView.stateSynchronization = NetworkStateSynchronization.Off;
+            //PhysObj.networkView.observed = null;
+            //if(Network.isServer)
+            //    networkView.RPC("AllocateID", RPCMode.AllBuffered, Network.AllocateViewID());
+        }        
+        if (PhysObj.animation != null)
+            Destroy(PhysObj.animation);
+        Destroy(PhysObj.GetComponent<PhysAnimObj>());
+    }
+    [RPC]
+    void AllocateID(NetworkViewID id)
+    {
+        PhysObj.networkView.viewID = id;
+    }
+    void FixedUpdate()
+    {
+        if (PhysObj.rigidbody != null)
+        {
+            var pc = this.pos - PhysObj.position;
+
+            var rc = Mathf.DeltaAngle((PhysObj.rotation * Quaternion.Inverse(oldRot)).eulerAngles.z, (rot * Quaternion.Inverse(oldRot)).eulerAngles.z);
+            PhysObj.rigidbody.velocity = pc * 5 * PhysObj.rigidbody.mass * strength;
+            PhysObj.rigidbody.angularVelocity = new Vector3(0, 0, rc) * PhysObj.rigidbody.mass;
         }
 
     }

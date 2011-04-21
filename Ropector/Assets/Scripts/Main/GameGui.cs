@@ -17,15 +17,7 @@ public class GameGui:bs
     }
     public void Update()
     {
-        info.text = "";
-        if (Game.Wall > 0)
-            this.WriteInfo("B :Build wall " + Game.Wall);
-        if (Game.WallDynamic > 0)
-            this.WriteInfo("N :Build Dynamic wall " + Game.WallDynamic);
-        if (Game.WallSticky > 0)
-            this.WriteInfo("V :Build Sticky wall " + Game.WallSticky);
-        if (Game.SecondRope)
-            this.WriteInfo("RB :Use Second Rope");
+        info.text = "";        
         
     }
 }

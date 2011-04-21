@@ -10,6 +10,7 @@ using System.IO;
 
 public class Music : bs
 {
+    internal const string webserver = "http://physxwars.ru/serv/";
     public void Start()
     {
         audio.volume = .5f;
@@ -17,7 +18,7 @@ public class Music : bs
     TimerA timer = new TimerA();
     public void Play(string folder)
     {
-        var w = new WWW(bs.webserver + "/music.php?folder=" + folder + "&rand=" + Random.Range(0, 999));
+        var w = new WWW(webserver + "/music.php?folder=" + folder + "&rand=" + Random.Range(0, 999));
         timer.AddMethod(() => w.isDone, delegate
         {
             if (w.error == null)
@@ -40,7 +41,7 @@ public class Music : bs
         if (enabled)
         {
             string r = files.Where(a => a != old).Random();
-            string f = bs.webserver + r;
+            string f = webserver + r;
             WWW w = new WWW(f);
             timer.AddMethod(() => (w.isDone && w.audioClip != null && w.audioClip.isReadyToPlay), delegate
             {

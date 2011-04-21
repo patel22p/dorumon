@@ -10,9 +10,14 @@ public class Wall : bs
     
     public Vector3 bounchyForce;
     public Vector3 ClickForce;
-    public float SpeedFactor;
+    //public float SpeedFactor;
     //public bool playOnHit;
     public Collider[] Ignore;
+    internal Animation Anim;
+    public override void Awake()
+    {
+        Anim = this.animation;
+    }
     void Start()
     {
         if (Ignore != null)
@@ -27,15 +32,7 @@ public class Wall : bs
         base.Init();
     }
     
-    void OnTriggerEnter(Collider coll)
-    {
-        Player.Trigger = this;
-    }
-    void OnTriggerExit(Collider coll)
-    {
-        if(Player.Trigger == this)
-            Player.Trigger = null;
-    }
+    
     void OnCollisionEnter(Collision coll)
     {
         if(PlayOnPlayerHit)
@@ -50,15 +47,14 @@ public class Wall : bs
     public bool PlayOnRopeHit = true;
     public bool PlayOnPlayerHit;
     public void OnHit()
-    {               
-        var ph = this.GetComponent<PhysAnimObj>();
-        if (ph != null)
-        {
-            var anim = ph.AnimObj.animation;
-            if (anim != null && anim.clip != null)
-                anim.Play();
-        }
-        else if (animation != null && animation.clip != null)
-            this.animation.Play();
+    {
+        PlayAnim();
+        //networkView.RPC("PlayAnim", RPCMode.All);        
+    }
+    [RPC]
+    private void PlayAnim()
+    {
+        if (Anim != null && Anim.clip != null)
+            this.Anim.Play();
     }
 }

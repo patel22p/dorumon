@@ -63,17 +63,9 @@ public partial class Base : MonoBehaviour
         }
         set { EditorPrefs.SetBool("Debug", value); }
     }
-    public static bool disableScripts
-    {
-        get
-        {
-            return EditorPrefs.GetBool("disableScripts");
-        }
-        set { EditorPrefs.SetBool("disableScripts", value); }
-    }
-
+    
 #else
-    public static bool DissableAllScripts;
+    public static bool debug;
 #endif
     
 

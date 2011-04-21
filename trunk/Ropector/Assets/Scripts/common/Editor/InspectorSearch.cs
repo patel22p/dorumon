@@ -61,10 +61,13 @@ public class InspectorSearch : EditorWindow
         
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
-        Base.debug = GUI.Toggle(Base.debug, "debug", GUI.ExpandWidth(false));
-        Base.disableScripts = GUI.Toggle(Base.disableScripts, "disableScripts", GUI.ExpandWidth(false));        
+        Base.debug = GUI.Toggle(Base.debug, "debug", GUI.ExpandWidth(false));        
         
+
         GUI.EndHorizontal();
+
+        foreach (var a in GameObject.FindGameObjectsWithTag("EditorGUI").Where(a => a != Selection.activeGameObject))
+            a.GetComponent<bs>().OnEditorGui();
 
         if (Selection.activeGameObject != null)
         {

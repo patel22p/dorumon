@@ -3,9 +3,9 @@ using System.Collections;
 
 public class Score : bs {
 
-    public bs pl { get { return Game.iplayer; } }
+    public bs pl { get { return  _Player; } }
 	void Start () {
-        Game.blues.Add(this);
+        _Game.blues.Add(this);
         this.GetComponentInChildren<Animation>()["Score"].normalizedTime = Random.value;
 	}
 	
@@ -22,7 +22,7 @@ public class Score : bs {
         }
         if (dist < .5f)
         {
-            Game.Player.scores++;
+            _Player.scores++;
             Destroy(this.gameObject);
         }
 	}

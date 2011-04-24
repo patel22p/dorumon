@@ -375,15 +375,8 @@ public class InspectorSearch : EditorWindow
     [MenuItem("Edit/Play % ")]    
     private static void Play()
     {
-        Debug.Log("PLay");
         if (EditorApplication.isPlaying)
-        {
             EditorApplication.isPaused = !EditorApplication.isPaused;
-            //if (!EditorApplication.isPaused)
-            //{
-            //    Screen.lockCursor = true;                
-            //}
-        }
         else
             if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
         

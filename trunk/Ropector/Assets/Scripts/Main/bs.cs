@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using doru;
 [AddComponentMenu("Game/Base")]
 public class bs : Base 
 {
-
+    //public bs pointer;
     public override string ToString()
     {
         return "id:" + networkView.owner.GetHashCode() + ", nv:" + networkView.viewID.GetHashCode();
@@ -18,6 +19,7 @@ public class bs : Base
     }
     public virtual void Awake()
     {
+        //pointer = this;
         InitLoader();
     }
     public void AddToNetwork()
@@ -31,7 +33,7 @@ public class bs : Base
 
     
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
-    
+    public static TimerA _Timer { get { return _Loader.timer; } }
     static Game m_Game;
     public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
     static Cam m_Cam;

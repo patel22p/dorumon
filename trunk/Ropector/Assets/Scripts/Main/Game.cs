@@ -12,56 +12,54 @@ public class Game : bs
     [FindTransform]
     public Base cursor;
     public bool AutoConnect = true;
-    public List<Score> blues = new List<Score>();
+    public List<Score> scores = new List<Score>();
     public GameObject PlayerPrefab;
-    public new Player _Player;
+    internal new Player _Player;
+    public List<Player> players2 = new List<Player>();
+    public IEnumerable<Player> players { get { return players2.Where(a => a != null); } }
     float TimeSpeed = 1;
-    internal float Fall = -7;
-    public bool Pause;
+    
+    public bool pause;
     internal float prestartTm = 3;
     public float TimeElapsed;
     internal List<bs> networkItems = new List<bs>();
+    
 
     public override void Awake()
     {
-        Debug.Log("Game Awake Autoconnect:" + AutoConnect);
-        if (AutoConnect)
+        Debug.Log("Game awake");
+        if (Network.peerType == NetworkPeerType.Disconnected)
         {
-            var ips = new List<string>();
-            for (int i = 0; i < 255; i++)
-                ips.Add("192.168.30." + i);
-            Network.Connect(ips.ToArray(), 5300);
+            Debug.Log("Game Awake Autoconnect:" + AutoConnect);
+            if (AutoConnect)
+            {
+                var ips = new List<string>();
+                for (int i = 0; i < 255; i++)
+                    ips.Add("192.168.30." + i);
+                Network.Connect(ips.ToArray(), 5300);
+            }
+            if (!AutoConnect)
+                InitServer();
         }
-        if (!AutoConnect)
-            InitServer();
         AddToNetwork();
         base.Awake();
     }
-
-    void OnFailedToConnect(NetworkConnectionError err)
-    {
-        Debug.Log("Could not connect to server: " + err);
-        InitServer();
-    }
-    private void InitServer()
-    {
-        Network.InitializeServer(8, 5300, !Network.HavePublicAddress());
-    }
+    internal Transform water;
     public void Start()
-    {                
+    {
+        Debug.Log("Game start");
+        water = GameObject.Find("water").transform;
          var g = (GameObject)Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, 1);
          _Player = g.GetComponent<Player>();
     }
-    
     void Update()
     {        
         timer.Update();
         prestartTm -= Time.deltaTime;
         UpdateTimeWarp();
         UpdateTimeText();        
-        //UpdatePlayerScores();
+        
     }
-    
     void UpdateTimeText()
     {
         if (prestartTm > 0 && !debug)
@@ -71,7 +69,8 @@ public class Game : bs
         }
         else
             _GameGui.CenterTime.enabled = false;
-        TimeElapsed += Time.deltaTime;
+        if(!pause)
+            TimeElapsed += Time.deltaTime;
         _GameGui.time.text = TimeToSTr(TimeElapsed);
     }
     void UpdateOther()
@@ -79,7 +78,6 @@ public class Game : bs
         foreach (var a in alwaysUpdate)
             a.AlwaysUpdate();
     }
-    
     private void UpdateTimeWarp()
     {
         if (Input.GetKey(KeyCode.Space))
@@ -90,22 +88,15 @@ public class Game : bs
         Time.timeScale = TimeSpeed;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
-    private void UpdatePlayerScores()
+    
+    
+    [RPC]
+    private void WinGame()
     {
-        _GameGui.scores.text = _Player.scores + "/" + blues.Count;
-        if (_Player.scores == blues.Count && !Pause && !debug) 
-        {
-            Pause = true;
-            deadAnim.Play();
-            var f = PlayerPrefs.GetFloat(Application.loadedLevelName);
-            if (TimeElapsed < f || f == 0)
-            {
-                _GameGui.time.text = "New Record:" + TimeToSTr(TimeElapsed);
-                PlayerPrefs.SetFloat(Application.loadedLevelName, TimeElapsed);                
-            }
+        pause = true;
+        deadAnim.Play();
+        if(Network.isServer)
             timer.AddMethod(2000, delegate { _Loader.NextLevel(); });
-            _Player.gameObject.active = false;
-        }
     }
     public void OnConnect()
     {
@@ -115,7 +106,8 @@ public class Game : bs
     }
     public void onDisconnect()
     {
-        Debug.Log("Disc");
+        _Loader.totalScores = 0;
+        Application.LoadLevel("menu");
     }
     void OnPlayerConnected(NetworkPlayer player)
     {
@@ -136,29 +128,33 @@ public class Game : bs
     public override void OnEditorGui()
     {
         AutoConnect = GUILayout.Toggle(AutoConnect, "AutoConnect", GUILayout.ExpandWidth(false));
-        if (GUILayout.Button("AddNW"))
+        if (GUILayout.Button("InitWalls"))
         {
             foreach (Wall a in GameObject.FindObjectsOfType(typeof(Wall)))
             {
-                //if (a.networkView != null)
-                //    DestroyImmediate(a.networkView);
-                if (a.networkView == null)
-                    a.gameObject.AddComponent<NetworkView>();
-                a.networkView.observed = null;
-                a.networkView.stateSynchronization = NetworkStateSynchronization.Off;
-
-                //if (a.animation != null && a.animation.clip != null)
-                //{
-                //    if (a.networkView == null)
-                //        a.gameObject.AddComponent<NetworkView>();
-                //    a.networkView.observed = a.animation;
-                //}
+                a.Init();
             }
         }
         base.OnEditorGui();
     }
+    void OnPlayerDisconnected(NetworkPlayer player)
+    {        
+        Debug.Log("Player disc " + player);
+        Network.RemoveRPCs(player);
+        Network.DestroyPlayerObjects(player);
+    }
+
     void OnConnectedToServer() { OnConnect(); }
     void OnServerInitialized() { OnConnect(); }
     
-    void OnDisconnectedFromServer() { onDisconnect(); }    
+    void OnDisconnectedFromServer() { onDisconnect(); }
+    private void InitServer()
+    {
+        Network.InitializeServer(8, 5300, !Network.HavePublicAddress());
+    }
+    void OnFailedToConnect(NetworkConnectionError err)
+    {
+        Debug.Log("Could not connect to server: " + err);
+        InitServer();
+    }
 }

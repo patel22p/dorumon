@@ -6,7 +6,7 @@ using System.Linq;
 
 public class Game : bs
 {
-    public List<bs> alwaysUpdate = new List<bs>();  
+    //public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
     public Animation deadAnim;
     [FindTransform]
@@ -21,7 +21,7 @@ public class Game : bs
     
     public bool pause;
     internal float prestartTm = 3;
-    public float TimeElapsed;
+    //public float TimeElapsed;
     internal List<bs> networkItems = new List<bs>();
     
 
@@ -47,6 +47,7 @@ public class Game : bs
     internal Transform water;
     public void Start()
     {
+        _MyGui.Hide();
         Debug.Log("Game start");
         water = GameObject.Find("water").transform;
          var g = (GameObject)Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, 1);
@@ -57,9 +58,10 @@ public class Game : bs
         timer.Update();
         prestartTm -= Time.deltaTime;
         UpdateTimeWarp();
-        UpdateTimeText();        
-        
+        UpdateTimeText();
+        UpdateOther();
     }
+    
     void UpdateTimeText()
     {
         if (prestartTm > 0 && !debug)
@@ -69,26 +71,46 @@ public class Game : bs
         }
         else
             _GameGui.CenterTime.enabled = false;
-        if(!pause)
-            TimeElapsed += Time.deltaTime;
-        _GameGui.time.text = TimeToSTr(TimeElapsed);
+        //if(!pause)
+        //    TimeElapsed += Time.deltaTime;
+        //_GameGui.time.text = TimeToSTr(TimeElapsed);
     }
     void UpdateOther()
     {
-        foreach (var a in alwaysUpdate)
-            a.AlwaysUpdate();
+        if (Input.GetKeyDown(KeyCode.Escape))
+            _MyGui.Show(MyGui.Wind.ExitToMenuWindow);
+
+        //foreach (var a in alwaysUpdate)
+        //    a.AlwaysUpdate();
     }
+    float timewarptm = 5;
+    bool spaceKeyDown;
     private void UpdateTimeWarp()
     {
-        if (Input.GetKey(KeyCode.Space))
-            TimeSpeed = ((TimeSpeed * 5) + .1f) / 6f;
+        if (Input.GetKey(KeyCode.Space)) timewarptm -= Time.deltaTime;
+        if (Input.GetKey(KeyCode.Space) && timewarptm > 0 && !timewarp)
+            networkView.RPC("SetTimeWarp", RPCMode.All, true);
+        if ((Input.GetKeyUp(KeyCode.Space) || timewarptm < 0) && timewarp)
+            networkView.RPC("SetTimeWarp", RPCMode.All, false);
+
+
+        if (timewarp && timewarptm > 0)
+        {
+            timewarptm -= Time.deltaTime;
+            TimeSpeed = ((TimeSpeed * 5) + .2f) / 6f;
+        }
         else
             TimeSpeed = ((TimeSpeed * 5) + 1) / 6f;
         _Music.audio.pitch = TimeSpeed;
         Time.timeScale = TimeSpeed;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
-    
+    bool timewarp;
+    [RPC]
+    private void SetTimeWarp(bool enable)
+    {
+        timewarp = enable;
+    }
     
     [RPC]
     private void WinGame()
@@ -104,11 +126,7 @@ public class Game : bs
         foreach (var a in networkItems)
             a.enabled = true;
     }
-    public void onDisconnect()
-    {
-        _Loader.totalScores = 0;
-        Application.LoadLevel("menu");
-    }
+    
     void OnPlayerConnected(NetworkPlayer player)
     {
         Debug.Log("Player Conencted: " + player);
@@ -146,8 +164,14 @@ public class Game : bs
 
     void OnConnectedToServer() { OnConnect(); }
     void OnServerInitialized() { OnConnect(); }
-    
-    void OnDisconnectedFromServer() { onDisconnect(); }
+
+    void OnDisconnectedFromServer(NetworkDisconnection info)
+    {
+        if (info == NetworkDisconnection.LostConnection)
+            _Timer.AddMethod(delegate { _MyGui.Show(MyGui.Wind.Disconnected); });
+        _Loader.totalScores = 0;
+        Application.LoadLevel("menu");
+    }
     private void InitServer()
     {
         Network.InitializeServer(8, 5300, !Network.HavePublicAddress());

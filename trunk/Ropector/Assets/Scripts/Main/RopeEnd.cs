@@ -4,7 +4,7 @@ using UnityEngine;
 public class RopeEnd : bs
 {
     public Vector3? oldpos;
-    float tmRope;
+    //float tmRope;
 
     //public LineRenderer line;
     [FindAsset("cloth")]
@@ -39,11 +39,11 @@ public class RopeEnd : bs
     {
         UpdateGravity();
     }
-    public override void AlwaysUpdate()
-    {
-        tmRope -= Time.deltaTime;
-        base.AlwaysUpdate();
-    }
+    //public override void AlwaysUpdate()
+    //{
+    //    tmRope -= Time.deltaTime;
+    //    base.AlwaysUpdate();
+    //}
     
     void OnCollisionEnter(Collision coll)
     {
@@ -84,7 +84,7 @@ public class RopeEnd : bs
     {
         if (!enabled)
         {
-            tmRope = 1;
+            //tmRope = 1;
             this.oldpos = this.transform.position = pl.pos;
             EnableRope(true);
             

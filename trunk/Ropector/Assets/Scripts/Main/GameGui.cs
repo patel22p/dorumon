@@ -15,8 +15,8 @@ public class GameGui:bs
     public GUIText scores;
     [FindTransform]
     public GUIText scoresAll;    
-    [FindTransform]
-    public GUIText time;
+    //[FindTransform]
+    //public GUIText time;
     [FindTransform]
     public GUIText CenterTime;
     void Start()

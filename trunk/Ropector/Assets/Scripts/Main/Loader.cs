@@ -34,15 +34,15 @@ public class Loader : bs
     
     void Update()
     {
-        UpdateFpsInfo();
+        UpdateFpsGraphics();
         UpdateOther();
         timer.Update();
     }
     void UpdateOther()
     {
-        info.text = "FPS:" + fps + " Warnings:" + errorcount + " Errors:" + exceptionCount + " " + LastError;
+        
     }
-    private void UpdateFpsInfo()
+    private void UpdateFpsGraphics()
     {
         if (timer.TimeElapsed(1000))
         {
@@ -56,13 +56,30 @@ public class Loader : bs
                 QualitySettings.DecreaseLevel();
             }
         }
+        if (QualitySettings.currentLevel == QualityLevel.Fastest && Camera.main.renderingPath != RenderingPath.VertexLit)
+        {
+            Debug.Log("Vertex Lit");
+            Camera.main.renderingPath = RenderingPath.VertexLit;
+        }
+        else if (Camera.main.renderingPath == RenderingPath.VertexLit && QualitySettings.currentLevel != QualityLevel.Fastest)
+        {
+            Debug.Log("Deffered");
+            Camera.main.renderingPath = RenderingPath.DeferredLighting;
+        }
+        info.text = "FPS:" + fps + " Warnings:" + errorcount + " Errors:" + exceptionCount + " " + LastError;
+
         
     }
     public void NextLevel()
     {
-        var i = Application.loadedLevel + 1;
-        if (i > Application.levelCount - 1) i = 0;        
-        LoadLevel(i);
+        if (_MyGui.LoopSameLevel)
+            LoadLevel(Application.loadedLevel);
+        else
+        {
+            var i = Application.loadedLevel + 1;
+            if (i > Application.levelCount - 1) i = 1;
+            LoadLevel(i);
+        }
     }
     
     int lastLevelPrefix;

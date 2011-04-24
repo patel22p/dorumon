@@ -25,7 +25,7 @@ public class Cam : bs
     {       
  
         if (Input.GetKeyDown(KeyCode.Tab)) Screen.lockCursor = !Screen.lockCursor;
-        if (!Application.isEditor && Input.GetMouseButtonDown(0))
+        if (!Application.isEditor && Input.GetMouseButtonDown(2))
             Screen.lockCursor = true;
         Vector2 v =  new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")) * 1;
         cursorpos = Vector3.ClampMagnitude(cursorpos + v, 25);

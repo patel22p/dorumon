@@ -6,7 +6,6 @@ using System.Linq;
 
 public class Game : bs
 {
-    //public List<bs> alwaysUpdate = new List<bs>();  
     public TimerA timer = new TimerA();
     public Animation deadAnim;
     [FindTransform]
@@ -17,11 +16,9 @@ public class Game : bs
     internal new Player _Player;
     public List<Player> players2 = new List<Player>();
     public IEnumerable<Player> players { get { return players2.Where(a => a != null); } }
-    float TimeSpeed = 1;
     
     public bool pause;
     internal float prestartTm = 3;
-    //public float TimeElapsed;
     internal List<bs> networkItems = new List<bs>();
     
 
@@ -57,7 +54,6 @@ public class Game : bs
     {        
         timer.Update();
         prestartTm -= Time.deltaTime;
-        UpdateTimeWarp();
         UpdateTimeText();
         UpdateOther();
     }
@@ -71,47 +67,12 @@ public class Game : bs
         }
         else
             _GameGui.CenterTime.enabled = false;
-        //if(!pause)
-        //    TimeElapsed += Time.deltaTime;
-        //_GameGui.time.text = TimeToSTr(TimeElapsed);
     }
     void UpdateOther()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-            _MyGui.Show(MyGui.Wind.ExitToMenuWindow);
-
-        //foreach (var a in alwaysUpdate)
-        //    a.AlwaysUpdate();
+            _MyGui.Show(Wind.ExitToMenuWindow);
     }
-    float timewarptm = 5;
-    bool spaceKeyDown;
-    private void UpdateTimeWarp()
-    {
-        if (Input.GetKey(KeyCode.Space)) timewarptm -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.Space) && timewarptm > 0 && !timewarp)
-            networkView.RPC("SetTimeWarp", RPCMode.All, true);
-        if ((Input.GetKeyUp(KeyCode.Space) || timewarptm < 0) && timewarp)
-            networkView.RPC("SetTimeWarp", RPCMode.All, false);
-
-
-        if (timewarp && timewarptm > 0)
-        {
-            timewarptm -= Time.deltaTime;
-            TimeSpeed = ((TimeSpeed * 5) + .2f) / 6f;
-        }
-        else
-            TimeSpeed = ((TimeSpeed * 5) + 1) / 6f;
-        _Music.audio.pitch = TimeSpeed;
-        Time.timeScale = TimeSpeed;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-    }
-    bool timewarp;
-    [RPC]
-    private void SetTimeWarp(bool enable)
-    {
-        timewarp = enable;
-    }
-    
     [RPC]
     private void WinGame()
     {
@@ -167,10 +128,10 @@ public class Game : bs
 
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
-        if (info == NetworkDisconnection.LostConnection)
-            _Timer.AddMethod(delegate { _MyGui.Show(MyGui.Wind.Disconnected); });
+        //if (info == NetworkDisconnection.LostConnection)
+        //    timer.AddMethod(delegate { _MyGui.Show(MyGui.Wind.Disconnected); });
         _Loader.totalScores = 0;
-        Application.LoadLevel("menu");
+        Application.LoadLevel(0);
     }
     private void InitServer()
     {

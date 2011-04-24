@@ -2,13 +2,9 @@ using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
 public enum MenuAction { StartServer , JoinGame}
+public enum Wind { Menu, SelectLevel, PopUp, ExitToMenuWindow, Disconnected }
 public class MyGui : bs {
-    
-	void Start () {
-	    
-	}
-    public enum Wind { Menu, SelectLevel, PopUp, ExitToMenuWindow, Disconnected }
-    
+  
     public Wind curwindow;
     public void Show(Wind window)
     {
@@ -61,16 +57,15 @@ public class MyGui : bs {
         gui.EndHorizontal();
     }
 
-    public string[] levels = new string[0];
-    public int selectedLevel;
+    public string[] levels;
+    internal int SelectedLevel = 0;
     public bool LoopSameLevel = true;
     public void SelectLevel(int id)
     {
         LoopSameLevel = gui.Toggle(LoopSameLevel, "Loop Same Level");
-        var old = selectedLevel;
-        selectedLevel = gui.SelectionGrid(selectedLevel, levels, 1);
-        if (selectedLevel != old)
+        if (gui.Button("Start Game"))
             _Menu.Action(MenuAction.StartServer);
+        SelectedLevel = gui.SelectionGrid(SelectedLevel, levels, 1);        
         if (gui.Button("back"))
             Show(Wind.Menu);
     }
@@ -95,12 +90,6 @@ public class MyGui : bs {
         if (gui.Button("Ok"))
             _MyGui.Show(Wind.Menu);
     }
-    private void SendAction(MenuAction a)
-    {
-        transform.parent.SendMessage("Action", a);
-    }
 
-	void Update () {
-	
-	}
+
 }

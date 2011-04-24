@@ -5,7 +5,6 @@ using doru;
 [AddComponentMenu("Game/Base")]
 public class bs : Base 
 {
-    //public bs pointer;
     public override string ToString()
     {
         return "id:" + networkView.owner.GetHashCode() + ", nv:" + networkView.viewID.GetHashCode();
@@ -19,7 +18,6 @@ public class bs : Base
     }
     public virtual void Awake()
     {
-        //pointer = this;
         InitLoader();
     }
     public void AddToNetwork()
@@ -33,7 +31,7 @@ public class bs : Base
 
     
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
-    public static TimerA _Timer { get { return _Loader.timer; } }
+    //public static TimerA _Timer { get { return _Loader.timer; } }
     static MyGui m_MyGui;
     public static MyGui _MyGui { get { if (m_MyGui == null) m_MyGui = (MyGui)MonoBehaviour.FindObjectOfType(typeof(MyGui)); return m_MyGui; } }
     static Menu m_Menu;

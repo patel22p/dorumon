@@ -85,6 +85,7 @@
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />
      <Compile Include="Assets\Scripts\Main\Score.cs" />
+     <Compile Include="Assets\Scripts\Main\tmr.cs" />
      <Compile Include="Assets\Scripts\Main\Wall.cs" />
      <None Include="Assets\Scripts\shader\Forcefield.shader" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />

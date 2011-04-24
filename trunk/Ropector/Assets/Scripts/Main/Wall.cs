@@ -24,7 +24,7 @@ public class Wall : PhysAnimObj
         
 
         if (anim != null && animationState.enabled && animationState != null && Network.isServer)
-            _Timer.AddMethod(3000, delegate
+            _Game.timer.AddMethod(3000, delegate
             {
                 networkView.RPC("AnimState", RPCMode.Others, animationState.enabled, animationState.time);
             });
@@ -84,7 +84,7 @@ public class Wall : PhysAnimObj
 
     void OnPlayerConnected(NetworkPlayer player)
     {
-        _Timer.AddMethod(2000, delegate { SetState(player); });
+        _Game.timer.AddMethod(2000, delegate { SetState(player); });
     }
     private void SetState(NetworkPlayer player)
     {

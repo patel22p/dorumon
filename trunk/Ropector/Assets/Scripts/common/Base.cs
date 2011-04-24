@@ -6,7 +6,7 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
-#if (UNITY_EDITOR)
+#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
 using UnityEditor;
 #endif
 public partial class Base : MonoBehaviour

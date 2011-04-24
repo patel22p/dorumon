@@ -8,6 +8,7 @@ public class Player : bs {
 
     internal TimerA timer { get { return _Game.timer; } }
     public GameObject model;
+    public TextMesh NickText;
     public GameObject deathPrefab;
     public RopeEnd[] ropes = new RopeEnd[2];
     public int scores;
@@ -45,6 +46,14 @@ public class Player : bs {
     }
     void Update()
     {
+        if (!networkView.isMine || debug)
+        {
+            NickText.text = nick;
+            NickText.transform.rotation = Quaternion.identity;
+            NickText.transform.position = pos + Vector3.up * 2;
+        }
+        else NickText.gameObject.active = false;
+        
         name = "Player:" + nick + " " + ToString();
         if (_Game.prestartTm > 0 && !debug) return;
         if (networkView.isMine && !fall && !_Game.pause)
@@ -130,16 +139,18 @@ public class Player : bs {
         if (networkView.isMine)
         {
             _Cam.Reset();
-            fall = _Game.deadAnim.gameObject.active = false;
-            rigidbody.velocity = Vector3.zero;
+            fall = _Game.deadAnim.gameObject.active = false;            
             pos = lastpos;
         }
     }
 
     private void Hide(bool h)
     {
+
         enabled = !h;
-        rigidbody.isKinematic = h;
+        rigidbody.useGravity = !h;
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
         model.renderer.enabled = !h;
         model.collider.isTrigger = h;
     }

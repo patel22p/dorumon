@@ -6,25 +6,27 @@ using System.Collections.Generic;
 using doru;
 using System.Collections;
 using System.Linq;
+//using System.Net;
 public class Loader : bs 
 {
     //public int currentLevel = -1;
     public int errorcount;
     public int exceptionCount;
     public int totalScores;
-    [FindTransform]
+    //[FindTransform]
     public GUIText info;        
     public TimerA timer = new TimerA();
     public string nick;
 
-    List<float> avverageFps = ResetFps();
+    List<float> avverageFps = new List<float>();
     public int fps = 100;
     static string LastError = "";
     
     public override void Awake()
     {
+        avverageFps = ResetFps();
         Debug.Log("Loader Load");
-        nick = "Guest " + Random.Range(0, 99);
+        nick = "Guest" + " (" + Random.Range(0, 99) + ")";
         networkView.group = 1;
         Application.RegisterLogCallback(onLog);
         Debug.Log("Loader Awake");

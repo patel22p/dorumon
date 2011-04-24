@@ -11,7 +11,11 @@ using UnityEditor;
 #endif
 public partial class Base : MonoBehaviour
 {
+    #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     public bool selected { get { return UnityEditor.Selection.activeGameObject == this.gameObject; } }
+#else
+    public bool selected;
+#endif
     public static string[] scenes
     {
         get

@@ -6,7 +6,7 @@ public class RopeEnd : bs
     public Vector3? oldpos;
     float tmRope;
 
-    public LineRenderer line;
+    //public LineRenderer line;
     [FindAsset("cloth")]
     public GameObject clothPrefab;
     public GameObject cloth;
@@ -24,15 +24,7 @@ public class RopeEnd : bs
         name = "Rope: " + ToString(); 
         UpdateCloth();
         UpdateHitTest();
-        UpdateOther();
     }
-
-    private void UpdateOther()
-    {
-        line.SetPosition(0, pl.pos);
-        line.SetPosition(1, this.pos);
-    }
-
     private void UpdateCloth()
     {
         if (cloth != null)
@@ -67,7 +59,6 @@ public class RopeEnd : bs
             var r = this.transform.parent.GetComponent<Rigidbody>(); 
             if (r != null && !r.isKinematic)
             {
-                Debug.Log("Interactive");
                 if(v.magnitude > 3)
                     r.AddForceAtPosition(v * 50  / Mathf.Sqrt(v.magnitude) / Time.timeScale, this.transform.position);
             }
@@ -147,14 +138,9 @@ public class RopeEnd : bs
             Destroy(cloth);
         if (enable)
             cloth = (GameObject)Instantiate(clothPrefab,pl.pos,Quaternion.identity);            
-
-        //this.gameObject.active = enable;
         enabled = enable;
         oldpos = pl.pos;
-        line.SetPosition(0, Vector3.zero);
-        line.SetPosition(1, Vector3.zero);
         rigidbody.isKinematic = false;
         transform.parent = null;
-        //Update();
     }
 }

@@ -8,18 +8,17 @@ public class Menu : bs
 
     public TextMesh Press;
     public GameObject Text;
-
     public GameObject cursor;
-    
     public GameObject Plane;
-    public IEnumerator Start() //creates cubes in menu
+
+    
+    public IEnumerator Start()
     {
         Application.ExternalEval("FB.Canvas.setSize();");
 
-        //if (!Application.isEditor)
-        //    Music.Play("ropector");
-        //else
-        //    _MenuWindow.Show(_Loader);
+        if (!Application.isEditor)
+            _Music.Play("ropector");
+
         var cs = new GameObject("cubes");
 
         if (Text.gameObject.active)
@@ -28,25 +27,22 @@ public class Menu : bs
                 {
                     Vector3 pos = new Vector3(x, y, 0);
                     var cb = (GameObject)Instantiate(Box, pos, Quaternion.identity);
-                    var drg = (Dragable)cb.AddComponent(typeof(Dragable));
-                    drg.Plane = Plane;
-                    drg.cursor = cursor;
                     cb.transform.parent = cs.transform;
                     yield return null;
                 }
 
         yield return new WaitForSeconds(1);
         Text.rigidbody.isKinematic = false;
-        Text.rigidbody.WakeUp();
+        Text.rigidbody.WakeUp();  
     }
     
-    void Update() 
+    void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P)) Debug.Break();
+        
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 1000, 1 << LayerMask.NameToLayer("Ignore Raycast")))
-            cursor.transform.position = hit.point;        
+            cursor.transform.position = hit.point;
 
     }
 

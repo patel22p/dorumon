@@ -3,26 +3,26 @@ using System.Collections;
 
 public class Score : bs {
 
-    public bs pl { get { return  _Player; } }
+    
 	void Start () {
-        _Game.blues.Add(this);
+        _Game.scores.Add(this);
         this.GetComponentInChildren<Animation>()["Score"].normalizedTime = Random.value;
 	}
 	
 	void Update () {
-        var dist = Vector3.Distance(pl.transform.position, this.transform.position);
+        if (_Player == null) return;
+        var dist = Vector3.Distance(_Player.transform.position, this.transform.position);
         var d = 5;
         if (dist < d)
         {
-            //Debug.Log("asd");
-            var norm = (pl.transform.position - transform.position).normalized;
+            var norm = (_Player.transform.position - transform.position).normalized;
             transform.position += norm * (d - dist) * Time.deltaTime * 20;
-            //animation.Stop();
-            //transform.position += norm;
         }
         if (dist < .5f)
         {
-            _Player.scores++;
+            _Player.lastpos = this.pos;
+            _GameGui.scores.animation.Play(AnimationPlayMode.Stop);
+            _Player.networkView.RPC("SetScores", RPCMode.All, _Player.scores + 1, _Loader.totalScores + 1); 
             Destroy(this.gameObject);
         }
 	}

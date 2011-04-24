@@ -21,7 +21,7 @@ public class GlowOnHit : bs
     void OnCollisionEnter(Collision coll)
     {
         //this = this.GetComponent<PhysAnimObj>();
-        Debug.Log("Hit");
+        //Debug.Log("Hit");
         //hit = true;
         var c = this.renderer.material.color;
         c.a = 1;

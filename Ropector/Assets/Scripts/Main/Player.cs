@@ -6,8 +6,9 @@ using System.Collections.Generic;
 
 public class Player : bs {
 
-    internal TimerA timer = new TimerA();
-    
+    internal TimerA timer { get { return _Game.timer; } }
+    public GameObject model;
+    public GameObject deathPrefab;
     public RopeEnd[] ropes = new RopeEnd[2];
     public int scores;
     public int totalscores;
@@ -18,8 +19,8 @@ public class Player : bs {
     void Start()
     {
         _Game.players2.Add(this);
-        foreach (var r in ropes)
-            _Game.alwaysUpdate.Add(r);
+        //foreach (var r in ropes)
+        //    _Game.alwaysUpdate.Add(r);
         rigidbody.maxAngularVelocity = 300;
         if (networkView.isMine)
         {
@@ -29,7 +30,6 @@ public class Player : bs {
     }
 
     internal Vector3 lastpos;
-    //public List<Vector3[]> positions = new List<Vector3[]>();    
     void OnPlayerConnected(NetworkPlayer player)
     {
         if (networkView.isMine)
@@ -101,19 +101,47 @@ public class Player : bs {
 
     private void Die()
     {
-        fall = _Game.deadAnim.gameObject.active = true;
-        _Game.deadAnim.Play();
+        if (!enabled) return;
+        fall = true;
+        //fall = _Game.deadAnim.gameObject.active = true;
+        //_Game.deadAnim.Play();        
         HideRope(0);
         HideRope(1);
-        timer.AddMethod(2000, delegate { ResetPos(); });
+        _Game.timer.AddMethod(2000, delegate { networkView.RPC("ResetPos", RPCMode.All); });
+        networkView.RPC("RPCDie", RPCMode.All);
     }
-    
+    [RPC]
+    private void RPCDie()
+    {
+        Hide(true);
+        GameObject g = (GameObject)Instantiate(deathPrefab, pos, rot);
+        Destroy(g, 6);
+        foreach (Rigidbody r in g.GetComponentsInChildren<Rigidbody>())
+        {
+            r.renderer.sharedMaterial = _Player.model.renderer.sharedMaterial;
+            r.velocity = rigidbody.velocity;
+            r.mass = .1f;
+        }
+    }
+    [RPC]
     private void ResetPos()
     {
-        fall = _Game.deadAnim.gameObject.active = false;
-        rigidbody.velocity = Vector3.zero;
-        pos = lastpos;
-        rigidbody.velocity = Vector3.zero;
+        Hide(false);
+        if (networkView.isMine)
+        {
+            _Cam.Reset();
+            fall = _Game.deadAnim.gameObject.active = false;
+            rigidbody.velocity = Vector3.zero;
+            pos = lastpos;
+        }
+    }
+
+    private void Hide(bool h)
+    {
+        enabled = !h;
+        rigidbody.isKinematic = h;
+        model.renderer.enabled = !h;
+        model.collider.isTrigger = h;
     }
     
     [RPC]
@@ -131,10 +159,17 @@ public class Player : bs {
     public Base cursor { get { return _Cam.cursor; } }
 
     public List<bs> collides = new List<bs>();
+
     
     void OnCollisionEnter(Collision c)
     {
+        var w = c.gameObject.GetComponent<Wall>();
+        if (w != null && w.die)
+            Die();
         var bs = c.gameObject.GetComponent<bs>();
+
+        
+
         if (bs != null && !collides.Contains(bs))
             collides.Add(bs);
     }

@@ -45,8 +45,7 @@ public class Cam : bs
             fake = Mathf.Lerp(fake, _Player.rigidbody.velocity.sqrMagnitude, 0.095f);
             var pv = player.pos;
             pos = new Vector3(pv.x, pv.y + 10, -fakescale - Mathf.Sqrt(fake));
-            cam.transform.LookAt(fakeCursor);
-            //fakeCursor = Vector3.Lerp(((cursor.pos- player.pos) /2) + player.pos , fakeCursor, 0.95f);
+            cam.transform.LookAt(fakeCursor);            
             fakeCursor = Vector3.Lerp(cursor.pos, fakeCursor, 0.95f);
 
             if (!Screen.lockCursor)
@@ -54,6 +53,10 @@ public class Cam : bs
             else
                 cursor.pos2 = player.pos2 + cursorpos;
         }
+    }
+    public void Reset()
+    {        
+        fakeCursor = cursor.pos2 = player.pos2;        
     }
     Vector2 cursorpos;
 } 

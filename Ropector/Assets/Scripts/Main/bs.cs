@@ -34,6 +34,10 @@ public class bs : Base
     
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
     public static TimerA _Timer { get { return _Loader.timer; } }
+    static MyGui m_MyGui;
+    public static MyGui _MyGui { get { if (m_MyGui == null) m_MyGui = (MyGui)MonoBehaviour.FindObjectOfType(typeof(MyGui)); return m_MyGui; } }
+    static Menu m_Menu;
+    public static Menu _Menu { get { if (m_Menu == null) m_Menu = (Menu)MonoBehaviour.FindObjectOfType(typeof(Menu)); return m_Menu; } }
     static Game m_Game;
     public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
     static Cam m_Cam;

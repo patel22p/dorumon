@@ -4,6 +4,7 @@ using UnityEngine;
 [AddComponentMenu("Game/Wall")]
 public class Wall : PhysAnimObj
 {
+    public bool die;
     public bool attachRope = true;
     public Vector3 RopeForce = new Vector3(1, 1f, 1);
     public float RopeLength = 1f;
@@ -20,10 +21,7 @@ public class Wall : PhysAnimObj
             foreach (Collider a in this.transform.GetTransforms().Where(a => a.collider != null).Select(a => a.collider))
                 foreach (Collider b in Ignore)
                     Physics.IgnoreCollision(a, b);
-        if (anim != null && AnimationOffsetFactor != 0)
-        {
-            animationState.time = (this.x * 100 * AnimationOffsetFactor) % animationState.length;            
-        }
+        
 
         if (anim != null && animationState.enabled && animationState != null && Network.isServer)
             _Timer.AddMethod(3000, delegate
@@ -32,7 +30,15 @@ public class Wall : PhysAnimObj
             });
 
     }
-
+    float oldoffset;
+    void Update()
+    {
+        if (anim != null && AnimationOffsetFactor != 0 && AnimationOffsetFactor != oldoffset)
+        {
+            animationState.time = (this.x *  AnimationOffsetFactor) % animationState.length;
+            oldoffset = AnimationOffsetFactor;
+        }
+    }
     AnimationState animationState { get { return anim.Cast<AnimationState>().FirstOrDefault(); } }
     [RPC]
     void AnimState(bool enabled, float time)
@@ -90,7 +96,7 @@ public class Wall : PhysAnimObj
     [RPC]
     private void PlayAnim()
     {
-        Debug.Log("Play");
+        //Debug.Log("Play");
         foreach (var a in animationToPlay)
             a.anim.Play();
 

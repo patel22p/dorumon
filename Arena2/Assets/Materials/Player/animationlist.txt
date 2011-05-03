@@ -1,0 +1,14 @@
+0-57 Idle
+64-126 Idle variation 1
+140-270 Idle variation 2
+271-278 Block going on
+279-332 Block
+333-338 Block going off
+339-356 Punch
+357-417 Punch combo 1 (2 clicks)
+418-477 Punch combo 3 (3 clicks/ 2 on left 1 on right?)
+490-499 Starts running
+500-559 Runloop
+560-561 Run ends
+566-598 Victory cheer
+603-692 Death

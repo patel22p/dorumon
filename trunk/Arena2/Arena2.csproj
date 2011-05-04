@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\common\Window\WindowBase.cs" />
      <Compile Include="Assets\Scripts\common\Base.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
+     <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />

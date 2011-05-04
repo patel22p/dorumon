@@ -6,9 +6,16 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
-public enum ObjectType { none, clothCollider }
+#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+using UnityEditor;
+#endif
 public partial class Base : MonoBehaviour
 {
+    #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+    public bool selected { get { return UnityEditor.Selection.activeGameObject == this.gameObject; } }
+#else
+    public bool selected;
+#endif
     public static string[] scenes
     {
         get
@@ -18,14 +25,13 @@ public partial class Base : MonoBehaviour
         };
         }
     }
-    public static void IgnoreAll(string name)
+    public static void IgnoreAll(string name, params string[] layers)
     {
         for (int i = 1; i < 31; i++)
-            Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
+            if (!layers.Contains(LayerMask.LayerToName(i)))
+                Physics.IgnoreLayerCollision(LayerMask.NameToLayer(name), i, true);
     }
-
-    public ObjectType ObjectType;
-    public bool dontResetPos;    
+   
     public void SetLayer(int l)
     {
         foreach (var t in this.transform.GetTransforms())
@@ -51,17 +57,21 @@ public partial class Base : MonoBehaviour
         return table;
     }
     public static string[] files;
+
+#if (UNITY_EDITOR)
     public static bool debug
     {
         get
         {
-            #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-            return UnityEditor.EditorPrefs.GetBool("Debug");
-#else
-            return false;
-#endif
+            return EditorPrefs.GetBool("Debug");            
         }
-    }
+        set { EditorPrefs.SetBool("Debug", value); }
+    }    
+#else
+    public static bool debug;
+#endif
+    
+
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
     
     public static IEnumerable<string> GetFiles()
@@ -85,6 +95,10 @@ public partial class Base : MonoBehaviour
     {
     }
     public virtual void OnEditorGui()
+    {
+
+    }
+    public virtual void OnSceneGUI()
     {
 
     }

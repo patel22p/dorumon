@@ -4,7 +4,7 @@ using System.Linq;
 using Object = UnityEngine.Object;
 using doru;
 enum NetworkGroup { Player, Zombie }
-public enum hostDebug { showMenu, singlePlayer }
+public enum hostDebug { None, singl, wait, join }
 
 public class bs : Base
 {

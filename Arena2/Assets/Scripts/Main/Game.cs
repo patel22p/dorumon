@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Threading;
 using doru;
 #if UNITY_EDITOR && UNITY_STANDALONE_WIN
-using gui = UnityEditor.EditorGUILayout;
+using UnityEditor;
+using GUI = UnityEditor.EditorGUILayout;
+using gui = UnityEngine.GUILayout;
 #endif
 
 public class Game : bs
@@ -24,15 +26,20 @@ public class Game : bs
     internal bool singlePlayer;
     internal List<bs> networkItems = new List<bs>();
     internal List<Zombie> Zombies = new List<Zombie>();
-    internal IEnumerable<Zombie> AliveZombies { get { return Zombies.Where(a => a != null && a.enabled); } }
+    internal IEnumerable<Zombie> AliveZombies { get { return Zombies.Where(a => a != null && a.Alive); } }
     internal List<ZombieSpawn> ZombieSpawns = new List<ZombieSpawn>();
     internal TimerA timer = new TimerA();
     public override void Awake()
     {
         base.Awake();
-        AddToNetwork();        
-        //if (hostDebug == hostDebug.singlePlayer)
-        //    Action(MenuAction.single);
+        AddToNetwork();
+        if (hostDebug == hostDebug.singl)
+            Action(MenuAction.single);
+        if (hostDebug == hostDebug.wait)
+            Action(MenuAction.wait);
+        if (hostDebug == hostDebug.join)
+            Action(MenuAction.join);
+        
     }
     public override void Init()
     {
@@ -42,7 +49,7 @@ public class Game : bs
     
     void Start()
     {
-        Screen.lockCursor = true;
+        
         Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)NetworkGroup.Player);
         _MenuGui.enabled = false;
     }
@@ -53,12 +60,11 @@ public class Game : bs
         {
             if (timer.TimeElapsed(2000) && Network.isServer)
             {
-                if (Zombies.Count < 10 + stage)
+                if (Zombies.Count < 1 + stage)
                 {
-                    var zsp = ZombieSpawns.Random();
-                    Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
+                    InstZombie();
                 }
-                if (Zombies.Where(a => a == null || a.enabled == false).Count() == Zombies.Count)
+                if (Zombies.Where(a => a == null || a.Alive == false).Count() == Zombies.Count)
                     NextLevel();
             }
         }
@@ -71,20 +77,20 @@ public class Game : bs
         timer.Update();
     }
 
+    private void InstZombie()
+    {
+        var zsp = ZombieSpawns.Random();
+        Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
+    }
+
     private void NextLevel()
     {
         Zombies.Clear();
         stage++;
     }
     public bool enableZombies;
-#if UNITY_EDITOR && UNITY_STANDALONE_WIN
-    public override void OnEditorGui()
-    {
-        //hostDebug = (hostDebug)UnityEditor.EditorGUILayout.EnumPopup(hostDebug);
-        enableZombies = gui.Toggle("zombies", enableZombies);
-        base.OnEditorGui();
-    }
-#endif
+    public bool enableAutoStart;
+
     void Action(MenuAction a)
     {
         if (a == MenuAction.wait)
@@ -125,7 +131,22 @@ public class Game : bs
     void OnPlayerConnected() { OnConnect(); }
     void OnDisconnectedFromServer() { onDisconnect(); }
     void OnPlayerDisconnected() { onDisconnect(); }
-    
-    
+    public bool CantDie;
+#if UNITY_EDITOR
+    public override void OnEditorGui()
+    {
+        if (gui.Button("Die"))
+            _PlayerOwn.networkView.RPC("Die", RPCMode.All);
+        if (gui.Button("WakeUp"))
+            _PlayerOwn.networkView.RPC("WakeUp", RPCMode.All);
+        CantDie = GUI.Toggle("CantDie", CantDie);
+        hostDebug = (hostDebug)GUI.EnumPopup(hostDebug);
+        enableZombies = GUI.Toggle("zombies", enableZombies);
+        if (gui.Button("CreateZombie"))
+            InstZombie();
+        //enableAutoStart = gui.Toggle("autostart", enableAutoStart);
+        base.OnEditorGui();
+    }
+#endif   
     
 }

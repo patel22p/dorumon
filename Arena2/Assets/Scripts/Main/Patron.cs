@@ -24,9 +24,6 @@ public class Patron:bs
             //Debug.Log(v.magnitude);
             if (Physics.Raycast(new Ray(pos, v), out h, v.magnitude + 1,~(1 << LayerMask.NameToLayer("Player"))))
             {
-                Debug.Log("HIt" + h.collider.name);
-                Debug.Log(h.rigidbody == null);
-
                 var z = h.collider.gameObject.GetComponent<Zombie>();
                 if (z != null)
                 {

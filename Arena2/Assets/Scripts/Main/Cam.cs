@@ -31,7 +31,8 @@ public class Cam : bs {
         pos = cam.transform.position;
         //rot = cam.transform.rotation;
         cam.transform.position = Place.position;
-        cam.transform.rotation = Place.rotation;        
+        cam.transform.rotation = Place.rotation;
+        pos = _PlayerOwn.pos;
     }
     void Update()
     {

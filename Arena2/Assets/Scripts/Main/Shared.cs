@@ -4,13 +4,14 @@ using System.Text.RegularExpressions;
 
 public class Shared : bs
 {
+    public bool Alive = true ;
     
+    public Trigger trigger;
     public Transform[] upperbody;
     public Transform[] downbody;
     public float life = 100;
     void Start()
     {
-        
     }
     public string GetId()
     {

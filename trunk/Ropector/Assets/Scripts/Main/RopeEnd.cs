@@ -84,14 +84,11 @@ public class RopeEnd : bs
     {
         if (!enabled)
         {
-            //tmRope = 1;
             this.oldpos = this.transform.position = pl.pos;
             EnableRope(true);
-            
             dir = dir.normalized;
             this.rigidbody.velocity = dir * 100;
         }
-        
     }
 
     [RPC]
@@ -134,6 +131,7 @@ public class RopeEnd : bs
     
     public void EnableRope(bool enable)
     {
+        
         if (cloth != null)
             Destroy(cloth);
         if (enable)

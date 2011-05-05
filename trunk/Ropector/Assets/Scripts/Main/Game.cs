@@ -7,7 +7,8 @@ using System.Linq;
 public class Game : bs
 {
     public TimerA timer = new TimerA();
-    public Animation deadAnim;
+    public GUIText wingamegui;
+    //public Animation deadAnim;
     [FindTransform]
     public Base cursor;
     public bool AutoConnect = true;
@@ -30,10 +31,7 @@ public class Game : bs
             Debug.Log("Game Awake Autoconnect:" + AutoConnect);
             if (AutoConnect)
             {
-                var ips = new List<string>();
-                for (int i = 0; i < 255; i++)
-                    ips.Add("192.168.30." + i);
-                Network.Connect(ips.ToArray(), 5300);
+                LocalConnect();
             }
             if (!AutoConnect)
                 InitServer();
@@ -42,20 +40,41 @@ public class Game : bs
         base.Awake();
     }
     internal Transform water;
+    public Vector3 spawn;
     public void Start()
     {
+        SetupSpawnPos();
+        SetupOther();
+        SetupPlayer();
+        
+    }
+
+    private void SetupOther()
+    {
+        if (debug) prestartTm = 0;
         _MyGui.Hide();
         Debug.Log("Game start");
         water = GameObject.Find("water").transform;
-         var g = (GameObject)Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, 1);
-         _Player = g.GetComponent<Player>();
+    }
+
+    private void SetupPlayer()
+    {        
+        var g = (GameObject)Network.Instantiate(PlayerPrefab, spawn, Quaternion.identity, 1);
+        _Player = g.GetComponent<Player>();
+    }
+
+    private void SetupSpawnPos()
+    {
+        var t = GameObject.Find("spawn");        
+        if (t != null)
+            spawn = t.transform.position;
     }
     void Update()
     {        
-        timer.Update();
         prestartTm -= Time.deltaTime;
         UpdateTimeText();
         UpdateOther();
+        timer.Update();
     }
     
     void UpdateTimeText()
@@ -70,17 +89,21 @@ public class Game : bs
     }
     void UpdateOther()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Space))
             _MyGui.Show(Wind.ExitToMenuWindow);
     }
     [RPC]
-    private void WinGame()
+    private void WinGame(string name)
     {
-        pause = true;
-        deadAnim.Play();
+        _GameGui.deadAnim.animation.Play();
+        pause = true;        
+        wingamegui.text = name + " Win";
+        wingamegui.animation.Play();
         if(Network.isServer)
-            timer.AddMethod(2000, delegate { _Loader.NextLevel(); });
+            timer.AddMethod(7000, delegate { _Loader.NextLevel(); });
     }
+
+    
     public void OnConnect()
     {
         Debug.Log("Connected");
@@ -128,10 +151,12 @@ public class Game : bs
 
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
+
         //if (info == NetworkDisconnection.LostConnection)
-        //    timer.AddMethod(delegate { _MyGui.Show(MyGui.Wind.Disconnected); });
+        
         _Loader.totalScores = 0;
         Application.LoadLevel(0);
+        _Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.disconnectedtext = info + ""; _MyGui.Show(Wind.Disconnected); });
     }
     private void InitServer()
     {

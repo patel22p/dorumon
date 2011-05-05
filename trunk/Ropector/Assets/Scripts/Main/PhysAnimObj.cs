@@ -15,6 +15,7 @@ public class PhysAnimObj : bs
     public override void Awake()
     {
         base.Awake();
+        
         oldRot = this.rot;
     }
     public float strength = 1;
@@ -33,7 +34,7 @@ public class PhysAnimObj : bs
 
             rigidbody.useGravity = false;
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
-
+            rigidbody.centerOfMass = Vector3.zero;
             AnimObj = ((Transform)Instantiate(this.transform, pos, rot));            
             AnimObj.parent = this.transform.parent;
             anim = AnimObj.GetComponent<PhysAnimObj>().anim;
@@ -47,9 +48,11 @@ public class PhysAnimObj : bs
     {
         if (AnimObj != null)
         {
+            
             var pc = AnimObj.position - this.pos;            
             var rc = Mathf.DeltaAngle((rot * Quaternion.Inverse(oldRot)).eulerAngles.z,(AnimObj.rotation * Quaternion.Inverse(oldRot)).eulerAngles.z);
             this.rigidbody.velocity = pc * 5 * strength;
+            
             this.rigidbody.angularVelocity = new Vector3(0, 0, rc);
         }
     }

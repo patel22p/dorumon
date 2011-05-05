@@ -149,13 +149,14 @@ float4 Add0=Multiply2 + Add7;
 float4 Multiply4=Add0 * Multiply2;
 float4 SplatAlpha1=_Color.w;
 float4 Multiply0=SplatAlpha1 * Add7;
+float4 Add8=Multiply4 + Multiply0;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 float4 Master0_6_NoInput = float4(1,1,1,1);
 o.Albedo = _Color;
-o.Emission = Multiply4;
+o.Emission = Add8;
 o.Alpha = Multiply0;
 
 				o.Normal = normalize(o.Normal);

@@ -23,7 +23,7 @@ _VC_BlueColor("_VC_BlueColor", Color) = (0.09803923,0.3548059,0.9921569,1)
 
 		}
 
-		
+
 Cull Back
 ZWrite On
 ZTest LEqual
@@ -33,7 +33,7 @@ Fog{
 
 
 		CGPROGRAM
-#pragma surface surf BlinnPhongEditor  vertex:vert
+#pragma surface surf BlinnPhongEditor  noambient nolightmap noforwardadd approxview halfasview vertex:vert
 #pragma target 2.0
 
 
@@ -142,5 +142,5 @@ o.Emission = Lerp2;
 			}
 		ENDCG
 	}
-	Fallback "Diffuse"
+	Fallback "Ropector/Tron_Fallback"
 }

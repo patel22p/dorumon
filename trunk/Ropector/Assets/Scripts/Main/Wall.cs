@@ -5,6 +5,7 @@ using UnityEngine;
 public class Wall : PhysAnimObj
 {
     public bool die;
+    //bool dieOnHit = true;
     public bool attachRope = true;
     public Vector3 RopeForce = new Vector3(1, 1f, 1);
     public float RopeLength = 1f;
@@ -12,19 +13,21 @@ public class Wall : PhysAnimObj
     public Vector3 bounchyForce;
     public Collider[] Ignore;
     public PhysAnimObj[] animationToPlay;
+    public float animationSpeedFactor = 1;
     public float AnimationOffsetFactor;
 
     public override void Start()
     {
+
         base.Start();
         if (Ignore != null)
             foreach (Collider a in this.transform.GetTransforms().Where(a => a.collider != null).Select(a => a.collider))
                 foreach (Collider b in Ignore)
                     Physics.IgnoreCollision(a, b);
-        
 
-        if (anim != null && animationState.enabled && animationState != null && Network.isServer)
-            _Game.timer.AddMethod(3000, delegate
+        if (Network.isServer)
+            if (anim != null && anim.clip != null && animationState.enabled && animationState != null)
+                _Game.timer.AddMethod(3000, delegate
             {
                 networkView.RPC("AnimState", RPCMode.Others, animationState.enabled, animationState.time);
             });
@@ -33,6 +36,8 @@ public class Wall : PhysAnimObj
     float oldoffset;
     void Update()
     {
+        if (anim != null && anim.clip != null)
+            animationState.speed = animationSpeedFactor;
         if (anim != null && AnimationOffsetFactor != 0 && AnimationOffsetFactor != oldoffset)
         {
             animationState.time = (this.x *  AnimationOffsetFactor) % animationState.length;
@@ -50,12 +55,16 @@ public class Wall : PhysAnimObj
     public override void Init()
     {
         base.Init();
+        
+        Debug.Log("Wall Init");
         if (this.networkView == null)
             this.gameObject.AddComponent<NetworkView>();
         this.networkView.observed = null;
         this.networkView.stateSynchronization = NetworkStateSynchronization.Off;
         if (anim && rigidbody == null)
             gameObject.AddComponent<Rigidbody>();
+        if (anim != null)
+            renderer.lightmapIndex = -1;
 
         if (rigidbody != null)
             rigidbody.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;

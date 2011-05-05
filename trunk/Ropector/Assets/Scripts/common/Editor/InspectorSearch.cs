@@ -1,4 +1,4 @@
-#if UNITY_EDITOR && UNITY_STANDALONE_WIN
+#if UNITY_EDITOR 
 using UnityEditor;
 
 using System;
@@ -38,8 +38,6 @@ public class InspectorSearch : EditorWindow
     int camerai;
     protected virtual void OnGUI()
     {
-        //if (Camera.main == null)
-        //    return;     
         if (!SetPivot && Selection.activeGameObject) oldpos = Selection.activeGameObject.transform.position;
         GUI.BeginHorizontal();
         SetPivot = (GUI.Toggle(SetPivot, "Pivot", GUI.ExpandWidth(false)) && Selection.activeGameObject != null);
@@ -62,8 +60,6 @@ public class InspectorSearch : EditorWindow
         GUI.EndHorizontal();
         GUI.BeginHorizontal();
         Base.debug = GUI.Toggle(Base.debug, "debug", GUI.ExpandWidth(false));        
-        
-
         GUI.EndHorizontal();
 
         foreach (var a in GameObject.FindGameObjectsWithTag("EditorGUI").Where(a => a != Selection.activeGameObject))
@@ -75,7 +71,6 @@ public class InspectorSearch : EditorWindow
             if (bs2 != null)
                 bs2.OnEditorGui();
         }
-        
         DrawSearch();
     }
 
@@ -162,14 +157,17 @@ public class InspectorSearch : EditorWindow
             foreach (Animation anim in go.GetComponentsInChildren<Animation>().Cast<Animation>().ToArray())
                 if (anim.clip == null) DestroyImmediate(anim);
             foreach (var scr in go.GetComponents<Base>())
+                scr.Init();
+#if UNITY_EDITOR && UNITY_STANDALONE_WIN
+            foreach (var scr in go.GetComponents<Base>())
             {
                 foreach (var pf in scr.GetType().GetFields())
                 {
                     FindAsset(scr, pf);
                     //FindTransform(scr, pf);
-                }                
-                scr.Init();
+                }                                
             }
+#endif
         }
     }
     static void InitTransforms()
@@ -206,6 +204,7 @@ public class InspectorSearch : EditorWindow
                 catch { Debug.Log(scr.name + " cound not find path " + scr.name + "+" + name); }
             }
     }
+    #if UNITY_EDITOR && UNITY_STANDALONE_WIN
     private static void FindAsset(Base scr, FieldInfo pf)
     {
         FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
@@ -237,6 +236,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
+#endif
     private static object Cast<T>(IEnumerable<T> objectList, Type t)
     {
         object a = typeof(Enumerable)
@@ -256,10 +256,9 @@ public class InspectorSearch : EditorWindow
 
         search = EditorGUILayout.TextField("search",search);
         EditorGUIUtility.LookLikeInspector();
-        
         var ago = Selection.activeGameObject;
         var ao = Selection.activeObject;
-        if (types.Contains(ao.GetType()) && ao != null && !(ago != null && ago.camera != null) && search.Length > 0)
+        if (search.Length > 0 && types.Contains(ao.GetType()) && ao != null && !(ago != null && ago.camera != null) )
         {
             IEnumerable<Object> array = new Object[] { ao };
             if (ago != null)
@@ -367,30 +366,73 @@ public class InspectorSearch : EditorWindow
             Camera.main.transform.rotation = Camera.main.transform.parent.rotation;
         }
     }
-    
     public GameObject selectedGameObject;
+    void OnSelectionChange()
+    {
+        search = "";
+        this.Repaint();
+        //Update();
+    }
+    protected virtual void Update()
+    {
+        autosavetm += 0.01f;
+        _TimerA.Update();
+        
+        SceneView.onSceneGUIDelegate = OnSceneUpdate;
+
+        //if (autosavetm > 60 * 5)
+        //{
+        //    autosavetm = 0;
+        //    Backup();
+        //}
+        var ao = Selection.activeObject;
+        if (ao != null && !lastUsed.Contains(ao))
+            lastUsed.Insert(0, ao);
+
+        if (_TimerA.TimeElapsed(3000))
+            this.Repaint();
+    }
+    public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
+    public static string datetime
+    {
+        get
+        {
+            return DateTime.Now.Ticks + "";
+            //return DateTime.Now.ToString("yyyy-MM-dd hh-mm");
+        }
+    }
+    IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
+    {
+        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
+        {
+            string f = f2.Replace(@"\", "/").Replace("//", "/");
+            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));
+            if (a != null)
+                yield return a;
+        }
+    }
     
-    
-    #region menuitems    
-    [MenuItem("Edit/Play % ")]    
+    #region menuitems
+    [MenuItem("Edit/Play % ")]
     private static void Play()
     {
         if (EditorApplication.isPlaying)
             EditorApplication.isPaused = !EditorApplication.isPaused;
         else
             if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
-        
+
     }
-    [MenuItem("File/Backup")]    
+    [MenuItem("File/Backup")]
     private static void Backup()
     {
         if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
         {
             //Debug.Log("Auto Save");
             EditorApplication.SaveAssets();
-            EditorApplication.SaveScene(EditorApplication.currentScene); 
+            EditorApplication.SaveScene(EditorApplication.currentScene);
         }
     }
+
     [MenuItem("Edit/Assign Material")]
     static void InitMaterial()
     {
@@ -410,7 +452,18 @@ public class InspectorSearch : EditorWindow
         var file = dir + datetime + ".png";
         Debug.Log("saved to: " + file);
         Application.CaptureScreenshot(file);
-    }    
+    }
+    [MenuItem("GameObject/Sync Pos")]
+    static void SyncPos()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        Debug.Log("Sync");
+        var a = Selection.gameObjects.First().transform;
+        var b = Selection.activeGameObject.transform;
+        b.position = a.position;
+        b.rotation = a.rotation;
+        b.localScale = a.localScale;
+    }
     [MenuItem("GameObject/Attach Prefab")]
     static void AttachPrefabToSelectedObjects()
     {
@@ -426,7 +479,7 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
-    
+
     [MenuItem("GameObject/Duplicate100")]
     static void Duplicate()
     {
@@ -445,20 +498,20 @@ public class InspectorSearch : EditorWindow
     {
         if (Selection.activeObject is Cubemap)
         {
-            Cubemap cb = (Cubemap)Selection.activeObject;            
+            Cubemap cb = (Cubemap)Selection.activeObject;
             var c = SceneView.lastActiveSceneView.camera;
-            
+
             c.RenderToCubemap(cb);
             //DestroyImmediate(c);
             //Debug.Log("rendered to cubemap");
         }
     }
-    
+
     [MenuItem("GameObject/Combine")]
     static void Combine()
     {
         Undo.RegisterSceneUndo("rtools");
-        
+
         var g = Selection.activeGameObject;
         Base.Combine(g);
     }
@@ -549,7 +602,7 @@ public class InspectorSearch : EditorWindow
             a.sharedMaterials = ms;
         }
     }
-    [MenuItem("Assets/Create/Prefab", priority =0)]
+    [MenuItem("Assets/Create/Prefab", priority = 0)]
     static void CreatePrefabs()
     {
         Undo.RegisterSceneUndo("rtools");
@@ -756,7 +809,7 @@ public class InspectorSearch : EditorWindow
         AnimationClip copy = AssetDatabase.LoadAssetAtPath(copyPath, typeof(AnimationClip)) as AnimationClip;
         if (copy == null)
             throw new Exception("No copy found at " + copyPath);
-        
+
         AnimationClipCurveData[] curveDatas = AnimationUtility.GetAllCurves(imported, true);
         for (int i = 0; i < curveDatas.Length; i++)
         {
@@ -772,70 +825,5 @@ public class InspectorSearch : EditorWindow
         Debug.Log("Copying curves into " + copy.name + " is done");
     }
     #endregion
-    void OnSelectionChange()
-    {
-        this.Repaint();
-        //Update();
-    }
-    
-    protected virtual void Update()
-    {
-
-        autosavetm += 0.01f;
-        _TimerA.Update();
-        SceneView.onSceneGUIDelegate = OnSceneUpdate;
-
-        if (autosavetm > 60 * 5)
-        {
-            autosavetm = 0;
-            Backup();
-        }
-        var ao = Selection.activeObject;
-        if (ao != null && !lastUsed.Contains(ao))
-            lastUsed.Insert(0, ao);
-
-        if (_TimerA.TimeElapsed(3000))
-            this.Repaint();
-    }
-    public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
-    public static string datetime
-    {
-        get
-        {
-            return DateTime.Now.Ticks + "";
-            //return DateTime.Now.ToString("yyyy-MM-dd hh-mm");
-        }
-    }
-    IEnumerable<T> GetAssets<T>(string path, string pattern) where T : Object
-    {
-        foreach (string f2 in Directory.GetFiles("Assets/" + path, pattern, SearchOption.AllDirectories))
-        {
-            string f = f2.Replace(@"\", "/").Replace("//", "/");
-            var a = (T)AssetDatabase.LoadAssetAtPath(f, typeof(T));
-            if (a != null)
-                yield return a;
-        }
-    }
-    private static void Build()
-    {        
-        var fn = "game.exe";
-        var path = @"Builds/";
-        CrDir(path);
-        BuildPipeline.BuildPlayer(Base.scenes, path + fn, BuildTarget.StandaloneWindows, BuildOptions.Development);
-        Debug.Log("Stand Alone Bulid success");
-    }
-    public static void BuildWeb()
-    {
-        //var d = DateTime.Now;
-        //var dt = d.Year + "-" + d.Month + "-" + d.Day + " " + d.Hour + "-" + d.Minute + "-" + d.Second + "/";
-        //var folder = "Web/" + dt;
-        //if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);            
-        if (Directory.Exists("Index")) Directory.Delete("Index", true);
-        BuildPipeline.BuildPlayer(Base.scenes, "Index", BuildTarget.WebPlayerStreamed, BuildOptions.None);
-        CrDir("t2");
-        BuildPipeline.BuildPlayer(new[] { Base.scenes[0] }, "t2/asd", BuildTarget.StandaloneWindows, BuildOptions.Development);
-        Directory.Delete("t2", true);
-        Debug.Log("Web Bulid success");
-    }
 }
 #endif

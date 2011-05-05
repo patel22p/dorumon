@@ -76,7 +76,7 @@ public class Loader : bs
     {
         if (_MyGui.LoopSameLevel)
             LoadLevel(Application.loadedLevel);
-        else
+        else 
         {
             var i = Application.loadedLevel + 1;
             if (i > Application.levelCount - 1) i = 1;

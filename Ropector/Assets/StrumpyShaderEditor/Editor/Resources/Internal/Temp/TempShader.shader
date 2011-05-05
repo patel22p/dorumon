@@ -34,7 +34,7 @@ Fog{
 
 		CGPROGRAM
 #pragma surface surf BlinnPhongEditor  vertex:vert
-#pragma target 2.0
+#pragma target 3.0
 
 
 float4 _Color;
@@ -129,6 +129,7 @@ float4 Add1=Swizzle1 + Multiply5;
 float4 Tex2D2=tex2D(_Forcefield,Add1.xy);
 float4 Splat1=float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).y;
 float4 Lerp1=lerp(Lerp0,Tex2D2,Splat1);
+float4 Multiply10=_Forcegrain_Brightness.xxxx * Lerp1;
 float4 Multiply9=float4( 1.5,1.5,1.5,1.5 ) * _Forcefield_Tiling;
 float4 Multiply6=float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ) * Multiply9;
 float4 Multiply8=_Forcegrain_Speed.xxxx * float4( 1.5,1.5,1.5,1.5 );
@@ -145,10 +146,8 @@ float4 Add4=Swizzle3 + Multiply7;
 float4 Tex2D4=tex2D(_Forcefield,Add4.xy);
 float4 Splat3=float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).y;
 float4 Lerp4=lerp(Lerp3,Tex2D4,Splat3);
-float4 Add7=Lerp1 + Lerp4;
-float4 Multiply10=_Forcegrain_Brightness.xxxx * Add7;
-float4 Multiply11=Multiply10 * Add7;
-float4 Add0=Multiply2 + Multiply11;
+float4 Add7=Multiply10 + Lerp4;
+float4 Add0=Multiply2 + Add7;
 float4 Multiply4=Add0 * Multiply2;
 float4 SplatAlpha1=_Color.w;
 float4 Multiply0=SplatAlpha1 * Add7;

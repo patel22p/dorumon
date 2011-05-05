@@ -2,6 +2,7 @@
 using System.Linq;
 using UnityEngine;
 using doru;
+using System.Collections.Generic;
 [AddComponentMenu("Game/Base")]
 public class bs : Base 
 {
@@ -29,7 +30,17 @@ public class bs : Base
         }
     }
 
-    
+    public void LocalConnect()
+    {
+        var ips = new List<string>();
+        var ip = Network.player.ipAddress;
+        ip = ip.Substring(0, ip.LastIndexOf('.')) + ".";
+        Debug.Log(ip);
+        for (int i = 0; i < 255; i++)
+            ips.Add(ip + i);
+        Network.Connect(ips.ToArray(), 5300);
+    }
+   
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
     //public static TimerA _Timer { get { return _Loader.timer; } }
     static MyGui m_MyGui;

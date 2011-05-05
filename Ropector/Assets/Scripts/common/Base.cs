@@ -6,6 +6,7 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
+using UnityEditor;
 #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
 using UnityEditor;
 #endif
@@ -58,7 +59,7 @@ public partial class Base : MonoBehaviour
     }
     public static string[] files;
 
-#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+#if (UNITY_EDITOR)
     public static bool debug
     {
         get
@@ -66,8 +67,7 @@ public partial class Base : MonoBehaviour
             return EditorPrefs.GetBool("Debug");            
         }
         set { EditorPrefs.SetBool("Debug", value); }
-    }
-    
+    }    
 #else
     public static bool debug;
 #endif

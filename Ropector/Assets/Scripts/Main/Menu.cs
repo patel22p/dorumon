@@ -11,11 +11,9 @@ public class Menu : bs
 
 
     TimerA timer = new TimerA();
-    
+    public GUIText guibuild;
     public void Start()
     {
-        
-        //Network.Disconnect();
         string[] levels = new string[Application.levelCount-1];
         for (int i = 0; i < Application.levelCount - 1; i++)
             levels[i] = "Level " + (i + 1);
@@ -23,7 +21,12 @@ public class Menu : bs
         _MyGui.curwindow = Wind.Menu;
         _MyGui.enabled = false;
     }
-
+    
+    public override void OnEditorGui()
+    {
+        guibuild.text = "Version Build:" + DateTime.Now.ToShortDateString();
+        base.OnEditorGui();
+    }
     void Update()
     {
         UpdateHostList();
@@ -31,9 +34,10 @@ public class Menu : bs
         timer.Update();
     }
     void UpdateHostList()
-    {
-        if (MasterServer.PollHostList().Length != 0)
+    {        
+        if (MasterServer.PollHostList().Length != 0 && joingame)
         {
+            joingame = false;
             timer.Clear();
             _MyGui.Show(Wind.PopUp);
             _MyGui.popupTitle = "Searching for games";
@@ -47,19 +51,18 @@ public class Menu : bs
                 _MyGui.popupText = "Trying Connect to " + hostData[i].gameName;
                 Network.Connect(hostData[i]);
             }
-            SetTimeOut();
             MasterServer.ClearHostList();
             
         }
     }
     private void UpdateOther()
     {
-         
-        if (Input.GetKeyDown(KeyCode.Escape))
+
+        if (Input.GetKeyDown(KeyCode.Space))
             _MyGui.enabled = !_MyGui.enabled;   
     }
-    
 
+    bool joingame;
     public void Action(MenuAction a)
     {
         Debug.Log("Action:" + a);
@@ -69,35 +72,29 @@ public class Menu : bs
         }
         if (a == MenuAction.JoinGame)
         {
+            SetTimeOut();
+            joingame = true;
             MasterServer.RequestHostList("Ropector");
             _MyGui.popupTitle = "Searching for games";
-            _MyGui.popupText = "Searching for lan games";
+            _MyGui.popupText = "Searching for games";
             _MyGui.Show(Wind.PopUp);
-            var ips = new List<string>();
-            //foreach (IPAddress host in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-            //{
-            //    var s = host.ToString();
-            //    s= s.Substring(0, s.LastIndexOf('.'))+".";
-            for (int i = 0; i < 255; i++)
-                ips.Add("192.168.30." + i);
-            //}            
-            Network.Connect(ips.ToArray(), 5300);
-            SetTimeOut();
-
+            LocalConnect();            
         }
     }
 
-    private static void HostGame()
+    
+
+    private void HostGame()
     {
         bool useNat = !Network.HavePublicAddress();
-        Network.InitializeServer(32, 5300, useNat);
-        MasterServer.RegisterHost("Ropector", _Loader.nick + "'s game", "Level " + _MyGui.SelectedLevel);
+        Network.InitializeServer(8, 5300, useNat);
+        MasterServer.RegisterHost("Ropector " + guibuild, _Loader.nick + "'s game", "Level " + _MyGui.SelectedLevel);
         _Loader.LoadLevel(_MyGui.SelectedLevel+1);
     }
 
     private void SetTimeOut()
     {
-        timer.AddMethod(5000, delegate { _MyGui.popupText = "Connection failed"; timer.AddMethod(1000, delegate { _MyGui.Show(Wind.Menu); }); });
+        timer.AddMethod(15000, delegate { _MyGui.popupText = "connection time out"; timer.AddMethod(1000, delegate { _MyGui.Show(Wind.Menu); }); });
     }
     
 

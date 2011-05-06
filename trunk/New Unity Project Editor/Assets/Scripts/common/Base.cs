@@ -40,6 +40,8 @@ public partial class Base : MonoBehaviour
             t.gameObject.active = value;
     }
     public Vector3 pos { get { return transform.position; } set { transform.position = value; } }
+
+    public Vector3 scale { get { return transform.localScale; } set { transform.localScale = value; } }
     public float x { get { return pos.x; } set { var v = pos; v.x = value; pos = v; } }
     public float y { get { return pos.y; } set { var v = pos; v.y = value; pos = v; } }
     public float z { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }

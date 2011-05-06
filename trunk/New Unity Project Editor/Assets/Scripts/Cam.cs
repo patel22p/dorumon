@@ -18,14 +18,14 @@ public class Cam : bs2
 
     }
 
-    Vector3 posf;
+    //Vector3 posf;
     float camoffset = 1;
     void Update()
     {
 
         Vector3 v = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
-        posf += v;
-        pos = Vector3.Lerp(pos, posf, .97f);
+        pos += v;
+        //pos = Vector3.Lerp(pos, posf, .97f);
         Camera.main.orthographicSize = camoffset * 10;
         camoffset = Mathf.Clamp(camoffset - Input.GetAxis("Mouse ScrollWheel"), .1f, 4f);
         this.transform.localScale = Vector3.one * camoffset;

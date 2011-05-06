@@ -2,9 +2,9 @@ using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
 using System.Collections.Generic;
-public enum Tools { Zoom, Draw }
-public class GameGUI : MonoBehaviour {
-    internal Rect winRect= new Rect(10, 10, 100, 200);
+public enum Tools { SetGrid, Draw, Line }
+public class GameGUI : bs2{
+    internal Rect winRect= new Rect(10, 10, 100, 400);
     internal List<Tool> tools = new List<Tool>();
     Texture2D[] brushTextures ;
 	void Start () {
@@ -28,11 +28,19 @@ public class GameGUI : MonoBehaviour {
     void Window( int id)
     {
         if (gui.Button("Camera"))
-            Camera.main.orthographic = !Camera.main.orthographic; 
-        brushi = gui.Toolbar(brushi, toolTextures);
-        gui.Space(1);
-        tooli = gui.Toolbar(tooli, brushTextures);
+            Camera.main.orthographic = !Camera.main.orthographic;
+        gui.Label("Brushes");
+        brushi = gui.SelectionGrid(brushi, toolTextures,2);
+        gui.Label("Tools");
+        tooli = gui.SelectionGrid(tooli, brushTextures, 2);
+        var s = _Game.SelectedPrefab.scale;
+        s.x = float.Parse(gui.TextField(s.x + ""));
+        s.y = float.Parse(gui.TextField(s.y + ""));
+        s.z = float.Parse(gui.TextField(s.z + ""));
+        _Game.SelectedPrefab.scale = s;
+        //gui.VerticalSlider();
     }
+    
 	void Update () {
 	
 	}

@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\common\Base.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <None Include="Assets\Scripts\shaders\Alpha-Diffuse.shader" />
      <Compile Include="Assets\Scripts\bs.cs" />
      <Compile Include="Assets\Scripts\bs2.cs" />
      <Compile Include="Assets\Scripts\Cam.cs" />

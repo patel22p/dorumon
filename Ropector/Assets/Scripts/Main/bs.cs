@@ -10,13 +10,7 @@ public class bs : Base
     {
         return "id:" + networkView.owner.GetHashCode() + ", nv:" + networkView.viewID.GetHashCode();
     }
-    private static void InitLoader()
-    {
-        if (__Loader == null)
-            __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault();
-        if (__Loader == null)
-            __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
-    }
+    
     public virtual void Awake()
     {
         InitLoader();
@@ -67,7 +61,13 @@ public class bs : Base
             return __Loader;
         }
     }
-    
+    private static void InitLoader()
+    {
+        if (__Loader == null)
+            __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault();
+        if (__Loader == null)
+            __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
+    }   
     public static string TimeToSTr(float ts)
     {
         var t = TimeSpan.FromSeconds(ts);

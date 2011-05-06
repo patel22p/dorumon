@@ -6,24 +6,21 @@ using System.IO;
 using Object = UnityEngine.Object;
 using System.Collections;
 using System.Text.RegularExpressions;
-using UnityEditor;
-#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
+
+#if (UNITY_EDITOR)
 using UnityEditor;
 #endif
 public partial class Base : MonoBehaviour
 {
-    #if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-    public bool selected { get { return UnityEditor.Selection.activeGameObject == this.gameObject; } }
-#else
-    public bool selected;
-#endif
-    public static string[] scenes
+    public bool selected
     {
         get
         {
-            return new string[] { 
-            "Assets/scenes/1.unity",                        
-        };
+#if (UNITY_EDITOR)
+            return UnityEditor.Selection.activeGameObject == this.gameObject;
+#else
+            return false;
+#endif
         }
     }
     public static void IgnoreAll(string name, params string[] layers)
@@ -44,53 +41,33 @@ public partial class Base : MonoBehaviour
             t.gameObject.active = value;
     }
     public Vector3 pos { get { return transform.position; } set { transform.position = value; } }
+
+    public Vector3 scale { get { return transform.localScale; } set { transform.localScale = value; } }
     public float x { get { return pos.x; } set { var v = pos; v.x = value; pos = v; } }
     public float y { get { return pos.y; } set { var v = pos; v.y = value; pos = v; } }
     public float z { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }
     public Vector3 lpos { get { return transform.localPosition; } set { transform.localPosition = value; } }
     public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
-    public static string CreateTable(string source) //create table parse table
-    {
-        string table = "";
-        MatchCollection m = Regex.Matches(source, @"\w*\s*");
-        for (int i = 0; i < m.Count - 1; i++)
-            table += "{" + i + ",-" + m[i].Length + "}";
-        return table;
-    }
-    public static string[] files;
+    
 
-#if (UNITY_EDITOR)
     public static bool debug
     {
         get
         {
-            return EditorPrefs.GetBool("Debug");            
-        }
-        set { EditorPrefs.SetBool("Debug", value); }
-    }    
+#if (UNITY_EDITOR)
+            return EditorPrefs.GetBool("Debug");
 #else
-    public static bool debug;
+            return false;
 #endif
-    
+        }
+        set
+        {
+#if (UNITY_EDITOR)
+            EditorPrefs.SetBool("Debug", value);
+#endif
+        }
+    }    
 
-#if (UNITY_EDITOR && UNITY_STANDALONE_WIN)
-    
-    public static IEnumerable<string> GetFiles()
-    {
-        if (files == null)
-            files = Directory.GetFiles("./", "*.*", SearchOption.AllDirectories);
-        return files.Select(a => a.Replace("\\", "/").Substring(2));
-    }
-    //public static T FindAsset<T>(string name) where T : Object { return (T)FindAsset(name, typeof(T)); }
-    public static Object FindAsset(string name, Type t)
-    {
-        var aset = GetFiles().Where(a => Path.GetFileNameWithoutExtension(a) == name)
-            .Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, t))
-            .Where(a => a != null).FirstOrDefault();
-        if (aset == null) throw new Exception("could not find asset " + name);
-        return aset;
-    }
-#endif
     
     public virtual void Init()
     {

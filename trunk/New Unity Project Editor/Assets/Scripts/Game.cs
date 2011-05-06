@@ -56,8 +56,6 @@ public class Game : bs2 {
     Vector3 oldms;
     void Draw()
     {
-        //foreach (Transform t in level)
-        //    if (SelectedPrefab.collider.bounds.Intersects(t.collider.bounds)) return;
         var dist = Vector3.Distance(cursorPos, oldms);
         Draw2();
         for (float i = 0; i < dist ; i += .01f)

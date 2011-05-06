@@ -56,6 +56,11 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\bs2.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\ECam.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\EGame.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\EGameGUI.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\Tool.cs" />
      <Compile Include="Assets\Scripts\Main\Other\BuildWalls.cs" />
      <Compile Include="Assets\Scripts\Main\Other\Dragable.cs" />
      <Compile Include="Assets\Scripts\Main\Other\GlowOnHit.cs" />
@@ -91,6 +96,7 @@
      <None Include="Assets\Scripts\shader\ropeShader.shader" />
      <None Include="Assets\Scripts\shader\Tron.shader" />
      <None Include="Assets\Scripts\shader\Tron_Fallback.shader" />
+     <None Include="Assets\Scripts\shaders\Alpha-Diffuse.shader" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\CharacterMotor.js" />
      <None Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\FPSInputController.js" />
      <Compile Include="Assets\Standard Assets\Character Controllers\Sources\Scripts\MouseLook.cs" />

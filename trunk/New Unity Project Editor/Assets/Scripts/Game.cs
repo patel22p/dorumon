@@ -32,10 +32,7 @@ public class Game : bs2 {
     void Update () {
         UpdateOther();
         UpdateCursor();
-        if (down)
-            lastpos = cursorPos;
-        if (Input.GetMouseButtonUp(0))
-            lastpos = null;
+        
 
         if (tool == Tools.SetGrid)
         {
@@ -115,6 +112,10 @@ public class Game : bs2 {
         }
         if (Plane.collider.Raycast(r, out h, float.MaxValue))
             cursorPos = h.point;
+        if (down)
+            lastpos = cursorPos;
+        if (Input.GetMouseButtonUp(0))
+            lastpos = null;
     }
 
     Tools tool { get { return _GameGUI.brush; } }

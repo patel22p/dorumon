@@ -14,6 +14,7 @@ public class Menu : bs
     public GUIText guibuild;
     public void Start()
     {
+        _Loader.EditorTest = false;
         string[] levels = new string[Application.levelCount-1];
         for (int i = 0; i < Application.levelCount - 1; i++)
             levels[i] = "Level " + (i + 1);

@@ -6,41 +6,29 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-public class Tool : bs2 {
-
-	void Start () {
-
-    }
-
-    public override void Init()
-    {
-#if UNITY_EDITOR && UNITY_STANDALONE_WIN
-        var Texture = UnityEditor.EditorUtility.GetAssetPreview(this);
-        File.WriteAllBytes("Assets/" + gameObject.name + ".png", Texture.EncodeToPNG());
-#endif
-        base.Init();
-    }
-
-    public Texture2D Texture;
-    void Update()
-    {
-	}
-    public Tooldb Save()
-    {
-        return new Tooldb { Pos = pos, q = rot, scale = scale };
-    }
-
+public class Tool : bs
+{
+    public int toolid;
 }
+
+public enum Brushes { Draw, Line, Trail, Spawn }
+
 [Serializable]
 public class Tooldb
 {
+    public int toolid;
+    //public Brushes tool;
     public Vector3 Pos;
     public Vector3 scale;
-    public Quaternion q;
+    public Quaternion rot;
+    public string text;
+    public bool spawn;
+    public float speedTrackVell;
 }
 [Serializable]
 public class DB
 {
+    public Vector3 startpos;
     public static XmlSerializer xml = new XmlSerializer(typeof(DB), new[] { typeof(Tooldb) });
     public List<Tooldb> tools = new List<Tooldb>();
 }

@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -56,10 +56,10 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\bs2.cs" />
      <Compile Include="Assets\Scripts\Main\Map\ECam.cs" />
      <Compile Include="Assets\Scripts\Main\Map\EGame.cs" />
      <Compile Include="Assets\Scripts\Main\Map\EGameGUI.cs" />
+     <Compile Include="Assets\Scripts\Main\Map\Gamebs.cs" />
      <Compile Include="Assets\Scripts\Main\Map\Tool.cs" />
      <Compile Include="Assets\Scripts\Main\Other\BuildWalls.cs" />
      <Compile Include="Assets\Scripts\Main\Other\Dragable.cs" />
@@ -75,9 +75,11 @@
      <Compile Include="Assets\Scripts\Main\temp\Drawed.cs" />
      <Compile Include="Assets\Scripts\Main\temp\End.cs" />
      <Compile Include="Assets\Scripts\Main\temp\HitTrigger.cs" />
+     <Compile Include="Assets\Scripts\Main\temp\InspectorSearch.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Invite.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Jumper.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Unrotate.cs" />
+     <Compile Include="Assets\Scripts\Main\AnimHelper.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
@@ -86,6 +88,7 @@
      <Compile Include="Assets\Scripts\Main\Menu.cs" />
      <Compile Include="Assets\Scripts\Main\Music.cs" />
      <Compile Include="Assets\Scripts\Main\MyGui.cs" />
+     <Compile Include="Assets\Scripts\Main\PhysAnim.cs" />
      <Compile Include="Assets\Scripts\Main\PhysAnimObj.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />

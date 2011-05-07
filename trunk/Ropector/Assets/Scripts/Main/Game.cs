@@ -3,8 +3,9 @@ using UnityEngine;
 using doru;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
-public class Game : bs
+public class Game : Gamebs
 {
     public TimerA timer = new TimerA();
     public GUIText wingamegui;
@@ -16,12 +17,10 @@ public class Game : bs
     public GameObject PlayerPrefab;
     internal new Player _Player;
     public List<Player> players2 = new List<Player>();
-    public IEnumerable<Player> players { get { return players2.Where(a => a != null); } }
-    
+    public IEnumerable<Player> players { get { return players2.Where(a => a != null); } }            
     public bool pause;
     internal float prestartTm = 3;
     internal List<bs> networkItems = new List<bs>();
-    
 
     public override void Awake()
     {
@@ -30,23 +29,21 @@ public class Game : bs
         {
             Debug.Log("Game Awake Autoconnect:" + AutoConnect);
             if (AutoConnect)
-            {
                 LocalConnect();
-            }
             if (!AutoConnect)
                 InitServer();
         }
         AddToNetwork();
+        
         base.Awake();
     }
     internal Transform water;
-    public Vector3 spawn;
+    
     public void Start()
     {
         SetupSpawnPos();
         SetupOther();
-        SetupPlayer();
-        
+        SetupPlayer();        
     }
 
     private void SetupOther()
@@ -90,7 +87,10 @@ public class Game : bs
     void UpdateOther()
     {
         if (Input.GetKeyDown(KeyCode.Space))
-            _MyGui.Show(Wind.ExitToMenuWindow);
+            if (_MyGui.enabled)
+                _MyGui.Hide();
+            else
+                _MyGui.Show(Wind.ExitToMenuWindow);
     }
     [RPC]
     private void WinGame(string name)
@@ -151,12 +151,14 @@ public class Game : bs
 
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
-
-        //if (info == NetworkDisconnection.LostConnection)
-        
-        _Loader.totalScores = 0;
-        Application.LoadLevel(0);
-        _Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.disconnectedtext = info + ""; _MyGui.Show(Wind.Disconnected); });
+        _Loader.totalScores = 0;        
+        if (_Loader.EditorTest)
+            Application.LoadLevel((int)Scene.mapEditor);            
+        else
+        {
+            Application.LoadLevel((int)Scene.Menu);
+            _Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.disconnectedtext = info + ""; _MyGui.Show(Wind.Disconnected); });
+        }
     }
     private void InitServer()
     {

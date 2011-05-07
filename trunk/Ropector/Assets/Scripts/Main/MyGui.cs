@@ -11,6 +11,7 @@ public class MyGui : bs
         enabled = true;
         this.curwindow = window;
     }
+
     public void Hide()
     {
         this.enabled = false;
@@ -51,8 +52,13 @@ public class MyGui : bs
             QualitySettings.DecreaseLevel();
         gui.Label(QualitySettings.currentLevel + "");
         if (gui.Button(">"))
-            QualitySettings.IncreaseLevel();
+            QualitySettings.IncreaseLevel();        
         gui.EndHorizontal();
+        if (gui.Button("Level Editor"))
+        {
+            this.Hide();
+            Application.LoadLevel((int)Scene.mapEditor);
+        }
     }
     public string[] levels;
     public int SelectedLevel;

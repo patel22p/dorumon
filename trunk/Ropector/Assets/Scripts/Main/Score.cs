@@ -1,17 +1,19 @@
 using UnityEngine;
 using System.Collections;
 
-public class Score : bs {
+public class Score : Tool {
 
     public bool spawn = true;
     Vector3 spawnpos;
 	void Start () {
+        if (editor) return;
         spawnpos = pos;
         _Game.scores.Add(this);
         this.GetComponentInChildren<Animation>()["Score"].normalizedTime = Random.value;
 	}
 	
 	void Update () {
+        if (editor) return;
         if (_Player == null) return;
         var dist = Vector3.Distance(_Player.transform.position, this.transform.position);
         var d = 5;

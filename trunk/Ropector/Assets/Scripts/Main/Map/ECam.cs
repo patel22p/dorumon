@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class ECam : bs2
+public class ECam : bs
 {
     Transform holder;
     public override void Awake()

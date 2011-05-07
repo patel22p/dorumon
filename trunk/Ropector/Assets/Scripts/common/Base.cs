@@ -76,10 +76,7 @@ public partial class Base : MonoBehaviour
     {
 
     }
-    public virtual void OnSceneGUI()
-    {
-
-    }
+    
     public static void Combine(GameObject g)
     {
         var generateTriangleStrips = true;
@@ -155,12 +152,4 @@ public partial class Base : MonoBehaviour
             }
         }
     }
-    public static string TimeToString(TimeSpan t)
-    {
-        var s = t.ToString();
-        if (s.IndexOf(".") != -1)
-            return s.Substring(0, s.IndexOf("."));
-        else
-            return s;
-    }   
 }

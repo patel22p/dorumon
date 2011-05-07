@@ -117,8 +117,7 @@ public class RopeEnd : bs
     void OnColl(Vector3 point, Transform t)
     {
         AttachedTo= t.gameObject.GetComponent<Wall>();
-        if (AttachedTo != null && AttachedTo.PlayOnRopeHit)
-            AttachedTo.OnHit();
+        
         if (AttachedTo != null && AttachedTo.attachRope)
         {            
             this.rigidbody.isKinematic = true;

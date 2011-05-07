@@ -4,47 +4,67 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class EGame : bs2 {
+public class EGame : Gamebs {
 
-	
-    internal Tool SelectedPrefab;
-    Tool LastPrefab;
-    Transform level;
+    public new List<Tool> tools = new List<Tool>();
+    internal bs SelectedPrefab;
+    internal bs LastPrefab;
+    
     Transform plane;
     Transform SelectBox;
-    Transform spawn;
+    Transform spawnTr;
     Vector3? lastpos;
     Vector3 cursorPos;
-    void Start()
-    {        
-        plane = GameObject.Find("Plane").transform;
-        level = GameObject.Find("level").transform;
-        spawn = GameObject.Find("spawn").transform;
-        SelectBox = transform.Find("SelectBox");
+    public override void Awake()
+    {
+        _MyGui.Hide();
+        base.Awake();
     }
-    public Vector3 size = Vector3.one;
-    //public Vector3 size2 = Vector3.one;
+
+    
+    void Start()
+    {
+        _Loader.EditorTest = true;
+        plane = GameObject.Find("Plane").transform;
+        
+        spawnTr = GameObject.Find("spawn").transform;
+        spawnTr.position = spawn;
+        SelectBox = transform.Find("SelectBox");
+
+    }
+    internal Vector3 size = Vector3.one*3;
     public float LineWidth = 1;
     void Update () {
         UpdateOther();
         UpdateCursor();
-        UpdateDrawGrid();
-        UpdateDrawTrail();
-        if (tool == Tools.Spawn)
+        if (SelectedPrefab.GetComponent<Wall>() != null)
         {
-            if (down)
-                spawn.position = cursorPos;
+            UpdateDrawGrid();
+            UpdateDrawTrail();
+        }
+        if (SelectedPrefab.GetComponent<TextMesh>() != null || SelectedPrefab.GetComponent<Score>() != null)
+        {
+            if (click)
+            {
+                var g = LastPrefab = (bs)Instantiate(SelectedPrefab, cursorPos, Quaternion.identity);
+                g.transform.parent = level;
+            }
+        }
+        if (brush == Brushes.Spawn)
+        {
+            if (click)
+                spawnTr.position = cursorPos;
         }
     }
 
     private void UpdateDrawTrail()
     {
-        if (tool == Tools.Line || tool == Tools.Trail)
+        if (brush == Brushes.Line || brush == Brushes.Trail)
         {
 
             if (up)
                 LineUp();
-            if (down)
+            if (click)
                 LineDown();
             if (lastpos != null)
             {
@@ -52,7 +72,7 @@ public class EGame : bs2 {
                 var s = Holder.localScale;
                 s.z = Vector3.Distance(cursorPos, lastpos.Value);
                 Holder.localScale = s;
-                if (tool == Tools.Line) LineWidth = s.z;
+                if (brush == Brushes.Line) LineWidth = s.z;
                 else
                 {
                     if (LineWidth < s.z)
@@ -70,9 +90,9 @@ public class EGame : bs2 {
         
         Holder = new GameObject("Holder").transform;
         Holder.position = cursorPos;
-        LastPrefab = (Tool)Instantiate(SelectedPrefab);
-        LastPrefab.scale = Vector3.one;
-        LastPrefab.pos = cursorPos + new Vector3(0, 0, .5f);
+        LastPrefab = (bs)Instantiate(SelectedPrefab);
+        LastPrefab.transform.localScale= Vector3.one;
+        LastPrefab.transform.position = cursorPos + new Vector3(0, 0, .5f);
         LastPrefab.transform.parent = Holder;
         lastpos = cursorPos;
     }
@@ -85,19 +105,19 @@ public class EGame : bs2 {
 
     private void UpdateDrawGrid()
     {
-        if (tool == Tools.Draw)
+        if (brush == Brushes.Draw)
         {
             SelectBox.gameObject.active = true;
             var s = new Vector3(size.x, size.y, 1);
             var p = cursorPos - s / 2;
             p = new Vector3(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.y), 0);
 
-            SelectBox.position = SelectedPrefab.pos = p + (s-Vector3.forward) / 2 ;
+            SelectBox.position = SelectedPrefab.transform.position = p + (s-Vector3.forward) / 2 ;
             
-            SelectBox.localScale = SelectedPrefab.scale = s * .999f;
-            if (hold && (LastPrefab == null || !LastPrefab.collider.bounds.Intersects(SelectBox.collider.bounds)))
+            SelectBox.localScale = SelectedPrefab.transform.localScale = s * .999f;            
+            if (hold && (LastPrefab == null || LastPrefab.collider == null || !LastPrefab.collider.bounds.Intersects(SelectBox.collider.bounds)))
             {
-                LastPrefab = (Tool)Instantiate(SelectedPrefab);
+                LastPrefab = (bs)Instantiate(SelectedPrefab);
                 LastPrefab.transform.parent = level;
             }
         }
@@ -105,24 +125,26 @@ public class EGame : bs2 {
     
     public void TestLevel()
     {
-        foreach (Transform t in level)
-        {
-            var db = new DB();
-            db.tools.Add(t.GetComponent<Tool>().Save());
-            MemoryStream ms = new MemoryStream();
-            DB.xml.Serialize(ms, db);
-        }
+        spawn = spawnTr.position;
+        SaveLevel();
+        Application.LoadLevel("Game");
     }
+
+
     
+
     Transform Holder;
     private void UpdateOther()
     {
-        SelectedPrefab = _GameGUI.tools[_GameGUI.tooli];
-        foreach (Tool t in _GameGUI.tools)
+        SelectedPrefab = tools[_EGameGUI.tooli];
+        foreach (bs t in tools)
             t.gameObject.active = false;
         SelectBox.gameObject.active = false;
     }
-
+    void OnApplicationQuit()
+    {
+        SaveLevel();
+    }
     private void UpdateCursor()
     {
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -134,14 +156,14 @@ public class EGame : bs2 {
         }
         if (plane.collider.Raycast(r, out h, float.MaxValue))
             cursorPos = h.point;
-        if (down)
+        if (click)
             lastpos = cursorPos;
         if (Input.GetMouseButtonUp(0))
             lastpos = null;
     }
 
-    Tools tool { get { return _GameGUI.brush; } }
-    bool down { get { return Input.GetMouseButtonDown(0) && !gui; } }
+    public Brushes brush { get { return _EGameGUI.brush; } }
+    bool click { get { return Input.GetMouseButtonDown(0) && !gui; } }
     bool up { get { return Input.GetMouseButtonUp(0) && !gui; } }    
     bool hold { get { return Input.GetMouseButton(0) && !gui; } }    
     bool gui
@@ -149,7 +171,13 @@ public class EGame : bs2 {
         get
         {
             var v = Input.mousePosition;
-            return _GameGUI.winRect.Contains(new Vector2(v.x, -v.y + Screen.height));
+            return _EGameGUI.winRect.Any(a => a.Contains(new Vector2(v.x, -v.y + Screen.height)));
         }
+    }
+
+    internal void Clear()
+    {
+        foreach (Transform t in level)
+            Destroy(t.gameObject);
     }
 }

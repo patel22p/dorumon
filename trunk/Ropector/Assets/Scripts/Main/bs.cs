@@ -6,10 +6,14 @@ using System.Collections.Generic;
 [AddComponentMenu("Game/Base")]
 public class bs : Base 
 {
-    public override string ToString()
-    {
-        return "id:" + networkView.owner.GetHashCode() + ", nv:" + networkView.viewID.GetHashCode();
-    }
+    public bool editor { get { return Application.loadedLevel == (int)Scene.mapEditor; } }
+    //public override string ToString()
+    //{
+    //    if (networkView != null)
+    //        return "id:" + networkView.owner.GetHashCode() + ", nv:" + networkView.viewID.GetHashCode();
+    //    else
+    //        return base.ToString();
+    //}
     
     public virtual void Awake()
     {
@@ -34,7 +38,11 @@ public class bs : Base
             ips.Add(ip + i);
         Network.Connect(ips.ToArray(), 5300);
     }
-   
+    static EGameGUI m_GameGUI;
+    public static EGameGUI _EGameGUI { get { if (m_GameGUI == null) m_GameGUI = (EGameGUI)MonoBehaviour.FindObjectOfType(typeof(EGameGUI)); return m_GameGUI; } }
+    static EGame m_EGame;
+    public static EGame _EGame { get { if (m_EGame == null) m_EGame = (EGame)MonoBehaviour.FindObjectOfType(typeof(EGame)); return m_EGame; } }
+
     public Vector2 pos2 { get { return new Vector2(transform.position.x, transform.position.y); } set { transform.position = new Vector3(value.x, value.y, transform.position.z); } }
     //public static TimerA _Timer { get { return _Loader.timer; } }
     static MyGui m_MyGui;
@@ -49,6 +57,7 @@ public class bs : Base
     public static GameGui _GameGui { get { if (m_GameGui == null) m_GameGui = (GameGui)MonoBehaviour.FindObjectOfType(typeof(GameGui)); return m_GameGui; } }
     static Music m_Music;
     public static Music _Music { get { if (m_Music == null) m_Music = (Music)MonoBehaviour.FindObjectOfType(typeof(Music)); return m_Music; } }
+    
 
     public static Player _Player { get { return _Game._Player; } }
     public virtual void AlwaysUpdate() { }

@@ -42,10 +42,9 @@ public class InspectorSearch : EditorWindow
         DrawSearch();
     }
     void OnSelectionChange()
-    {
+    {        
         search = "";
         this.Repaint();
-        //Update();
     }
     [MenuItem("Window/Rtools", false, 0)]
     static void rtoolsclick()

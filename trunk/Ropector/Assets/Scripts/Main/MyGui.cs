@@ -2,19 +2,27 @@ using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
 public enum MenuAction { StartServer, JoinGame }
-public enum Wind { Menu, SelectLevel, PopUp, ExitToMenuWindow, Disconnected }
+public enum Wind { Menu, SelectLevel, PopUp, ExitToMenuWindow, Disconnected, EditorTools, EditorProps }
 public class MyGui : bs
 {
+    
     public Wind curwindow;
     public void Show(Wind window)
     {
         enabled = true;
         this.curwindow = window;
     }
-
     public void Hide()
     {
         this.enabled = false;
+    }
+
+    void Start()
+    {
+        string[] levels = new string[Application.levelCount - 1];
+        for (int i = 0; i < Application.levelCount - 1; i++)
+            levels[i] = "Level " + (i + 1);
+        _MyGui.levels = levels;
     }
     void OnGUI()
     {

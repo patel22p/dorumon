@@ -21,7 +21,7 @@ public class RopeEnd : bs
     }
     void Update()
     {
-        name = "Rope: " + ToString(); 
+        name = "Rope: "; 
         UpdateCloth();
         UpdateHitTest();
     }
@@ -116,7 +116,7 @@ public class RopeEnd : bs
     public Wall AttachedTo;
     void OnColl(Vector3 point, Transform t)
     {
-        AttachedTo= t.gameObject.GetComponent<Wall>();
+        AttachedTo= t.gameObject.transform.GetComponentInParrent<Wall>();
         
         if (AttachedTo != null && AttachedTo.attachRope)
         {            

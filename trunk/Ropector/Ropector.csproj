@@ -56,11 +56,11 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\ECam.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\EGame.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\EGameGUI.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\Gamebs.cs" />
-     <Compile Include="Assets\Scripts\Main\Map\Tool.cs" />
+     <Compile Include="Assets\Scripts\Main\Editor2\ECam.cs" />
+     <Compile Include="Assets\Scripts\Main\Editor2\EGame.cs" />
+     <Compile Include="Assets\Scripts\Main\Editor2\EGameGUI.cs" />
+     <Compile Include="Assets\Scripts\Main\Editor2\Gamebs.cs" />
+     <Compile Include="Assets\Scripts\Main\Editor2\Tool.cs" />
      <Compile Include="Assets\Scripts\Main\Other\BuildWalls.cs" />
      <Compile Include="Assets\Scripts\Main\Other\Dragable.cs" />
      <Compile Include="Assets\Scripts\Main\Other\GlowOnHit.cs" />
@@ -93,7 +93,6 @@
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />
      <Compile Include="Assets\Scripts\Main\Score.cs" />
-     <Compile Include="Assets\Scripts\Main\tmr.cs" />
      <Compile Include="Assets\Scripts\Main\Wall.cs" />
      <None Include="Assets\Scripts\shader\Forcefield.shader" />
      <None Include="Assets\Scripts\shader\ropeShader.shader" />

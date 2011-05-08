@@ -6,17 +6,20 @@ using System.Collections.Generic;
 using doru;
 
 
-public class AnimHelper : MonoBehaviour
+public class AnimHelper : Tool
 {
 
+    internal Animation anim;
+    public Animation Anim { get { return anim == null ? animation : anim; } }
+    
     public WrapMode wrapMode;
     TimerA timer = new TimerA();
     public float animationSpeedFactor = 1;
     public float AnimationOffsetFactor;
-    AnimationState animationState { get { return anim.Cast<AnimationState>().FirstOrDefault(); } }
-    Animation anim { get { return animation; } }
+    AnimationState animationState { get { return Anim.Cast<AnimationState>().FirstOrDefault(); } }
+    
     float oldoffset;
-    public void Start()
+    public override void Awake()
     {
         animation.wrapMode = wrapMode;
         if (Network.isServer)
@@ -25,7 +28,7 @@ public class AnimHelper : MonoBehaviour
                 {
                     networkView.RPC("AnimState", RPCMode.Others, animationState.enabled, animationState.time);
                 });
-
+        base.Awake();
     }
     
     [RPC]
@@ -37,9 +40,9 @@ public class AnimHelper : MonoBehaviour
 
     public void Update()
     {
-        if (anim != null && anim.clip != null)
-            animationState.speed = animationSpeedFactor;
-        if (anim != null && AnimationOffsetFactor != 0 && AnimationOffsetFactor != oldoffset)
+        //if (Anim != null && Anim.clip != null)
+        animationState.speed = animationSpeedFactor;
+        if (AnimationOffsetFactor != 0 && AnimationOffsetFactor != oldoffset)
         {
             animationState.time = (this.transform.position.x * AnimationOffsetFactor) % animationState.length;
             oldoffset = AnimationOffsetFactor;

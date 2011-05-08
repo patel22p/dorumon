@@ -5,7 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 
-public class PhysAnim : Tool
+public class PhysAnim : AnimHelper
 {
     
     
@@ -14,13 +14,19 @@ public class PhysAnim : Tool
     internal Quaternion[] oldRot;
     public float strength = 1;
 
-    void Start()
+
+    public void Start()
     {
-
-        
-
+        if (editor) return; 
         Transform AnimObj = ((Transform)Instantiate(this.transform, pos, rot));
+        foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
+            Destroy(a);
+        anim = AnimObj.animation;
+
         AnimObj.transform.parent = transform.parent;
+        var ahelper = GetComponent<AnimHelper>();
+        if (ahelper != null) ahelper.anim = AnimObj.animation;
+
         trs = AnimObj.GetComponentInChildren<Transform>().Cast<Transform>().ToList();
         oldRot = new Quaternion[trs.Count];
         for (int i = 0; i < trs.Count; i++)
@@ -33,15 +39,15 @@ public class PhysAnim : Tool
             r.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
             r.centerOfMass = Vector3.zero;
             rigidBoddies.Add(t);
-            
-            
         }
         Destroy(animation);
-        foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
-            Destroy(a);
+        
+
+        base.Awake();
     }
     void FixedUpdate()
     {
+        if (editor) return;        
         for (int i = 0; i < trs.Count; i++)
         {
             var AnimObj = trs[i];

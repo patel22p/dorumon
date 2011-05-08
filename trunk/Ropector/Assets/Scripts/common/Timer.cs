@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 namespace doru
 {
-    public class TimerA // this helper class adds - invoke method,fps count,time elapsed functions
+    public class TimerA 
     {
         public int _Ticks = Environment.TickCount;
         public int oldtime;
@@ -23,12 +23,11 @@ namespace doru
             }
             else return 0;
         }
-        public Dictionary<int, float> timers = new Dictionary<int, float>();
+        
         public int miliseconds;
         public void Update()
         {
-            foreach (var a in timers.Keys)
-                timers[a] += Time.deltaTime;
+            
 
             miliseconds = Environment.TickCount - _Ticks;
             _MilisecondsElapsed = miliseconds - oldtime;
@@ -65,26 +64,7 @@ namespace doru
         public int _MilisecondsElapsed = 0;
         public double _SecodsElapsed { get { return _MilisecondsElapsed / (double)1000; } }
         public int _oldTime { get { return miliseconds - _MilisecondsElapsed; } }
-        public bool TimeElapsed(object _this,object _id,float seconds)
-        {
-            int id = _this.GetHashCode() ^ _id.GetHashCode();            
-            float elapsed;
-            if (timers.TryGetValue(id, out elapsed))
-            {
-                if (elapsed > seconds)
-                {
-                    timers[id] = 0;
-                    return true;
-                }
-                else
-                    return false;
-            }
-            else
-            {
-                timers.Add(id, 0);
-                return false;
-            }
-        }
+        
         public bool TimeElapsed(int _Milisecconds)
         {
             if (_MilisecondsElapsed > _Milisecconds || _Milisecconds == 0) return true;

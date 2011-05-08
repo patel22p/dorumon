@@ -9,9 +9,10 @@ using System.Xml.Serialization;
 public class Tool : bs
 {
     public int toolid;
+    public Texture2D texture;    
 }
 
-public enum Brushes { Draw, Line, Trail, Spawn }
+public enum Brushes { Draw, Line, Trail}
 
 [Serializable]
 public class Tooldb
@@ -24,6 +25,7 @@ public class Tooldb
     public string text;
     public bool spawn;
     public float speedTrackVell;
+    public float animSpeedFactor;
 }
 [Serializable]
 public class DB

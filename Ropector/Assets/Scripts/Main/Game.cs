@@ -23,7 +23,7 @@ public class Game : Gamebs
     internal List<bs> networkItems = new List<bs>();
 
     public override void Awake()
-    {
+    {        
         Debug.Log("Game awake");
         if (Network.peerType == NetworkPeerType.Disconnected)
         {

@@ -10,7 +10,8 @@ using System.IO;
 //using System.Net;
 public class Loader : bs 
 {
-    //public MemoryStream map = new MemoryStream();
+    //public MemoryStream map = new MemoryStream();    
+    public string host = "http://127.0.0.1:5600/";
     public int errorcount;
     public int exceptionCount;
     public int totalScores;    

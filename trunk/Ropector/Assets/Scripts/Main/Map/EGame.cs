@@ -3,58 +3,90 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using doru;
+using System.Xml.Serialization;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
-public class EGame : Gamebs {
+public class EGame : Gamebs
+{
 
     public new List<Tool> tools = new List<Tool>();
-    internal bs SelectedPrefab;
-    internal bs LastPrefab;
-    
+    internal Tool SelectedPrefab;
+    internal Tool LastPrefab;
+    TimerA timer = new TimerA();
     Transform plane;
     Transform SelectBox;
     Transform spawnTr;
     Vector3? lastpos;
     Vector3 cursorPos;
+    public Texture2D[] ToolTextures;
+    public Texture2D[] BrushTextures;
+
     public override void Awake()
     {
+        ToolTextures = tools.Select(a => a.texture).ToArray();
         _MyGui.Hide();
         base.Awake();
     }
 
-    
     void Start()
     {
+        
         _Loader.EditorTest = true;
         plane = GameObject.Find("Plane").transform;
-        
+
         spawnTr = GameObject.Find("spawn").transform;
         spawnTr.position = spawn;
         SelectBox = transform.Find("SelectBox");
 
     }
-    internal Vector3 size = Vector3.one*3;
+    internal Vector3 size = Vector3.one * 3;
     public float LineWidth = 1;
-    void Update () {
+    internal bool ShowBrushes;
+    void Update()
+    {
+        
         UpdateOther();
         UpdateCursor();
-        if (SelectedPrefab.GetComponent<Wall>() != null)
-        {
-            UpdateDrawGrid();
-            UpdateDrawTrail();
-        }
-        if (SelectedPrefab.GetComponent<TextMesh>() != null || SelectedPrefab.GetComponent<Score>() != null)
-        {
-            if (click)
-            {
-                var g = LastPrefab = (bs)Instantiate(SelectedPrefab, cursorPos, Quaternion.identity);
-                g.transform.parent = level;
-            }
-        }
-        if (brush == Brushes.Spawn)
+
+        if (SelectedPrefab.name == "startpos")
         {
             if (click)
                 spawnTr.position = cursorPos;
         }
+        else if (SelectedPrefab.GetComponent<PhysAnim>())
+        {
+            if (click)
+            {
+                LastPrefab = (Tool)Instantiate(SelectedPrefab, cursorPos, Quaternion.identity);
+                LastPrefab.transform.parent = level;
+            }
+            if (lastpos != null)
+            {
+                var v = lastpos.Value - cursorPos;
+                if (v != Vector3.zero)
+                {
+                    LastPrefab.rot = Quaternion.LookRotation(v) * Quaternion.Euler(0, 90, 0);
+                    LastPrefab.scale = Vector3.one * Vector3.Distance(cursorPos, lastpos.Value);
+                }
+            }
+        }
+        else if (SelectedPrefab.GetComponent<Wall>() != null)
+        {
+            ShowBrushes = true;
+            UpdateDrawGrid();
+            UpdateDrawTrail();
+        }
+        else if (SelectedPrefab.GetComponent<TextMesh>() != null || SelectedPrefab.GetComponent<Score>() != null)
+        {
+            if (click)
+            {
+                var g = LastPrefab = (Tool)Instantiate(SelectedPrefab, cursorPos, Quaternion.identity);
+                g.transform.parent = level;
+            }
+        }
+        timer.Update();
     }
 
     private void UpdateDrawTrail()
@@ -90,7 +122,7 @@ public class EGame : Gamebs {
         
         Holder = new GameObject("Holder").transform;
         Holder.position = cursorPos;
-        LastPrefab = (bs)Instantiate(SelectedPrefab);
+        LastPrefab = (Tool)Instantiate(SelectedPrefab);
         LastPrefab.transform.localScale= Vector3.one;
         LastPrefab.transform.position = cursorPos + new Vector3(0, 0, .5f);
         LastPrefab.transform.parent = Holder;
@@ -117,7 +149,7 @@ public class EGame : Gamebs {
             SelectBox.localScale = SelectedPrefab.transform.localScale = s * .999f;            
             if (hold && (LastPrefab == null || LastPrefab.collider == null || !LastPrefab.collider.bounds.Intersects(SelectBox.collider.bounds)))
             {
-                LastPrefab = (bs)Instantiate(SelectedPrefab);
+                LastPrefab = (Tool)Instantiate(SelectedPrefab);
                 LastPrefab.transform.parent = level;
             }
         }
@@ -131,11 +163,12 @@ public class EGame : Gamebs {
     }
 
 
-    
+        
 
     Transform Holder;
     private void UpdateOther()
     {
+        ShowBrushes = false;
         SelectedPrefab = tools[_EGameGUI.tooli];
         foreach (bs t in tools)
             t.gameObject.active = false;
@@ -152,7 +185,7 @@ public class EGame : Gamebs {
         if (Physics.Raycast(r, out h, float.MaxValue) && Input.GetMouseButton(1))
         {
             if (h.transform != plane)
-                Destroy(h.transform.gameObject);
+                Destroy(h.transform.GetMonoBehaviorInParrent().gameObject);
         }
         if (plane.collider.Raycast(r, out h, float.MaxValue))
             cursorPos = h.point;
@@ -160,6 +193,29 @@ public class EGame : Gamebs {
             lastpos = cursorPos;
         if (Input.GetMouseButtonUp(0))
             lastpos = null;
+    }
+
+    public void SaveMapToFile()
+    {
+        _EGame.SaveLevel();
+        WWWForm form = new WWWForm();
+        form.AddField("map", _EGame.Map);
+        var w = new WWW(_Loader.host + "index.php?save=1&mapname=" + _EGameGUI.mapName, form);
+        timer.AddMethod(() => w.isDone == true, delegate
+        {
+            Debug.Log("Saved:" + w.text);
+        });
+    }
+    public void LoadMapFromFile(string filename)
+    {
+        var w = new WWW(_Loader.host + "index.php?open=1&mapname=" + filename);
+        timer.AddMethod(() => w.isDone == true, delegate
+        {
+            Debug.Log("Loaded:" + w.text);
+            if (w.text != "")
+                _EGame.Map = w.text;
+            _EGame.LoadMap();
+        });
     }
 
     public Brushes brush { get { return _EGameGUI.brush; } }

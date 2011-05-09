@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -86,11 +86,12 @@
      <Compile Include="Assets\Scripts\Main\GameGui.cs" />
      <Compile Include="Assets\Scripts\Main\Loader.cs" />
      <Compile Include="Assets\Scripts\Main\Menu.cs" />
+     <Compile Include="Assets\Scripts\Main\MenuGui.cs" />
      <Compile Include="Assets\Scripts\Main\Music.cs" />
-     <Compile Include="Assets\Scripts\Main\MyGui.cs" />
      <Compile Include="Assets\Scripts\Main\PhysAnim.cs" />
      <Compile Include="Assets\Scripts\Main\PhysAnimObj.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
+     <Compile Include="Assets\Scripts\Main\Popup.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />
      <Compile Include="Assets\Scripts\Main\Score.cs" />
      <Compile Include="Assets\Scripts\Main\Wall.cs" />

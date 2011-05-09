@@ -17,7 +17,6 @@ public class EGameGUI : bs{
     };
     GUIText tip;
     GUIContent[] ToolTextures { get { return _EGame.ToolTextures; } }
-    GUIContent[] BrushTextures { get { return _EGame.BrushTextures; } }
     
     public override void Awake()
     {
@@ -35,14 +34,12 @@ public class EGameGUI : bs{
     }
 
     
-    internal int brushi;
     internal int tooli;
-    public Brushes brush { get { return (Brushes)brushi; } }
+    new internal float scale = 1;
     
     TimerA timer = new TimerA();
     void Window2(int id)
     {
-        //if (timer.TimeElapsed(100) && _EGame.LastPrefab != null)
         if (_EGame.SelectedPrefab != null)
         {
             var textmesh = _EGame.SelectedPrefab.GetComponent<TextMesh>();
@@ -57,35 +54,11 @@ public class EGameGUI : bs{
 
             var anim = _EGame.SelectedPrefab.GetComponent<AnimHelper>();
             if (anim != null)
-            {
                 anim.animationSpeedFactor = gui.HorizontalSlider(anim.animationSpeedFactor, 0, 1);
-            }
-            var physanim = _EGame.SelectedPrefab.GetComponent<PhysAnim>();
-            if (physanim != null)
-            {
-                
-            }
-            
-            var wall = _EGame.SelectedPrefab.GetComponent<Wall>();
-            if (wall != null)
-            {
-                gui.Label("SpeedTrack");
-                wall.SpeedTrackVell = gui.HorizontalSlider(wall.SpeedTrackVell, -5f, 5f);
-                float.TryParse(gui.TextField(wall.SpeedTrackVell + ""), out wall.SpeedTrackVell);
-            }
-            try
-            {
-                if (wall != null && brush == Brushes.Draw)
-                {
-                    var s = _EGame.size;
-                    gui.Label("Grid Size");
-                    s.x = int.Parse(gui.TextField(s.x + ""));
-                    s.y = int.Parse(gui.TextField(s.y + ""));
-                    _EGame.size = s;
-                }
-            }
-            catch (FormatException) { }
         }
+        scale = gui.HorizontalSlider(scale, .5f, 5);
+        scale = float.Parse(gui.TextField(scale + ""));
+
         GUI.DragWindow();
         if (GUI.tooltip != "")
             tip.text = GUI.tooltip;
@@ -124,20 +97,14 @@ public class EGameGUI : bs{
             Application.LoadLevel((int)Scene.Menu);
         }
         gui.Label( new GUIContent("Tools" , "Objects that you put on scene"));
+        var old = tooli;
         tooli = gui.SelectionGrid(tooli, ToolTextures, 2);
-        if (_EGame.ShowBrushes)
-        {
-            gui.Label(new GUIContent("Brushes", "Brushes to draw Objects"));
-            brushi = gui.SelectionGrid(brushi, BrushTextures, 2);
-        }
+        if (old != tooli)
+            _EGame.OnSelectionChanged();
         GUI.DragWindow();
         if (GUI.tooltip != "")
             tip.text = GUI.tooltip;
     }
-
-
-
-    
 
 	void Update () {
         timer.Update();

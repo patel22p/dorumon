@@ -25,7 +25,7 @@ public class BuildWalls : bs
     }
     private void UpdateOther()
     {        
-        Press.gameObject.active = !_MyGui.enabled;
+        Press.gameObject.active = !_MenuGui.enabled;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, 1000, 1 << LayerMask.NameToLayer("Ignore Raycast")))

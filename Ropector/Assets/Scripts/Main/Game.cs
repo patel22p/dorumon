@@ -23,8 +23,9 @@ public class Game : Gamebs
     internal List<bs> networkItems = new List<bs>();
 
     public override void Awake()
-    {        
+    {
         Debug.Log("Game awake");
+        _Popup.enabled = false;
         if (Network.peerType == NetworkPeerType.Disconnected)
         {
             Debug.Log("Game Awake Autoconnect:" + AutoConnect);
@@ -41,6 +42,7 @@ public class Game : Gamebs
     
     public void Start()
     {
+        
         SetupSpawnPos();
         SetupOther();
         SetupPlayer();        
@@ -49,7 +51,7 @@ public class Game : Gamebs
     private void SetupOther()
     {
         if (debug) prestartTm = 0;
-        _MyGui.Hide();
+        _MenuGui.Hide();
         Debug.Log("Game start");
         water = GameObject.Find("water").transform;
     }
@@ -87,10 +89,10 @@ public class Game : Gamebs
     void UpdateOther()
     {
         if (Input.GetKeyDown(KeyCode.Space))
-            if (_MyGui.enabled)
-                _MyGui.Hide();
+            if (_MenuGui.enabled)
+                _MenuGui.Hide();
             else
-                _MyGui.Show(Wind.ExitToMenuWindow);
+                _MenuGui.Show(Wind.ExitToMenuWindow);
     }
     [RPC]
     private void WinGame(string name)
@@ -99,8 +101,17 @@ public class Game : Gamebs
         pause = true;        
         wingamegui.text = name + " Win";
         wingamegui.animation.Play();
-        if(Network.isServer)
-            timer.AddMethod(7000, delegate { _Loader.NextLevel(); });
+        if (Network.isServer)
+        {
+
+            timer.AddMethod(7000, delegate
+            {
+                _Loader.LoadMap(delegate
+                {
+                    _Loader.StartGame(_Loader.Map);
+                });
+            });
+        }
     }
 
     
@@ -157,7 +168,8 @@ public class Game : Gamebs
         else
         {
             Application.LoadLevel((int)Scene.Menu);
-            _Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.disconnectedtext = info + ""; _MyGui.Show(Wind.Disconnected); });
+            _Popup.ShowPopup(info + ""); 
+            //_Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.ShowPopup(info + ""); });
         }
     }
     private void InitServer()

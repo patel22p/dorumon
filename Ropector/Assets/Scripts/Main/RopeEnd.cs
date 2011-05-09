@@ -125,7 +125,7 @@ public class RopeEnd : bs
             transform.position = point;
         }
         if (!rigidbody.isKinematic)
-            EnableRope(false);
+            EnableRope(false);        
     }
     
     public void EnableRope(bool enable)
@@ -138,6 +138,8 @@ public class RopeEnd : bs
         enabled = enable;
         oldpos = pl.pos;
         rigidbody.isKinematic = false;
+        rigidbody.useGravity = enable;
+        rigidbody.velocity = Vector3.zero;
         transform.parent = null;
     }
 }

@@ -10,10 +10,16 @@ public class Tool : bs
 {
     public int toolid;
     public GUIContent discription;
-    
+    public ToolType toolType;
+    public new Collider collider
+    {
+        get
+        {
+            return this.GetComponentInChildren<Collider>();
+        }
+    }
 }
-
-public enum Brushes { Draw, Line, Trail}
+public enum ToolType { Grid, Trail }
 
 [Serializable]
 public class Tooldb

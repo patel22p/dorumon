@@ -20,13 +20,14 @@ public class EGame : Gamebs
     Transform spawnTr;
     Vector3? lastpos;
     Vector3 cursorPos;
-    public Texture2D[] ToolTextures;
-    public Texture2D[] BrushTextures;
+    
+    internal GUIContent[] ToolTextures;
+    public GUIContent[] BrushTextures;
 
     public override void Awake()
     {
-        ToolTextures = tools.Select(a => a.texture).ToArray();
-        _MyGui.Hide();
+        ToolTextures = tools.Select(a => a.discription).ToArray();
+        _MenuGui.Hide();
         base.Awake();
     }
 
@@ -35,10 +36,10 @@ public class EGame : Gamebs
         
         _Loader.EditorTest = true;
         plane = GameObject.Find("Plane").transform;
-
-        spawnTr = GameObject.Find("spawn").transform;
+        spawnTr = transform.Find("spawn").transform;
         spawnTr.position = spawn;
         SelectBox = transform.Find("SelectBox");
+        SelectBox.gameObject.active = spawnTr.gameObject.active = true;
 
     }
     internal Vector3 size = Vector3.one * 3;
@@ -123,9 +124,10 @@ public class EGame : Gamebs
         Holder = new GameObject("Holder").transform;
         Holder.position = cursorPos;
         LastPrefab = (Tool)Instantiate(SelectedPrefab);
-        LastPrefab.transform.localScale= Vector3.one;
+        LastPrefab.transform.localScale = new Vector3(1, 1, 4);
         LastPrefab.transform.position = cursorPos + new Vector3(0, 0, .5f);
         LastPrefab.transform.parent = Holder;
+        
         lastpos = cursorPos;
     }
 
@@ -140,7 +142,7 @@ public class EGame : Gamebs
         if (brush == Brushes.Draw)
         {
             SelectBox.gameObject.active = true;
-            var s = new Vector3(size.x, size.y, 1);
+            var s = new Vector3(size.x, size.y, size.x);
             var p = cursorPos - s / 2;
             p = new Vector3(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.y), 0);
 
@@ -199,24 +201,19 @@ public class EGame : Gamebs
     {
         _EGame.SaveLevel();
         WWWForm form = new WWWForm();
-        form.AddField("map", _EGame.Map);
+        Map.Position = 0;
+        form.AddField("map", new StreamReader(_EGame.Map).ReadToEnd());
         var w = new WWW(_Loader.host + "index.php?save=1&mapname=" + _EGameGUI.mapName, form);
         timer.AddMethod(() => w.isDone == true, delegate
         {
+            if (w.text != "Success")
+                _Popup.ShowPopup("Could Not Save Map");
+            //else
+            //    _Popup.ShowPopup("Map Saved");
             Debug.Log("Saved:" + w.text);
         });
     }
-    public void LoadMapFromFile(string filename)
-    {
-        var w = new WWW(_Loader.host + "index.php?open=1&mapname=" + filename);
-        timer.AddMethod(() => w.isDone == true, delegate
-        {
-            Debug.Log("Loaded:" + w.text);
-            if (w.text != "")
-                _EGame.Map = w.text;
-            _EGame.LoadMap();
-        });
-    }
+    
 
     public Brushes brush { get { return _EGameGUI.brush; } }
     bool click { get { return Input.GetMouseButtonDown(0) && !gui; } }

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using UnityEditor;
+
 using System.IO;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,8 @@ using System.Xml.Serialization;
 public class Tool : bs
 {
     public int toolid;
-    public Texture2D texture;    
+    public GUIContent discription;
+    
 }
 
 public enum Brushes { Draw, Line, Trail}

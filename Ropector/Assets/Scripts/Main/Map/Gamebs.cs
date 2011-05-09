@@ -23,15 +23,17 @@ public class Gamebs : bs
     }
     public void LoadMap()
     {
+        
          var o = GameObject.Find("Level");
          if (o != null) Destroy(o);
         level = new GameObject("Level").transform;
-
+        
         Debug.Log("Loading Map");
         try
         {
-            var db = (DB)DB.xml.Deserialize(new StringReader(Map));
-
+            if (Map.Length == 0) throw new XmlException("map is empty");
+            Map.Position = 0;
+            var db = (DB)DB.xml.Deserialize(Map);
             foreach (Tooldb t in db.tools)
             {
                 var w = (bs)Instantiate(tools[(int)t.toolid]);
@@ -54,7 +56,7 @@ public class Gamebs : bs
             }
             spawn = db.startpos;
         }
-        catch (XmlException e) { Debug.Log(e); }
+        catch (XmlException e) { Debug.Log(e); if (!editor) throw e; }
     }
     
     public void SaveLevel()
@@ -85,14 +87,10 @@ public class Gamebs : bs
             db.tools.Add(b);
             
         }
-
-        using (var ms = new MemoryStream())
-        {
-            DB.xml.Serialize(ms, db);
-            ms.Position = 0;
-            Map = new StreamReader(ms).ReadToEnd();
-            
-        }
+        Map.Dispose();
+        Map = new MemoryStream();
+        DB.xml.Serialize(Map, db);                        
+        
     }
-    public string Map { get { return PlayerPrefs.GetString("Map"); } set { PlayerPrefs.SetString("Map", value); } }
+    public MemoryStream Map { get { return _Loader.Map; } set { _Loader.Map = value; } }
 }

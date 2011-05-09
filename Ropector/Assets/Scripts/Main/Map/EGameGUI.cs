@@ -12,16 +12,16 @@ public enum Scene { Menu, mapEditor, Game }
 public class EGameGUI : bs{
 
     internal Rect[] winRect = new[] { 
-        new Rect(10, 10, 100, 500), 
-        new Rect(115, 10, 100, 500)
+        new Rect(10, 10, 100, 550), 
+        new Rect(115, 10, 100, 550)
     };
-    
-    public Texture2D[] ToolTextures { get { return _EGame.ToolTextures; } }
-    public Texture2D[] BrushTextures { get { return _EGame.BrushTextures; } }
+    GUIText tip;
+    GUIContent[] ToolTextures { get { return _EGame.ToolTextures; } }
+    GUIContent[] BrushTextures { get { return _EGame.BrushTextures; } }
     
     public override void Awake()
     {
-        
+        tip = transform.Find("Tip").gameObject.GetComponent<GUIText>();
         base.Awake();
     }
     void Start()
@@ -29,8 +29,9 @@ public class EGameGUI : bs{
     }
     void OnGUI()
     {
+        tip.text = "";
         winRect[0] = GUI.Window((int)Wind.EditorTools, winRect[0], Window, "Tools");
-        winRect[1] = GUI.Window((int)Wind.EditorProps, winRect[1], Window2, _EGame.SelectedPrefab + "");
+        winRect[1] = GUI.Window((int)Wind.EditorProps, winRect[1], Window2, _EGame.SelectedPrefab + "");        
     }
 
     
@@ -64,7 +65,7 @@ public class EGameGUI : bs{
             {
                 
             }
-
+            
             var wall = _EGame.SelectedPrefab.GetComponent<Wall>();
             if (wall != null)
             {
@@ -86,41 +87,52 @@ public class EGameGUI : bs{
             catch (FormatException) { }
         }
         GUI.DragWindow();
+        if (GUI.tooltip != "")
+            tip.text = GUI.tooltip;
     }
     void Window(int id)
     {
-        if (gui.Button("Camera"))
+        if (gui.Button(new GUIContent("Camera", "switch camera to orthographic")))
             Camera.main.orthographic = !Camera.main.orthographic;
         
         gui.Label("Map Name");
         mapName = gui.TextField(mapName, 20);
-        if (gui.Button("New Map"))
+        if (gui.Button(new GUIContent("New Map", "Clear Level")))
             _EGame.Clear();
-        
-        if (gui.Button("Save Map") && mapName.Length > 2)
-        {
-            _EGame.SaveMapToFile();
-        }
-        if (gui.Button("Load Map") && mapName.Length > 2)
-        {
-            _EGame.LoadMapFromFile(mapName);
 
+        if (gui.Button(new GUIContent("Save Map", "Save map to web server")))
+        {
+            if (mapName.Length > 2)
+                _EGame.SaveMapToFile();
+            else
+                _Popup.ShowPopup("Map Name is empty");
         }
-        if (gui.Button("Test"))
+        if (gui.Button(new GUIContent("Load Map", "Load map from web server")))
+        {
+            if (mapName.Length > 2)
+                _Loader.LoadMap(delegate
+                {
+                    _EGame.LoadMap();
+                });
+            else
+                _Popup.ShowPopup("Map Name is empty");
+        }
+        if (gui.Button(new GUIContent("Test", "Test Level")))
             _EGame.TestLevel();
         if (gui.Button("Exit"))
         {
-            
             Application.LoadLevel((int)Scene.Menu);
         }
-        gui.Label("Tools");
+        gui.Label( new GUIContent("Tools" , "Objects that you put on scene"));
         tooli = gui.SelectionGrid(tooli, ToolTextures, 2);
         if (_EGame.ShowBrushes)
         {
-            gui.Label("Brushes");
+            gui.Label(new GUIContent("Brushes", "Brushes to draw Objects"));
             brushi = gui.SelectionGrid(brushi, BrushTextures, 2);
         }
         GUI.DragWindow();
+        if (GUI.tooltip != "")
+            tip.text = GUI.tooltip;
     }
 
 
@@ -130,17 +142,5 @@ public class EGameGUI : bs{
 	void Update () {
         timer.Update();
 	}
-    internal string mapName
-    {
-        get
-        {
-            
-            return PlayerPrefs.GetString("mapname", "Map" + UnityEngine.Random.Range(-999, 999));
-        }
-        set
-        {
-            value = Regex.Replace(value, "[^qwertyuiopasdfghjklzxcvbnm1234567890]", "", RegexOptions.IgnoreCase);
-            PlayerPrefs.SetString("mapname", value);
-        }
-    }
+    internal string mapName { get { return _Loader.mapName; } set { _Loader.mapName = value; } }
 }

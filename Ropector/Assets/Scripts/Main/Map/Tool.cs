@@ -8,24 +8,22 @@ using System.Xml.Serialization;
 
 public class Tool : bs
 {
+    public override void Awake()
+    {
+        if (collider == null) collider = this.GetComponentInChildren<Collider>();    
+        base.Awake();
+    }
     public int toolid;
     public GUIContent discription;
     public ToolType toolType;
-    public new Collider collider
-    {
-        get
-        {
-            return this.GetComponentInChildren<Collider>();
-        }
-    }
+    public new Collider collider;
 }
-public enum ToolType { Grid, Trail }
+public enum ToolType { Grid, Trail , Move, Rotate, Zoom  }
 
 [Serializable]
 public class Tooldb
 {
     public int toolid;
-    //public Brushes tool;
     public Vector3 Pos;
     public Vector3 scale;
     public Quaternion rot;

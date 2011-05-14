@@ -23,17 +23,8 @@ public class ECam : bs
     void Update()
     {
 
-        Vector3 offset = new Vector3();
-        if (Input.GetKey(KeyCode.A))
-            offset.x -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.D))
-            offset.x += Time.deltaTime;
-        if (Input.GetKey(KeyCode.W))
-            offset.y += Time.deltaTime;
-        if (Input.GetKey(KeyCode.S))
-            offset.y -= Time.deltaTime;
-
-        pos += offset*5;
+        Vector3 v = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), 0);
+        pos += v;
         //pos = Vector3.Lerp(pos, posf, .97f);
         Camera.main.orthographicSize = camoffset * 10;
         camoffset = Mathf.Clamp(camoffset - Input.GetAxis("Mouse ScrollWheel"), .1f, 4f);

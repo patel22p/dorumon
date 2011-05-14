@@ -37,7 +37,6 @@ public class Cam : bs
     {
         if (_Player != null)
         {
-            
             camoffset += Input.GetAxis("Mouse ScrollWheel") * -20;
             camoffset = Mathf.Min(Mathf.Max(camoffset, 10), 100);
             fakescale = Mathf.Lerp(camoffset, fakescale, .8f);

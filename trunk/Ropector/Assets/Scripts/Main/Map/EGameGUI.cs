@@ -16,7 +16,7 @@ public class EGameGUI : bs{
         new Rect(115, 10, 100, 550)
     };
     GUIText tip;
-    GUIContent[] ToolTextures { get { return _EGame.ToolTextures; } }
+    GUIContent[] PrefabTextures { get { return _EGame.PrefabTextures; } }
     
     public override void Awake()
     {
@@ -34,40 +34,15 @@ public class EGameGUI : bs{
     }
 
     
+    internal int prefabi;
     internal int tooli;
-    new internal float scale = 1;
-    
+    new internal int scale = 1;
     TimerA timer = new TimerA();
-    void Window2(int id)
-    {
-        if (_EGame.SelectedPrefab != null)
-        {
-            var textmesh = _EGame.SelectedPrefab.GetComponent<TextMesh>();
-            if (textmesh != null)
-            {
-                gui.Label("Text");
-                textmesh.text = gui.TextField(textmesh.text);
-            }
-            var score = _EGame.SelectedPrefab.GetComponent<Score>();
-            if (score != null)
-                score.spawn = gui.Toggle(score.spawn, "CheckPoint");
-
-            var anim = _EGame.SelectedPrefab.GetComponent<AnimHelper>();
-            if (anim != null)
-                anim.animationSpeedFactor = gui.HorizontalSlider(anim.animationSpeedFactor, 0, 1);
-        }
-        scale = gui.HorizontalSlider(scale, .5f, 5);
-        scale = float.Parse(gui.TextField(scale + ""));
-
-        GUI.DragWindow();
-        if (GUI.tooltip != "")
-            tip.text = GUI.tooltip;
-    }
     void Window(int id)
     {
         if (gui.Button(new GUIContent("Camera", "switch camera to orthographic")))
             Camera.main.orthographic = !Camera.main.orthographic;
-        
+
         gui.Label("Map Name");
         mapName = gui.TextField(mapName, 20);
         if (gui.Button(new GUIContent("New Map", "Clear Level")))
@@ -96,15 +71,47 @@ public class EGameGUI : bs{
         {
             Application.LoadLevel((int)Scene.Menu);
         }
-        gui.Label( new GUIContent("Tools" , "Objects that you put on scene"));
-        var old = tooli;
-        tooli = gui.SelectionGrid(tooli, ToolTextures, 2);
-        if (old != tooli)
+        gui.Label(new GUIContent("Prefabs", "Objects that you put on scene"));
+        var old = prefabi;
+        prefabi = gui.SelectionGrid(prefabi, PrefabTextures, 2);
+        tooli = gui.SelectionGrid(tooli, Enum.GetNames(typeof(ToolType)), 2);
+        
+        if (old != prefabi)
             _EGame.OnSelectionChanged();
         GUI.DragWindow();
         if (GUI.tooltip != "")
             tip.text = GUI.tooltip;
     }
+    void Window2(int id)
+    {
+        if (_EGame.SelectedPrefab != null)
+        {
+            var textmesh = _EGame.SelectedPrefab.GetComponent<TextMesh>();
+            if (textmesh != null)
+            {
+                gui.Label("Text");
+                textmesh.text = gui.TextField(textmesh.text);
+            }
+            var score = _EGame.SelectedPrefab.GetComponent<Score>();
+            if (score != null)
+                score.spawn = gui.Toggle(score.spawn, "CheckPoint");
+
+            var anim = _EGame.SelectedPrefab.GetComponent<AnimHelper>();
+            if (anim != null)
+                anim.animationSpeedFactor = gui.HorizontalSlider(anim.animationSpeedFactor, 0, 1);
+        }
+        gui.BeginHorizontal();
+        if (gui.Button("<")) scale--;
+        gui.Label(""+scale);
+        if (gui.Button(">")) scale++;
+        scale = Mathf.Clamp(scale, 1, 10);
+        
+        gui.EndHorizontal();
+        GUI.DragWindow();
+        if (GUI.tooltip != "")
+            tip.text = GUI.tooltip;
+    }
+    
 
 	void Update () {
         timer.Update();

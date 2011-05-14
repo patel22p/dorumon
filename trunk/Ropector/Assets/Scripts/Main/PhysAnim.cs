@@ -8,12 +8,10 @@ using System.Collections.Generic;
 public class PhysAnim : AnimHelper
 {
     
-    
     internal List<Transform> rigidBoddies = new List<Transform>();
     internal List<Transform> trs = new List<Transform>();
     internal Quaternion[] oldRot;
     public float strength = 1;
-
 
     public void Start()
     {
@@ -47,14 +45,16 @@ public class PhysAnim : AnimHelper
     }
     void FixedUpdate()
     {
-        if (editor) return;        
+        if (editor) return;
         for (int i = 0; i < trs.Count; i++)
         {
             var AnimObj = trs[i];
             var RiggidObj = rigidBoddies[i];
-            
+
             var pc = AnimObj.position - RiggidObj.position;
-            var rc = Mathf.DeltaAngle((RiggidObj.rotation * Quaternion.Inverse(oldRot[i])).eulerAngles.z, (AnimObj.rotation * Quaternion.Inverse(oldRot[i])).eulerAngles.z);
+            var z1 = (RiggidObj.rotation * Quaternion.Inverse(oldRot[i])).eulerAngles.z;
+            var z2 = (AnimObj.rotation * Quaternion.Inverse(oldRot[i])).eulerAngles.z;
+            var rc = Mathf.DeltaAngle(z1, z2);
             RiggidObj.rigidbody.velocity = pc * 5 * strength;
             RiggidObj.rigidbody.angularVelocity = new Vector3(0, 0, rc);
         }

@@ -18,7 +18,7 @@ public class Gamebs : bs
 
         for (int i = 0; i < tools.Count; i++)
             tools[i].toolid = i;
-        LoadMap();
+        //LoadMap();
         base.Awake();
     }
     public void LoadMap()
@@ -52,16 +52,26 @@ public class Gamebs : bs
                     wall.SpeedTrackVell = t.speedTrackVell;
                 var anim = w.GetComponent<AnimHelper>();
                 if (anim != null)
+                {
                     anim.animationSpeedFactor = t.animSpeedFactor;
+                    anim.TimeOffsetFactor = t.timeOffsetFactor;
+                }
             }
             spawn = db.startpos;
+            Debug.Log(spawn);
         }
         catch (XmlException e) { Debug.Log(e); if (!editor) throw e; }
+        onMapLoaded();
     }
-    
+    public virtual void onMapLoaded()
+    {
+
+    }
     public void SaveLevel()
     {
+
         var db = new DB();
+        Debug.Log(spawn);
         db.startpos = spawn;
         foreach (Transform t in level)
         {
@@ -74,15 +84,18 @@ public class Gamebs : bs
             var score = t.GetComponent<Score>();
             if (score != null)
                 b.spawn = score.spawn;
-            var anim = _EGame.SelectedPrefab.GetComponent<AnimHelper>();
+            var anim = t.GetComponent<AnimHelper>();
             if (anim != null)
             {
                 b.animSpeedFactor = anim.animationSpeedFactor;
+                b.timeOffsetFactor = anim.TimeOffsetFactor;
             }
 
             var wall = t.GetComponent<Wall>();
             if (wall != null)
-                b.speedTrackVell = wall.SpeedTrackVell;
+            {
+                b.speedTrackVell = wall.SpeedTrackVell;                
+            }
 
             db.tools.Add(b);
             

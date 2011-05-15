@@ -420,7 +420,6 @@
 //            EditorApplication.isPaused = !EditorApplication.isPaused;
 //        else
 //            if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
-
 //    }
 //    [MenuItem("File/Backup")]
 //    private static void Backup()

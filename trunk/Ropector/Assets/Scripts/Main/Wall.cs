@@ -16,6 +16,8 @@ public class Wall : Tool
 
     public override void Init()
     {
+        if (networkView == null) gameObject.AddComponent<NetworkView>();
+
         base.Init();
     }        
 }

@@ -107,7 +107,7 @@ public class RopeEnd : bs
             var r = new Ray(oldpos.Value, transform.position - oldpos.Value);
             RaycastHit h;
 
-            if (Physics.Raycast(r, out h, Vector3.Distance(transform.position, oldpos.Value), ~(1 << LayerMask.NameToLayer("Player"))))
+            if (Physics.Raycast(r, out h, Vector3.Distance(transform.position, oldpos.Value), ~(1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("IgnoreColl"))))
                 OnColl(h.point, h.transform);
         }
         oldpos = transform.position;
@@ -125,7 +125,15 @@ public class RopeEnd : bs
             transform.position = point;
         }
         if (!rigidbody.isKinematic)
-            EnableRope(false);        
+            EnableRope(false);
+
+        var p = t.GetComponentInParrent<PhysAnim>();
+        if (p != null)
+        {
+            if (p.PlayOnRopeHit)
+                p.Anim.Play();
+        }
+
     }
     
     public void EnableRope(bool enable)

@@ -19,6 +19,7 @@ using System.Collections;
 public class InspectorSearch : EditorWindow
 {
     string search = "";
+    float autosavetm = 0;    
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
     protected virtual void OnGUI()
     {
@@ -46,6 +47,27 @@ public class InspectorSearch : EditorWindow
         search = "";
         this.Repaint();
     }
+
+    protected virtual void Update()
+    {
+        autosavetm += 0.01f;
+        if (autosavetm > 60 * 2)
+        {
+            autosavetm = 0;
+            Backup();
+        }
+    }
+
+    [MenuItem("File/Backup")]
+    private static void Backup()
+    {
+        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
+        {            
+            EditorApplication.SaveAssets();
+            EditorApplication.SaveScene(EditorApplication.currentScene);
+        }
+    }
+
     [MenuItem("Window/Rtools", false, 0)]
     static void rtoolsclick()
     {
@@ -57,6 +79,14 @@ public class InspectorSearch : EditorWindow
         var g = UnityEditor.Selection.activeObject;
         var Texture = UnityEditor.EditorUtility.GetAssetPreview(g);
         File.WriteAllBytes("Assets/" + g.name + ".png", Texture.EncodeToPNG());
+    }
+    [MenuItem("Edit/Play % ")]
+    private static void Play()
+    {
+        if (EditorApplication.isPlaying)
+            EditorApplication.isPaused = !EditorApplication.isPaused;
+        else
+            if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
     }
     [MenuItem("Assets/Create/Prefab", priority = 0)]
     static void CreatePrefabs()
@@ -179,5 +209,6 @@ public class InspectorSearch : EditorWindow
             }
         }
     }
+    public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
 
 }

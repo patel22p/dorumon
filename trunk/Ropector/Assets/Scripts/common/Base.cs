@@ -41,11 +41,17 @@ public partial class Base : MonoBehaviour
             t.gameObject.active = value;
     }
     public Vector3 pos { get { return transform.position; } set { transform.position = value; } }
-
+    public Vector3 position { get { return transform.position; } set { transform.position = value; } }
+    public Transform parent { get { return transform.parent; } set { transform.parent = value; } }
     public Vector3 scale { get { return transform.localScale; } set { transform.localScale = value; } }
-    public float x { get { return pos.x; } set { var v = pos; v.x = value; pos = v; } }
-    public float y { get { return pos.y; } set { var v = pos; v.y = value; pos = v; } }
-    public float z { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }
+    public float posx { get { return pos.x; } set { var v = pos; v.x = value; pos = v; } }
+    public float posy { get { return pos.y; } set { var v = pos; v.y = value; pos = v; } }
+    public float posz { get { return pos.z; } set { var v = pos; v.z = value; pos = v; } }
+
+    public float rotx { get { return rot.eulerAngles.x; } set { var e = rot.eulerAngles; e.x = value; rot = Quaternion.Euler(e); } }
+    public float roty { get { return rot.eulerAngles.y; } set { var e = rot.eulerAngles; e.y = value; rot = Quaternion.Euler(e); } }
+    public float rotz { get { return rot.eulerAngles.z; } set { var e = rot.eulerAngles; e.z = value; rot = Quaternion.Euler(e); } }
+
     public Vector3 lpos { get { return transform.localPosition; } set { transform.localPosition = value; } }
     public Quaternion rot { get { return transform.rotation; } set { transform.rotation = value; } }
     

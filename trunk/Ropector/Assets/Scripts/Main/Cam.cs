@@ -32,7 +32,7 @@ public class Cam : bs
     }
     float fake;
     float fakescale;
-    float camoffset= 30;
+    float camoffset= 20;
     public void FixedUpdate()
     {
         if (_Player != null)

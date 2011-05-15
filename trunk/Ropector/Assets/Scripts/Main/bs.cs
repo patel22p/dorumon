@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using doru;
 using System.Collections.Generic;
-[AddComponentMenu("Game/Base")]
+//[AddComponentMenu("Game/Base")]
 public class bs : Base 
 {
     public bool editor { get { return Application.loadedLevel == (int)Scene.mapEditor; } }
@@ -18,6 +18,10 @@ public class bs : Base
     public virtual void Awake()
     {
         InitLoader();
+    }
+    public virtual void OnPlayerCon(NetworkPlayer player)
+    {
+
     }
     public void AddToNetwork()
     {

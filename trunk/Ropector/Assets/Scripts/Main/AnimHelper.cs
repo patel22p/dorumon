@@ -6,31 +6,39 @@ using System.Collections.Generic;
 using doru;
 
 
-public class AnimHelper : Tool
+public class AnimHelper : bs
 {
 
-    internal Animation anim;
-    public Animation Anim { get { return anim == null ? animation : anim; } }
     
+    public Animation Anim;
+    public bool PlayOnPlayerHit;
+    public bool PlayOnRopeHit;
     public WrapMode wrapMode;
     TimerA timer = new TimerA();
     public float animationSpeedFactor = 1;
-    public float AnimationOffsetFactor;
+    public float TimeOffsetFactor;
     AnimationState animationState { get { return Anim.Cast<AnimationState>().FirstOrDefault(); } }
-    
+
     float oldoffset;
     public override void Awake()
     {
-        animation.wrapMode = wrapMode;
-        if (Network.isServer)
-            if (animation.playAutomatically)
-                timer.AddMethod(3000, delegate
-                {
-                    networkView.RPC("AnimState", RPCMode.Others, animationState.enabled, animationState.time);
-                });
+
+        if (Anim == null) Anim = this.GetComponentInChildren<Animation>();
+        Anim.wrapMode = wrapMode;
+        if (wrapMode == WrapMode.Default)
+        {
+            Anim.playAutomatically = false;
+            Anim.Stop();
+        }
         base.Awake();
     }
-    
+
+    public override void OnPlayerCon(NetworkPlayer player)
+    {
+        //if (Network.isServer)
+        //    networkView.RPC("AnimState", RPCMode.Others, animationState.enabled, animationState.time);
+        //base.OnPlayerCon(player);
+    }
     [RPC]
     void AnimState(bool enabled, float time)
     {
@@ -41,11 +49,12 @@ public class AnimHelper : Tool
     public void Update()
     {
         //if (Anim != null && Anim.clip != null)
+
         animationState.speed = animationSpeedFactor;
-        if (AnimationOffsetFactor != 0 && AnimationOffsetFactor != oldoffset)
+        if (TimeOffsetFactor != 0 && TimeOffsetFactor != oldoffset)
         {
-            animationState.time = (this.transform.position.x * AnimationOffsetFactor) % animationState.length;
-            oldoffset = AnimationOffsetFactor;
+            animationState.time = (this.transform.position.x * TimeOffsetFactor) % animationState.length;
+            oldoffset = TimeOffsetFactor;
         }
 
         timer.Update();

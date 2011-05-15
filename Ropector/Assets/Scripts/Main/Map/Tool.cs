@@ -8,9 +8,10 @@ using System.Xml.Serialization;
 
 public class Tool : bs
 {
+    public Vector3 GridSize = Vector3.one;
     public override void Awake()
     {
-        if (collider == null) collider = this.GetComponentInChildren<Collider>();    
+        if (collider == null) collider = this.GetComponentInChildren<Collider>();
         base.Awake();
     }
     public int toolid;
@@ -18,7 +19,7 @@ public class Tool : bs
     public ToolType toolType;
     public new Collider collider;
 }
-public enum ToolType { Grid, Trail , Move, Rotate, Zoom  }
+public enum ToolType { Grid, Trail, Move, Scale, Rotate }
 
 [Serializable]
 public class Tooldb
@@ -31,6 +32,7 @@ public class Tooldb
     public bool spawn;
     public float speedTrackVell;
     public float animSpeedFactor;
+    public float timeOffsetFactor;
 }
 [Serializable]
 public class DB

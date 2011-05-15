@@ -13,7 +13,7 @@ public class EGameGUI : bs{
 
     internal Rect[] winRect = new[] { 
         new Rect(10, 10, 100, 550), 
-        new Rect(115, 10, 100, 550)
+        new Rect(115, 10, 150, 550)
     };
     GUIText tip;
     GUIContent[] PrefabTextures { get { return _EGame.PrefabTextures; } }
@@ -71,19 +71,22 @@ public class EGameGUI : bs{
         {
             Application.LoadLevel((int)Scene.Menu);
         }
-        gui.Label(new GUIContent("Prefabs", "Objects that you put on scene"));
-        var old = prefabi;
-        prefabi = gui.SelectionGrid(prefabi, PrefabTextures, 2);
-        tooli = gui.SelectionGrid(tooli, Enum.GetNames(typeof(ToolType)), 2);
+              
         
-        if (old != prefabi)
-            _EGame.OnSelectionChanged();
         GUI.DragWindow();
         if (GUI.tooltip != "")
             tip.text = GUI.tooltip;
     }
     void Window2(int id)
     {
+        gui.Label(new GUIContent("Prefabs", "Objects that you put on scene"));
+        var old = prefabi;
+        prefabi = gui.SelectionGrid(prefabi, PrefabTextures, 2);
+        if (old != prefabi)
+            _EGame.OnSelectionChanged();
+        gui.Label(new GUIContent("Tools", "Move, Scale and other tools"));
+        tooli = gui.SelectionGrid(tooli, Enum.GetNames(typeof(ToolType)), 2);  
+
         if (_EGame.SelectedPrefab != null)
         {
             var textmesh = _EGame.SelectedPrefab.GetComponent<TextMesh>();
@@ -96,17 +99,25 @@ public class EGameGUI : bs{
             if (score != null)
                 score.spawn = gui.Toggle(score.spawn, "CheckPoint");
 
-            var anim = _EGame.SelectedPrefab.GetComponent<AnimHelper>();
+            var anim = _EGame.SelectedPrefab.GetComponentInChildren<AnimHelper>();
             if (anim != null)
-                anim.animationSpeedFactor = gui.HorizontalSlider(anim.animationSpeedFactor, 0, 1);
+            {
+                gui.Label("anim speed");
+                anim.animationSpeedFactor = gui.HorizontalSlider(anim.animationSpeedFactor, -1, 1);
+                gui.Label("anim offset");
+                anim.TimeOffsetFactor = gui.HorizontalSlider(anim.TimeOffsetFactor, 0, 1);
+            }
+            
+
         }
         gui.BeginHorizontal();
         if (gui.Button("<")) scale--;
         gui.Label(""+scale);
         if (gui.Button(">")) scale++;
         scale = Mathf.Clamp(scale, 1, 10);
-        
         gui.EndHorizontal();
+        
+
         GUI.DragWindow();
         if (GUI.tooltip != "")
             tip.text = GUI.tooltip;

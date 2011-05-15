@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
-[AddComponentMenu("Game/GlowOnHit")]
+//[AddComponentMenu("Game/GlowOnHit")]
 public class GlowOnHit : bs
 {
     //PhysAnimObj this;

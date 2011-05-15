@@ -5,43 +5,45 @@ using System.Linq;
 using System.Collections.Generic;
 
 
+[AddComponentMenu("Game/Anim")]
+
 public class PhysAnim : AnimHelper
 {
     
-    internal List<Transform> rigidBoddies = new List<Transform>();
+    public List<Transform> rigidBoddies = new List<Transform>();
     internal List<Transform> trs = new List<Transform>();
     internal Quaternion[] oldRot;
     public float strength = 1;
 
     public void Start()
     {
-        if (editor) return; 
-        Transform AnimObj = ((Transform)Instantiate(this.transform, pos, rot));
-        foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
-            Destroy(a);
-        anim = AnimObj.animation;
+        if (!editor)
+        {
+            Transform AnimObj = ((Transform)Instantiate(this.transform, pos, rot));
 
-        AnimObj.transform.parent = transform.parent;
-        var ahelper = GetComponent<AnimHelper>();
-        if (ahelper != null) ahelper.anim = AnimObj.animation;
+            foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
+                Destroy(a);
+            Destroy(Anim);
 
-        trs = AnimObj.GetComponentInChildren<Transform>().Cast<Transform>().ToList();
-        oldRot = new Quaternion[trs.Count];
-        for (int i = 0; i < trs.Count; i++)
-            oldRot[i] = trs[i].rotation;
-        
-        foreach (Transform t in this.GetComponentInChildren<Transform>())
-        {            
-            var r = t.gameObject.AddComponent<Rigidbody>();
-            r.useGravity = false;
-            r.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
-            r.centerOfMass = Vector3.zero;
-            rigidBoddies.Add(t);
+            Anim = AnimObj.animation;
+
+            AnimObj.transform.parent = transform.parent;
+            Anim = AnimObj.GetComponent<PhysAnim>().Anim;
+
+            trs = AnimObj.GetComponentInChildren<Transform>().Cast<Transform>().ToList();
+            oldRot = new Quaternion[trs.Count];
+            for (int i = 0; i < trs.Count; i++)
+                oldRot[i] = trs[i].rotation;
+
+            if (rigidBoddies.Count == 0) rigidBoddies = transform.Cast<Transform>().ToList();
+            foreach (Transform t in rigidBoddies)
+            {
+                var r = t.gameObject.AddComponent<Rigidbody>();
+                r.useGravity = false;
+                r.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+                r.centerOfMass = Vector3.zero;
+            }            
         }
-        Destroy(animation);
-        
-
-        base.Awake();
     }
     void FixedUpdate()
     {

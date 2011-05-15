@@ -67,7 +67,7 @@ public class Loader : bs
         Network.SetSendingEnabled(0, false);
         Network.isMessageQueueRunning = false;
         Network.SetLevelPrefix(levelPrefix);
-        Application.LoadLevel((int)Scene.Game);
+        Application.LoadLevel((int)Scene.Game);        
         yield return null;
     }
     void OnLevelWasLoaded(int level)
@@ -78,7 +78,7 @@ public class Loader : bs
     }
     public void LoadMap(Action onLoaded)
     {
-        var w = new WWW(_Loader.host + "index.php?open=1&mapname=" + _Loader.mapName+"&r="+ Random.Range(0,999));
+        var w = new WWW(_Loader.host + "index.php?open=1&mapname=" + _Loader.mapName + "&r=" + Random.Range(0, 999));
         timer.AddMethod(() => w.isDone == true, delegate
         {
             Debug.Log("Loaded:" + w.text);

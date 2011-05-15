@@ -24,8 +24,10 @@ public class Game : Gamebs
 
     public override void Awake()
     {
+        base.Awake();
+        AddToNetwork();
         Debug.Log("Game awake");
-        _Popup.enabled = false;
+        _Popup.enabled = false;        
         if (Network.peerType == NetworkPeerType.Disconnected)
         {
             Debug.Log("Game Awake Autoconnect:" + AutoConnect);
@@ -34,25 +36,26 @@ public class Game : Gamebs
             if (!AutoConnect)
                 InitServer();
         }
-        AddToNetwork();
         
-        base.Awake();
+        
+        
     }
     internal Transform water;
     
     public void Start()
     {
-        
+        Debug.Log("Game start");
+        LoadMap();
         SetupSpawnPos();
         SetupOther();
-        SetupPlayer();        
+        SetupPlayer();
     }
 
     private void SetupOther()
     {
         if (debug) prestartTm = 0;
         _MenuGui.Hide();
-        Debug.Log("Game start");
+
         water = GameObject.Find("water").transform;
     }
 
@@ -121,11 +124,13 @@ public class Game : Gamebs
         foreach (var a in networkItems)
             a.enabled = true;
     }
-    
-    void OnPlayerConnected(NetworkPlayer player)
+
+    public override void OnPlayerCon(NetworkPlayer player)
     {
         Debug.Log("Player Conencted: " + player);
+        base.OnPlayerCon(player);
     }
+    
     public override void Init()
     {
         IgnoreAll("Ignore Raycast");
@@ -174,7 +179,15 @@ public class Game : Gamebs
     }
     private void InitServer()
     {
-        Network.InitializeServer(8, 5300, !Network.HavePublicAddress());
+        _Loader.LoadMap(delegate
+        {                        
+            Network.InitializeServer(8, 5300, true);
+            _Loader.timer.AddMethod(delegate
+            {
+                _Loader.StartGame(_Loader.Map);
+            });
+        });
+
     }
     void OnFailedToConnect(NetworkConnectionError err)
     {

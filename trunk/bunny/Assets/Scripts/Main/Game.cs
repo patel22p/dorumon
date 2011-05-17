@@ -15,9 +15,16 @@ public class Game : bs
     public PowerType powerType;
     [FindTransform]
     public GUITexture powerIcon;
+    public GUITexture[] lifeIcon;
     public Texture2D[] powerTextures;
     internal float powerTime;
     public TimerA timer = new TimerA();
+
+    [FindAsset("Nut_1p")]
+    public GameObject nutPrefab;
+    [FindAsset("Berry_5p")]
+    public GameObject berryPrefab;
+
     public override void Init()
     {
         IgnoreAll("Nut", "Level");
@@ -35,11 +42,15 @@ public class Game : bs
     }
     void Update()
     {
-        
+        for (int i = 0; i < lifeIcon.Length; i++)
+            lifeIcon[i].enabled = _Player.life > i;
+         
         UpdatePower();
 
         if (Input.GetKeyDown(KeyCode.Tab))
             Screen.lockCursor = !Screen.lockCursor;
+
+
         score.text = scores + "";
         timer.Update();
     }

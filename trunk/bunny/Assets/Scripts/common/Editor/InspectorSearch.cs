@@ -116,14 +116,14 @@ public class InspectorSearch : EditorWindow
             {
                 var t = Camera.main.transform;
                 scene.LookAt(t.position, t.rotation, 3);
-                Camera.main.GetComponent<GUILayer>().enabled = true;
+                //Camera.main.GetComponent<GUILayer>().enabled = true;
             }
             else
             {
                 var t = Camera.main.transform;
                 t.position = scene.camera.transform.position;
                 t.rotation = scene.camera.transform.rotation;
-                Camera.main.GetComponent<GUILayer>().enabled = false;
+                //Camera.main.GetComponent<GUILayer>().enabled = false;
             }
         }
         var e = Event.current;

@@ -1,8 +1,13 @@
-Shader "test"
+Shader "WordlSpaceMapping"
 {
 	Properties 
 	{
-_tet("_tet", 2D) = "white" {}
+_TexX("_TexX", 2D) = "black" {}
+_TexX_Tiling("_TexX_Tiling", Float) = 0.1
+_TexY("_TexY", 2D) = "white" {}
+_TexY_Tiling("_TexY_Tiling", Float) = 0.1
+_TexZ("_TexZ", 2D) = "gray" {}
+_TexZ_Tiling("_TexZ_Tiling", Float) = 0.1
 
 	}
 	
@@ -27,10 +32,15 @@ Fog{
 
 		CGPROGRAM
 #pragma surface surf BlinnPhongEditor  vertex:vert
-#pragma target 3.0
+#pragma target 2.0
 
 
-sampler2D _tet;
+sampler2D _TexX;
+float _TexX_Tiling;
+sampler2D _TexY;
+float _TexY_Tiling;
+sampler2D _TexZ;
+float _TexZ_Tiling;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -70,7 +80,8 @@ return c;
 			}
 			
 			struct Input {
-				float3 sWorldNormal;
+				float3 worldPos;
+float3 sWorldNormal;
 
 			};
 
@@ -94,8 +105,30 @@ o.sWorldNormal = mul((float3x3)_Object2World, SCALED_NORMAL);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 VxM0=mul( float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ), _Object2World );
-float4 Tex2D0=tex2D(_tet,VxM0.xy);
+float4 Multiply0=float4( 1,1,1,0) * float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 );
+float4 Multiply4=_TexX_Tiling.xxxx * Multiply0;
+float4 Tex2D0=tex2D(_TexX,Multiply4.xy);
+float4 Swizzle0=float4(float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).z, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).y, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).x, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).w);
+float4 Multiply1=Swizzle0 * float4( 1,1,1,0);
+float4 Multiply5=_TexY_Tiling.xxxx * Multiply1;
+float4 Tex2D1=tex2D(_TexY,Multiply5.xy);
+float4 Splat0=float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).x;
+float4 Negative0= -Splat0; 
+ float4 Saturate0=saturate(Negative0);
+float4 Saturate1=saturate(Splat0);
+float4 Add0=Saturate0 + Saturate1;
+float4 Lerp0=lerp(Tex2D0,Tex2D1,Add0);
+float4 Swizzle1=float4(float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).x, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).z, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).y, float4( IN.worldPos.x, IN.worldPos.y,IN.worldPos.z,1.0 ).w);
+float4 Multiply2=Swizzle1 * float4( 1,1,1,0);
+float4 Multiply6=_TexZ_Tiling.xxxx * Multiply2;
+float4 Tex2D2=tex2D(_TexZ,Multiply6.xy);
+float4 Splat1=float4( IN.sWorldNormal.x, IN.sWorldNormal.y,IN.sWorldNormal.z,1.0 ).y;
+float4 Negative1= -Splat1; 
+ float4 Saturate3=saturate(Negative1);
+float4 Saturate2=saturate(Splat1);
+float4 Add1=Saturate3 + Saturate2;
+float4 Lerp1=lerp(Lerp0,Tex2D2,Add1);
+float4 Multiply3=Lerp1 * Lerp1;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
@@ -103,7 +136,7 @@ float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 float4 Master0_6_NoInput = float4(1,1,1,1);
-o.Albedo = Tex2D0;
+o.Albedo = Multiply3;
 
 				o.Normal = normalize(o.Normal);
 			}

@@ -32,9 +32,13 @@ public class MyNodes : bs{
             if (Physics.Raycast(r, out rhit, Mathf.Infinity))
             {
                 Event.current.Use();
-                var g = (GameObject)Instantiate(NodePrefab, rhit.point, Quaternion.identity);
+
+                var g = (GameObject)(GameObject)UnityEditor.EditorUtility.InstantiatePrefab(NodePrefab);
+                    //Instantiate(NodePrefab, rhit.point, Quaternion.identity);
                 g.transform.parent = transform;
                 Node n = g.GetComponent<Node>();
+                n.pos = rhit.point;
+
                 if (lastNode != null)
                 {
                     n.nodes.Add(lastNode);

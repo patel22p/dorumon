@@ -3,9 +3,9 @@ Shader "Bunny/Character"
 	Properties 
 	{
 _Color("_Color", Color) = (1,1,1,1)
-_MainTex("_MainTex", 2D) = "black" {}
+_MainTex("_MainTex", 2D) = "white" {}
 _RimlightColor("_RimlightColor", Color) = (1,1,1,1)
-_RimlightStrength("_RimlightStrength", Range(0,3) ) = 0.5
+_RimlightRange("_RimlightRange", Float) = 1.5
 
 	}
 	
@@ -29,14 +29,14 @@ Fog{
 
 
 		CGPROGRAM
-#pragma surface surf BlinnPhongEditor  nolightmap vertex:vert
-#pragma target 3.0
+#pragma surface surf BlinnPhongEditor  vertex:vert
+#pragma target 2.0
 
 
 float4 _Color;
 sampler2D _MainTex;
 float4 _RimlightColor;
-float _RimlightStrength;
+float _RimlightRange;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -50,11 +50,11 @@ float _RimlightStrength;
 			
 			inline half4 LightingBlinnPhongEditor_PrePass (EditorSurfaceOutput s, half4 light)
 			{
-half3 spec = light.a * s.Gloss;
-half4 c;
-c.rgb = (s.Albedo * light.rgb + light.rgb * spec);
-c.a = s.Alpha;
-return c;
+float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - light;
+float4 Multiply0=float4( 0.25,0.25,0.25,1) * Invert0;
+float4 Add0=Multiply0 + light;
+float4 Multiply1=float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 ) * Add0;
+return Multiply1;
 
 			}
 
@@ -100,16 +100,14 @@ float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Multiply2=_Color * float4( 2,2,2,2 );
 float4 Tex2D0=tex2D(_MainTex,(IN.uv_MainTex.xyxy).xy);
-float4 Multiply1=Multiply2 * Tex2D0;
+float4 Multiply1=_Color * Tex2D0;
 float4 Fresnel0_1_NoInput = float4(0,0,1,1);
 float4 Fresnel0=(1.0 - dot( normalize( float4( IN.viewDir.x, IN.viewDir.y,IN.viewDir.z,1.0 ).xyz), normalize( Fresnel0_1_NoInput.xyz ) )).xxxx;
-float4 Pow0=pow(Fresnel0,_RimlightStrength.xxxx);
+float4 Pow0=pow(Fresnel0,_RimlightRange.xxxx);
 float4 Multiply0=Pow0 * _RimlightColor;
 float4 SplatAlpha0=_RimlightColor.w;
-float4 Multiply3=SplatAlpha0 * float4( 10,10,10,10 );
-float4 Multiply4=Multiply0 * Multiply3;
+float4 Multiply4=Multiply0 * SplatAlpha0;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);

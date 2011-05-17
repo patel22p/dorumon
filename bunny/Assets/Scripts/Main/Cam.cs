@@ -20,7 +20,7 @@ public class Cam : bs
     public float camNonSmooth = .90f;
     public float mousedelta = 1;
     public float Smothmousedelta = 2;
-    void LateUpdate()
+    void FixedUpdate()
     {
         mousedelta = Mathf.Clamp(mousedelta + Input.GetAxis("Mouse ScrollWheel"), .4f, 1.5f);
         Smothmousedelta = Mathf.Lerp(Smothmousedelta, mousedelta, .10f);

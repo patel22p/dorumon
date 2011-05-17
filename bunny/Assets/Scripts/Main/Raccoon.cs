@@ -7,16 +7,14 @@ using System.Collections.Generic;
 public class Raccoon : Shared
 {
 
-    
-    
-    [FindAsset("Nut_1p")]
-    public GameObject nutPrefab;
-    [FindAsset("Berry_5p")]   
-    public GameObject berryPrefab;
-    public enum State { walk = 0, run = 1, sneak = 2, crouch = 3 } ;
+    //[FindAsset("Nut_1p")]
+    //public GameObject nutPrefab;
+    //[FindAsset("Berry_5p")]   
+    //public GameObject berryPrefab;
+    public enum State { walk = 0, run = 1, sneak = 2, crouch = 3, runAway = 4, attack =5} ;
     public State state;
 
-    int[] states = new int[] { 0, 0, 0, 0, 1, 1, 2, 2, 3 };
+    int[] states = new int[] { 0, 0, 0, 0, 2, 2, 3 };
     TimerA timer = new TimerA();
     Node[] nodes;
 
@@ -25,10 +23,11 @@ public class Raccoon : Shared
     AnimationState getHitA { get { return an["gethitA"]; } }
     AnimationState idle { get { return an["idle"]; } }
     AnimationState walk { get { return an["walk"]; } }
-    AnimationState fll { get { return an["midair"]; } }
+    AnimationState fall { get { return an["midair"]; } }
     AnimationState land { get { return an["landing"]; } }
     AnimationState run { get { return an["run"]; } }
-    AnimationState death { get { return an["death"]; } }
+    
+    AnimationState punch { get { return an["punch"]; } }
 
     Node node;
     Node lastNode;
@@ -37,7 +36,6 @@ public class Raccoon : Shared
     int TmChange;
 
     int TmState;
-
     public void Awake()
     {
         if (disableScripts)
@@ -50,36 +48,82 @@ public class Raccoon : Shared
         SetupLayers();
         SetupOther();
     }
-    
-    public override void Update()
-    {
-        base.Update();
-        UpdateOther();
-        UpdateSelectNode();
-        UpdateCheckStuck();
-        UpdateMove();
-        timer.Update();
-    }
     private void SetupOther()
     {
         nodes = _MyNodes.transform.Cast<Transform>().Select(a => a.gameObject.GetComponent<Node>()).ToArray();
-        var order = nodes.OrderBy(a => Vector3.Distance(a.pos, pos));
-        node = order.FirstOrDefault();
+        NearestNode();
         if (node == null) { enabled = false; Debug.Log("No nodes"); }
         TmChange = Random.Range(1000, 5000);
-        TmJump = Random.Range(1000, 3000);
+        TmJump = Random.Range(5000, 6000);
     }
     private void SetupLayers()
     {
-        fll.wrapMode = idle.wrapMode = WrapMode.Loop;
+        fall.wrapMode = idle.wrapMode = WrapMode.Loop;
         run.wrapMode = WrapMode.Loop;
         sneak.wrapMode = WrapMode.Loop;
         land.wrapMode = WrapMode.Clamp;
         getHitA.wrapMode = WrapMode.Clamp;
         death.wrapMode = WrapMode.ClampForever;
+        punch.wrapMode = WrapMode.Clamp;
 
         death.layer = 2;
-        getHitA.layer = land.layer = fll.layer = 1;
+        punch.layer = getHitA.layer = land.layer = 1;
+    }
+    public override void Update()
+    {
+        base.Update();
+        UpdateAnimations();
+        //if (debug) state = State.crouch;
+        UpdateOther();
+        UpdateSelectNode();
+        UpdateCheckStuck();
+        UpdateMove();
+        UpdateSeePlayer();
+        UpdateAttack();
+        timer.Update();
+    }
+    public void UpdateAttack()
+    {
+        if (!punch.enabled)
+        {
+            foreach (Barrel br in trigger.triggers.Where(a => a is Barrel))
+                if (br != null)
+                {
+                    br.Hit();
+                    an.CrossFade(punch.name);
+                }
+
+            foreach (Player r in trigger.triggers.Where(a => a is Player && a.enabled != false))
+            {
+                if(selected)
+                    Debug.Log("Punch");
+                r.Damage();
+                an.CrossFade(punch.name);
+            }
+        }
+
+    }
+    public void UpdateSeePlayer()
+    {
+        Vector3 v = _Player.pos - pos;
+        if (v.magnitude < 5 && Quaternion.Angle(rot, Quaternion.LookRotation(_Player.pos - pos)) < 90)
+        {
+            RaycastHit h;
+            if (Physics.Raycast(new Ray(pos, v), out h, v.magnitude, 1 << LayerMask.NameToLayer("Level")))
+            {
+            }
+            else if(state != State.runAway)
+            {
+                //if(selected)
+                //    Debug.Log("Run Away");
+                onDetect();
+            }
+        }
+        if ((!_Player.enabled || v.magnitude > 10) && (state == State.runAway || state == State.attack))
+        {
+            state = State.walk;
+            NearestNode();
+        }
     }
     void UpdateOther()
     {
@@ -89,35 +133,14 @@ public class Raccoon : Shared
             return;
         }
 
-        if (timer.TimeElapsed(TmState))
+        if (timer.TimeElapsed(TmState) && state != State.runAway)
         {
-
             state = (State)states[Random.Range(0, states.Length - 1)];
             if (selected) Debug.Log("state switch" + state);
             TmState = Random.Range(3000, 10000);
         }
     }
-
-    private void Die()
-    {
-        SetLayer(LayerMask.NameToLayer("Dead"));
-        _Game.shareds.Remove(this);
-        for (int i = 0; i < nuts; i++)
-            CreateNut(nutPrefab);
-        for (int i = 0; i < berries; i++)
-            CreateNut(berryPrefab);
-        enabled = false;
-        an.CrossFade(death.name);
-    }
-
-    private void CreateNut(GameObject prefab)
-    {
-        GameObject nut = (GameObject)Instantiate(prefab, pos + Vector3.up, Quaternion.identity);
-        Rigidbody rig = nut.AddComponent<Rigidbody>();
-        rig.constraints = RigidbodyConstraints.FreezeRotation;
-        rig.velocity = (UnityEngine.Random.onUnitSphere + Vector3.up) * 4;
-    }
- 
+    
     private void UpdateCheckStuck()
     {
         if (rigidbody.velocity.magnitude < .5f && !CantMove)
@@ -129,16 +152,18 @@ public class Raccoon : Shared
             }
             if (timer.TimeElapsed(TmChange))
             {
-                if (selected) Debug.Log("stuck change node");
-                node = node.nodes.Random();
+                if (selected) Debug.Log("stuck change node");                
+                //node = node.nodes.Random();
                 lastNode = node;
+                state = State.walk;
+                NearestNode();
             }
         }
     }
-
     private void Jump()
     {
-        rigidbody.AddForce(Vector3.up * JumpPower);
+        pos += rot * (Vector3.back + Vector3.up) * .4f;       
+        rigidbody.AddForce(Vector3.up * jumpPower);
     }
     public static T Cofient<T>(T[] a, float[] p)
     {
@@ -161,7 +186,7 @@ public class Raccoon : Shared
     }
     private void UpdateSelectNode()
     {
-        if (Vector3.Distance(node.pos, pos) < .5f)
+        if (Vector3.Distance(node.pos, pos) < 1)
         {
             var oldnode = node;
             var nds  = node.nodes.Where(a => a != null && a != lastNode);
@@ -182,13 +207,12 @@ public class Raccoon : Shared
     }
     private void UpdateMove()
     {
-        //if (fll.enabled && controller.isGrounded)
-        //    fll.enabled = false;
-
-        //if (controller.isGrounded)
-        //    vel *= .86f;
-
         Vector3 dir = (node.pos - pos);
+        if(state == State.attack)
+            dir = _Player.pos - pos;
+        if (state == State.runAway)
+            dir = pos - _Player.pos;
+
         dir.y = 0;
         dir = dir.normalized;
 
@@ -196,71 +220,97 @@ public class Raccoon : Shared
         if (fakedir != Vector3.zero) transform.rotation = Quaternion.LookRotation(fakedir);
 
         var move = Vector3.zero;
-        move += fakedir * Time.deltaTime * 2;
-        if (state == State.run) move *= 3;
+        move += fakedir * Time.deltaTime * 130;
+        if (state == State.run || state == State.runAway || state == State.attack && ground) move *= 2;
         if (CantMove) move *= 0;
 
-        //move += vel * Time.deltaTime;
-        //vel += Physics.gravity * Time.deltaTime;
-        move.y += rigidbody.velocity.y;
-
-        rigidbody.velocity = move;
+        var rv = rigidbody.velocity;
+        rv.y = 0;
+        if (!land.enabled)
+            rigidbody.AddForce((move - rv) * 10);
         //controller.Move(move);
-
     }
-
-    public void Hit()
-    {
-        an.CrossFade(getHitA.name);
-        life --;
-    }
-    
     public override void UpdateAnimations()
     {
-
-        sneak.speed = walk.speed = rigidbody.velocity.magnitude;
+        
+        sneak.speed = walk.speed = Mathf.Max(1, rigidbody.velocity.magnitude);
         var v = rigidbody.velocity;
+        //if (selected)
+        //    Debug.Log();
         v.y = 0;
         if (state == State.sneak)
             an.CrossFade(sneak.name);
-        else if (v.magnitude > 5f)
+        else if (v.magnitude > 4f)
             an.CrossFade(run.name);
-        else if (v.magnitude > 0)
-            an.CrossFade(walk.name);        
         else if (state == State.crouch)
             an.CrossFade(crouch.name);
-        else
-            an.CrossFade(idle.name);
-
-        if (rigidbody.velocity.y > 1f)
-            an.CrossFade(fll.name);
-
+        else 
+            //if (v.magnitude > 1)
+            an.CrossFade(walk.name);        
+        
+        //else
+        //    an.CrossFade(idle.name);
+        
+        if (!ground)
+            an.CrossFade(fall.name);
 
         base.UpdateAnimations();
+    }
+    
+    public override void Damage()
+    {
+        base.Damage();
+        onDetect();
+        an.CrossFade(getHitA.name);
+        life--;
     }
     private void NodeUpdate()
     {
         
     }
-    void OnCollisionEnter(Collision col)
+    private void CreateNut(GameObject prefab)
     {
-        
-        if (Mathf.Abs(col.frictionForceSum.y) > 3)
+        GameObject nut = (GameObject)Instantiate(prefab, pos + Vector3.up, Quaternion.identity);
+        Rigidbody rig = nut.AddComponent<Rigidbody>();
+        rig.constraints = RigidbodyConstraints.FreezeRotation;
+        rig.velocity = (UnityEngine.Random.onUnitSphere + Vector3.up) * 4;
+    }
+    private void onDetect()
+    {
+        if (nuts + berries > 5)
+            state = State.runAway;
+        else
+            state = State.attack;
+    }
+    private void NearestNode()
+    {
+        var order = nodes.Where(a => a.pos.y - pos.y < 1).OrderBy(a => Vector3.Distance(a.pos, pos));
+        node = order.FirstOrDefault();
+    }
+    float groundy = -.1f;
+    void OnCollisionExit(Collision col)
+    {
+        foreach (var a in col.contacts)
+            if ((a.point - pos).y < groundy)
+                ground = false;
+
+    }
+    void OnCollisionStay(Collision col)
+    {
+
+        foreach (var a in col.contacts)
         {
-            fll.enabled = false;
-            an.CrossFade(land.name);
-            //vel = Vector3.zero;
+            //if(selected)
+            //    Debug.Log((a.point - pos).y);
+            if ((a.point - pos).y < groundy)
+                ground = true;
         }
     }
-    //void OnControllerColliderHit(ControllerColliderHit hit)
-    //{
-    //    if (!controller.isGrounded)
-    //        if (Mathf.Abs(controller.velocity.y) > 3)
-    //        {
-    //            an.CrossFade(land.name);
-    //            //vel = Vector3.zero;
-    //        }
-    //}
+    void OnCollisionEnter(Collision col)
+    {
+        if (Mathf.Abs(col.impactForceSum.y) > 8)
+            an.CrossFade(land.name);        
+    }
     bool CantMove
     {
         get { return state == State.crouch || getHitA.enabled; }

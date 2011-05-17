@@ -2,9 +2,9 @@ Shader "Bunny/Foliage"
 {
 	Properties 
 	{
+_Color("_Color", Color) = (1,1,1,1)
 _AlphaCutoff("_AlphaCutoff", Float) = 0.5
 _Diffuse("_Diffuse", 2D) = "black" {}
-_Lighting("_Lighting", Color) = (1,1,1,1)
 
 	}
 	
@@ -12,7 +12,7 @@ _Lighting("_Lighting", Color) = (1,1,1,1)
 	{
 		Tags
 		{
-"Queue"="Transparent+100"
+"Queue"="Transparent"
 "IgnoreProjector"="False"
 "RenderType"="Transparent"
 
@@ -23,19 +23,19 @@ Cull Off
 ZWrite On
 ZTest LEqual
 ColorMask RGBA
-Blend One Zero
+Blend SrcAlpha OneMinusSrcAlpha
 Fog{
 }
 
 
 		CGPROGRAM
-#pragma surface surf BlinnPhongEditor  noforwardadd approxview halfasview vertex:vert
+#pragma surface surf BlinnPhongEditor  vertex:vert
 #pragma target 2.0
 
 
+float4 _Color;
 float _AlphaCutoff;
 sampler2D _Diffuse;
-float4 _Lighting;
 
 			struct EditorSurfaceOutput {
 				half3 Albedo;
@@ -49,7 +49,11 @@ float4 _Lighting;
 			
 			inline half4 LightingBlinnPhongEditor_PrePass (EditorSurfaceOutput s, half4 light)
 			{
-float4 Multiply0=float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 ) * _Lighting;
+float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - light;
+float4 Multiply1=float4( 0.25,0.25,0.25,1) * Invert0;
+float4 Add0=Multiply1 + light;
+float4 Multiply2=float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 ) * Add0;
+float4 Multiply0=Multiply2 * s.Alpha.xxxx;
 return Multiply0;
 
 			}
@@ -96,21 +100,21 @@ float4 VertexOutputMaster0_3_NoInput = float4(0,0,0,0);
 				o.Custom = 0.0;
 				
 float4 Tex2D0=tex2D(_Diffuse,(IN.uv_Diffuse.xyxy).xy);
-float4 Multiply1=Tex2D0 * Tex2D0;
-float4 Add1=Multiply1 + Tex2D0;
+float4 Multiply1=_Color * Tex2D0;
+float4 SplatAlpha0=_Color.w;
 float4 Subtract0=Tex2D0.aaaa - _AlphaCutoff.xxxx;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
 float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
-float4 Master0_5_NoInput = float4(1,1,1,1);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 clip( Subtract0 );
-o.Albedo = Add1;
+o.Albedo = Multiply1;
+o.Alpha = SplatAlpha0;
 
 				o.Normal = normalize(o.Normal);
 			}
 		ENDCG
 	}
-	Fallback "Bunny/Mobile/Foliage"
+	Fallback ""
 }

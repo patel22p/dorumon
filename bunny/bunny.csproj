@@ -56,14 +56,14 @@
      <Compile Include="Assets\Scripts\common\Ext.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
      <Compile Include="Assets\Scripts\Editor\MyNodeEditor.cs" />
+     <Compile Include="Assets\Scripts\Main\Quest\Dialog.cs" />
+     <Compile Include="Assets\Scripts\Main\Quest\DialogTrigger.cs" />
      <Compile Include="Assets\Scripts\Main\Quest\Quest.cs" />
-     <Compile Include="Assets\Scripts\Main\Quest\QuestEvent.cs" />
      <Compile Include="Assets\Scripts\Main\Quest\QuestManager.cs" />
      <Compile Include="Assets\Scripts\Main\Barrel.cs" />
      <Compile Include="Assets\Scripts\Main\Berry.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
-     <Compile Include="Assets\Scripts\Main\Class1.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
      <Compile Include="Assets\Scripts\Main\GuiResize.cs" />
      <Compile Include="Assets\Scripts\Main\MyController.cs" />

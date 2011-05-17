@@ -3,17 +3,17 @@ using UnityEngine;
 using System.Collections.Generic;
 public class Trigger : bs
 {
-    public List<bs> colliders = new List<bs>();
+    public List<bs> triggers = new List<bs>();
     void OnTriggerEnter(Collider other)
     {
         var bs = other.gameObject.GetComponent<bs>();
-        if (!colliders.Contains(bs) && bs != null)
-            colliders.Add(bs);
+        if (!triggers.Contains(bs) && bs != null)
+            triggers.Add(bs);
     }
 
     void OnTriggerExit(Collider other)
     {
         var bs = other.gameObject.GetComponent<bs>();
-        colliders.Remove(bs);
+        triggers.Remove(bs);
     }
 }

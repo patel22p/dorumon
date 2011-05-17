@@ -27,10 +27,17 @@ public class Berry : bs
         timetoactive -= Time.deltaTime;
         if (timetoactive > 0)
             return;
-        
+        if (mindist < 4 || _Game.timer.TimeElapsed(1000))
+            UpdateBerry();
+    }
+    float mindist;
+    private void UpdateBerry()
+    {
+        mindist = float.MaxValue;
         foreach (var p in _Game.shareds)
         {
             var dist = Vector3.Distance(p.pos, this.pos);
+            mindist = Mathf.Min(dist, mindist);
             var d = 3;
             if (dist < d)
             {
@@ -51,6 +58,5 @@ public class Berry : bs
                 Destroy(this.gameObject);
             }
         }
-
     }
 }

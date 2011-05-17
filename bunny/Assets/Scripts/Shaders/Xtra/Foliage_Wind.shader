@@ -16,9 +16,9 @@ _Distance("_Distance", Float) = 0
 	{
 		Tags
 		{
-"Queue"="Transparent+100"
+"Queue"="Transparent"
 "IgnoreProjector"="False"
-"RenderType"="Opaque"
+"RenderType"="Transparent"
 
 		}
 
@@ -58,11 +58,12 @@ sampler2D _CameraDepthTexture;
 			
 			inline half4 LightingBlinnPhongEditor_PrePass (EditorSurfaceOutput s, half4 light)
 			{
-half3 spec = light.a * s.Gloss;
-half4 c;
-c.rgb = (s.Albedo * light.rgb + light.rgb * spec);
-c.a = s.Alpha;
-return c;
+float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - light;
+float4 Multiply1=float4( 0.25,0.25,0.25,1) * Invert0;
+float4 Add0=Multiply1 + light;
+float4 Multiply2=float4( s.Albedo.x, s.Albedo.y, s.Albedo.z, 1.0 ) * Add0;
+float4 Multiply0=Multiply2 * s.Alpha.xxxx;
+return Multiply0;
 
 			}
 
@@ -117,10 +118,9 @@ v.vertex = Add1;
 				o.Specular = 0.0;
 				o.Custom = 0.0;
 				
-float4 Multiply2=_Color * float4( 3,3,3,3 );
 float4 Tex2D0=tex2D(_Diffuse,(IN.uv_Diffuse.xyxy).xy);
-float4 Multiply1=Multiply2 * Tex2D0;
-float4 Add1=Multiply1 + Tex2D0;
+float4 Multiply1=_Color * Tex2D0;
+float4 SplatAlpha0=_Color.w;
 float4 ScreenDepthDiff0= LinearEyeDepth (tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD(IN.screenPos)).r) - IN.screenPos.z;
 float4 Pow0=pow(_Fade.xxxx,ScreenDepthDiff0);
 float4 Saturate0=saturate(Pow0);
@@ -128,6 +128,7 @@ float4 Invert0= float4(1.0, 1.0, 1.0, 1.0) - Saturate0;
 float4 ScreenDepth0= LinearEyeDepth (tex2Dproj(_CameraDepthTexture, UNITY_PROJ_COORD( IN.screenPos)).r);
 float4 Pow1=pow(_Distance.xxxx,ScreenDepth0);
 float4 Multiply0=Invert0 * Pow1;
+float4 Multiply3=SplatAlpha0 * Multiply0;
 float4 Subtract0=Tex2D0.aaaa - _AlphaCutoff.xxxx;
 float4 Master0_1_NoInput = float4(0,0,1,1);
 float4 Master0_2_NoInput = float4(0,0,0,0);
@@ -135,12 +136,12 @@ float4 Master0_3_NoInput = float4(0,0,0,0);
 float4 Master0_4_NoInput = float4(0,0,0,0);
 float4 Master0_7_NoInput = float4(0,0,0,0);
 clip( Subtract0 );
-o.Albedo = Add1;
-o.Alpha = Multiply0;
+o.Albedo = Multiply1;
+o.Alpha = Multiply3;
 
 				o.Normal = normalize(o.Normal);
 			}
 		ENDCG
 	}
-	Fallback ""
+	Fallback "Bunny/Foliage"
 }

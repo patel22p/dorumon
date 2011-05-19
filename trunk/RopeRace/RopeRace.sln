@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+
+Project("{91524951-78CB-D9E1-9A3E-23BFB5C3ECCE}") = "RopeRace", "RopeRace.csproj", "{DD315828-EC6D-4F57-BFED-E8E534438C0F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD315828-EC6D-4F57-BFED-E8E534438C0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD315828-EC6D-4F57-BFED-E8E534438C0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD315828-EC6D-4F57-BFED-E8E534438C0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD315828-EC6D-4F57-BFED-E8E534438C0F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	
+EndGlobal

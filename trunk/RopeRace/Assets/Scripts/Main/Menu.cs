@@ -11,8 +11,8 @@ public class Menu : bs
     TimerA timer = new TimerA();
     public GUIText guibuild;
     public void Start()
-    {
-        
+    {        
+        _Menu.RefreshServerList();
         _Loader.EditorTest = false;        
         _MenuGui.curwindow = Wind.Menu;
         _MenuGui.enabled = false;
@@ -25,39 +25,22 @@ public class Menu : bs
         base.OnEditorGui();
     }
     void Update()
-    {
-        UpdateHostList();
+    {        
         UpdateOther();
         timer.Update();
     }
-    void UpdateHostList()
-    {        
-        if (MasterServer.PollHostList().Length != 0 && joingame)
-        {
-            joingame = false;
-            timer.Clear();
-            Debug.Log("Host List Received");
-            HostData[] hostData = MasterServer.PollHostList();
-            //string[] ips = hostData.SelectMany(a => a.ip).ToArray();
-            _Popup.ShowPopup("Server List Received " + hostData.Length + ", Connecting");
-            //Network.Connect(ips, 5300);
-            for (int i = 0; i < hostData.Length; i++)
-            {
-                _Popup.ShowPopup("Trying Connect to " + hostData[i].gameName);
-                Network.Connect(hostData[i]);
-            }
-            MasterServer.ClearHostList();
-            
-        }
+
+    public void RefreshServerList()
+    {
+        MasterServer.RequestHostList(_Menu.guibuild.text);
     }
     private void UpdateOther()
     {
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Return))
             _MenuGui.enabled = !_MenuGui.enabled;   
     }
 
-    bool joingame;
     public void Action(MenuAction a)
     {
         Debug.Log("Action:" + a);
@@ -65,15 +48,6 @@ public class Menu : bs
         {
             _Popup.ShowPopup("Loading Map");
             HostGame();
-        }
-        if (a == MenuAction.JoinGame)
-        {
-            //SetTimeOut();
-            joingame = true;            
-            MasterServer.RequestHostList(guibuild.text);
-            _Popup.ShowPopup("Searching for games");
-            _Popup.enabled = true;
-            LocalConnect();
         }
     }
     private void HostGame()

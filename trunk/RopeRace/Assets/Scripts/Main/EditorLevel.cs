@@ -1,3 +1,4 @@
+#if (UNITY_EDITOR)
 using System.Linq;
 using UnityEngine;
 using System.Collections;
@@ -16,27 +17,36 @@ public class EditorLevel : bs {
     
     int tooli;
     public Tool tool { get { return (Tool)tooli; } set { tooli = (int)value; } }
-    int gridSize;
-    int PlanePos;
+    public int gridSize = 3;
+    public int PlanePos;
     public enum Tool { None, Grid, Trail }
     string[] prefabst;
     Transform[] prefabs;
     int prefabsi;
-    void OnEnable()
-    {         
-        prefabs = transform.Find("tools").Cast<Transform>().ToArray();
-        prefabst = prefabs.Select(a => a.name).ToArray();
-        level = GameObject.Find("level").transform;
-    }
     public override void Awake()
     {
+        base.Awake();
+    }
+    void OnEnable()
+    {         
+        level = GameObject.Find("level").transform;
     }
     void Start()
     {
 
     }
     public override void OnEditorGui()
-    {        
+    {
+        //if (gui.Button("Send Play"))
+        //    Selection.activeGameObject.networkView.RPC("Play",
+        if (gui.Button("InitLevel"))
+        {
+            foreach (var a in level.GetComponentsInChildren<PhysAnim>())
+                a.Init();
+        }
+        prefabs = transform.Find("tools").Cast<Transform>().ToArray();
+        prefabst = prefabs.Select(a => a.name).ToArray();
+
         gridSize = GUI.IntSlider("GridSize", gridSize, 1, 10);        
         PlanePos = GUI.IntSlider("PlanePos", PlanePos, -10, 10);
         
@@ -52,14 +62,18 @@ public class EditorLevel : bs {
     public Event e { get { return Event.current; } }
     public override void OnSceneGUI(SceneView scene, ref bool repaint)
     {
-        
+        if (e.keyCode == KeyCode.Alpha1)
+            tool = Tool.None;
+        if (e.keyCode == KeyCode.Alpha2)
+            tool = Tool.Grid;
+        if (e.keyCode == KeyCode.Alpha3)
+            tool = Tool.Trail;
         if (tool != Tool.None && !e.alt)
         {
             for (int i = 0; i < prefabst.Length; i++)
                 if (prefabsi != i) prefabs[i].SetActive(false);
             SelectedPrefab = prefabs[prefabsi];
 
-            //Plane.transform.position = new Vector3(0, 0, -PlanePos);
             if (e.type == EventType.scrollWheel)
             {
                 var i = (int)(Mathf.Clamp(e.delta.y, -1, 1));
@@ -74,7 +88,7 @@ public class EditorLevel : bs {
                 e.Use();
             }
 
-            if (e.shift && e.delta != Vector2.zero && axelLock == 0)
+            if (e.shift && e.delta.magnitude > 1 && axelLock == 0)
             {
                 if (Mathf.Abs(e.delta.x) > Mathf.Abs(e.delta.y))
                     axelLock = 1;
@@ -92,7 +106,6 @@ public class EditorLevel : bs {
                     visible = true;
                 else
                     visible = false;
-
             }
             SelectedPrefab.transform.localScale = Vector3.one * .999f * gridSize;
             UpdateCursor();
@@ -108,11 +121,11 @@ public class EditorLevel : bs {
 
             SelectedPrefab.SetActive(visible);
         }
-        else
-        {
-            if (SelectedPrefab.gameObject.active)
-                SelectedPrefab.SetActive(false);
-        }
+        //else
+        //{
+        //    if (SelectedPrefab.gameObject.active)
+        //        SelectedPrefab.SetActive(false);
+        //}
     }
     bool visible = false;
     private void UpdateTrail(Event e)
@@ -181,8 +194,18 @@ public class EditorLevel : bs {
             {
                 var t = rhit.transform;
                 //Debug.Log(t.name);
-                if (t.parent == level || (Selection.activeGameObject != null && t.parent == Selection.activeGameObject.transform))
-                    DestroyImmediate(t.gameObject);
+                //var p = Selection.activeGameObject.transform;
+                //if (p == null) p = level;
+                var lvl = level;
+                Transform a = null;
+                foreach (var b in t.Parent())
+                {
+                    if (b == lvl && a != null)
+                        DestroyImmediate(a.gameObject);
+                    a = b;
+                }
+                //if (t.Parent().Any(a => a = lvl))
+                //    DestroyImmediate(t.GetComponentInParrent<bs>().gameObject);
             }
             e.Use();
         }
@@ -191,24 +214,16 @@ public class EditorLevel : bs {
     private void UpdateGrid(SceneView scene)
     {
         var e = Event.current;
-        var p = SelectedPrefab.position;
-        //SelectedPrefab.position = new Vector3(
-        //    axelLock == 1 ? p.x : Mathf.RoundToInt(cursorPos.x),
-        //    axelLock == 2 ? p.y : Mathf.RoundToInt(cursorPos.y), cursorPos.z);        
         SelectedPrefab.position = new Vector3(Mathf.RoundToInt(cursorPos.x), Mathf.RoundToInt(cursorPos.y), cursorPos.z);        
 
         if (gridSize % 2 == 0)
             SelectedPrefab.transform.position += Vector3.one / 2;
         if (e.button == 1 && !e.alt)
         {
-            if (LastPrefab == null || !LastPrefab.GetComponentInChildren<Collider>().bounds.Intersects(SelectedPrefab.GetComponentInChildren<Collider>().bounds))
+            if (LastPrefab == null || !LastPrefab.GetComponentInChildren<Collider>().bounds.Intersects(SelectedPrefab.GetComponentInChildren<Collider>().bounds) )
             {
-                //Debug.Log(EditorUtility.GetPrefabParent(SelectedPrefab));
                 LastPrefab = (Transform)Instantiate(SelectedPrefab);
-
-                //LastPrefab = ((GameObject)EditorUtility.InstantiatePrefab(EditorUtility.GetPrefabParent(SelectedPrefab.gameObject))).transform;
                 LastPrefab.name = "Cube";
-                
                 LastPrefab.transform.position = SelectedPrefab.transform.position;
                 LastPrefab.transform.parent = level;
                 LastPrefab.transform.localScale = Vector3.one * gridSize;
@@ -233,3 +248,4 @@ public class EditorLevel : bs {
         }
     }
 }
+#endif

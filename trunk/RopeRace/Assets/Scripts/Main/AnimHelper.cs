@@ -5,7 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using doru;
 
-
+[AddComponentMenu("Game/AnimHelper")]
 public class AnimHelper : bs
 {
 
@@ -14,7 +14,7 @@ public class AnimHelper : bs
     public bool PlayOnPlayerHit;
     public bool PlayOnRopeHit;
     public WrapMode wrapMode;
-    TimerA timer = new TimerA();
+    //TimerA timer = new TimerA();
     public float animationSpeedFactor = 1;
     public float TimeOffsetFactor;
     AnimationState animationState { get { return Anim.Cast<AnimationState>().FirstOrDefault(); } }
@@ -26,29 +26,32 @@ public class AnimHelper : bs
         
         if (Anim == null) Anim = this.GetComponentInChildren<Animation>();
         Anim.wrapMode = wrapMode;
-        if (wrapMode == WrapMode.Default)
-        {
-        }
+        Anim.playAutomatically = wrapMode != WrapMode.Default;
+        if (!Anim.playAutomatically) 
+            Anim.Stop();
         else
-        {
-            Anim.playAutomatically = true;
             Anim.Play();
-        }
-        OnTime();
+
+        animationState.speed = animationSpeedFactor;
         base.Awake();
         
     }
-
     
-    
-    void OnTime()
+    [RPC]
+    public void Play()
     {
-        animationState.time = ((float)_Loader.networkTime) + (this.transform.position.x * TimeOffsetFactor);
-        animationState.speed = animationSpeedFactor;
-    }
+        Anim.Play();
+    }   
 
-    public void Update()
-    {        
-        timer.Update();
+    float time;
+    
+    internal void RPCPlay()
+    {
+        if (this.networkView != null)
+        {
+            if (networkView.isMine) this.networkView.RPC("Play", RPCMode.All);
+        }
+        else
+            this.Play();
     }
 }

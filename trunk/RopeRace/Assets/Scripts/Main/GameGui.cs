@@ -58,7 +58,7 @@ public class GameGui:bs
     //Quaternion fake;
     private void UpdateScoreBoard()
     {
-        if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.F) || _Game.pause)
+        if (Input.GetKey(KeyCode.F) || _Game.pause)
         {
             string t = "{0,-20}{1,-10}{2,-10}{3,-10}{4,-10}{5,-10}\r\n";
             string text = "";

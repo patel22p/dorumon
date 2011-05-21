@@ -158,11 +158,11 @@ public partial class Base : MonoBehaviour
             }
         }
     }
-
-    public virtual void OnSceneGUI(SceneView scene ,ref bool repaint)
+#if (UNITY_EDITOR)
+    public virtual void OnSceneGUI(SceneView scene, ref bool repaint)
     {
-        
-    }
 
+    }
+#endif  
     
 }

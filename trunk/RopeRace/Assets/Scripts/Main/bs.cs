@@ -8,7 +8,7 @@ public class bs : Base
 {
     public virtual void Awake()
     {
-        InitLoader();
+        
     }
     public virtual void OnPlayerCon(NetworkPlayer player)
     {
@@ -63,7 +63,7 @@ public class bs : Base
             return __Loader;
         }
     }
-    private static void InitLoader()
+    public static void InitLoader()
     {
         if (__Loader == null)
             __Loader = (Loader)MonoBehaviour.FindObjectsOfType(typeof(Loader)).FirstOrDefault();

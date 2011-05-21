@@ -49,8 +49,16 @@ public class MenuGui : bs
         _Loader.nick = gui.TextField(_Loader.nick, 30);
         if (gui.Button("Start New Game"))
             Show(Wind.SelectLevel);
-        if (gui.Button("Join Game"))
-            _Menu.Action(MenuAction.JoinGame);
+        if (gui.Button("Refresh Server List"))
+            _Menu.RefreshServerList();
+        foreach (HostData host in MasterServer.PollHostList())
+            if (gui.Button("Join to " + host.gameName))
+            {
+                _Popup.ShowPopup("Trying Connect to " + host.gameName);
+                var er = Network.Connect(host);
+                if (er != NetworkConnectionError.NoError)
+                    _Popup.ShowPopup(er + "");
+            }
         
         gui.Label("Quality:");
         gui.BeginHorizontal();
@@ -58,9 +66,12 @@ public class MenuGui : bs
             QualitySettings.DecreaseLevel();
         gui.Label(QualitySettings.currentLevel + "");
         if (gui.Button(">"))
-            QualitySettings.IncreaseLevel();        
+            QualitySettings.IncreaseLevel();                
+        
         gui.EndHorizontal();
     }
+
+    
 
 
     

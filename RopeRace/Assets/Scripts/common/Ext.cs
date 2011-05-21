@@ -112,6 +112,14 @@ public static class Ext
     {
         return (T)Enum.Parse(typeof(T), s);
     }
+    public static IEnumerable<Transform> Parent(this Transform t)
+    {        
+        while(t !=null)
+        {
+            yield return t;
+            t = t.parent;
+        }
+    }
     public static T GetComponentInParrent<T>(this Transform t) where T : Component
     {
         for (int i = 0; ; i++)

@@ -112,129 +112,6 @@ public class InspectorSearch : EditorWindow
     }
 
 
-    [MenuItem("File/Backup")]
-    private static void Backup()
-    {
-        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
-        {
-            EditorApplication.SaveAssets();
-            EditorApplication.SaveScene(EditorApplication.currentScene);
-        }
-    }
-    [MenuItem("Window/Rtools", false, 0)]
-    static void rtoolsclick()
-    {
-        EditorWindow.GetWindow<InspectorSearch>();
-    }
-    [MenuItem("Assets/TakeScreenshot")]
-    static void TakeScreenshot()
-    {
-        var g = UnityEditor.Selection.activeObject;
-        var Texture = UnityEditor.EditorUtility.GetAssetPreview(g);
-        File.WriteAllBytes("Assets/" + g.name + ".png", Texture.EncodeToPNG());
-    }
-    [MenuItem("Edit/Play % ")]
-    private static void Play()
-    {
-        if (EditorApplication.isPlaying)
-            EditorApplication.isPaused = !EditorApplication.isPaused;
-        else
-            if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
-    }
-    [MenuItem("Assets/Create/Prefab", priority = 0)]
-    static void CreatePrefabs()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        foreach (GameObject g in Selection.gameObjects)
-        {
-            if (!AssetDatabase.IsMainAsset(g))
-            {
-                var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.name + ".prefab");
-                EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
-                EditorUtility.SetDirty(g);
-            }
-            AssetDatabase.Refresh();
-        }
-    }
-    [MenuItem("GameObject/CubeMap")]
-    private static void SetupMaterials()
-    {
-        //if (Selection.activeObject is Cubemap)
-        {
-            Cubemap cb = new Cubemap(64, TextureFormat.RGB24, false);
-            var c = SceneView.lastActiveSceneView.camera;
-            c.RenderToCubemap(cb);
-            AssetDatabase.CreateAsset(cb, "Assets/cb.cubemap");
-            //DestroyImmediate(c);
-            //Debug.Log("rendered to cubemap");
-        }
-    }
-
-    [MenuItem("GameObject/Group")]
-    static void Combine()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        var g = Selection.activeGameObject;
-        if (Selection.gameObjects.Length > 1)
-        {
-            g = new GameObject(Selection.activeGameObject.name + Random.Range(10, 99));
-            var pos = new Vector3(Selection.gameObjects.Average(a => a.transform.position.x), Selection.gameObjects.Average(a => a.transform.position.y), Selection.gameObjects.Average(a => a.transform.position.z));
-            g.transform.position = pos;
-            g.transform.parent = Selection.activeGameObject.transform.parent;
-            foreach (var t in Selection.gameObjects)
-                t.transform.parent = g.transform;
-
-        }
-        //Base.Combine(g);
-    }
-
-    [MenuItem("GameObject/Duplicate Materials")]
-    static void Dup()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        var n = "D" + Random.Range(10, 99) + ".mat";
-        foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
-        {
-            var p = AssetDatabase.GetAssetPath(m);
-            var nwp = p.Substring(0, p.Length - 4) + n;
-            AssetDatabase.CopyAsset(p, nwp);
-            AssetDatabase.Refresh();
-        }
-        foreach (var a in Selection.gameObjects.Select(a => a.renderer))
-        {
-            var ms = a.sharedMaterials;
-            for (int i = 0; i < ms.Count(); i++)
-            {
-                var p = AssetDatabase.GetAssetPath(ms[i]);
-                var nwp = p.Substring(0, p.Length - 4) + n;
-                ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));
-            }
-            a.sharedMaterials = ms;
-        }
-    }
-    [MenuItem("GameObject/Create Parent")]
-    static void CreateParent()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        var t = Selection.activeTransform;
-        var t2 = new GameObject("Parent").transform;
-        t2.position = t.position;
-        t2.rotation = t.rotation;
-        t2.parent = t.parent;
-        t.parent = t2;
-        t2.name = "Parent";
-    }
-    [MenuItem("GameObject/Create Child")]
-    static void CreateChild()
-    {
-        Undo.RegisterSceneUndo("rtools");
-        var t = Selection.activeTransform;
-        var nwt = new GameObject("Child").transform;
-        nwt.position = t.position;
-        nwt.rotation = t.rotation;
-        nwt.parent = t;
-        nwt.name = "Child";
-    }
     private void DrawSearch()
     {
 
@@ -343,4 +220,125 @@ public class InspectorSearch : EditorWindow
     }
     public static bool isPlaying { get { return EditorApplication.isPlaying || EditorApplication.isPaused || EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode; } }
 
+    [MenuItem("File/Backup")]
+    private static void Backup()
+    {
+        if (!isPlaying && EditorApplication.currentScene.Contains(".unity"))
+        {
+            EditorApplication.SaveAssets();
+            EditorApplication.SaveScene(EditorApplication.currentScene);
+        }
+    }
+    [MenuItem("Window/Rtools", false, 0)]
+    static void rtoolsclick()
+    {
+        EditorWindow.GetWindow<InspectorSearch>();
+    }
+    [MenuItem("Assets/TakeScreenshot")]
+    static void TakeScreenshot()
+    {
+        var g = UnityEditor.Selection.activeObject;
+        var Texture = UnityEditor.EditorUtility.GetAssetPreview(g);
+        File.WriteAllBytes("Assets/" + g.name + ".png", Texture.EncodeToPNG());
+    }
+    [MenuItem("Edit/Play % ")]
+    private static void Play()
+    {
+        if (EditorApplication.isPlaying)
+            EditorApplication.isPaused = !EditorApplication.isPaused;
+        else
+            if (!EditorApplication.isPlaying) EditorApplication.isPlaying = true;
+    }
+    [MenuItem("Assets/Create/Prefab", priority = 0)]
+    static void CreatePrefabs()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        foreach (GameObject g in Selection.gameObjects)
+        {
+            if (!AssetDatabase.IsMainAsset(g))
+            {
+                var p = EditorUtility.CreateEmptyPrefab("Assets/" + g.name + ".prefab");
+                EditorUtility.ReplacePrefab(g, p, ReplacePrefabOptions.ConnectToPrefab);
+                EditorUtility.SetDirty(g);
+            }
+            AssetDatabase.Refresh();
+        }
+    }
+    [MenuItem("GameObject/CubeMap")]
+    private static void SetupMaterials()
+    {
+        //if (Selection.activeObject is Cubemap)
+        {
+            Cubemap cb = new Cubemap(64, TextureFormat.RGB24, false);
+            var c = SceneView.lastActiveSceneView.camera;
+            c.RenderToCubemap(cb);
+            AssetDatabase.CreateAsset(cb, "Assets/cb.cubemap");
+            //DestroyImmediate(c);
+            //Debug.Log("rendered to cubemap");
+        }
+    }
+
+    [MenuItem("GameObject/Group")]
+    static void Group()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var g = Selection.activeGameObject;
+
+        g = new GameObject("Group");
+        var pos = new Vector3(Selection.gameObjects.Average(a => a.transform.position.x), Selection.gameObjects.Average(a => a.transform.position.y), Selection.gameObjects.Average(a => a.transform.position.z));
+        g.transform.position = pos;
+        g.transform.parent = Selection.activeGameObject.transform.parent;
+        foreach (var t in Selection.gameObjects)
+            t.transform.parent = g.transform;
+    }
+    [MenuItem("GameObject/Combine")]
+    static void Combine()
+    {
+        Base.Combine(Selection.activeGameObject);
+    }
+
+    [MenuItem("GameObject/Duplicate Animation")]
+    static void DupAnim()
+    {
+        var p = AssetDatabase.GetAssetPath(Selection.activeGameObject.animation.clip);
+        var nwp = p.Substring(0, p.Length - 5) + "1.anim";
+        AssetDatabase.CopyAsset(p, nwp);
+        var anim = (AnimationClip)AssetDatabase.LoadAssetAtPath(nwp, typeof(AnimationClip));
+        Selection.activeGameObject.animation = anim;
+    }
+    [MenuItem("GameObject/Duplicate Materials")]
+    static void Dup()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var n = "D" + Random.Range(10, 99) + ".mat";
+        foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
+        {
+            var p = AssetDatabase.GetAssetPath(m);
+            var nwp = p.Substring(0, p.Length - 4) + n;
+            AssetDatabase.CopyAsset(p, nwp);
+            AssetDatabase.Refresh();
+        }
+        foreach (var a in Selection.gameObjects.Select(a => a.renderer))
+        {
+            var ms = a.sharedMaterials;
+            for (int i = 0; i < ms.Count(); i++)
+            {
+                var p = AssetDatabase.GetAssetPath(ms[i]);
+                var nwp = p.Substring(0, p.Length - 4) + n;
+                ms[i] = (Material)AssetDatabase.LoadAssetAtPath(nwp, typeof(Material));
+            }
+            a.sharedMaterials = ms;
+        }
+    }
+    [MenuItem("GameObject/Create Child")]
+    static void CreateChild()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var t = Selection.activeTransform;
+        var nwt = new GameObject("Child").transform;
+        nwt.position = t.position;
+        nwt.rotation = t.rotation;
+        nwt.parent = t;
+        nwt.name = "Child";
+    }
 }

@@ -14,17 +14,4 @@ public class Wall : bs
     public float SpeedTrackVell;
     public Vector3 bounchyForce;
     public bool SpeedTrack;
-
-    void Start()
-    {
-        //if (transform.parent != null && transform.parent.name == "Level" && transform.Find("Cube") != null)
-        //    Destroy(transform.Find("Cube").gameObject);
-
-    }
-    //public override void Init()
-    //{
-    //    //if (networkView == null) gameObject.AddComponent<NetworkView>();
-
-    //    base.Init();
-    //}        
 }

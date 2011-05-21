@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_3_0;UNITY_3_3;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -54,12 +54,12 @@
      <Compile Include="Assets\Scripts\common\Editor\InspectorSearchold.cs" />
      <Compile Include="Assets\Scripts\common\Base.cs" />
      <Compile Include="Assets\Scripts\common\Ext.cs" />
-     <Compile Include="Assets\Scripts\common\MapTag.cs" />
      <Compile Include="Assets\Scripts\common\Timer.cs" />
      <Compile Include="Assets\Scripts\Main\Other\BuildWalls.cs" />
      <Compile Include="Assets\Scripts\Main\Other\Dragable.cs" />
      <Compile Include="Assets\Scripts\Main\Other\GlowOnHit.cs" />
      <Compile Include="Assets\Scripts\Main\Other\ParticleFollow.cs" />
+     <Compile Include="Assets\Scripts\Main\Other\SparkEffect.cs" />
      <Compile Include="Assets\Scripts\Main\Other\UpForce.cs" />
      <Compile Include="Assets\Scripts\Main\temp\GUI\InvateWindow.cs" />
      <Compile Include="Assets\Scripts\Main\temp\GUI\MenuWindow.cs" />
@@ -72,6 +72,7 @@
      <Compile Include="Assets\Scripts\Main\temp\HitTrigger.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Invite.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Jumper.cs" />
+     <Compile Include="Assets\Scripts\Main\temp\PhysAnimObj.cs" />
      <Compile Include="Assets\Scripts\Main\temp\Unrotate.cs" />
      <Compile Include="Assets\Scripts\Main\AnimHelper.cs" />
      <Compile Include="Assets\Scripts\Main\bs.cs" />
@@ -84,7 +85,6 @@
      <Compile Include="Assets\Scripts\Main\MenuGui.cs" />
      <Compile Include="Assets\Scripts\Main\Music.cs" />
      <Compile Include="Assets\Scripts\Main\PhysAnim.cs" />
-     <Compile Include="Assets\Scripts\Main\PhysAnimObj.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <Compile Include="Assets\Scripts\Main\Popup.cs" />
      <Compile Include="Assets\Scripts\Main\RopeEnd.cs" />

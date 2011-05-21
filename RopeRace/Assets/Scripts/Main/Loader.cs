@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 //using System.Net;
 public class Loader : bs 
 {
-    internal float networkTime;
+    //internal float networkTime;
     public int errorcount;
     public int exceptionCount;
     public int totalScores;    
@@ -31,7 +31,7 @@ public class Loader : bs
     }    
     void Update()
     {
-        networkTime += Time.deltaTime;
+        //networkTime += Time.deltaTime;
         if (timer.TimeElapsed(1000))
             fps = (int)timer.GetFps();
         UpdateOther();
@@ -39,6 +39,18 @@ public class Loader : bs
     }
     void UpdateOther()
     {
+        var cam = Camera.main;
+        if (QualitySettings.currentLevel == QualityLevel.Fastest && cam.renderingPath != RenderingPath.VertexLit)
+        {
+            Debug.Log("Vertex Lit");
+            cam.renderingPath = RenderingPath.VertexLit;
+        }
+        else if (cam.renderingPath == RenderingPath.VertexLit && QualitySettings.currentLevel != QualityLevel.Fastest)
+        {
+            Debug.Log("Deffered");
+            cam.renderingPath = RenderingPath.DeferredLighting;
+        }
+
         info.text = "FPS:" + fps + " Warnings:" + errorcount + " Errors:" + exceptionCount + " " + LastError;
     }    
     int lastLevelPrefix;    

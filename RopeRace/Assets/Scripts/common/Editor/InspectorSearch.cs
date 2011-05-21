@@ -304,7 +304,7 @@ public class InspectorSearch : EditorWindow
         var nwp = p.Substring(0, p.Length - 5) + "1.anim";
         AssetDatabase.CopyAsset(p, nwp);
         var anim = (AnimationClip)AssetDatabase.LoadAssetAtPath(nwp, typeof(AnimationClip));
-        Selection.activeGameObject.animation = anim;
+        Selection.activeGameObject.animation.clip = anim;
     }
     [MenuItem("GameObject/Duplicate Materials")]
     static void Dup()

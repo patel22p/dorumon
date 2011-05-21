@@ -23,6 +23,7 @@ public class Game : bs
     internal float prestartTm = 3;
     internal List<bs> networkItems = new List<bs>();
     public LayerMask RopeColl;
+    public float networkTime;
     public override void Awake()
     {
         InitLoader();        
@@ -81,8 +82,7 @@ public class Game : bs
     }
     void Update()
     {
-        
-
+        networkTime += Time.deltaTime;
         prestartTm -= Time.deltaTime;
         UpdateTimeText();
         UpdateOther();

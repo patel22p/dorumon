@@ -18,8 +18,13 @@ public class Cam : bs
         cam.transform.position = cam.transform.parent.position;
         cam.transform.rotation = cam.transform.parent.rotation;
         cam.GetComponent<GUILayer>().enabled = true;
-        cam.GetComponent<MotionBlur>().enabled = true; ;
-        Pointer.parent = cam.transform;
+        if (QualitySettings.currentLevel <= QualityLevel.Good)
+            cam.GetComponent<MotionBlur>().enabled = false;
+        if(QualitySettings.currentLevel <= QualityLevel.Fast)
+            cam.renderingPath = RenderingPath.VertexLit;
+                    
+        
+        Pointer.parent = cam.transform;        
     }
 
     public bool disableTips;

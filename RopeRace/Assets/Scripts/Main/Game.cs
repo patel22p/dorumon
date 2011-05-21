@@ -9,6 +9,7 @@ public class Game : bs
 {
     public TimerA timer = new TimerA();
     public GUIText wingamegui;
+    public float networkTime;
     //public Animation deadAnim;
     public ParticleEmitter[] particles;
     public Vector3 spawn;
@@ -23,7 +24,6 @@ public class Game : bs
     internal float prestartTm = 3;
     internal List<bs> networkItems = new List<bs>();
     public LayerMask RopeColl;
-    public float networkTime;
     public override void Awake()
     {
         InitLoader();        
@@ -38,8 +38,7 @@ public class Game : bs
             if (!AutoConnect)
                 InitServer();
         }
-        //if (Network.isServer)
-        //    networkView.RPC("SetNetworkTime", RPCMode.All, _Loader.networkTime);
+     
     }
     internal Transform water;
     
@@ -52,20 +51,21 @@ public class Game : bs
         
     }
     public override void Init()
-    {
-        
+    {        
         IgnoreAll("Ignore Raycast");
         IgnoreAll("IgnoreColl");
+        IgnoreAll("Particles", "Level", "Default");        
         IgnoreAll("Water");
         base.Init();
     }
     
     private void SetupOther()
     {
+        water = GameObject.Find("water").transform;
+        water.SetActive(QualitySettings.currentLevel != QualityLevel.Fastest);
         if (debug) prestartTm = 0;
         _MenuGui.Hide();
-        water = GameObject.Find("water").transform;
-        water.SetActive(true);
+        
     }
 
     private void SetupPlayer()
@@ -82,6 +82,7 @@ public class Game : bs
     }
     void Update()
     {
+
         networkTime += Time.deltaTime;
         prestartTm -= Time.deltaTime;
         UpdateTimeText();
@@ -101,6 +102,8 @@ public class Game : bs
     }
     void UpdateOther()
     {
+        if (Input.GetKeyDown(KeyCode.X))
+            Debug.Break();
         if (Input.GetKeyDown(KeyCode.Return))
             if (_MenuGui.enabled)
                 _MenuGui.Hide();
@@ -132,22 +135,8 @@ public class Game : bs
 
     public override void OnPlayerCon(NetworkPlayer player)
     {
-        //timer.AddMethod(2000,delegate
-        //{
-        //    if (Network.isServer)
-        //        networkView.RPC("SetNetworkTime", player, _Loader.networkTime);
-        //});
         Debug.Log("Player Conencted: " + player);
         base.OnPlayerCon(player);
-    }
-    [RPC]
-    public void SetNetworkTime(float time, NetworkMessageInfo info)
-    {
-        //float transitTime = (float)(Network.time - info.timestamp);
-        //_Loader.networkTime = time + transitTime;
-        //_Loader.networkTime = time;
-        //Debug.Log("Set");
-        //Call("OnTime");
     }
 
     private static void Call(string s)
@@ -164,13 +153,7 @@ public class Game : bs
     public override void OnEditorGui()
     {
         AutoConnect = GUILayout.Toggle(AutoConnect, "AutoConnect", GUILayout.ExpandWidth(false));
-        //if (GUILayout.Button("InitWalls"))
-        //{
-        //    foreach (Wall a in GameObject.FindObjectsOfType(typeof(Wall)))
-        //    {
-        //        a.Init();
-        //    }
-        //}
+
         base.OnEditorGui();
     }
     void OnPlayerDisconnected(NetworkPlayer player)
@@ -188,20 +171,20 @@ public class Game : bs
 
         Application.LoadLevel((int)Scene.Menu);
         _Popup.ShowPopup(info + "");
-        //_Loader.timer.AddMethod(() => Application.loadedLevel == 0, delegate { _MyGui.ShowPopup(info + ""); });
-
     }
     private void InitServer()
     {
 
         Network.InitializeServer(8, 5300, true);
-
-
     }
     void OnFailedToConnect(NetworkConnectionError err)
     {
         Debug.Log("Could not connect to server: " + err);
         InitServer();
+    }
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    {
+        stream.Serialize(ref networkTime);
     }
     public void Emit(Vector3 pos, params int[] id)
     {

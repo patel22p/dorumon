@@ -7,6 +7,7 @@ public class RopeEnd : bs
     public Vector3? oldpos;
     public GameObject clothPrefab;
     GameObject cloth;
+    InteractiveCloth Cloth;
     Player pl;
     public override void Awake()
     {
@@ -18,53 +19,40 @@ public class RopeEnd : bs
     }
     void Update()
     {
-        UpdateCloth();
-        UpdateHitTest();
-    } 
-    private void UpdateCloth()
-    {
-        if (cloth != null)
+        if (Cloth != null)
         {
-            var fx1 = cloth.transform.Find("s1");
-            fx1.transform.position = pl.pos;
-            var fx2 = cloth.transform.Find("s2");
-            fx2.transform.position = this.transform.position;
+            Cloth.stretchingStiffness = Mathf.Clamp(Cloth.stretchingStiffness + Time.deltaTime*2, 0, 1);
+            //Cloth.stretchingStiffness = Mathf.Clamp(Cloth.stretchingStiffness + (1 - Cloth.stretchingStiffness) * Time.deltaTime, 0, 1);
+            //Debug.Log(Cloth.stretchingStiffness);
         }
+        //if (this.ched)
+        //    pos = oldpos.Value;
+        UpdateHitTest();
     }
     void FixedUpdate()
     {
-        UpdateGravity();
+        //if (j1 != null)
+        //{
+        //    j1.rigidbody.velocity = pl.rigidbody.velocity;
+        //    j1.rigidbody.angularVelocity = pl.rigidbody.angularVelocity;
+        //}
+        //this.transform.rotation = Quaternion.identity;
     }
-
-    private void UpdateGravity()
+    private void UpdateHitTest()
     {
-        var v = pl.transform.position - this.transform.position;
-        
-        if (this.attached)
+        if (attached) return;
+
+        if (oldpos != null && oldpos != transform.position)
         {
-            var r = this.transform.GetComponentInParrent<Rigidbody>(); 
-            if (r != null && !r.isKinematic)
-            {
-                Debug.Log("Test");
-                if(v.magnitude > 3)
-                    r.AddForceAtPosition(v * 50  / Mathf.Sqrt(v.magnitude) / Time.timeScale, this.transform.position);
-            }
+            var r = new Ray(oldpos.Value, transform.position - oldpos.Value);
+            RaycastHit h;
 
-            var m = Mathf.Clamp(Mathf.Sqrt(v.magnitude * 5) - (4 * AttachedTo.RopeLength), 0, 10);
-
-            if (m > 0)
-            {
-                var fctr = AttachedTo.RopeForce;
-                var vn = v.normalized;
-                var va = new Vector3(fctr.x * vn.x, fctr.y * vn.y * .6f, fctr.z * vn.z);
-                pl.rigidbody.AddForce(va * -400 * m * Time.deltaTime);
-                pl.rigidbody.position -= v * Time.deltaTime * .5f;
-                //pl.rigidbody.AddForce(Vector3.up * Time.deltaTime * 20);
-            }
+            if (Physics.Raycast(r, out h, Vector3.Distance(transform.position, oldpos.Value), _Game.RopeColl))
+                OnColl(h.point, h.collider);
         }
-        else
-            this.rigidbody.AddForce(v * 500 * Time.deltaTime / Time.timeScale);
+        oldpos = transform.position;
     }
+
 
     [RPC]
     public void Throw(Vector3 pos ,Vector3 dir)
@@ -78,39 +66,22 @@ public class RopeEnd : bs
         }
     }
 
-    [RPC]
-    public void Hide()
-    {
-        EnableRope(false);
-    } 
 
-
-    private void UpdateHitTest()
-    {
-        if (attached) return;
-               
-        if (oldpos != null && oldpos != transform.position)
-        {
-            var r = new Ray(oldpos.Value, transform.position - oldpos.Value);
-            RaycastHit h;
-
-            if (Physics.Raycast(r, out h, Vector3.Distance(transform.position, oldpos.Value), _Game.RopeColl))
-                OnColl(h.point, h.collider);
-        }
-        oldpos = transform.position;
-    }
-    bool attached { get { return rigidbody.isKinematic; } }
+    bool attached;
     public Wall AttachedTo;
     void OnColl(Vector3 point, Collider t)
     {
+        Debug.Log("Coll");
         AttachedTo= t.transform.GetComponentInParrent<Wall>();
         if (AttachedTo != null && AttachedTo.attachRope)
-        {            
+        {
+            //this.rigidbody.constraints = RigidbodyConstraints.FreezePosition;
+            attached = true;
             this.rigidbody.isKinematic = true;
-            transform.parent = t.transform;
-            transform.position = point;
+            //transform.parent = t.transform;
+            //transform.position = point;
         }
-        if (!rigidbody.isKinematic)
+        if (!attached)
             EnableRope(false);
 
         var p = t.transform.GetComponentInParrent<PhysAnim>();
@@ -120,21 +91,42 @@ public class RopeEnd : bs
             if (p.PlayOnRopeHit)
                 p.RPCPlay();
         }
-
     }
-    
     public void EnableRope(bool enable)
     {
         
         if (cloth != null)
-            Destroy(cloth);
-        if (enable)
-            cloth = (GameObject)Instantiate(clothPrefab,pos,Quaternion.identity);            
+            Destroy(cloth.gameObject);
+        
+
         enabled = enable;
-        //oldpos = pos;
-        rigidbody.isKinematic = false;
+        
+        attached = false;
+        this.rigidbody.isKinematic = false;
+        //rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
         rigidbody.useGravity = enable;
         rigidbody.velocity = Vector3.zero;
         transform.parent = null;
+        if (enable)
+        {
+            cloth = ((GameObject)Instantiate(clothPrefab, pl.pos, Quaternion.identity));            
+            Cloth = cloth.GetComponentInChildren<InteractiveCloth>();
+            oldpos = pos = cloth.transform.Find("s2").position;
+            Cloth.AttachToCollider(pl.RopeColl,false,true);
+            Cloth.AttachToCollider(this.collider, false, true);
+            
+        }
     }
-}
+
+    void OnCollisionEnter(Collision c)
+    {
+        Debug.Log("Coll");
+        OnColl(c.transform.position, c.collider);
+    }
+    [RPC]
+    public void Hide()
+    {
+        EnableRope(false);
+    }     
+    
+}    

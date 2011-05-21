@@ -44,6 +44,8 @@ public class InspectorSearch : EditorWindow
     }
     private void UpdateOther(SceneView scene)
     {
+        //if (Event.current.keyCode == KeyCode.Space)
+        //    Debug.Break();
         bool repaint = false;
         foreach (var a in GameObject.FindGameObjectsWithTag("EditorGUI"))
             a.GetComponent<Base>().OnSceneGUI(scene, ref repaint);

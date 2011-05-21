@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 //using System.Net;
 public class Loader : bs 
 {
-    //internal float networkTime;
+    
     public int errorcount;
     public int exceptionCount;
     public int totalScores;    
@@ -31,7 +31,7 @@ public class Loader : bs
     }    
     void Update()
     {
-        //networkTime += Time.deltaTime;
+        
         if (timer.TimeElapsed(1000))
             fps = (int)timer.GetFps();
         UpdateOther();

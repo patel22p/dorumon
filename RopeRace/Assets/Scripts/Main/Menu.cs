@@ -10,8 +10,10 @@ public class Menu : bs
 {
     TimerA timer = new TimerA();
     public GUIText guibuild;
+    
     public void Start()
-    {        
+    {
+        InitLoader();        
         _Menu.RefreshServerList();
         _Loader.EditorTest = false;        
         _MenuGui.curwindow = Wind.Menu;

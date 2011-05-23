@@ -37,13 +37,13 @@ public class Music : bs
     }
     private void Rand(string[] files, string old)
     {
-        Debug.Log("Next");
+        Debug.Log("Next" + files.Count());
         if (enabled)
         {
-            string r = files.Where(a => a != old).Random();
+            string r = files.Where(a => (a != old || files.Length == 1)).Random();
             string f = webserver + r;
             WWW w = new WWW(f);
-            timer.AddMethod(() => (w.isDone && w.audioClip != null && w.audioClip.isReadyToPlay), delegate
+            timer.AddMethod(() => (w.isDone && w.audioClip != null && w.audioClip.length > 0 && w.audioClip.isReadyToPlay), delegate
             {
                 if (w.error == null)
                 {

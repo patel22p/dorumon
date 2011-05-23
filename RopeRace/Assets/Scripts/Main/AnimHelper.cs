@@ -21,29 +21,44 @@ public class AnimHelper : bs
     
     public override void Awake()
     {
-        if (Anim == null) Anim = this.GetComponentInChildren<Animation>();
+        Init();
         Anim.wrapMode = wrapMode;
-        Anim.playAutomatically = wrapMode != WrapMode.Default;
-        if (!Anim.playAutomatically) 
+        if (!Anim.playAutomatically)
             Anim.Stop();
         else
-            Anim.Play();
-
+            Play();
         animationState.speed = animationSpeedFactor;
         base.Awake();
     }
-
+    public override void Init()
+    {
+        if (Anim == null) Anim = this.GetComponentInChildren<Animation>();
+        if (Anim == null)
+            Debug.Log(name);
+        else
+            Anim.playAutomatically = wrapMode == WrapMode.Loop;
+        base.Init();
+    }
     [RPC]
     public void Play()
     {
-        Anim.Play();
+        //Debug.Log("Play");
+        //Anim.Play();
+        foreach (AnimationState a in Anim)
+        {
+            Anim.Blend(a.name, 1, 0);
+        }
     }   
     
     internal void RPCPlay()
     {
         if (this.networkView != null)
         {
-            if (networkView.isMine) this.networkView.RPC("Play", RPCMode.All);
+            //if (networkView.isMine)
+            //{
+                this.Play();
+                this.networkView.RPC("Play", RPCMode.Others);
+            //}
         }
         else
             this.Play();

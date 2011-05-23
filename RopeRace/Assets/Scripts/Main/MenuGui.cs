@@ -12,6 +12,8 @@ public class MenuGui : bs
     public Wind curwindow;
     public Scene SelectedLevel;
     public bool LoopSameLevel;
+    //public string[] plmateral;
+    internal int plmaterali;
     public void Show(Wind window)
     {
         enabled = true;
@@ -21,7 +23,7 @@ public class MenuGui : bs
     {
         this.enabled = false;
     }
-
+    
     void OnGUI()
     {
         Screen.lockCursor = false;
@@ -60,31 +62,34 @@ public class MenuGui : bs
                     _Popup.ShowPopup(er + "");
             }
         
-        gui.Label("Quality:");
+        
         gui.BeginHorizontal();
+        gui.Label("Quality:");
         if (gui.Button("<"))
             QualitySettings.DecreaseLevel();
         gui.Label(QualitySettings.currentLevel + "");
         if (gui.Button(">"))
-            QualitySettings.IncreaseLevel();                
-        
+            QualitySettings.IncreaseLevel();
+        gui.EndHorizontal();
+        gui.BeginHorizontal();
+        gui.Label("Player Model:");
+        if (gui.Button("<")) plmaterali--;
+        plmaterali = Mathf.Clamp(plmaterali, 0, _Loader.plmaterials.Length - 1);
+        gui.Label(_Loader.plmaterials[plmaterali].name);
+        if (gui.Button(">")) plmaterali++;
         gui.EndHorizontal();
     }
-
-    
-
-
-    
     public void SelectLevelWindow(int id)
     {
         
         if (gui.Button("back"))
             Show(Wind.Menu);
+        if (gui.Button("Start Game"))
+            _Menu.Action(MenuAction.StartServer);
         gui.Label("Select Level");
         var names = Enum.GetNames(typeof(Scene));
         SelectedLevel = (Scene)Mathf.Clamp(gui.SelectionGrid((int)SelectedLevel, names, 1), 1, names.Length - 1);
-        if (gui.Button("Start Game"))
-            _Menu.Action(MenuAction.StartServer);
+        
 
     }
         

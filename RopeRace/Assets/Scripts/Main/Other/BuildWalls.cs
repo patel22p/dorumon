@@ -16,6 +16,7 @@ public class BuildWalls : bs
 
     public IEnumerator Start()
     {
+        InitLoader();
         return BuildWall();
     }
 
@@ -34,8 +35,8 @@ public class BuildWalls : bs
 
     public IEnumerator BuildWall()
     {
-        if (!Application.isEditor)
-            _Music.Play("ropector");
+        
+        //if (!Application.isEditor)            
 
         var cs = new GameObject("cubes");
 

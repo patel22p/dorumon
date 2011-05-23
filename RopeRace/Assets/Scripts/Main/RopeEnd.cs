@@ -9,9 +9,16 @@ public class RopeEnd : bs
     GameObject cloth;
     InteractiveCloth Cloth;
     Player pl;
+    bool attached;
+    public Wall AttachedTo;
+    Vector3 offs;
+    Vector3 SyncPos;
+    Vector3 SyncVel;
+
     public override void Awake()
     {
         pl = transform.parent.GetComponent<Player>();
+        transform.parent = null;
     }
     void Start()
     {
@@ -20,23 +27,8 @@ public class RopeEnd : bs
     void Update()
     {
         if (Cloth != null)
-        {
             Cloth.stretchingStiffness = Mathf.Clamp(Cloth.stretchingStiffness + Time.deltaTime*2, 0, 1);
-            //Cloth.stretchingStiffness = Mathf.Clamp(Cloth.stretchingStiffness + (1 - Cloth.stretchingStiffness) * Time.deltaTime, 0, 1);
-            //Debug.Log(Cloth.stretchingStiffness);
-        }
-        //if (this.ched)
-        //    pos = oldpos.Value;
         UpdateHitTest();
-    }
-    void FixedUpdate()
-    {
-        //if (j1 != null)
-        //{
-        //    j1.rigidbody.velocity = pl.rigidbody.velocity;
-        //    j1.rigidbody.angularVelocity = pl.rigidbody.angularVelocity;
-        //}
-        //this.transform.rotation = Quaternion.identity;
     }
     private void UpdateHitTest()
     {
@@ -52,8 +44,11 @@ public class RopeEnd : bs
         }
         oldpos = transform.position;
     }
-
-
+    void FixedUpdate()
+    {        
+        if (attached)
+            pos = AttachedTo.transform.TransformPoint(offs);
+    }
     [RPC]
     public void Throw(Vector3 pos ,Vector3 dir)
     {
@@ -62,24 +57,19 @@ public class RopeEnd : bs
             this.oldpos = this.transform.position = pos;
             EnableRope(true);
             dir = dir.normalized;
-            this.rigidbody.velocity = dir * 40;
+            this.rigidbody.velocity = pl.rigidbody.velocity + dir * 40;
         }
     }
-
-
-    bool attached;
-    public Wall AttachedTo;
     void OnColl(Vector3 point, Collider t)
     {
-        Debug.Log("Coll");
-        AttachedTo= t.transform.GetComponentInParrent<Wall>();
+        AttachedTo = t.transform.GetComponentInParrent<Wall>();
         if (AttachedTo != null && AttachedTo.attachRope)
         {
-            //this.rigidbody.constraints = RigidbodyConstraints.FreezePosition;
+            offs = AttachedTo.transform.InverseTransformPoint(pos);
             attached = true;
-            this.rigidbody.isKinematic = true;
-            //transform.parent = t.transform;
-            //transform.position = point;
+            Cloth.DetachFromCollider(pl.RopeColl);
+            Cloth.AttachToCollider(pl.RopeColl, false, true);
+            rigidbody.isKinematic = true;
         }
         if (!attached)
             EnableRope(false);
@@ -87,46 +77,52 @@ public class RopeEnd : bs
         var p = t.transform.GetComponentInParrent<PhysAnim>();
         
         if (p != null)
-        {
-            if (p.PlayOnRopeHit)
+            if (p.PlayOnRopeHit && networkView.isMine)
                 p.RPCPlay();
-        }
     }
     public void EnableRope(bool enable)
     {
-        
         if (cloth != null)
             Destroy(cloth.gameObject);
         
-
         enabled = enable;
-        
+        rigidbody.isKinematic = false;
         attached = false;
-        this.rigidbody.isKinematic = false;
-        //rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
+        
         rigidbody.useGravity = enable;
         rigidbody.velocity = Vector3.zero;
-        transform.parent = null;
         if (enable)
         {
             cloth = ((GameObject)Instantiate(clothPrefab, pl.pos, Quaternion.identity));            
             Cloth = cloth.GetComponentInChildren<InteractiveCloth>();
             oldpos = pos = cloth.transform.Find("s2").position;
-            Cloth.AttachToCollider(pl.RopeColl,false,true);
+            Cloth.AttachToCollider(pl.RopeColl,false,false);
             Cloth.AttachToCollider(this.collider, false, true);
-            
         }
     }
-
     void OnCollisionEnter(Collision c)
     {
-        Debug.Log("Coll");
         OnColl(c.transform.position, c.collider);
     }
     [RPC]
     public void Hide()
     {
         EnableRope(false);
-    }     
-    
+    }
+    void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    {
+        if (rigidbody.isKinematic) return;
+        if (stream.isWriting)
+        {
+            SyncPos = rigidbody.position;
+            SyncVel = rigidbody.velocity;
+        }
+        stream.Serialize(ref SyncPos);
+        stream.Serialize(ref SyncVel);
+        if (stream.isReading)
+        {
+            rigidbody.position = SyncPos;
+            rigidbody.velocity = SyncVel;
+        }
+    }
 }    

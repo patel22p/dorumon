@@ -4,7 +4,8 @@ using doru;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-public enum Scene { Menu, RaceLevel, RaceLevelUnfinished }
+public enum Scene { Menu, RaceLevel, RaceLevel2, Level3Unfinished, Level4Unfinished }
+public enum Mask { Player = 8, NotPlayer, Level, IgnoreColl, Particles }
 public class Game : bs
 {
     public TimerA timer = new TimerA();
@@ -44,7 +45,8 @@ public class Game : bs
     
     public void Start()
     {
-        Debug.Log("Game start");
+
+        Debug.Log("Game start"+(int)Mask.NotPlayer);
         SetupSpawnPos();
         SetupOther();
         SetupPlayer();
@@ -132,12 +134,11 @@ public class Game : bs
         foreach (var a in networkItems)
             a.enabled = true;
     }
-
-    public override void OnPlayerCon(NetworkPlayer player)
+    void OnPlayerConnected(NetworkPlayer player)
     {
         Debug.Log("Player Conencted: " + player);
-        base.OnPlayerCon(player);
     }
+    
 
     private static void Call(string s)
     {

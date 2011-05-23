@@ -18,6 +18,7 @@ using System.Collections;
 
 public class InspectorSearch : EditorWindow
 {
+    TimerA timer = new TimerA();
     string search = "";
     float autosavetm = 0;
     Type[] types = new Type[] { typeof(GameObject), typeof(Material) };
@@ -41,6 +42,7 @@ public class InspectorSearch : EditorWindow
     {
         UpdateOther(scene);
         UpdateSetCam(scene);
+        timer.Update();
     }
     private void UpdateOther(SceneView scene)
     {
@@ -94,8 +96,29 @@ public class InspectorSearch : EditorWindow
         foreach (var a in GameObject.FindGameObjectsWithTag("EditorGUI"))
             a.GetComponent<Base>().OnEditorGui();
     }
+    Transform last;
     void OnSelectionChange()
     {
+        //Debug.Log(Selection.activeTransform);
+        //Debug.Log(Selection.activeTransform.root);
+        //if (Selection.activeTransform != null)
+        //    timer.AddMethod(delegate
+        //    {
+        //        Selection.activeTransform = Selection.activeTransform.parent;
+        //    });
+        
+        //var t = Selection.activeTransform;
+        //if (last == null)
+        //    Selection.activeTransform = t.root;
+        //Transform old = null;
+        //foreach (var a in t.Parent())
+        //{
+        //    if (a == last) break;
+        //    old = a;
+        //}
+        //if (old != null)
+        //    Selection.activeTransform = old;
+        //last = Selection.activeTransform;
 
         SetPivot = false;
         search = "";
@@ -241,7 +264,7 @@ public class InspectorSearch : EditorWindow
     {
         var g = UnityEditor.Selection.activeObject;
         var Texture = UnityEditor.EditorUtility.GetAssetPreview(g);
-        File.WriteAllBytes("Assets/" + g.name + ".png", Texture.EncodeToPNG());
+        File.WriteAllBytes("Builds/" + g.name + ".png", Texture.EncodeToPNG());
     }
     [MenuItem("Edit/Play % ")]
     private static void Play()
@@ -292,11 +315,21 @@ public class InspectorSearch : EditorWindow
         g.transform.parent = Selection.activeGameObject.transform.parent;
         foreach (var t in Selection.gameObjects)
             t.transform.parent = g.transform;
+        Selection.activeGameObject = g;
     }
     [MenuItem("GameObject/Combine")]
     static void Combine()
     {
-        Base.Combine(Selection.activeGameObject);
+        Undo.RegisterSceneUndo("rtools");
+        foreach (var ac in Selection.gameObjects)
+        {
+            var ar = ac.transform.Cast<Transform>().ToArray();
+            Base.Combine(ac);
+            foreach (Transform a in ar)
+                DestroyImmediate(a.gameObject);
+            foreach (var f in ac.GetComponentsInChildren<MeshFilter>())
+                f.gameObject.AddComponent<MeshCollider>();
+        }
     }
 
     [MenuItem("GameObject/Duplicate Animation")]
@@ -312,7 +345,7 @@ public class InspectorSearch : EditorWindow
     static void Dup()
     {
         Undo.RegisterSceneUndo("rtools");
-        var n = "D" + Random.Range(10, 99) + ".mat";
+        var n = Random.Range(10, 99) + ".mat";
         foreach (var m in Selection.gameObjects.Select(a => a.renderer).SelectMany(a => a.sharedMaterials))
         {
             var p = AssetDatabase.GetAssetPath(m);

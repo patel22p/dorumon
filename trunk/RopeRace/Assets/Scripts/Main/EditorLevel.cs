@@ -8,6 +8,7 @@ using System;
 using UnityEditor;
 [ExecuteInEditMode]
 public class EditorLevel : bs {
+    
     public Collider Plane;
     public Transform SelectedPrefab;
     Transform LastPrefab;
@@ -15,8 +16,8 @@ public class EditorLevel : bs {
     internal Transform Holder;
     Transform level;
     
-    int tooli;
-    public Tool tool { get { return (Tool)tooli; } set { tooli = (int)value; } }
+    //int tool;
+    public Tool tool; //{ get { return (Tool)tool; } set { tool = (int)value; } }
     public int gridSize = 3;
     public int PlanePos;
     public enum Tool { None, Grid, Trail }
@@ -25,7 +26,7 @@ public class EditorLevel : bs {
     int prefabsi;
     public override void Awake()
     {
-        base.Awake();
+        //InitLoader
     }
     void OnEnable()
     {         
@@ -37,11 +38,9 @@ public class EditorLevel : bs {
     }
     public override void OnEditorGui()
     {
-        //if (gui.Button("Send Play"))
-        //    Selection.activeGameObject.networkView.RPC("Play",
         if (gui.Button("InitLevel"))
         {
-            foreach (var a in level.GetComponentsInChildren<PhysAnim>())
+            foreach (var a in  level.GetComponentsInChildren<AnimHelper>())
                 a.Init();
         }
         prefabs = transform.Find("tools").Cast<Transform>().ToArray();
@@ -50,10 +49,18 @@ public class EditorLevel : bs {
         gridSize = GUI.IntSlider("GridSize", gridSize, 1, 10);        
         PlanePos = GUI.IntSlider("PlanePos", PlanePos, -10, 10);
         
-        tooli = gui.SelectionGrid(tooli, Enum.GetNames(typeof(Tool)), 2);
+        tool = (Tool)gui.SelectionGrid((int)tool, Enum.GetNames(typeof(Tool)), 2);
+        if (tool != oldtool)
+        {
+            //Debug.Log("Chagne");
+            SelectedPrefab.gameObject.active = false;
+        }
+        oldtool = tool;
+        //oldtooli = tooli;
         prefabsi = gui.SelectionGrid(prefabsi, prefabst, 2);
         base.OnEditorGui();
     }
+    Tool oldtool;
     Vector3 cursorPos;
     Vector3? lastpos;
     
@@ -62,8 +69,10 @@ public class EditorLevel : bs {
     public Event e { get { return Event.current; } }
     public override void OnSceneGUI(SceneView scene, ref bool repaint)
     {
+        if (e.type == EventType.keyDown)
+            repaint = true;
         if (e.keyCode == KeyCode.Alpha1)
-            tool = Tool.None;
+            tool = Tool.None;            
         if (e.keyCode == KeyCode.Alpha2)
             tool = Tool.Grid;
         if (e.keyCode == KeyCode.Alpha3)
@@ -84,6 +93,7 @@ public class EditorLevel : bs {
                     prefabsi = Mathf.Clamp(prefabsi + i, 0, prefabs.Length - 1);
                 else
                     PlanePos += i;
+                    
                 repaint = true;
                 e.Use();
             }
@@ -134,6 +144,8 @@ public class EditorLevel : bs {
         
         bool down = e.button == 1 && e.type == EventType.mouseDrag;
         bool up = e.type == EventType.mouseUp;
+        var cursorPos = this.cursorPos + (gridSize % 2 == 0 ? new Vector3(0, 0, 1) / 2 : Vector3.zero);
+        
         if (down && Holder == null)
         {
             if (lastpos == null)
@@ -179,7 +191,7 @@ public class EditorLevel : bs {
     {
         if (Holder != null)
         {
-            
+             
             LastPrefab.transform.parent = level;
             DestroyImmediate(Holder.gameObject);            
         }
@@ -193,19 +205,12 @@ public class EditorLevel : bs {
             if (Physics.Raycast(r, out rhit, Mathf.Infinity))
             {
                 var t = rhit.transform;
-                //Debug.Log(t.name);
-                //var p = Selection.activeGameObject.transform;
-                //if (p == null) p = level;
-                var lvl = level;
-                Transform a = null;
-                foreach (var b in t.Parent())
-                {
-                    if (b == lvl && a != null)
-                        DestroyImmediate(a.gameObject);
-                    a = b;
-                }
-                //if (t.Parent().Any(a => a = lvl))
-                //    DestroyImmediate(t.GetComponentInParrent<bs>().gameObject);
+                //t.GetComponentInParrent<Wall>();
+                var p = t.Parent().FirstOrDefault(a => a.parent == level && a.GetComponent<bs>() != null);
+                if(p!=null)
+                    DestroyImmediate(p.gameObject);  
+                //if (p != null && p.parent == level)
+                                      
             }
             e.Use();
         }
@@ -217,7 +222,7 @@ public class EditorLevel : bs {
         SelectedPrefab.position = new Vector3(Mathf.RoundToInt(cursorPos.x), Mathf.RoundToInt(cursorPos.y), cursorPos.z);        
 
         if (gridSize % 2 == 0)
-            SelectedPrefab.transform.position += Vector3.one / 2;
+            SelectedPrefab.transform.position +=  (Vector3.one / 2);
         if (e.button == 1 && !e.alt)
         {
             if (LastPrefab == null || !LastPrefab.GetComponentInChildren<Collider>().bounds.Intersects(SelectedPrefab.GetComponentInChildren<Collider>().bounds) )

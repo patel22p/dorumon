@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 public class Loader : bs 
 {
     //internal float networkTime;
+    public Material[] plmaterials;
     public int errorcount;
     public int exceptionCount;
     public int totalScores;    
@@ -28,7 +29,12 @@ public class Loader : bs
         Debug.Log("Loader Awake");
         Application.targetFrameRate = 60;
         DontDestroyOnLoad(this.transform.root);
-    }    
+    }
+    void Start()
+    {
+        //if (!Application.isEditor)
+            _Music.Play("ropector");
+    }
     void Update()
     {
         //networkTime += Time.deltaTime;

@@ -8,7 +8,7 @@ public class bs : Base
 {
     public virtual void Awake()
     {
-        
+        InitLoader();
     }
     public virtual void OnPlayerCon(NetworkPlayer player)
     {

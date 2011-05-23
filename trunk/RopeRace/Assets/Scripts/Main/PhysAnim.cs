@@ -25,7 +25,11 @@ public class PhysAnim : AnimHelper
 
     private void SetupAnim()
     {
-        if (rigidBoddies.Count == 0) rigidBoddies = transform.Cast<Transform>().ToList();
+        if (rigidBoddies.Count == 0)
+            if (transform.childCount == 0)
+                rigidBoddies.Add(transform);
+            else
+                rigidBoddies = transform.Cast<Transform>().ToList();
         Transform AnimObj = ((Transform)Instantiate(this.transform, pos, rot));
         foreach (var a in AnimObj.GetComponentsInChildren<Component>().Where(a => !(a is Transform) && !(a is Animation)))
             Destroy(a);
@@ -93,6 +97,7 @@ public class PhysAnim : AnimHelper
     void Update()
     {
         if (wrapMode == WrapMode.Loop)
-            animationState.time = Mathf.Lerp(animationState.time, _Game.networkTime * animationSpeedFactor, .20f);        
+            foreach (AnimationState animationState in Anim)
+                animationState.time = Mathf.Lerp(animationState.time, _Game.networkTime * animationSpeedFactor + (TimeOffsetFactor * pos.magnitude), .20f);        
     }
 }   

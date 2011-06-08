@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="CGImap 0.0.2">
+ <bounds minlat="62.7321800" minlon="29.0146400" maxlat="62.7336760" maxlon="29.0189100"/>
+ <node id="266524440" lat="62.7339309" lon="29.0404525" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:30Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="266524438" lat="62.7339610" lon="29.0428042" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:29Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="469311436" lat="62.7333806" lon="29.0295444" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:14Z"/>
+ <node id="469311577" lat="62.7322521" lon="29.0105329" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="972337025" lat="62.7293244" lon="29.0173528" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:09Z"/>
+ <node id="469311581" lat="62.7314853" lon="29.0089622" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:30Z"/>
+ <node id="266524436" lat="62.7339439" lon="29.0454483" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:29Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="322878215" lat="62.7296173" lon="29.0097089" user="pkettu" uid="168281" visible="true" version="3" changeset="2401337" timestamp="2009-09-07T11:59:00Z"/>
+ <node id="469311566" lat="62.7329796" lon="29.0242400" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:28Z"/>
+ <node id="469311583" lat="62.7311982" lon="29.0089193" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:30Z"/>
+ <node id="972337138" lat="62.7355349" lon="29.0143293" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:13Z"/>
+ <node id="972337016" lat="62.7300768" lon="29.0165213" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:09Z"/>
+ <node id="469311565" lat="62.7333728" lon="29.0294757" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:28Z"/>
+ <node id="30969739" lat="62.7333330" lon="29.0166670" user="NameRuBot" uid="413267" visible="true" version="3" changeset="7419255" timestamp="2011-02-28T10:38:42Z">
+  <tag k="gns:ufi" v="-1379927"/>
+  <tag k="is_in" v="Finland"/>
+  <tag k="name" v="Outokumpu"/>
+  <tag k="name:fi" v="Outokumpu"/>
+  <tag k="name:ru" v="Оутокумпу"/>
+  <tag k="place" v="town"/>
+  <tag k="source" v="gns"/>
+ </node>
+ <node id="972337101" lat="62.7323609" lon="29.0111265" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:12Z"/>
+ <node id="469311574" lat="62.7324684" lon="29.0122495" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="972337057" lat="62.7345737" lon="29.0150202" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:10Z"/>
+ <node id="469311571" lat="62.7323307" lon="29.0154424" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="469311584" lat="62.7303960" lon="29.0091939" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:30Z"/>
+ <node id="568457413" lat="62.7313255" lon="29.0089383" user="paxed" uid="72287" visible="true" version="1" changeset="3187154" timestamp="2009-11-22T15:34:41Z"/>
+ <node id="469311580" lat="62.7318510" lon="29.0092626" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="266524435" lat="62.7338486" lon="29.0461107" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:29Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="469311573" lat="62.7324487" lon="29.0128675" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="972336997" lat="62.7324103" lon="29.0168608" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:08Z"/>
+ <node id="469311576" lat="62.7324408" lon="29.0115629" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <node id="469311567" lat="62.7323307" lon="29.0158286" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:28Z"/>
+ <node id="972337044" lat="62.7362076" lon="29.0138458" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:10Z"/>
+ <node id="266524437" lat="62.7340040" lon="29.0447522" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:29Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="266524441" lat="62.7338792" lon="29.0371347" visible="true" version="1" changeset="504991" timestamp="2008-05-23T17:08:30Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="469311578" lat="62.7320240" lon="29.0095372" user="oh7bd" uid="148012" visible="true" version="1" changeset="2167774" timestamp="2009-08-16T17:42:29Z"/>
+ <way id="24508138" user="paxed" uid="72287" visible="true" version="4" changeset="6241048" timestamp="2010-10-31T15:42:33Z">
+  <nd ref="266524435"/>
+  <nd ref="266524436"/>
+  <nd ref="266524437"/>
+  <nd ref="266524438"/>
+  <nd ref="266524440"/>
+  <nd ref="266524441"/>
+  <nd ref="469311436"/>
+  <nd ref="469311565"/>
+  <nd ref="469311566"/>
+  <nd ref="972336997"/>
+  <nd ref="469311567"/>
+  <nd ref="469311571"/>
+  <nd ref="469311573"/>
+  <nd ref="469311574"/>
+  <nd ref="469311576"/>
+  <nd ref="972337101"/>
+  <nd ref="469311577"/>
+  <nd ref="469311578"/>
+  <nd ref="469311580"/>
+  <nd ref="469311581"/>
+  <nd ref="568457413"/>
+  <nd ref="469311583"/>
+  <nd ref="469311584"/>
+  <nd ref="322878215"/>
+  <tag k="highway" v="residential"/>
+  <tag k="name" v="Polvijärvenkatu"/>
+ </way>
+ <way id="83507162" user="paxed" uid="72287" visible="true" version="1" changeset="6241048" timestamp="2010-10-31T15:42:16Z">
+  <nd ref="972337025"/>
+  <nd ref="972337016"/>
+  <nd ref="972336997"/>
+  <nd ref="972337057"/>
+  <nd ref="972337138"/>
+  <nd ref="972337044"/>
+  <tag k="highway" v="residential"/>
+ </way>
+</osm>

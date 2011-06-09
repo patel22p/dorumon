@@ -1,4 +1,4 @@
-﻿//for redlynx by Igor Levochkin
+﻿//for RedLynx by Igor Levochkin
 using System.Collections.Generic;
 using System.Windows;
 using System.IO;
@@ -9,6 +9,7 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Xml;
 
 namespace OpenStreetMapWPF
 {
@@ -48,68 +49,48 @@ namespace OpenStreetMapWPF
         }
         void ParseMap()
         {
-            var prs = XElement.Parse(File.ReadAllText("../../map.xml"));
+            var xml = new XmlDocument();
+            xml.LoadXml(File.ReadAllText("../../map.xml"));
+            var prs = xml.DocumentElement;
+            //var list = xml.DocumentElement.SelectNodes("/node");
+            //Debugger.Break();
+            //var prs = XElement.Parse(File.ReadAllText("../../map.xml"));
             //var lms = prs.Elements("node").ToArray();
 
-            var b = prs.Element("bounds");
-            map.minlat = float.Parse(b.Attribute("minlat").Value);
-            map.minlon = float.Parse(b.Attribute("minlon").Value);
+            var b = prs.SelectSingleNode("bounds");
+            map.minlat = float.Parse(b.Attributes["minlat"].Value);
+            map.minlon = float.Parse(b.Attributes["minlon"].Value);
 
-            map.maxlat = float.Parse(b.Attribute("maxlat").Value);
-            map.maxlon = float.Parse(b.Attribute("maxlon").Value);
+            map.maxlat = float.Parse(b.Attributes["maxlat"].Value);
+            map.maxlon = float.Parse(b.Attributes["maxlon"].Value);
 
-            foreach (var xmlnode in prs.Elements("node"))
+            foreach (XmlNode xmlnode in prs.SelectNodes("node"))
             {
                 Node n = new Node();
-                n.id = int.Parse(xmlnode.Attribute("id").Value);
-                n.lat = float.Parse(xmlnode.Attribute("lat").Value);
-                n.lon = float.Parse(xmlnode.Attribute("lon").Value);
-                n.x = (n.lat - map.minlat) / (map.maxlat - map.minlat);
-                n.y = (n.lon - map.minlon) / (map.maxlon - map.minlon);
-                foreach (var tg in xmlnode.Elements("tag"))
+                n.id = int.Parse(xmlnode.Attributes["id"].Value);
+                n.lat = float.Parse(xmlnode.Attributes["lat"].Value);
+                n.lon = float.Parse(xmlnode.Attributes["lon"].Value);
+                n.x = (n.lon - map.minlon) / (map.maxlon - map.minlon);
+                n.y = (n.lat - map.minlat) / (map.maxlat - map.minlat);
+                
+                foreach (XmlNode tg in xmlnode.SelectNodes("tag"))
                 {
-                    n.tags.Add(new Tag { k = tg.Attribute("k").Value });
-                    n.tags.Add(new Tag { v = tg.Attribute("v").Value });
+                    n.tags.Add(new Tag { k = tg.Attributes["k"].Value });
+                    n.tags.Add(new Tag { v = tg.Attributes["v"].Value });
                 }
                 map.nodes.Add(n);
             }
-            foreach (var xmlnode in prs.Elements("way"))
+            foreach (XmlNode xmlnode in prs.SelectNodes("way"))
             {
                 Way way = new Way();
-                foreach (var nd in xmlnode.Elements("nd"))
+                foreach (XmlNode nd in xmlnode.SelectNodes("nd"))
                 {
-                    var node = map.nodes.First(a => a.id == int.Parse(nd.Attribute("ref").Value));
+                    var node = map.nodes.First(a => a.id == int.Parse(nd.Attributes["ref"].Value));
                     way.nodes.Add(node);
                 }
                 map.ways.Add(way);
             }
         }
     }
-    public class Map
-    {
-        public float minlat;
-        public float minlon;
-        public float maxlat;
-        public float maxlon;
-        public List<Node> nodes = new List<Node>();
-        public List<Way> ways = new List<Way>();
-    }
-    public class Node
-    {
-        public int id;
-        public float lat;
-        public float lon;
-        public float x;
-        public float y;
-        public List<Tag> tags = new List<Tag>();
-    }
-    public class Way
-    {
-        public List<Node> nodes = new List<Node>();
-    }
-    public class Tag
-    {
-        public string k;
-        public string v;
-    }
+    
 }

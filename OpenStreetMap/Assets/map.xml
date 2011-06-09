@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="CGImap 0.0.2">
+ <bounds minlat="62.6306450" minlon="29.0038170" maxlat="62.6321040" maxlon="29.0080870"/>
+ <node id="252580082" lat="62.6317500" lon="29.0087500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580092" lat="62.6310000" lon="29.0062500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:26Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580078" lat="62.6322500" lon="29.0007500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580086" lat="62.6320000" lon="29.0047500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580089" lat="62.6317500" lon="29.0035000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580083" lat="62.6312500" lon="29.0077500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580081" lat="62.6322500" lon="29.0082500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580079" lat="62.6327500" lon="29.0032500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580077" lat="62.6312500" lon="29.0007500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580091" lat="62.6312500" lon="29.0045000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:26Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580084" lat="62.6310000" lon="29.0075000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580090" lat="62.6315000" lon="29.0042500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580076" lat="62.6310000" lon="29.0010000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:23Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580075" lat="62.6295000" lon="29.0040000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:23Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580080" lat="62.6322500" lon="29.0077500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:24Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580085" lat="62.6320000" lon="29.0057500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580074" lat="62.6300000" lon="29.0070000" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:23Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <node id="252580088" lat="62.6320000" lon="29.0037500" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:47:25Z">
+  <tag k="created_by" v="JOSM"/>
+ </node>
+ <way id="23325662" user="la4de" uid="25211" visible="true" version="1" changeset="342407" timestamp="2008-03-17T11:48:53Z">
+  <nd ref="252580074"/>
+  <nd ref="252580075"/>
+  <nd ref="252580076"/>
+  <nd ref="252580077"/>
+  <nd ref="252580078"/>
+  <nd ref="252580079"/>
+  <nd ref="252580080"/>
+  <nd ref="252580081"/>
+  <nd ref="252580082"/>
+  <nd ref="252580083"/>
+  <nd ref="252580084"/>
+  <nd ref="252580085"/>
+  <nd ref="252580086"/>
+  <nd ref="252580088"/>
+  <nd ref="252580089"/>
+  <nd ref="252580090"/>
+  <nd ref="252580091"/>
+  <nd ref="252580092"/>
+  <nd ref="252580074"/>
+  <tag k="created_by" v="Dshpak_landsat_lakes"/>
+  <tag k="natural" v="water"/>
+  <tag k="source" v="Landsat"/>
+ </way>
+</osm>

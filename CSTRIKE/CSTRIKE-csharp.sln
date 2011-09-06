@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass-vs", "Assembly-CSharp-firstpass-vs.csproj", "{7C5A32D9-C452-2DE5-FE02-B7072AEB28B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-vs", "Assembly-CSharp-vs.csproj", "{ADE13E05-314A-923A-06FF-A1A92342A27D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor-vs", "Assembly-CSharp-Editor-vs.csproj", "{A57E2166-18D0-090E-07ED-4791291F02F6}"
+EndProject
+Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C5A32D9-C452-2DE5-FE02-B7072AEB28B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C5A32D9-C452-2DE5-FE02-B7072AEB28B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C5A32D9-C452-2DE5-FE02-B7072AEB28B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C5A32D9-C452-2DE5-FE02-B7072AEB28B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADE13E05-314A-923A-06FF-A1A92342A27D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADE13E05-314A-923A-06FF-A1A92342A27D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADE13E05-314A-923A-06FF-A1A92342A27D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADE13E05-314A-923A-06FF-A1A92342A27D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A57E2166-18D0-090E-07ED-4791291F02F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A57E2166-18D0-090E-07ED-4791291F02F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A57E2166-18D0-090E-07ED-4791291F02F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A57E2166-18D0-090E-07ED-4791291F02F6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

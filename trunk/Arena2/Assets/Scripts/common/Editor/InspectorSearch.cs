@@ -76,7 +76,7 @@ public class InspectorSearch : EditorWindow
 
     private void NextCamera()
     {
-        var c = GameObject.FindObjectsOfType(typeof(Camera)).Cast<Camera>().ToArray();
+        var c = GameObject.FindObjectsOfType(typeof(Cam)).Cast<Cam>().ToArray();
         foreach (var a in c)
             a.tag = "Untagged";
         camerai++;
@@ -163,7 +163,7 @@ public class InspectorSearch : EditorWindow
             {
                 foreach (var pf in scr.GetType().GetFields())
                 {
-                    FindAsset(scr, pf);
+                    //FindAsset(scr, pf);
                     //FindTransform(scr, pf);
                 }                                
             }
@@ -205,37 +205,37 @@ public class InspectorSearch : EditorWindow
             }
     }
     #if UNITY_EDITOR && UNITY_STANDALONE_WIN
-    private static void FindAsset(Base scr, FieldInfo pf)
-    {
-        FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
-        if (ap != null)
-        {
-            string name = (ap.name == null) ? pf.Name : ap.name;
-            object value = pf.GetValue(scr);
-            if (ap.overide || (value == null || value.Equals(null)) || (value is IEnumerable && ((IEnumerable)value).Cast<object>().Count() == 0))
-            {
-                if (value is Array)
-                {
-                    Debug.Log("FindAsset " + name);
-                    var type = value.GetType().GetElementType();
-                    var q = Base.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
-                    if (q.Count() == 0)
-                        Debug.Log("could not find folder " + name);
+    //private static void FindAsset(Base scr, FieldInfo pf)
+    //{
+    //    FindAsset ap = (FindAsset)pf.GetCustomAttributes(true).FirstOrDefault(a => a is FindAsset);
+    //    if (ap != null)
+    //    {
+    //        string name = (ap.name == null) ? pf.Name : ap.name;
+    //        object value = pf.GetValue(scr);
+    //        if (ap.overide || (value == null || value.Equals(null)) || (value is IEnumerable && ((IEnumerable)value).Cast<object>().Count() == 0))
+    //        {
+    //            if (value is Array)
+    //            {
+    //                Debug.Log("FindAsset " + name);
+    //                var type = value.GetType().GetElementType();
+    //                var q = Base.GetFiles().Where(a => a.Contains(name)).Select(a => UnityEditor.AssetDatabase.LoadAssetAtPath(a, type)).Where(a => a != null);
+    //                if (q.Count() == 0)
+    //                    Debug.Log("could not find folder " + name);
 
-                    pf.SetValue(scr, Cast(q, type));
-                }
-                else
-                {
-                    Debug.Log("FindAsset " + name);
-                    try
-                    {
-                        pf.SetValue(scr, Base.FindAsset(name, pf.FieldType));
-                    }
-                    catch (Exception e) { Debug.Log(scr.name + ":" + e.Message); }
-                }
-            }
-        }
-    }
+    //                pf.SetValue(scr, Cast(q, type));
+    //            }
+    //            else
+    //            {
+    //                Debug.Log("FindAsset " + name);
+    //                try
+    //                {
+    //                    pf.SetValue(scr, Base.FindAsset(name, pf.FieldType));
+    //                }
+    //                catch (Exception e) { Debug.Log(scr.name + ":" + e.Message); }
+    //            }
+    //        }
+    //    }
+    //}
 #endif
     private static object Cast<T>(IEnumerable<T> objectList, Type t)
     {

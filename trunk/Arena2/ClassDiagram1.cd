@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="bs">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>EAgAAAgAAMBAAAAAAAACAAAAAABABEAgoAQgACAYAkI=</HashCode>
+      <FileName>Assets\Scripts\Main\bs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ZombieSpawn">
+    <Position X="15.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>Assets\Scripts\Main\ZombieSpawn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Bullet">
+    <Position X="0.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAACCAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\Bullet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Cam">
+    <Position X="6.75" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAQABAAEAGEAgEAAAAAAAAAAIAAAAAACAEQAAAAEAEA=</HashCode>
+      <FileName>Assets\Scripts\Main\Cam.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Cursor">
+    <Position X="11" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\Cursor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Game">
+    <Position X="17.75" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAREQACkAKgAiCAgAAAAAAAyBAAEjwAAKYACAAIAQEA=</HashCode>
+      <FileName>Assets\Scripts\Main\Game.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Loader">
+    <Position X="2.75" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAACAAAAAAAEACAQAgAAAAAACAAAQAAQAEEA=</HashCode>
+      <FileName>Assets\Scripts\Main\Loader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MenuGui">
+    <Position X="13.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAASAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\MenuGui.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player">
+    <Position X="5.75" Y="10" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAQQgsKAAAAYRCQgCCIQIAABAAAACAAQACAEMgQIGkE=</HashCode>
+      <FileName>Assets\Scripts\Main\Player.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Shared">
+    <Position X="4.75" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAEAACAAECABAAFAAAAABAAAAAIAAAQAAAAAAAIKAEA=</HashCode>
+      <FileName>Assets\Scripts\Main\Shared.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Trigger">
+    <Position X="8.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAQAAAEAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\Trigger.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Zombie">
+    <Position X="3.5" Y="10" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAwAAmKAQiAQwGQgACIAAAAAAAAAAAAIBSAAKAQAAEA=</HashCode>
+      <FileName>Assets\Scripts\Main\Zombie.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="NetworkGroup">
+    <Position X="15" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\bs.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="hostDebug">
+    <Position X="13" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAIAAAAAAAAAAAEAAAAAAEAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\bs.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MenuAction">
+    <Position X="16.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAIAAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Main\MenuGui.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Tahoma" Size="8.25" />
+</ClassDiagram>

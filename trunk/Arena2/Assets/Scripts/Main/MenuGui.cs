@@ -19,7 +19,7 @@ public class MenuGui : bs {
     }
     private void SendAction( MenuAction a)
     {
-        transform.parent.SendMessage("Action", a);
+        transform.parent.SendMessage("OnGuiEvent", a);
     }
 	void Update () {
 	

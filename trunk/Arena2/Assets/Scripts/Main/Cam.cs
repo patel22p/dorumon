@@ -2,13 +2,12 @@ using UnityEngine;
 using System.Collections;
 
 public class Cam : bs {
-
     Camera cam;
     Vector3 cursorpos;
-    Vector3 fakeCursor;
+    Vector3 smothCursor;
     Vector3 velocity;
     float camFade;
-    float fCamFade;
+    float smothCamFade;
     public bool secondMode;
     public Quaternion oldrot;
     public Quaternion frot;
@@ -29,7 +28,6 @@ public class Cam : bs {
         cam.animation.Stop();
         cam.transform.parent = Place;
         pos = cam.transform.position;
-        //rot = cam.transform.rotation;
         cam.transform.position = Place.position;
         cam.transform.rotation = Place.rotation;
         pos = _PlayerOwn.pos;
@@ -38,8 +36,6 @@ public class Cam : bs {
     {
         if (Input.GetKeyDown(KeyCode.C))
             secondMode = !secondMode;
-        
-
         if (Screen.lockCursor)
         {
             Vector3 plCur = _Cursor.pos - _PlayerOwn.pos;
@@ -55,13 +51,13 @@ public class Cam : bs {
             Vector3 v = rot * new Vector3(Input.GetAxis("Mouse X"), 0, Input.GetAxis("Mouse Y"));            
             cursorpos = Vector3.ClampMagnitude(cursorpos + v, 10);
             _Cursor.pos = _PlayerOwn.pos + cursorpos;
-            if (fCamFade == 0)
-                fakeCursor = (_PlayerOwn.pos + _Cursor.pos) / 2;                 
+            if (smothCamFade == 0)
+                smothCursor = (_PlayerOwn.pos + _Cursor.pos) / 2;                 
             else
-                fakeCursor = _PlayerOwn.pos; 
-            pos = Vector3.SmoothDamp(pos, fakeCursor, ref velocity, .1f);
+                smothCursor = _PlayerOwn.pos; 
+            pos = Vector3.SmoothDamp(pos, smothCursor, ref velocity, .1f);
         }
-        camFade = (Mathf.Lerp(camFade, fCamFade, 1f / 30f));
+        camFade = (Mathf.Lerp(camFade, smothCamFade, 1f / 30f));
         //camFade = (camFade * 30 + fCamFade) / 31;
 
         var st = CamFadeAnim["CamFade"];
@@ -71,7 +67,7 @@ public class Cam : bs {
         CamFadeAnim.Sample();
         st.enabled = false;
         
-        fCamFade = Mathf.Clamp(fCamFade + Input.GetAxis("Mouse ScrollWheel"), 0, st.length);
+        smothCamFade = Mathf.Clamp(smothCamFade + Input.GetAxis("Mouse ScrollWheel"), 0, st.length);
         
     }
 }

@@ -9,6 +9,7 @@ public class Loader:bs
     [FindTransform("debug")]
     public GUIText debugGui; 
     public int exceptions;
+    string debugvars;
     public int errors;
     public string lastLog = "";
     public TimerA timer = new TimerA();
@@ -32,7 +33,6 @@ public class Loader:bs
     {
         debugvars += s + "\r\n";
     }
-    string debugvars;
     public void WriteDebug(object s)
     {
         Debug.Log(s);

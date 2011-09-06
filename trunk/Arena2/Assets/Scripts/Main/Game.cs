@@ -14,49 +14,62 @@ public class Game : bs
 {
     public hostDebug hostDebug;
     public AnimationCurve SpeedCurv;
-    
-    [FindAsset("Player")]
     public GameObject PlayerPrefab;
-    [FindAsset("Zombie")]
     public Zombie ZombiePrefab;
     [FindTransform]
     public GUIText GameText;
     public new Player _PlayerOwn;
     public new Player _PlayerOther;
+    public bool enableZombies;
+    public bool enableAutoStart;
+    public int stage = 0;
+    public bool CantDie;
+    internal Player[] players = new Player[3];
     internal bool singlePlayer;
     internal List<bs> networkItems = new List<bs>();
     internal List<Zombie> Zombies = new List<Zombie>();
     internal IEnumerable<Zombie> AliveZombies { get { return Zombies.Where(a => a != null && a.Alive); } }
     internal List<ZombieSpawn> ZombieSpawns = new List<ZombieSpawn>();
     internal TimerA timer = new TimerA();
-    public override void Awake()
-    {
-        base.Awake();
-        AddToNetwork();
-        if (hostDebug == hostDebug.singl)
-            Action(MenuAction.single);
-        if (hostDebug == hostDebug.wait)
-            Action(MenuAction.wait);
-        if (hostDebug == hostDebug.join)
-            Action(MenuAction.join);
-        
-    }
+    internal List<bs> alwaysUpdate = new List<bs>();
+
     public override void Init()
     {
         IgnoreAll("Dead");
         base.Init();
     }
-    
+    public override void Awake()
+    {
+        base.Awake();
+        AddToNetwork();
+        if (hostDebug == hostDebug.singl)
+            OnGuiEvent(MenuAction.single);
+        if (hostDebug == hostDebug.wait)
+            OnGuiEvent(MenuAction.wait);
+        if (hostDebug == hostDebug.join)
+            OnGuiEvent(MenuAction.join);
+
+    }
+    private void InstZombie()
+    {
+        var zsp = ZombieSpawns.Random();
+        Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
+    }
     void Start()
     {
-        
         Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)NetworkGroup.Player);
         _MenuGui.enabled = false;
     }
-    public int stage = 0;
     void Update()
     {
-        if(enableZombies)
+        UpdateZombieSpawn();
+    }
+    private void UpdateZombieSpawn()
+    {
+        foreach (bs bs in alwaysUpdate)
+            if (bs != null)
+                bs.AlwaysUpdate();
+        if (enableZombies)
         {
             if (timer.TimeElapsed(2000) && Network.isServer)
             {
@@ -76,22 +89,12 @@ public class Game : bs
         _Loader.WriteVar("Stage:" + stage);
         timer.Update();
     }
-
-    private void InstZombie()
-    {
-        var zsp = ZombieSpawns.Random();
-        Network.Instantiate(ZombiePrefab, zsp.pos, zsp.rot, (int)NetworkGroup.Zombie);
-    }
-
     private void NextLevel()
     {
         Zombies.Clear();
         stage++;
     }
-    public bool enableZombies;
-    public bool enableAutoStart;
-
-    void Action(MenuAction a)
+    void OnGuiEvent(MenuAction a)
     {
         if (a == MenuAction.wait)
         {
@@ -103,10 +106,13 @@ public class Game : bs
         {
             _Loader.WriteDebug("Connecting");
             var ips = new List<string>();
-
+            var ip = Network.player.ipAddress;
+            ip = ip.Substring(0, ip.LastIndexOf('.')) + ".";
+            Debug.Log(ip);
             for (int i = 0; i < 255; i++)
-                ips.Add("192.168.30." + i);
+                ips.Add(ip + i);
             Network.Connect(ips.ToArray(), 5300);
+
         }
         if (a == MenuAction.single)
         {
@@ -131,7 +137,7 @@ public class Game : bs
     void OnPlayerConnected() { OnConnect(); }
     void OnDisconnectedFromServer() { onDisconnect(); }
     void OnPlayerDisconnected() { onDisconnect(); }
-    public bool CantDie;
+    
 #if UNITY_EDITOR
     public override void OnEditorGui()
     {

@@ -1,0 +1,10 @@
+﻿<Window x:Class="BlackScreen.Window3"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Window3" Height="1133.22" Width="2426.424" WindowStyle="None" AllowsTransparency="True" Icon="/BlackScreen1;component/Main.ico">
+  <Canvas Name="Canvas1">
+    <TextBox Foreground="White"  Background="Black" BorderThickness="0" Canvas.Left="358" Canvas.Top="234" Height="28" Name="textBox1" Width="452" />
+    <TextBox  Name="textBox2" Foreground="White" AcceptsTab="True"  AcceptsReturn="True" Background="Black" BorderThickness="0" Canvas.Left="358" Canvas.Top="313.302" Height="666.6" Width="1936.473" />
+    <TextBox Background="Black" BorderThickness="0" Canvas.Left="0" Canvas.Top="0" Foreground="White" Height="32" Name="textBox3" Width="1722" />
+  </Canvas>
+</Window>

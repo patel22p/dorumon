@@ -1,0 +1,16 @@
+﻿1 	tammi
+2 	helmi
+3 	maalis
+4 	huuhti
+5 	touko
+6 	kesä
+7 	heinä
+8 	elo
+9 	syys
+10 	loka
+11 	marras
+12 	joulu
+werh	up	pohj
+levo	left 	länsi
+pravo	right 	itä
+niz	down 	etelä

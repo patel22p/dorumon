@@ -1,0 +1,9 @@
+﻿<Window x:Class="BlackScreen.Window2"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Window2" Height="703.263" Width="1123.221">
+  <Canvas>
+    <TextBox Name="tbTimeLeft" Background="Black" Foreground="White" BorderThickness="0" Height="35" Width="729.927" Canvas.Left="12" Canvas.Top="36"></TextBox>
+    <TextBox Name="tbTasks"  Background="Black" Canvas.Left="236.643" Canvas.Top="346.632" Height="526.614"  Foreground="White" BorderThickness="0"  Width="666.6" AcceptsTab="True" AcceptsReturn="True" />
+  </Canvas>
+</Window>

@@ -8,6 +8,7 @@ public enum hostDebug { None, singl, wait, join }
 
 public class bs : Base
 {
+    public int id { get { return networkView.owner.GetHashCode(); } }
     public virtual void Awake()
     {        
         InitLoader();
@@ -27,7 +28,10 @@ public class bs : Base
         if (__Loader == null)
             __Loader = ((GameObject)Instantiate(Resources.Load("loader", typeof(GameObject)))).GetComponent<Loader>();
     }
+    public virtual void AlwaysUpdate()
+    {
 
+    }
     public void FindTransform(ref GameObject g, string name) 
     {
         if(g==null)

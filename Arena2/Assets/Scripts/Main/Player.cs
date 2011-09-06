@@ -5,9 +5,17 @@ using doru;
 using System.Linq;
 public class Player : Shared {
 
-    public Vector3 syncVel;
-    public Vector3 vel;
-        
+    bool shoting;
+    float tmLastCombo;
+    float slow;
+    internal Vector3 syncVel;
+    internal Vector3 vel;
+    internal Quaternion gunRot;
+    public GameObject PatronPrefab;
+    public Transform GunPos;    
+    public TimerA timer = new TimerA();
+    public int killed;
+
     AnimationState idle { get { return an["idle"]; } }
     AnimationState run { get { return an["run"]; } }
     AnimationState sleft { get { return an["sleft2"]; } }
@@ -20,23 +28,21 @@ public class Player : Shared {
     AnimationState death { get { return an["death"]; } }
     AnimationState gesture { get { return an["gesture"]; } }
 
-    public Quaternion rot2;
     public override void Awake()
     {
         if (NotInstance()) return;
+        base.Awake();
 
-        base.Awake();   
-
-        if (networkView.isMine)
-            _Game._PlayerOwn = this;
-        else
-            _Game._PlayerOther = this;
-
+        InitOther();
+        InitAnimations();
+    }
+    private void InitAnimations()
+    {
         an.wrapMode = WrapMode.Loop;
         run.wrapMode = WrapMode.Loop;
         sleft.wrapMode = WrapMode.Loop;
         sright.wrapMode = WrapMode.Loop;
-        
+
         punch3.layer = punch2.layer = punch.layer = ShootAnim.layer = 1;
         punch2.wrapMode = punch3.wrapMode = punch.wrapMode = ShootAnim.wrapMode = WrapMode.Clamp;
         death.wrapMode = WrapMode.ClampForever;
@@ -44,53 +50,52 @@ public class Player : Shared {
         gesture.wrapMode = WrapMode.Clamp;
         gesture.layer = 1;
     }
-    
-    bool shoting;
-    public TimerA timer = new TimerA();
-    public int killed;
-    float tmLastCombo;
+    private void InitOther()
+    {
+        Debug.Log(id);
+        _Game.players[id] = this;
+
+        if (networkView.isMine)
+            _Game._PlayerOwn = this;
+        else
+            _Game._PlayerOther = this;
+    }
     void LateUpdate()
     {        
-        
         if (Alive)
         {
             UpdateOther();            
             if (networkView.isMine)
-                UpdateMine();
+                UpdateInput();
 
-            UpdatePhysics();
+            UpdateMove();
             timer.Update();
         }
     }
-
     private void UpdateOther()
     {
         slow -= Time.deltaTime;
-        name = "Player" + "+" + GetId();
+        name = "Player" + "+" + id + "+" + GetId();
     }
-    Vector3 vel2;
-    private void UpdatePhysics()
+    private void UpdateMove()
     {
-        //vel2 = Vector3.Lerp(vel, vel2, .88f);
         controller.SimpleMove(vel);
         vel *= .88f;
-        rot = Quaternion.Lerp(rot, rot2, .2f);
+        rot = Quaternion.Lerp(rot, gunRot, .2f);
         if (vel.magnitude > .5f)
             Fade(run);
         else
             Fade(idle);
         _Loader.WriteVar("Player vel" + vel);
     }
-
-    private void UpdateMine()
+    private void UpdateInput()
     {
         if (timer.TimeElapsed(2000)) //regenerate
             life += 1;
         life = Mathf.Min(life, 100);
         if (life <= 0 && !_Game.CantDie)
-        {
             networkView.RPC("Die", RPCMode.All);            
-        }
+        
         bool stay = punch.enabled || punch2.enabled || punch3.enabled || ShootAnim.enabled || gesture.enabled;
         if (!stay)
             tmLastCombo += Time.deltaTime;
@@ -99,7 +104,7 @@ public class Player : Shared {
         {
             vel = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));            
             vel = _Cam.oldrot * vel.normalized;
-            vel *= 5;
+            vel *= 6;
             if (slow > 0) vel *= .5f;
         }
         else
@@ -108,7 +113,7 @@ public class Player : Shared {
         var v = _Cursor.pos - _PlayerOwn.pos;
         v.y = 0;
         if (vel != Vector3.zero)
-            rot2 = Quaternion.LookRotation(vel);
+            gunRot = Quaternion.LookRotation(vel);
 
         if (Input.GetKeyDown(KeyCode.Space))
             networkView.RPC("Gesture", RPCMode.All);
@@ -135,7 +140,6 @@ public class Player : Shared {
         life = 20;
         SetLayer(LayerMask.NameToLayer("Player"));
     }
-
     [RPC]
     public void Die()
     {
@@ -144,15 +148,11 @@ public class Player : Shared {
         an.CrossFade(death.name);
         SetLayer(LayerMask.NameToLayer("Dead"));
     }
-    [FindAsset("patron")]
-    public GameObject PatronPrefab;
-    [FindTransform("revolver")]
-    public Transform GunPos;
     [RPC]
     private void Shoot()
     {
         an.CrossFade(ShootAnim.name);
-        rot2 = Quaternion.LookRotation(plLook);
+        gunRot = Quaternion.LookRotation(plLook);
         ShootAnim.speed = 0;
         timer.AddMethod(500, delegate
         {
@@ -161,11 +161,11 @@ public class Player : Shared {
                 networkView.RPC("Shoot2", RPCMode.All);
         });
     }
-    float slow;
     [RPC]
     private void Shoot2()
     {
-        Instantiate(PatronPrefab, GunPos.transform.position, rot2);
+        if(networkView.isMine)
+            Network.Instantiate(PatronPrefab, GunPos.transform.position, gunRot, 2);
     }
     [RPC]
     private void Damage(int dmg)
@@ -178,26 +178,30 @@ public class Player : Shared {
     {
         combo = combo % 4;
         int damage = 25;
+        float force = .1f;
         var punch = this.punch;
         if (combo == 2)
         {
+            force = 1f;
             punch = punch2;
             damage = 50;
         }
         if (combo == 3)
         {
+            force = .3f;
             punch = punch3;
             damage = 50;
         }
         if (networkView.isMine)
         {
-            rot2 = Quaternion.LookRotation(plLook);
+            if (plLook != Vector3.zero)
+                gunRot = Quaternion.LookRotation(plLook);
             if (combo == 3)
             {
-                timer.AddMethod(1100, delegate
+                timer.AddMethod(1200, delegate
                 {
                     foreach (Zombie z in _Game.Zombies.Where(a => a != null && Vector3.Distance(a.pos, pos) < 4))
-                        z.networkView.RPC("Damage", RPCMode.All, damage);
+                        z.networkView.RPC("Damage", RPCMode.All, damage, force, id);
                 });
             }
             else
@@ -205,7 +209,7 @@ public class Player : Shared {
                 timer.AddMethod(200, delegate
                 {
                     foreach (Zombie z in trigger.colliders.Where(a => a is Zombie))
-                        z.networkView.RPC("Damage", RPCMode.All, damage);
+                        z.networkView.RPC("Damage", RPCMode.All, damage, force, id);
                 });
             }
         }
@@ -213,10 +217,7 @@ public class Player : Shared {
         punch.speed = 0;
         timer.AddMethod(100, delegate { punch.speed = 1; });
         tmLastCombo = 0;
-
-
     }
-
     private void Combo()
     {        
         if (tmLastCombo < .3f)
@@ -225,13 +226,12 @@ public class Player : Shared {
             combo = 0;
     }
     int combo;
-
     void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (stream.isWriting)
         {
             syncPos = pos;
-            syncRot = rot2;
+            syncRot = gunRot;
             syncVel = controller.velocity;
         }
         stream.Serialize(ref syncPos);
@@ -241,7 +241,7 @@ public class Player : Shared {
         {
             if (syncPos == Vector3.zero) Debug.Log("Sync ErroR");
             pos = syncPos;
-            rot2 = syncRot;
+            gunRot = syncRot;
             vel = syncVel;
         }
     }
@@ -255,4 +255,3 @@ public class Player : Shared {
         }
     }
 }
-  

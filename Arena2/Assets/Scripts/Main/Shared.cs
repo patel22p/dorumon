@@ -5,11 +5,22 @@ using System.Text.RegularExpressions;
 public class Shared : bs
 {
     public bool Alive = true ;
-    
-    public Trigger trigger;
+    internal CharacterController controller;
+    internal Quaternion syncRot;
+    internal Vector3 syncPos;
+    internal GameObject model;
+    public Animation an { get { return model.animation; } }    
+    internal Trigger trigger;
     public Transform[] upperbody;
     public Transform[] downbody;
     public float life = 100;
+    public override void Awake()
+    {
+        trigger = transform.Find("trigger").GetComponent<Trigger>();
+        model = transform.Find("model").gameObject;
+        controller = this.GetComponent<CharacterController>();
+        base.Awake();
+    }
     void Start()
     {
     }
@@ -17,21 +28,8 @@ public class Shared : bs
     {
         return Regex.Match(networkView.viewID.ToString(), @"\d+").Value;
     }
-    [FindTransform(self = true)]
-    public CharacterController controller;
-    public Quaternion syncRot;
-    public Vector3 syncPos;
-
-    [FindTransform]
-    public GameObject model;
-    public Animation an { get { return model.animation; } }
-
     public void Fade(AnimationState s)
     {
         an.CrossFade(s.name);
     }
-
-    public int id { get { return Network.player.GetHashCode(); } }
-
-    
 }

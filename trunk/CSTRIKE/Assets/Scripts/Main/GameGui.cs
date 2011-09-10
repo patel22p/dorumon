@@ -10,12 +10,16 @@ public class GameGui : Bs {
 	
     string ip = "127.0.0.1";
     void OnGUI()
-    {
-        gui.TextField(ip);
-        if (gui.Button("Connect"))
-            Network.Connect(ip, 80);
-        if (gui.Button("Host"))
-            Network.InitializeServer(6, 80, !Network.HavePublicAddress());
-        
+    {    
+        if (!Screen.lockCursor)
+        {
+            gui.TextField(ip);
+            if (gui.Button("Connect"))
+                Network.Connect(ip, port);
+            if (gui.Button("Host"))
+                Network.InitializeServer(6, port, !Network.HavePublicAddress());
+            if (gui.Button("Play Offline"))
+                Screen.lockCursor = true;
+        }        
     }
 }

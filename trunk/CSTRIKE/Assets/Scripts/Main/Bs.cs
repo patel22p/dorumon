@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 public class Bs : Base {
-    public bool IsMine { get { return networkView == null || networkView.isMine; } }
+    public const int port = 5300;
+    public bool IsMine { get { return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine; } }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
     public Vector3 position { get { return tr.position; } set { tr.position = value; } }
@@ -32,11 +33,18 @@ public class Bs : Base {
 
     public void Active(bool value)
     {
-        foreach (Transform a in this.GetComponentInChildren<Transform>())
+        foreach (Transform a in this.GetComponentsInChildren<Transform>())
             a.gameObject.active = false;
         this.gameObject.active = false;
     }
-
+    public void SetLayer(int from,int to)
+    {
+        foreach (Transform a in this.GetComponentsInChildren<Transform>())
+            if (a.gameObject.layer == from)
+                a.gameObject.layer = to;
+        if (gameObject.layer == from)
+            this.gameObject.layer = to;
+    }
     public virtual void Awake()
     {
         //tr = transform;
@@ -46,7 +54,13 @@ public class Bs : Base {
         if (a > 180) return a - 360;
         return a;
     }
-
+    public void CallRPC(string n,RPCMode m)
+    {        
+        if (Network.peerType != NetworkPeerType.Disconnected)
+            networkView.RPC(n, m);
+        else
+            SendMessage(n);
+    }
     protected Vector3 clampAngles(Vector3 a)
     {
         if (a.x > 180) a.x -= 360;

@@ -51,6 +51,8 @@
      <Compile Include="Assets\Scripts\Main\AnimationEvents.cs" />
      <Compile Include="Assets\Scripts\Main\Bs.cs" />
      <Compile Include="Assets\Scripts\Main\Cam.cs" />
+     <Compile Include="Assets\Scripts\Main\Game.cs" />
+     <Compile Include="Assets\Scripts\Main\GameGui.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Multiply Culled.shader" />

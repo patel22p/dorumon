@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 
 public class Bs : Base {
-    internal Transform tr { get { return transform; } }
+    public bool IsMine { get { return networkView == null || networkView.isMine; } }
+    public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
     public Vector3 position { get { return tr.position; } set { tr.position = value; } }
     public Transform parent { get { return tr.parent; } set { tr.parent = value; } }
@@ -22,9 +23,36 @@ public class Bs : Base {
 
     static Cam m_Cam;
     public static Cam _Cam { get { if (m_Cam == null) m_Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return m_Cam; } }
+    static Game m_Game;
+    public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
+    static GameGui m_GameGui;
+    public static GameGui _GameGui { get { if (m_GameGui == null) m_GameGui = (GameGui)MonoBehaviour.FindObjectOfType(typeof(GameGui)); return m_GameGui; } }
+    static Player m_Player;
+    public static Player _Player { get { if (m_Player == null) m_Player = (Player)MonoBehaviour.FindObjectOfType(typeof(Player)); return m_Player; } }
+
+    public void Active(bool value)
+    {
+        foreach (Transform a in this.GetComponentInChildren<Transform>())
+            a.gameObject.active = false;
+        this.gameObject.active = false;
+    }
 
     public virtual void Awake()
     {
         //tr = transform;
+    }
+    protected float clampAngle(float a)
+    {
+        if (a > 180) return a - 360;
+        return a;
+    }
+
+    protected Vector3 clampAngles(Vector3 a)
+    {
+        if (a.x > 180) a.x -= 360;
+        if (a.y > 180) a.y -= 360;
+        if (a.z > 180) a.z -= 360;
+
+        return a;
     }
 }

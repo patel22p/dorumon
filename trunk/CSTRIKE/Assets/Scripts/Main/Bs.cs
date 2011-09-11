@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class Bs : Base {
     public const int port = 5300;
@@ -22,6 +23,8 @@ public class Bs : Base {
     public float lrotz { get { return lrot.eulerAngles.z; } set { var e = lrot.eulerAngles; e.z = value; lrot = Quaternion.Euler(e); } }
     public Quaternion lrot { get { return tr.localRotation; } set { tr.localRotation = value; } }
 
+    //static Transform m_Fx;
+    //public static Transform _Fx { get { if (m_Fx == null) m_Fx = (Transform)FindObjectOfType(; return m_Fx; } }
     static Cam m_Cam;
     public static Cam _Cam { get { if (m_Cam == null) m_Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return m_Cam; } }
     static Game m_Game;
@@ -54,13 +57,30 @@ public class Bs : Base {
         if (a > 180) return a - 360;
         return a;
     }
-    public void CallRPC(string n,RPCMode m)
-    {        
+    public void CallRPC(Action n, RPCMode m)
+    {
         if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n, m);
+            networkView.RPC(n.Method.Name, m);
         else
-            SendMessage(n);
+            n();             
     }
+
+    public void CallRPC<T>(Action<T> n, RPCMode m, T p)
+    {
+        if (Network.peerType != NetworkPeerType.Disconnected)
+            networkView.RPC(n.Method.Name, m, p);
+        else
+            n(p);
+    }
+
+    public void CallRPC<T,T2>(Action<T,T2> n, RPCMode m, T p,T2 p2)
+    {
+        if (Network.peerType != NetworkPeerType.Disconnected)
+            networkView.RPC(n.Method.Name, m, p, p2);
+        else
+            n(p,p2);
+    }
+
     protected Vector3 clampAngles(Vector3 a)
     {
         if (a.x > 180) a.x -= 360;

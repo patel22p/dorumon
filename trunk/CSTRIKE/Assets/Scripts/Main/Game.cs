@@ -6,6 +6,7 @@ public class Game : Bs {
     public enum group { Player }
     public StartUp startUp;
     public GameObject PlayerPrefab;
+    public Transform Fx;
     public override void Awake()
     {
         Debug.Log("Game Awake");                    

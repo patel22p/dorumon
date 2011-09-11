@@ -8,12 +8,21 @@ public class Player : Bs {
     public Transform Hands;
     public Transform UpperBone;
     public Cam Cam;
+    public Transform CamRnd;
     public GameObject MuzzleFlash;
+    public GameObject MuzzleFlash2;
+    public GameObject BulletHolePrefab;    
+    public GameObject sparks;
+    public Texture[] BulletHoleTextures;
     public Texture[] MuzzleFlashTextures;
     private AudioSource aus;
     private CharacterController controller;
-    int left = -65, right = 95;
     Vector3 move;
+    int left = -65, right = 95;
+    public float shootTime = .05f;
+    public float shootBump = 2;
+    float lastShoot;
+    
     
     private AudioClip[] pl_dirt;
     private Animation an { get { return model.animation; } }
@@ -30,8 +39,8 @@ public class Player : Bs {
     public AnimationCurve SpeedAdd;
 
     private Vector3 vel;
-    public float SpeedFactor = 1;
-    public float speedFade = .86f;
+    public float slowDown = 1;
+    
     public float yvel;
     private float grounded;
 
@@ -42,7 +51,7 @@ public class Player : Bs {
         {
             //Cam.Active(false);
             SetLayer(LayerMask.NameToLayer("CamInvisible"), LayerMask.NameToLayer("Default"));
-            SetLayer(LayerMask.NameToLayer("hands"), LayerMask.NameToLayer("CamInvisible"));
+            SetLayer(LayerMask.NameToLayer("EditorInvisible"), LayerMask.NameToLayer("CamInvisible"));
             ActiveCamera(false);
             name = "Player-Remote";
         }
@@ -72,20 +81,9 @@ public class Player : Bs {
         {
             b.AddMixingTransform(UpperBone);
             b.layer = 2;
-            //b.wrapMode = WrapMode.Loop;
-            //b.enabled = true;
         }
-
-        foreach (var b in shoot_blends)
-        {
-            b.AddMixingTransform(UpperBone);
-            b.layer = 4;
-            b.wrapMode = WrapMode.Loop;
-            b.enabled = true;
-        }
-
+     
         blends[5].layer = 1;        
-        shoot_blends[5].layer = 3;        
         jump.layer = 1;
     }
     private void Update()
@@ -98,17 +96,19 @@ public class Player : Bs {
     private void UpdateJump()
     {
         if (controller.isGrounded) grounded = Time.time;
-        if (Time.time - grounded < .1f)
+        if (isGrounded)
         {
             if (jump.weight > 0)
                 jump.weight *= .86f;            
         }
+        slowDown = Mathf.Lerp(slowDown, 1, Time.deltaTime * 2);
     }
     [RPC]
     private void RpcJump()
     {
         customAnim.Play("jumpCustom");
         Fade(jump);
+        vel *= 1.2f;
     }
     
     private void UpdateRotation()
@@ -117,13 +117,18 @@ public class Player : Bs {
         var numpad = new Vector3(
             (Mathf.Clamp(CamxModely.y / -left, -1, 0) + Mathf.Clamp(CamxModely.y / right, 0, 1)),
             -(Mathf.Clamp(CamxModely.x / 45, -1, 0) + Mathf.Clamp(CamxModely.x / 45, 0, 1)));
-        bool shooting= Time.time - lastShoot < shootTime * 2 ;
-        //var blends = (shooting ? this.shoot_blends : this.blends);
-        //foreach (var b in blends)
-        //    b.enabled = false;
-        //foreach (var b in shoot_blends)
-        //    b.enabled = false;
-            //b.weight *= .86f;
+        bool shooting = Time.time - lastShoot < shootTime * 2;
+        CamRnd.localRotation = Quaternion.Slerp(CamRnd.localRotation, Quaternion.identity, Time.deltaTime * 5);
+        foreach (var b in blends)
+        {
+            if (shooting)
+                b.speed = 1;
+            else
+            {
+                b.speed = 0;
+                b.time = 0;
+            }
+        }
         SetWeight(blends[5], 1);
         SetWeight(blends[6], Mathf.Max(0, 1 - Vector3.Distance(numpad, Vector3.left)));        
         SetWeight(blends[4], Mathf.Max(0, 1 - Vector3.Distance(numpad, Vector3.right)));
@@ -171,56 +176,79 @@ public class Player : Bs {
         {
             move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
             Vector3 MouseDelta = Screen.lockCursor ? new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), 0) : Vector3.zero;
-            Cam.rotx += MouseDelta.x;
+            Cam.rotx = Mathf.Clamp(clampAngle(Cam.rotx) + MouseDelta.x, -85, 85);
             if (Input.GetKey(KeyCode.LeftShift))
                 Cam.rotx = 0;
             roty += MouseDelta.y;
             model.lroty = Mathf.Clamp(clampAngle(model.lroty - MouseDelta.y), left, right);
 
             if (Input.GetKeyDown(KeyCode.Space))
-                CallRPC("RpcJump", RPCMode.All);
+                CallRPC(RpcJump, RPCMode.All);
 
             if (Input.GetMouseButton(0) && Time.time - lastShoot > shootTime)
-                CallRPC("RpcShoot", RPCMode.All);
+                CallRPC(RpcShoot, RPCMode.All, Cam.rotx, roty);
         }
     }
-    public float shootTime = .05f;
-    float lastShoot;
+
     [RPC]
-    private void RpcShoot()
+    private void RpcShoot(float rotx,float roty)
     {
+        Cam.rotx = rotx;
+        this.roty = roty;
         lastShoot = Time.time;
         var a = handsShoot.Random();
-        MuzzleFlash.renderer.material.SetTexture("_MainTex", MuzzleFlashTextures.Random());
+        MuzzleFlash.renderer.sharedMaterial.SetTexture("_MainTex", MuzzleFlashTextures.Random());
         MuzzleFlash.animation.Play();
-
+        MuzzleFlash2.GetComponentInChildren<Animation>().Play();
+        Ray ray = Cam.cam.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+        CamRnd.localRotation = Quaternion.Euler(CamRnd.localRotation.eulerAngles + Random.insideUnitSphere + Vector3.left * shootBump);
+        //Debug.DrawRay(ray.origin, ray.direction * 10, Color.yellow);
+        RaycastHit h;
+        if (Physics.Raycast(ray, out h, 1000, 1 << LayerMask.NameToLayer("Level")))
+        {
+            ((GameObject)Instantiate(sparks, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx; ;
+            //BulletHolePrefab.renderer.material.SetTexture("_MainTex", BulletHoleTextures.Random());
+            ((GameObject)Instantiate(BulletHolePrefab, h.point + h.normal * .1f, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
+        }
         a.time=0;
         handsAn.Play(a.name, PlayMode.StopSameLayer);        
     }
-    
+    public float speeadd;
+    public float VelM;
     private void FixedUpdate()
-    {        
-        if (move.magnitude > 0)
+    {
+        if (move.magnitude > 0 && isGrounded)
         {
-            var speeadd = SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move));
-            vel += rot * move * speeadd * SpeedFactor;      
+            speeadd = Mathf.Max(0, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
+            VelM = vel.magnitude;
+            //Debug.Log(controller.velocity.magnitude);
+            //Debug.Log(Vector3.Distance(controller.velocity, rot * move * SpeedAdd.keys.Max(a=>a.value)));
+            vel += rot * move * speeadd * slowDown;      
         }
-        vel *= speedFade;
+        if(isGrounded)
+            vel *= .83f;
         controller.SimpleMove(vel);        
         if(yvel>0f)
             controller.Move(new Vector3(0, yvel, 0));
-        SpeedFactor = Mathf.Lerp(SpeedFactor, 1, .05f);
-
+        
     }
     private void OnControllerColliderHit(ControllerColliderHit hit)
-    {        
-        if (controller.velocity.y < -5)
+    {
+        if (Time.time - grounded > .6f)
         {
-            SpeedFactor = .1f;
-            //Debug.Log(controller.velocity.y);
+            //slowDown = .4f;
+            vel = Vector3.zero;
         }
+        //if (controller.velocity.y < -1)
+        //{
+        //    slowDown = .1f;
+        //    Debug.Log("hit" + controller.velocity.y);
+        //}
         if (controller.velocity.y < -7)
+        {
             customAnim.Play("Hit");
+            slowDown = .1f;
+        }
     }
     public Vector3 syncPos;
     public float syncRotx;
@@ -262,10 +290,7 @@ public class Player : Bs {
     }
     public void SetWeight(AnimationState s,float f)
     {
-        //s.enabled = true;
         an.Blend(s.name, f, 0);        
-        //s.weight = Mathf.Lerp(s.weight, Mathf.Clamp(Mathf.Abs(f), 0, 1), .2f);
-        //s.weight = Mathf.Clamp(Mathf.Abs(f), 0, 1);
     }
     AnimationState[] m_blends;
     AnimationState[] blends
@@ -273,21 +298,11 @@ public class Player : Bs {
         get
         {
             if (m_blends == null)
-                m_blends = new AnimationState[] { an["ak47_blend1"], an["ak47_blend1"], an["ak47_blend2"], an["ak47_blend3"], an["ak47_blend4"], an["ak47_blend5"], an["ak47_blend6"], an["ak47_blend7"], an["ak47_blend8"], an["ak47_blend9"] };
-            return shoot_blends;
+                m_blends = new AnimationState[] { an["ak47_shoot_blend1"], an["ak47_shoot_blend1"], an["ak47_shoot_blend2"], an["ak47_shoot_blend3"], an["ak47_shoot_blend4"], an["ak47_shoot_blend5"], an["ak47_shoot_blend6"], an["ak47_shoot_blend7"], an["ak47_shoot_blend8"], an["ak47_shoot_blend9"] };
+            return m_blends;
         }
     }
 
-    AnimationState[] m_shoot_blends;
-    AnimationState[] shoot_blends
-    {
-        get
-        {
-            if (m_shoot_blends == null)
-                m_shoot_blends = new AnimationState[] { an["ak47_shoot_blend1"], an["ak47_shoot_blend1"], an["ak47_shoot_blend2"], an["ak47_shoot_blend3"], an["ak47_shoot_blend4"], an["ak47_shoot_blend5"], an["ak47_shoot_blend6"], an["ak47_shoot_blend7"], an["ak47_shoot_blend8"], an["ak47_shoot_blend9"] };
-            return m_shoot_blends;
-        }
-    }
 
     AnimationState[] m_handsShoot;
     AnimationState[] handsShoot
@@ -306,6 +321,7 @@ public class Player : Bs {
         transform.GetComponentInChildren<AudioListener>().enabled = enable;
         transform.GetComponentInChildren<Camera>().enabled = enable;
         transform.GetComponentInChildren<GUILayer>().enabled = enable;
-        transform.GetComponentInChildren<BloomAndLensFlares>().enabled = enable;
-    }    
+        //transform.GetComponentInChildren<BloomAndLensFlares>().enabled = enable;
+    }
+    bool isGrounded { get { return Time.time - grounded < .1f; } }
 }

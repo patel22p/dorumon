@@ -24,6 +24,37 @@ public class Tools : Editor{
             m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
         }
     }
+    [MenuItem("RTools/Parent")]
+    static void CreateParent()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var t = Selection.activeTransform;
+        var t2 = new GameObject("Parent").transform;
+        t2.position = t.position;
+        t2.rotation = t.rotation;
+        t2.parent = t.parent;
+        t.parent = t2;
+        t2.name = t.name;
+    }
+
+    [MenuItem("RTools/CopyColor")]
+    static void CopyColor()
+    {
+        Undo.RegisterSceneUndo("rtools");
+        var c = Selection.activeGameObject.guiTexture.color;
+        
+        foreach (var a in Selection.gameObjects)
+        {
+            if(a.guiTexture!=null)
+            a.guiTexture.color = c;
+            if (a.guiText != null)
+            {
+                var mat = (Material)GameObject.FindObjectsOfTypeIncludingAssets(typeof(Material)).FirstOrDefault(b => b.name == "txt");
+                mat.color = c;
+                a.guiText.material = mat;
+            }
+        }
+    }
     [MenuItem("RTools/Clip")]
     static void Clip()
     {

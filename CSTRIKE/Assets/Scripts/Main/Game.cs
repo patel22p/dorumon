@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System;
+using Random = UnityEngine.Random;
 
 public class Game : Bs {
     public enum StartUp { OfflineMode, AutoHost, ShowMenu }
@@ -7,8 +9,16 @@ public class Game : Bs {
     public StartUp startUp;
     public GameObject PlayerPrefab;
     public Transform Fx;
+    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+    public int PlayerScore;
+    public int PlayerDeaths;
+    public int PlayerPing;
+
+    internal float GameTime = TimeSpan.FromMinutes(18).Milliseconds;
+
     public override void Awake()
     {
+        Application.targetFrameRate = 300;
         Debug.Log("Game Awake");                    
     }
 	void Start () {
@@ -28,7 +38,7 @@ public class Game : Bs {
     {
         Debug.Log("Connected");
         _GameGui.enabled = false;
-        Destroy(_Player.gameObject);
+        DestroyImmediate(_Player.gameObject);
         if (PlayerPrefab.networkView == null)
         {
             var nw = PlayerPrefab.AddComponent<NetworkView>();
@@ -38,6 +48,7 @@ public class Game : Bs {
         Network.Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity, (int)group.Player);
     }
 	void Update () {
+        GameTime -= Time.deltaTime;
         if (Input.GetMouseButtonDown(0) && Network.peerType != NetworkPeerType.Disconnected)
             Screen.lockCursor = true;
         if (Input.GetMouseButtonDown(1))
@@ -46,6 +57,8 @@ public class Game : Bs {
             Screen.lockCursor = false;
         if (Input.GetKeyDown(KeyCode.Tab))
             Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+            
 	}
     void OnDisconnectedFromServer(NetworkDisconnection info)
     {
@@ -58,48 +71,10 @@ public class Game : Bs {
         Network.DestroyPlayerObjects(player);
     }
 
-    void OnRenderObject()
-    {
-        LineMaterial.SetPass(0);
-        GL.LoadOrtho();
-        GL.Begin(GL.LINES);
-        GL.Color(Color.green);
-        foreach (var a in list)
-            GL.Vertex(Vector3.one / 2 + new Vector3(a.x / Screen.width, a.y / Screen.height));
-        GL.End();
-    }
+    
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7
-    
-    const float d = 3, len = 5;
-    Vector3[] list = new[]{ 
-            Vector3.left *d, Vector3.left*(d+len),
-            Vector3.up *d, Vector3.up*(d+len),
-            Vector3.right *d, Vector3.right*(d+len),
-            Vector3.down *d, Vector3.down*(d+len)};
-
     void OnServerInitialized() { OnConnected(); }
-    void OnConnectedToServer() { OnConnected(); }
+    void OnConnectedToServer() { OnConnected(); }    
 
-    static Material lineMaterial;
-
-    static Material LineMaterial
-    {
-        get
-        {
-            if (!lineMaterial)
-            {
-                lineMaterial = new Material("Shader \"Lines/Colored Blended\" {" +
-                    "SubShader { Pass { " +
-                    "    Blend SrcAlpha OneMinusSrcAlpha " +
-                    "    ZWrite Off Cull Off Fog { Mode Off } " +
-                    "    BindChannels {" +
-                    "      Bind \"vertex\", vertex Bind \"color\", color }" +
-                    "} } }");
-                lineMaterial.hideFlags = HideFlags.HideAndDontSave;
-                lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
-            }
-            return lineMaterial;
-        }
-    }
 }

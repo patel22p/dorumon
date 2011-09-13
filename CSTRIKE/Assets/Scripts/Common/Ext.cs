@@ -10,6 +10,21 @@ using System.Collections;
 
 public static class Ext
 {
+    public static void SetLayer(this Component th, int to)
+    {
+        foreach (Transform a in th.GetComponentsInChildren<Transform>())
+            a.gameObject.layer = to;
+        th.gameObject.layer = to;
+    }
+    public static  void SetLayer(this Component th, int from, int to)
+    {
+        foreach (Transform a in th.GetComponentsInChildren<Transform>())
+            if (a.gameObject.layer == from)
+                a.gameObject.layer = to;
+        if (th.gameObject.layer == from)
+            th.gameObject.layer = to;
+    }
+
     //public static void SetValue<T, T2>(this List<KeyValuePair<T, T2>> d, T key, T2 value) where T : class
     //{
 

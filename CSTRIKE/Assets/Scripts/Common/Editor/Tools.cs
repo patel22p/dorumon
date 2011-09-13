@@ -24,6 +24,7 @@ public class Tools : Editor{
             m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
         }
     }
+    
     [MenuItem("RTools/Parent")]
     static void CreateParent()
     {

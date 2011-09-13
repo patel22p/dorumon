@@ -4,7 +4,14 @@ using System;
 
 public class Bs : Base {
     public const int port = 5300;
-    public bool IsMine { get { return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine; } }
+    public bool IsMine
+    {
+        get
+        {
+            if (transform.root.tag == "Enemy") return false;
+            return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine;
+        }
+    }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
     public Vector3 position { get { return tr.position; } set { tr.position = value; } }
@@ -25,6 +32,8 @@ public class Bs : Base {
 
     //static Transform m_Fx;
     //public static Transform _Fx { get { if (m_Fx == null) m_Fx = (Transform)FindObjectOfType(; return m_Fx; } }
+    static Hud m_Hud;
+    public static Hud _Hud { get { if (m_Hud == null) m_Hud = (Hud)MonoBehaviour.FindObjectOfType(typeof(Hud)); return m_Hud; } }
     static Cam m_Cam;
     public static Cam _Cam { get { if (m_Cam == null) m_Cam = (Cam)MonoBehaviour.FindObjectOfType(typeof(Cam)); return m_Cam; } }
     static Game m_Game;
@@ -40,14 +49,7 @@ public class Bs : Base {
             a.gameObject.active = false;
         this.gameObject.active = false;
     }
-    public void SetLayer(int from,int to)
-    {
-        foreach (Transform a in this.GetComponentsInChildren<Transform>())
-            if (a.gameObject.layer == from)
-                a.gameObject.layer = to;
-        if (gameObject.layer == from)
-            this.gameObject.layer = to;
-    }
+    
     public virtual void Awake()
     {
         //tr = transform;
@@ -81,6 +83,15 @@ public class Bs : Base {
             n(p,p2);
     }
 
+    public void CallRPC<T, T2, T3>(Action<T, T2, T3> n, RPCMode m, T p, T2 p2, T3 p3)
+    {
+        if (Network.peerType != NetworkPeerType.Disconnected)
+            networkView.RPC(n.Method.Name, m, p, p2,p3);
+        else
+            n(p, p2,p3);
+    }
+
+
     protected Vector3 clampAngles(Vector3 a)
     {
         if (a.x > 180) a.x -= 360;
@@ -89,4 +100,5 @@ public class Bs : Base {
 
         return a;
     }
+    public float tempp = 1;
 }

@@ -69,10 +69,5 @@ public class Tools : Editor{
         var dif = a.position - b.position; // a to b
         b.root.position += dif;        
     }
-    [MenuItem("RTools/PrintGlobalPos")]
-    static void GlobalPos()
-    {
-        foreach (var a in Selection.transforms)
-            a.position.print();
-    }
+    
 }

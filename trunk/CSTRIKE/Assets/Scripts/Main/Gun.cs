@@ -1,15 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using doru;
+using System.Linq;
 
 public class Gun : Bs {
     internal Player pl;
-    public Cam Cam { get { return pl.Cam; } }
     public Transform CamRnd { get { return pl.CamRnd; } }
     Timer timer = new Timer();
     AnimationState[] handsShoot{get{return pl.handsShoot;}}
     public AudioClip[] shootSound;
-
+    public ParticleEmitter Capsules;
+    public ParticleEmitter Capsules2;
     public float shootBump = 1;
     public float shootCursor = 5;
     public float shootTime = .1f;
@@ -18,63 +19,89 @@ public class Gun : Bs {
 	
     internal bool shooting;
 
-    void Update () {
+    public void Update () {
         timer.Update();
         shooting = Time.time - lastShoot < shootTime * 2;
         CamRnd.localRotation = Quaternion.Slerp(CamRnd.localRotation, Quaternion.identity, Time.deltaTime * 2);
         cursorOffset = Mathf.MoveTowards(cursorOffset, 0, Time.deltaTime * 20);
-        if (IsMine)
-        {
-            if (Input.GetMouseButton(0) && Time.time - lastShoot > shootTime)
-                CallRPC(RpcShoot, RPCMode.All, Cam.rotx, pl.roty);
-        }
-	}
+        if (IsMine && Input.GetMouseButton(0) && Time.time - lastShoot > shootTime && Screen.lockCursor)
+            shoot();
+    }
 
-    [RPC]
-    private void RpcShoot(float rotx, float roty)
+    
+    public void shoot()
     {
-        pl.audio.PlayOneShot(shootSound.Random(), .5f);
-        Cam.rotx = rotx;
-        pl.roty = roty;
         lastShoot = Time.time;
-        var a = handsShoot.Random();
-        pl.MuzzleFlash.renderer.material = pl.MuzzleFlashMaterials.Random();
-        pl.MuzzleFlash.animation.Play();
-        pl.MuzzleFlash2.GetComponentInChildren<Animation>().Play();
-        Ray ray = Cam.cam.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+        
+        
+        Ray ray = pl.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
         CamRnd.localRotation = Quaternion.Euler(CamRnd.localRotation.eulerAngles + (Random.insideUnitSphere + Vector3.left) * shootBump);
-        ray.direction += Random.insideUnitSphere * cursorOffset * 0.005f + Random.insideUnitSphere * tempp * pl.controller.velocity.magnitude;
-
+        ray.direction +=
+            (Random.insideUnitSphere * cursorOffset * 0.005f) +
+            (Random.insideUnitSphere * 0.01f * pl.controller.velocity.magnitude) +
+            (Time.time - pl.HitTime < 1f ? Random.insideUnitSphere * .01f : Vector3.zero);
+        
+        CallRPC(RPCShoot, RPCMode.All, ray.origin, ray.direction);
+    }
+    [RPC]
+    private void RPCShoot(Vector3 rayOrg , Vector3 rayDir)
+    {
+        if (!pl.observing)
+        {
+            pl.MuzzleFlash2.GetComponentInChildren<Animation>().Play();
+            Capsules2.Emit();
+        }
+        else
+        {
+            pl.MuzzleFlash.renderer.material = pl.MuzzleFlashMaterials.Random();
+            pl.MuzzleFlash.animation.Play();
+            Capsules.Emit();
+        }
+        Ray ray = new Ray(rayOrg, rayDir);
+        pl.audio.PlayOneShot(shootSound.Random(), pl.observing ? .2f : 1);
         cursorOffset = Mathf.Min(cursorOffset + shootCursor, 15);
-        RaycastHit h;
-        if (Physics.Raycast(ray, out h, 1000, 1 << LayerMask.NameToLayer("Level") | 1 << LayerMask.NameToLayer("Enemy") | 1 << LayerMask.NameToLayer("Dead")))
+
+        foreach (var h in Physics.RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Level") | 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("IgnoreColl")).Reverse()) //note use for
         {
             Player enemy = h.collider.transform.root.GetComponent<Player>();
-            
             if (enemy != null)
-            {
-                CreateBlood(h,ray);
-                ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
-                if (Physics.Raycast(ray, out h, 100, 1 << LayerMask.NameToLayer("Level")))
+            {                
+                if (enemy == pl) continue;
+                if (enemy.team != pl.team)
                 {
-                    GameObject g = (GameObject)Instantiate(pl.Plane, h.point + h.normal * .04f, Quaternion.LookRotation(h.normal));
-                    g.transform.localScale = Vector3.one * 18;
-                    g.renderer.material = pl.BloodDecals.Random();
-                    g.transform.parent = _Game.Fx;
-                }
+                    CreateBlood(h);
+                    ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
+                    RaycastHit h2;
+                    if (Physics.Raycast(ray, out h2, 100, 1 << LayerMask.NameToLayer("Level")))
+                    {
+                        GameObject g = (GameObject)Instantiate(pl.Plane, h2.point + h2.normal * .04f, Quaternion.LookRotation(h2.normal));
+                        g.transform.localScale = Vector3.one * 18;
+                        g.renderer.material = pl.BloodDecals.Random();
+                        g.transform.parent = _Game.Fx;
+                    }
+                    if (enemy.IsMine || Offline && !enemy.dead)
+                    {
 
-                if (h.collider.name == "Bip01 Head")
-                {
-                    enemy.SetLife(0);
-                    enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
-                }
-                else
-                    enemy.SetLife(enemy.Life - 25);                
+                        var angle = Mathf.DeltaAngle(Quaternion.LookRotation(pl.pos - enemy.pos).eulerAngles.y, enemy.rot.eulerAngles.y);
+                        Debug.Log(angle);
+                        if (angle > 45) _Hud.SetPainLeft(1);
+                        if (angle < -45) _Hud.SetPainRight(1);
+
+                        if (h.collider.name == "Bip01 Head")
+                        {
+                            enemy.CallRPC(enemy.SetLife, RPCMode.All, 0, pl.id);
+                            enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
+                        }
+                        else
+                            enemy.CallRPC(enemy.SetLife, RPCMode.All, enemy.Life - 25, pl.id);
+                    }
+                }                
             }
             else if (h.rigidbody != null)
             {
-                CreateBlood(h, ray);
-                timer.AddMethod(delegate { h.rigidbody.AddForceAtPosition(ray.direction * 1000, h.point); });
+                CreateBlood(h);
+                //timer.AddMethod(delegate { });
+                h.rigidbody.AddForceAtPosition(ray.direction * 1000, h.point); 
             }
             else
             {
@@ -84,16 +111,18 @@ public class Gun : Bs {
                 g.transform.parent = _Game.Fx;
                 g.renderer.material = pl.BulletHoleMaterials.Random();
             }
+            break;
         }
+        var a = handsShoot.Random();
         a.time = 0;
         pl.handsAn.Play(a.name, PlayMode.StopSameLayer);
     }
 
-    private void CreateBlood(RaycastHit h,Ray ray)
+    private void CreateBlood(RaycastHit h)
     {
         ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;        
     }
-    void OnRenderObject()
+    public void OnRenderObject()
     {
         if (IsMine)
         {
@@ -129,9 +158,7 @@ public class Gun : Bs {
                     "    ZWrite Off Cull Off Fog { Mode Off } " +
                     "    BindChannels {" +
                     "      Bind \"vertex\", vertex Bind \"color\", color }" +
-                    "} } }");
-                lineMaterial.hideFlags = HideFlags.HideAndDontSave;
-                lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
+                    "} } }") {hideFlags = HideFlags.HideAndDontSave, shader = {hideFlags = HideFlags.HideAndDontSave}};
             }
             return lineMaterial;
         }

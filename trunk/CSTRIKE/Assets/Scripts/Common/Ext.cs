@@ -10,6 +10,27 @@ using System.Collections;
 
 public static class Ext
 {
+    public static T Next<T>(this IEnumerable<T> tt, T t) where T : class
+    {
+
+        T o = null;
+        foreach (var a in tt)
+        {
+            if (o != null && o == t) return a;
+            o = a;
+        }
+        return tt.First();
+    }
+    public static T Prev<T>(this IEnumerable<T> tt, T t) where T : class
+    {
+        T o = null;
+        foreach (var a in tt)
+        {
+            if (o != null && a == t) return o;
+            o = a;
+        }
+        return o;
+    }
     public static void SetLayer(this Component th, int to)
     {
         foreach (Transform a in th.GetComponentsInChildren<Transform>())
@@ -42,11 +63,7 @@ public static class Ext
     {
         return v != 0;
     }
-    public static T print<T>(this T v)
-    {
-        Debug.Log(v);
-        return v;
-    }
+    
     public static int toInt(this bool v)
     {
         return v ? 1 : 0;

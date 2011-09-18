@@ -4,16 +4,9 @@ using System.Collections;
 using UnityEditor;
 public class Tools : Editor{
 
-	// Use this for initialization
-	void Start () {
-	    
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	}
+
     [MenuItem("RTools/SetToon")]
-    static void SetTOon()
+    public static void SetTOon()
     {
         Undo.RegisterSceneUndo("rtools");
         foreach (Material m in Selection.objects)
@@ -26,7 +19,7 @@ public class Tools : Editor{
     }
     
     [MenuItem("RTools/Parent")]
-    static void CreateParent()
+    public static void CreateParent()
     {
         Undo.RegisterSceneUndo("rtools");
         var t = Selection.activeTransform;
@@ -39,7 +32,7 @@ public class Tools : Editor{
     }
 
     [MenuItem("RTools/CopyColor")]
-    static void CopyColor()
+    public static void CopyColor()
     {
         Undo.RegisterSceneUndo("rtools");
         var c = Selection.activeGameObject.guiTexture.color;
@@ -57,7 +50,7 @@ public class Tools : Editor{
         }
     }
     [MenuItem("RTools/Clip")]
-    static void Clip()
+    public static void Clip()
     {
         Undo.RegisterSceneUndo("rtools");
         var a = Selection.transforms[0];

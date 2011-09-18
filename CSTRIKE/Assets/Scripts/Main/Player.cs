@@ -1,25 +1,24 @@
 using UnityEngine;
-public enum Team { Spectators ,Terrorists, CounterTerrorists}
+public enum Team { Spectators, Terrorists, CounterTerrorists }
 public class Player : Bs
 {
     public Team team;
     public int Life = 100;
     public int Shield = 100;
     public int PlayerMoney;
-    public string PlayerName;    
+    public string PlayerName;
     public int PlayerScore;
     public int PlayerDeaths;
     public int PlayerPing;
     public int PlayerFps;
-    public int id;    
-    //public float slowDown = 1;
+    public int id;
     public float HitTime;
     const int left = -65;
     const int right = 95;
     public float yvel;
     private float grounded;
     Vector3 move;
-    
+
     public Vector3 vel;
     public float speeadd;
     public float VelM;
@@ -32,10 +31,11 @@ public class Player : Bs
     public Bs Cam;
     internal Gun gun;
     internal CharacterController controller;
-    public Transform Hands;
+    
     public Transform UpperBone;
     public Transform CamRnd;
     public Transform p_gun;
+    public Transform MiniMapCursor;
     public GameObject Plane;
     public GameObject sparks;
     public GameObject MuzzleFlash;
@@ -48,6 +48,7 @@ public class Player : Bs
     public AudioClip[] dieSound;
     public AudioClip[] headShootSound;
     public AudioClip[] hitSound;
+    public AudioClip[] fallSound;
     public Transform[] RagDoll;
     public Renderer[] playerRenders;
     public Renderer[] gunRenders;
@@ -55,56 +56,43 @@ public class Player : Bs
     private AnimationState idle { get { return an["idle"]; } }
     private AnimationState run { get { return an["run"]; } }
     private AnimationState jump { get { return an["jump"]; } }
-    internal Animation handsAn { get { return Hands.animation; } }
-    private AnimationState handsDraw { get { return handsAn["draw"]; } }
-    private AnimationState handsRun { get { return handsAn["v_run"]; } }
-    private AnimationState handsIdle { get { return handsAn["v_idle"]; } }
+    
     public Animation customAnim { get { return animation; } }
     public AnimationCurve SpeedAdd;
-    private bool PlayerRenderersActive=true;
+    private bool PlayerRenderersActive = true;
     private bool GunRenderersActive = true;
     internal bool observing;
-    
+
     public override void Awake()
     {
-        //renderers = this.GetComponentsInChildren<Renderer>().ToArray();
+        if (IsMine) _Game._Player = this;
         camera.gameObject.active = false;
-        IgnoreAll("IgnoreColl");        
-        if (IsMine)
-            _Game._Player = this;
-        if (IsMine || Offline)
-        {
-            CallRPC(RpcSetupPlayer, RPCMode.All, _Game.playerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team);
+        IgnoreAll("IgnoreColl");
+        if (IsMine || Offline) {
+            CallRPC(RpcSetupPlayer, RPCMode.All, _Loader.playerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team);
             CallRPC(RPCSetPlayerDeaths, RPCMode.All, _Game.PlayerDeaths);
             CallRPC(RPCSetPlayerScore, RPCMode.All, _Game.PlayerScore);
             CallRPC(RPCSetMoney, RPCMode.All, _Game.PlayerMoney);
         }
-        
-        if (team == Team.Spectators)
-        {
-            Disable();
-            return;
-        }
 
+ 
         gun = GetComponentInChildren<Gun>();
         gun.pl = this;
         Debug.Log("Player Awake");
-        if (!IsMine)
-        {            
-            //ActiveCamera(false);
+        if (!IsMine) {
             name = "Player-Remote";
             model.animation.cullingType = AnimationCullingType.BasedOnClipBounds;
         }
-        else
-        {
+        else {
             name = "Player";
             model.animation.cullingType = AnimationCullingType.AlwaysAnimate;
         }
         foreach (var a in GetComponentsInChildren<Rigidbody>())
             a.isKinematic = true;
-
+        if (team == Team.Spectators)
+            CallRPC(Disable, RPCMode.All);
     }
-    
+
     public void OnPlayerConnected(NetworkPlayer player)
     {
         if (!Network.isServer) return;
@@ -112,6 +100,10 @@ public class Player : Bs
         CallRPC(RPCSetPlayerDeaths, player, PlayerDeaths);
         CallRPC(RPCSetPlayerScore, player, PlayerScore);
         CallRPC(RPCSetMoney, player, PlayerMoney);
+        if (dead)
+            CallRPC(Disable, player);
+        else
+            CallRPC(RPCSetLife, player, Life, id);
     }
 
 
@@ -120,18 +112,9 @@ public class Player : Bs
         idle.speed = .5f;
         run.wrapMode = WrapMode.Loop;
         jump.wrapMode = WrapMode.Once;
-        handsRun.wrapMode = WrapMode.Loop;
-        handsIdle.wrapMode = WrapMode.Loop;
-        handsDraw.layer = 1;
-        foreach (var a in handsShoot)
-        {
-            a.layer = 1;
-            a.speed = 2;
-        }
-        handsAn.Play(handsDraw.name);
+        
 
-        foreach (var b in blends)
-        {
+        foreach (var b in blends) {
             b.AddMixingTransform(UpperBone);
             b.layer = 2;
         }
@@ -140,7 +123,7 @@ public class Player : Bs
         jump.layer = 1;
     }
     public void Start()
-    {        
+    {
         InitAnimations();
         controller = GetComponent<CharacterController>();
     }
@@ -151,7 +134,7 @@ public class Player : Bs
             _Game.PlayerMoney = Money;
         this.PlayerMoney = Money;
     }
-    
+
 
     [RPC]
     public void SetTeam(int team)
@@ -162,7 +145,7 @@ public class Player : Bs
     [RPC]
     private void RPCSetPlayerScore(int score)
     {
-        if (IsMine)
+        if(IsMine)
             _Game.PlayerScore = score;
         this.PlayerScore = score;
     }
@@ -175,67 +158,95 @@ public class Player : Bs
     }
 
     [RPC]
-    private void RpcSetupPlayer(string PlayerName, int PlayerID,int team)
-    {
+    private void RpcSetupPlayer(string PlayerName, int PlayerID, int team)
+    {        
         this.id = PlayerID;
         _Game.players[PlayerID] = this;
-        this.PlayerName = PlayerName;        
-        if(!Offline)
+        this.PlayerName = PlayerName;
+        if (!Offline)
             this.team = (Team)team;
     }
     public void Update()
     {
+        if (dead) return;
+        //todo add bomb
+        //fix fall
+        
         UpdateJump();
         UpdateMove();
-        UpdateRotation();        
+        UpdateRotation();
         UpdateInput();
         UpdateOther();
+        
     }
     private void UpdateOther()
     {
-        if (!observing)
-        {
+        if (posy < -20)
+            CallRPC(Disable, RPCMode.All);
+
+        if (_Game.team == Team.Spectators || _Player.dead || team == _Player.team)
+            MiniMapCursor.renderer.enabled = true;
+        else
+            MiniMapCursor.renderer.enabled = false;
+
+        if (!observing) {
             SetGunRenderersActive(false);
             SetPlayerRendererActive(true);
         }
 
-        if (IsMine)
-        {
+        if (IsMine) {
             if (_Game.timer.TimeElapsed(1000))
-                CallRPC(Ping,RPCMode.All, Network.GetLastPing(Network.player),(int)_Game.timer.GetFps());
+                CallRPC(SetFPS, RPCMode.All, (int)_Game.timer.GetFps(), Network.isServer ? -1 : Network.GetLastPing(Network.connections[0])); 
 
             var ray = camera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
             _Hud.PlayerName.text = "";
             foreach (var h in Physics.RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Player")))
-                if (h.transform.root != this.transform)
-                {
+                if (h.transform.root != this.transform) {
                     var pl = h.transform.root.GetComponent<Player>();
                     if (pl != null)
                         _Hud.PlayerName.text = pl.team == team ? ("Ally Life:" + pl.Life) : "Enemy" + " " + pl.PlayerName;
                     break;
                 }
         }
-        if (DebugKey(KeyCode.R) && !IsMine)
+    }
+    public void LateUpdate()
+    {
+        if (dead) return;
+        observing = false;
+    }
+    public void FixedUpdate()
+    {
+        if (dead) return;
+        if (syncUpdated)
+            vel = syncVel;
+
+        if (move.magnitude > 0 && isGrounded)
         {
-            var e = Quaternion.LookRotation(_Player.pos - pos).eulerAngles;
-            CamRotX = e.x;
-            roty = e.y;
-            gun.shoot();
+            speeadd = Mathf.Max(0, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
+            VelM = vel.magnitude;
+            vel += rot * move * speeadd * (Time.time - HitTime < 1 ? .5f : 1);
         }
-        if(_Game.timer.TimeElapsed(1000))
-            observing = false;
+        if (isGrounded)
+            vel *= .83f;
+        controller.SimpleMove(vel);
+
+
+        if (yvel > 0f)
+            controller.Move(new Vector3(0, yvel, 0));
+        if (syncUpdated)
+            controller.Move(syncPos - pos);
+        syncUpdated = false;
     }
     private void UpdateJump()
     {
         if (controller.isGrounded) grounded = Time.time;
         if (isGrounded && jump.weight > 0)
-                jump.weight *= .86f;
+            jump.weight *= .86f;
     }
     private void UpdateRotation()
     {
-        if (!IsMine)
-        {
-            CamRotX = Mathf.LerpAngle(CamRotX ,syncRotx,Time.deltaTime*10);
+        if (!IsMine) {
+            CamRotX = Mathf.LerpAngle(CamRotX, syncRotx, Time.deltaTime * 10);
             roty = Mathf.LerpAngle(roty, syncRoty, Time.deltaTime * 10);
         }
         Vector3 CamxModely = clampAngles(new Vector3(CamRotX, model.lroty, 0));
@@ -244,12 +255,10 @@ public class Player : Bs
             -(Mathf.Clamp(CamxModely.x / 45, -1, 0) + Mathf.Clamp(CamxModely.x / 45, 0, 1)));
 
 
-        foreach (var b in blends)
-        {
+        foreach (var b in blends) {
             if (gun.shooting)
                 b.speed = 1;
-            else
-            {
+            else {
                 b.speed = 0;
                 b.time = 0;
             }
@@ -270,35 +279,32 @@ public class Player : Bs
     private void UpdateMove()
     {
 
-        if (vel.magnitude > .1f)
-        {
+        if (vel.magnitude > .1f) {
             var lookRot = Quaternion.LookRotation(vel);
             float deltaAngle = Mathf.DeltaAngle(lookRot.eulerAngles.y, rot.eulerAngles.y);
-            if (Mathf.Abs(deltaAngle) > 110)
-            {
+            if (Mathf.Abs(deltaAngle) > 110) {
                 model.rot = Quaternion.LookRotation(vel * -1);
                 run.speed = -2f * (vel.magnitude / 5);
             }
-            else
-            {
+            else {
                 model.rot = Quaternion.LookRotation(vel);
                 run.speed = 2f * (vel.magnitude / 5);
             }
 
             Fade(run);
-            handsAn.CrossFade(handsRun.name);
+            gun.AnimateRun();
         }
-        else
-        {
+        else {
             Fade(idle);
-            handsAn.CrossFade(handsIdle.name);
+            gun.AnimateIdle();
         }
 
     }
     private void UpdateInput()
     {
-        if (IsMine)
-        {
+        if (IsMine) {
+            if (DebugKey(KeyCode.H))
+                CallRPC(RPCSetLife, RPCMode.All, 0, id);
             move = GetMove();
             Vector3 MouseDelta = GetMouse();
             CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
@@ -314,12 +320,12 @@ public class Player : Bs
         }
     }
     [RPC]
-    private void Ping(int ping,int fps)
+    private void SetFPS(int fps,int ping)
     {
         PlayerFps = fps;
         PlayerPing = ping;
     }
-
+    
     [RPC]
     private void RpcJump()
     {
@@ -329,92 +335,77 @@ public class Player : Bs
         vel *= 1.2f;
     }
     [RPC]
-    public void SetLife(int life, int player)
+    public void RPCSetLife(int life, int player)
     {
         Life = life;
         HitTime = Time.time;
         audio.PlayOneShot(hitSound.Random(), 3);
-        if (Life <= 0)
-        {            
+        if (Life <= 0) {
             Die(player);
         }
     }
     private void Die(int player)
     {
-        //todo add score
         Debug.Log("Die" + PlayerName);
-        
         audio.PlayOneShot(dieSound.Random(), 6);
         Destroy(model.animation);
-        networkView.enabled = false;
+        //networkView.enabled = false;
         foreach (var a in model.GetComponentsInChildren<Rigidbody>())
             a.isKinematic = false;
         model.SetLayer(LayerMask.NameToLayer("Player"));
         _Hud.KillText.text += _Game.players[player].PlayerName + " Killed " + PlayerName + "\r\n";
         _Hud.KillText.animation.Play();
         model.parent = _Game.Fx;
-        Disable();
-        if (IsMine)
-        {
-            _ObsCamera.KilledByTime = Time.time;
+        Destroy(p_gun.gameObject);
+        Destroy(model.gameObject, 5);
+        if (IsMine) {
+            //_ObsCamera.KilledByTime = Time.time;
             _ObsCamera.pl = _Game.players[player];
             var pl = _Game.players[player];
-            _ObsCamera.pos = pos - (Quaternion.LookRotation(pos - pl.pos) * Vector3.back * Temp);
+            //_ObsCamera.pos = pos - (Quaternion.LookRotation(pos - pl.pos) * Vector3.back * 1);
             if (pl != this)
-                pl.RPCSetPlayerScore(pl.PlayerScore + 1);
+                CallRPC(RPCSetPlayerScore, RPCMode.All, pl.PlayerScore + 1);
+            CallRPC(RPCSetPlayerDeaths, RPCMode.All, pl.PlayerDeaths + 1);
             _ObsCamera.camMode = ObsCamera.CamMode.thirdPerson;
         }
+        Disable();
     }
+    [RPC]
     private void Disable()
     {
         Debug.Log("Disable" + name);
+        Life = 0;
         SetPlayerRendererActive(true);
-        enabled = false;
-        Destroy(p_gun.gameObject);
+        dead = true;        
         foreach (Transform t in transform)
             Destroy(t.gameObject);
-        transform.parent = _Game.Fx;
+        transform.parent = null;
         foreach (var c in this.GetComponents<Component>())
             if (c != this && !(c is Transform) && !(c is NetworkView)) Destroy(c);
         name += " - Dead";
     }
-    public void FixedUpdate()
-    {
-
-        if (syncUpdated)
-            vel = syncVel;
-
-        if (move.magnitude > 0 && isGrounded)
-        {
-            speeadd = Mathf.Max(0, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
-            VelM = vel.magnitude;
-            vel += rot * move * speeadd * (Time.time - HitTime < 1 ? .5f : 1);
-        }
-        if (isGrounded)
-            vel *= .83f;
-        controller.SimpleMove(vel);
-
-        
-        if (yvel > 0f)
-            controller.Move(new Vector3(0, yvel, 0));        
-        if(syncUpdated)
-            controller.Move(syncPos - pos);
-        syncUpdated = false;
-    }
+    
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        //todo -life if hit
         if (Time.time - grounded > .6f)
             vel = Vector3.zero;
-        if (controller.velocity.y < -7)
+
+        if (controller.velocity.y < -Temp && IsMine)
         {
+            CallRPC(RPCSetLife, RPCMode.All, Life + (int) (controller.velocity.y*Temp2), id);
+            audio.PlayOneShot(fallSound.Random());
+        }
+        if (controller.velocity.y < -7) {
             customAnim.Play("Hit");
             HitTime = Time.time;
+            Debug.Log(hit.moveLength);            
         }
     }
     public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-        if (stream.isWriting)
-        {
+        if (dead) return;
+        if (stream.isWriting) {
             syncPos = pos;
             syncRotx = CamRotX;
             syncRoty = roty;
@@ -429,7 +420,7 @@ public class Player : Bs
 
     }
     bool syncUpdated;
-#region props
+    #region props
     public void WalkSound()
     {
         if (isGrounded)
@@ -453,23 +444,15 @@ public class Player : Bs
             return m_blends;
         }
     }
-    AnimationState[] m_handsShoot;
-    internal AnimationState[] handsShoot
-    {
-        get
-        {
-            if (m_handsShoot == null)
-                m_handsShoot = new[] { handsAn["shoot1"], handsAn["shoot2"], handsAn["shoot3"] };
-            return m_handsShoot;
-        }
-    }
+    
     bool isGrounded { get { return Time.time - grounded < .1f; } }
-    public bool dead { get { return !enabled; } }
-    public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }    
+    public bool dead;
+    
+    
+    public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }
     public void SetPlayerRendererActive(bool value)
     {
-        if (PlayerRenderersActive != value)
-        {
+        if (PlayerRenderersActive != value) {
             PlayerRenderersActive = value;
             foreach (var r in playerRenders)
                 r.enabled = value;
@@ -477,12 +460,12 @@ public class Player : Bs
     }
     public void SetGunRenderersActive(bool value)
     {
-        if (GunRenderersActive != value)
-        {
+        if (GunRenderersActive != value) {
             GunRenderersActive = value;
             foreach (var r in gunRenders)
                 r.enabled = value;
         }
     }
-#endregion
+    #endregion
+    public new bool enabled;
 }

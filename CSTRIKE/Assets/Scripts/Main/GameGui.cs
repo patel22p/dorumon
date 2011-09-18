@@ -2,28 +2,26 @@ using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
 
-public class GameGui : Bs {
+public class GameGui : Bs
+{
 
-	void Start () {
-	
-	}
-	
-    string ip = "127.0.0.1";
-    
-    void OnGUI()
-    {    
-        if (!Screen.lockCursor)
-        {
-            _Game.playerName = gui.TextField(_Game.playerName);
-            ip=gui.TextField(ip);
-            if (gui.Button("Connect"))
-                Network.Connect(ip, port);
-            if (gui.Button("Host"))
-                Network.InitializeServer(6, port, !Network.HavePublicAddress());
-            if (gui.Button("Play Offline"))
-                Screen.lockCursor = true;
-            
-        }        
-
+    public override void Awake()
+    {
+        enabled = false;
+        base.Awake();
+    }
+    public void OnGUI()
+    {
+        if (Screen.lockCursor) return;
+        var c = new Vector3(Screen.width, Screen.height) / 2f;
+        var s = new Vector3(200, 100) / 2f;
+        var v1 = c - s;
+        var v2 = c + s;
+        GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), SelectTeam, "Game Menu");
+    }
+    void SelectTeam(int id)
+    {
+        if (gui.Button("Disconnect"))
+            Network.Disconnect();
     }
 }

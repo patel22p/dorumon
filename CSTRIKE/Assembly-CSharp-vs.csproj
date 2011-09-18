@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_4_0;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_4_0;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -48,15 +48,17 @@
      <Compile Include="Assets\Scripts\Common\Ext.cs" />
      <Compile Include="Assets\Scripts\Common\MeshCombineUtility.cs" />
      <Compile Include="Assets\Scripts\Common\Timer.cs" />
-     <Compile Include="Assets\Scripts\GUI\ConnectionGui.cs" />
-     <Compile Include="Assets\Scripts\GUI\Hud.cs" />
-     <Compile Include="Assets\Scripts\GUI\TeamSelectGui.cs" />
      <Compile Include="Assets\Scripts\Main\AnimationEvents.cs" />
      <Compile Include="Assets\Scripts\Main\Bs.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
+     <Compile Include="Assets\Scripts\Main\GameGui.cs" />
      <Compile Include="Assets\Scripts\Main\Gun.cs" />
+     <Compile Include="Assets\Scripts\Main\Hud.cs" />
+     <Compile Include="Assets\Scripts\Main\Loader.cs" />
+     <Compile Include="Assets\Scripts\Main\LoaderGui.cs" />
      <Compile Include="Assets\Scripts\Main\ObsCamera.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
+     <Compile Include="Assets\Scripts\Main\TeamSelectGui.cs" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Multiply Culled.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\NoiseEffectShaderRGB.shader" />
@@ -79,6 +81,7 @@
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ContrastComposite.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_Antialiasing\FXAAPreset3.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\FisheyeShader.shader" />
+     <None Include="Assets\Standard Assets\Toon Shading\Sources\Shaders\Toony-BasicOutline1.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\Contrast Stretch\Apply.shader" />
      <None Include="Assets\Standard Assets\Skyboxes\ skybox info.txt" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\frag_ao.cginc" />

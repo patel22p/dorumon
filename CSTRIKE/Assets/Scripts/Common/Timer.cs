@@ -71,18 +71,16 @@ namespace doru
             if (_MilisecondsElapsed > _Milisecconds || _Milisecconds == 0) return true;
             if (miliseconds % _Milisecconds < _oldTime % _Milisecconds)
                 return true;
-            else
-                return false;
+            return false;
         } //if seconds elapsed from last Update() call this function will be called
-        public void AddMethod(Action _Action2)
+        public void AddMethod(Action _Action2){AddMethod(-1, _Action2, null,true);}
+        public void AddMethod(Func<bool> func, Action _Action2) { AddMethod(-1, _Action2, func,true); }
+        public void AddMethod(int _Miliseconds, Action _Action2) { AddMethod(_Miliseconds, _Action2, null,true); }
+        public void AddMethod(int _Miliseconds, Action _Action2, Func<bool> func,bool nw)
         {
-            AddMethod(-1, _Action2, null);
-        }
-        public void AddMethod(Func<bool> func, Action _Action2) { AddMethod(-1, _Action2, func); }
-        public void AddMethod(int _Miliseconds, Action _Action2) { AddMethod(_Miliseconds, _Action2, null); }
-        public void AddMethod(int _Miliseconds, Action _Action2, Func<bool> func)
-        {
-            CA ca = _List.FirstOrDefault(a => a._Action2 == _Action2);
+            CA ca = null;
+            if (!nw)
+                ca = _List.FirstOrDefault(a => a._Action2 == _Action2);
             if (ca == null)
             {
                 ca = new CA();

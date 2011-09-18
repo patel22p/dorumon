@@ -13,6 +13,7 @@ public class ObsCamera : Bs
     public bool obsHack;
     public void LateUpdate()
     {
+        //todo add 3nd camera
         if (DebugKey(KeyCode.O))
             obsHack = !obsHack;
         //if (Time.time - KilledByTime < 5 && pl != null) {
@@ -88,9 +89,10 @@ public class ObsCamera : Bs
     private void SetRenderers(Player pl)
     {
         //fix
-        //pl.observing = true;
-        //pl.SetGunRenderersActive(true);
-        //pl.SetPlayerRendererActive(false);
+        pl.observing = true;
+        pl.SetGunRenderersActive(true);
+        pl.SetPlayerRendererActive(false);
+        
     }
     public static int Clamp2(int a, int max)
     {

@@ -17,6 +17,7 @@ public class Tools : Editor{
             m.shader = Shader.Find("Toon/Basic Outline");
             m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
             m.SetFloat("_Outline", .002f);
+            m.SetColor("_Color",Color.white);
         }
     }
     

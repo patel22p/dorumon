@@ -20,6 +20,7 @@ public class Loader : Bs
 
     public override void Awake()
     {
+
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1) {
             Debug.Log("Destroyed Loader Dub");
             DestroyImmediate(this.gameObject);

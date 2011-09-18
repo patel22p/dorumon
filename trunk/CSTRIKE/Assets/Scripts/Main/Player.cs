@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using System.Collections.Generic;
 public enum Team { Spectators, Terrorists, CounterTerrorists }
 public class Player : Bs
 {
@@ -19,7 +20,11 @@ public class Player : Bs
     public Bs model;    
     public Bs Cam;
 
-    public GameObject SecondModel;    
+    public int skin;
+    public Transform[] TerrorSkins;
+    public Transform[] CTerrorSkins;
+    public Transform Skins;
+    public Transform smdImport;
     public Transform UpperBone;
     public Transform CamRnd;
     public Transform p_gun;
@@ -40,6 +45,7 @@ public class Player : Bs
     public Transform[] RagDoll;
     public Renderer[] playerRenders;
     public Renderer[] gunRenders;
+    Renderer[] SkinRenderers = new Renderer[] { };
     private Animation an { get { return model.animation; } }
     private AnimationState idle { get { return an["idle"]; } }
     private AnimationState run { get { return an["run"]; } }
@@ -71,15 +77,21 @@ public class Player : Bs
     public override void Awake()
     {
         if (IsMine) _Game._Player = this;
+        foreach (var a in Skins.gameObject.GetComponentsInChildren<Renderer>())
+            a.enabled = false;
+
+        //Skins.SetActive(false);
+
         camera.gameObject.active = false;
         IgnoreAll("IgnoreColl");
         if (IsMine || Offline) {
-            CallRPC(RpcSetupPlayer, RPCMode.All, _Loader.playerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team);
+            CallRPC(RpcSetupPlayer, RPCMode.All, _Loader.playerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team,_Game.PlayerSkin);
+            
             CallRPC(RPCSetPlayerDeaths, RPCMode.All, _Game.PlayerDeaths);
             CallRPC(RPCSetPlayerScore, RPCMode.All, _Game.PlayerScore);
             CallRPC(RPCSetMoney, RPCMode.All, _Game.PlayerMoney);
         }
-
+        smdImport.renderer.enabled = false;
  
         gun = GetComponentInChildren<Gun>();
         gun.pl = this;
@@ -101,7 +113,7 @@ public class Player : Bs
     public void OnPlayerConnected(NetworkPlayer player)
     {
         if (!Network.isServer) return;
-        CallRPC(RpcSetupPlayer, player, PlayerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team);
+        CallRPC(RpcSetupPlayer, player, PlayerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team,_Game.PlayerSkin);
         CallRPC(RPCSetPlayerDeaths, player, PlayerDeaths);
         CallRPC(RPCSetPlayerScore, player, PlayerScore);
         CallRPC(RPCSetMoney, player, PlayerMoney);
@@ -128,28 +140,12 @@ public class Player : Bs
         jump.layer = 1;
     }
     public void Start()
-    {
-        ChangeModel();
-
+    {                
         InitAnimations();
         controller = GetComponent<CharacterController>();
     }
+    
 
-    private void ChangeModel()
-    {
-        var skin = ((GameObject)Instantiate(SecondModel, model.pos, model.rot)).transform;
-        foreach (Transform a in ToCopy)
-        {
-            a.parent = skin.GetTransforms().FirstOrDefault(b => b.name == a.parent.name);
-            a.position = Vector3.zero;
-            a.rotation = Quaternion.identity;
-        }
-        foreach (Transform b in model.transform)
-            Destroy(b.gameObject);
-        foreach (Transform c in skin)
-            c.parent = model.transform;
-
-    }
 
     [RPC]
     private void RPCSetMoney(int Money)
@@ -182,8 +178,9 @@ public class Player : Bs
     }
 
     [RPC]
-    private void RpcSetupPlayer(string PlayerName, int PlayerID, int team)
-    {        
+    private void RpcSetupPlayer(string PlayerName, int PlayerID, int team, int skin)
+    {
+        this.skin = skin;
         this.id = PlayerID;
         _Game.players[PlayerID] = this;
         this.PlayerName = PlayerName;
@@ -199,7 +196,39 @@ public class Player : Bs
         UpdateRotation();
         UpdateInput();
         UpdateOther();
-        
+        UpdateSkin();
+    }
+    private void UpdateSkin()
+    {
+        if (skinBones == null)
+        {
+            foreach (var a in Skins.gameObject.GetComponentsInChildren<Renderer>())
+                a.enabled = false;
+
+            skinBones = new Dictionary<Transform, Transform>();
+            var t = (team == Team.Terrorists ? TerrorSkins : CTerrorSkins)[skin];
+            foreach (Transform t2 in t)
+                FillSkinBones(t2.name, t2, model.transform);
+            SkinRenderers = t.GetComponentsInChildren<Renderer>();
+            foreach (var a in SkinRenderers)
+                a.enabled = true;
+
+        }
+        foreach (var a in skinBones)
+        {
+            a.Key.position = a.Value.position;
+            a.Key.rotation = a.Value.rotation;
+        }
+    }
+    Dictionary<Transform, Transform> skinBones;
+    private void FillSkinBones(string path, Transform to, Transform from)
+    {
+        var a = from.Find(path);
+        if (a == null)
+            return;
+        skinBones[to] = a;        
+        foreach (Transform t2 in to)
+            FillSkinBones(path + "/" + t2.name, t2, from);
     }
     private void UpdateOther()
     {
@@ -377,7 +406,7 @@ public class Player : Bs
         foreach (var a in model.GetComponentsInChildren<Rigidbody>())
             a.isKinematic = false;
         model.SetLayer(LayerMask.NameToLayer("Player"));
-
+        //fix death
         _Game.timer.AddMethod(10000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
         _Hud.KillText.text += _Game.players[player].PlayerName + " Killed " + PlayerName + "\r\n";
         model.parent = _Game.Fx;
@@ -474,11 +503,14 @@ public class Player : Bs
     
     
     public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }
+
     public void SetPlayerRendererActive(bool value)
     {
         if (PlayerRenderersActive != value) {
             PlayerRenderersActive = value;
             foreach (var r in playerRenders)
+                r.enabled = value;
+            foreach (var r in SkinRenderers)
                 r.enabled = value;
         }
     }
@@ -488,6 +520,7 @@ public class Player : Bs
             GunRenderersActive = value;
             foreach (var r in gunRenders)
                 r.enabled = value;
+            
         }
     }
     #endregion

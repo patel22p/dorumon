@@ -15,6 +15,7 @@ public class Game : Bs
     public enum StartUp { AutoHost, Offline }
     public StartUp startUp;
     public Team team = Team.Spectators;
+    public int PlayerSkin;
     public enum group { Player }
     public Player[] players = new Player[36];
     public ObsCamera Obs;
@@ -48,14 +49,11 @@ public class Game : Bs
         Debug.Log("Game Awake");
         
         if (!Offline)
-        {            
             OnConnected();
-        }
         _LoaderGui.enabled = false;        
     }
     public void Start()
     {
-        //MiniMapCamera.enabled= true;
         timer.AddMethod(5000, delegate
         {
             MiniMapCamera.enabled= false;

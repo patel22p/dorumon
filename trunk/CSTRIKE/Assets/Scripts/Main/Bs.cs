@@ -149,6 +149,13 @@ public class Bs : Base
         else
             n(p, p2, p3, p4);
     }
+    public void CallRPC<T, T2, T3, T4>(Action<T, T2, T3, T4> n, NetworkPlayer m, T p, T2 p2, T3 p3, T4 p4)
+    {
+        if (Network.peerType != NetworkPeerType.Disconnected)
+            networkView.RPC(n.Method.Name, m, p, p2, p3, p4);
+        else
+            n(p, p2, p3, p4);
+    }
     public void CallRPC<T, T2, T3, T4, T5>(Action<T, T2, T3, T4, T5> n, RPCMode m, T p, T2 p2, T3 p3, T4 p4, T5 p5)
     {
         if (Network.peerType != NetworkPeerType.Disconnected)

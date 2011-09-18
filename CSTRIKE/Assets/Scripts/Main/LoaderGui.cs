@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using gui = UnityEngine.GUILayout;
 
 public class LoaderGui : Bs
@@ -19,8 +19,7 @@ public class LoaderGui : Bs
     }
     
     public void OnGUI()
-    {
-        //todo map select
+    {        
         var c = new Vector3(Screen.width, Screen.height) / 2f;
         var s = new Vector3(200, 400) / 2f;
         var v1 = c - s;
@@ -34,10 +33,18 @@ public class LoaderGui : Bs
         {
             if (gui.Button("<<Back"))
                 SelectMap = false;
-            foreach (var a in _Loader.maps)
-                if (gui.Button(a))
-                    Host(a);
+
+            foreach (var map in _Loader.maps)
+            {
+                int p = GetLevelLoad(map);
+                if (gui.Button(map + (p < 100 ? (" " + p + "%") : "")))
+                    if (p == 100)
+                        Host(map);
+                    else
+                        print("Map Not Loaded yet");
+            }
         }
+
         else
         {
             if (Screen.lockCursor) return;
@@ -54,15 +61,32 @@ public class LoaderGui : Bs
                 Refresh();
             gui.EndHorizontal();
             gui.Label(label);
+
             foreach (HostData host in MasterServer.PollHostList())
-                if (gui.Button("Join to " + host.gameName + (host.useNat ? "(NAT)" : "")))
+            {
+                int p = GetLevelLoad(host.comment);
+                if (gui.Button("Join to " + host.gameName +
+                    (host.useNat ? "(NAT)" : "") +
+                    (p < 100 ? (" " + p + "%") : "")))
                 {
-                    Print("Trying Connect to " + host.gameName);
-                    var er = Network.Connect(host);
-                    if (er != NetworkConnectionError.NoError)
-                        Print(er + "");
+                    if (p == 100)
+                    {
+                        Print("Trying Connect to " + host.gameName);
+                        var er = Network.Connect(host);
+                        if (er != NetworkConnectionError.NoError)
+                            Print(er + "");
+                    }
+                    else
+                        print("Map Not Loaded yet");
+
                 }
+            }
         }
+    }
+
+    private int GetLevelLoad(string a)
+    {        
+        return (int)(Application.GetStreamProgressForLevel(a)*100);
     }
 
     private void Host(string mapName)
@@ -70,7 +94,7 @@ public class LoaderGui : Bs
         Print("Loading Map");
         SelectMap = false;
         Network.InitializeServer(6, port, !Network.HavePublicAddress());
-        MasterServer.RegisterHost(csgame, _Loader.playerName + "'s game");
+        MasterServer.RegisterHost(csgame, _Loader.playerName + "'s game",mapName);
         _Loader.LoadLevel(mapName);
     }
 

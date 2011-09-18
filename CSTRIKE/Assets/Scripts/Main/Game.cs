@@ -10,10 +10,10 @@ using doru;
 
 public class Game : Bs
 {
-    public Timer timer = new Timer();
+    public new Player _Player;
+    internal Timer timer = new Timer();
     public enum StartUp { AutoHost, Offline }
     public StartUp startUp;
-    public new Player _Player;
     public Team team = Team.Spectators;
     public enum group { Player }
     public Player[] players = new Player[36];
@@ -46,8 +46,11 @@ public class Game : Bs
     public override void Awake()
     {
         Debug.Log("Game Awake");
+        
         if (!Offline)
+        {            
             OnConnected();
+        }
         _LoaderGui.enabled = false;        
     }
     public void Start()
@@ -84,7 +87,6 @@ public class Game : Bs
                     chatInput.text = chatInput.text.Substring(0, chatInput.text.Length - 1);
                 else if (c == "\n"[0] || c == "\r"[0])
                 {
-
                     CallRPC(RPCChat, RPCMode.All, _Loader.playerName + ": " + chatInput.text.Substring(4));
                     chatInput.enabled = false;
                     Screen.lockCursor = true;
@@ -101,10 +103,12 @@ public class Game : Bs
    
     }
 
+    
+
     [RPC]
     private void RPCChat(string s)
     {
-        timer.AddMethod(5000, delegate { chatOutput.text = string.Join("\r\n", chatOutput.text.Split("\r\n").Skip(1).ToArray()); });
+        timer.AddMethod(5000, delegate { chatOutput.text = RemoveFirstLine(chatOutput.text); });
         chatOutput.text += s + "\r\n";
     }
 
@@ -178,7 +182,17 @@ public class Game : Bs
         Debug.Log(s);
         _Hud.PrintPopup(s);
     }
+    public void OnLevelWasLoaded(int level)
+    {
+        
+        if (_Game != null)
+            foreach (Player p in Object.FindObjectsOfType(typeof(Player)))
+                DestroyImmediate(p.gameObject);
 
+        Debug.Log(name + " Level Loaded " + level);
+        Network.isMessageQueueRunning = true;
+        Network.SetSendingEnabled(0, true);
+    }
     
     private void DrawScoreBoard()
     {

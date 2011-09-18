@@ -5,6 +5,7 @@ using UnityEditor;
 public class Tools : Editor{
 
 
+    
     [MenuItem("RTools/SetToon")]
     public static void SetTOon()
     {
@@ -15,6 +16,7 @@ public class Tools : Editor{
             //m.shader = Shader.Find("Diffuse");
             m.shader = Shader.Find("Toon/Basic Outline");
             m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
+            m.SetFloat("_Outline", .002f);
         }
     }
     

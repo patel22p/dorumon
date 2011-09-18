@@ -1,22 +1,12 @@
+using System.Linq;
 using UnityEngine;
 public enum Team { Spectators, Terrorists, CounterTerrorists }
 public class Player : Bs
 {
-    public Team team;
-    public int Life = 100;
-    public int Shield = 100;
-    public int PlayerMoney;
-    public string PlayerName;
-    public int PlayerScore;
-    public int PlayerDeaths;
-    public int PlayerPing;
-    public int PlayerFps;
-    public int id;
-    public float HitTime;
-    const int left = -65;
-    const int right = 95;
-    public float yvel;
-    private float grounded;
+
+    public new Camera camera;
+    internal Gun gun;
+    internal CharacterController controller;    
     Vector3 move;
 
     public Vector3 vel;
@@ -26,12 +16,10 @@ public class Player : Bs
     public float syncRotx;
     public float syncRoty;
     public Vector3 syncVel;
-    public Bs model;
-    public new Camera camera;
+    public Bs model;    
     public Bs Cam;
-    internal Gun gun;
-    internal CharacterController controller;
-    
+
+    public GameObject SecondModel;    
     public Transform UpperBone;
     public Transform CamRnd;
     public Transform p_gun;
@@ -59,6 +47,23 @@ public class Player : Bs
     
     public Animation customAnim { get { return animation; } }
     public AnimationCurve SpeedAdd;
+
+    public Team team;
+    public int Life = 100;
+    public int Shield = 100;
+    public int PlayerMoney;
+    public string PlayerName;
+    public int PlayerScore;
+    public int PlayerDeaths;
+    public int PlayerPing;
+    public int PlayerFps;
+    public int id;
+    public float HitTime;
+    const int left = -65;
+    const int right = 95;
+    public float yvel;
+    private float grounded;
+
     private bool PlayerRenderersActive = true;
     private bool GunRenderersActive = true;
     internal bool observing;
@@ -124,9 +129,28 @@ public class Player : Bs
     }
     public void Start()
     {
+        ChangeModel();
+
         InitAnimations();
         controller = GetComponent<CharacterController>();
     }
+
+    private void ChangeModel()
+    {
+        var skin = ((GameObject)Instantiate(SecondModel, model.pos, model.rot)).transform;
+        foreach (Transform a in ToCopy)
+        {
+            a.parent = skin.GetTransforms().FirstOrDefault(b => b.name == a.parent.name);
+            a.position = Vector3.zero;
+            a.rotation = Quaternion.identity;
+        }
+        foreach (Transform b in model.transform)
+            Destroy(b.gameObject);
+        foreach (Transform c in skin)
+            c.parent = model.transform;
+
+    }
+
     [RPC]
     private void RPCSetMoney(int Money)
     {
@@ -170,8 +194,6 @@ public class Player : Bs
     {
         if (dead) return;
         //todo add bomb
-        //fix fall
-        
         UpdateJump();
         UpdateMove();
         UpdateRotation();
@@ -196,14 +218,14 @@ public class Player : Bs
 
         if (IsMine) {
             if (_Game.timer.TimeElapsed(1000))
-                CallRPC(SetFPS, RPCMode.All, (int)_Game.timer.GetFps(), Network.isServer ? -1 : Network.GetLastPing(Network.connections[0])); 
+                CallRPC(SetFPS, RPCMode.All, (int)_Game.timer.GetFps(), (Network.isServer || Offline) ? -1 : Network.GetLastPing(Network.connections[0])); 
 
             var ray = camera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
             _Hud.PlayerName.text = "";
             foreach (var h in Physics.RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Player")))
                 if (h.transform.root != this.transform) {
                     var pl = h.transform.root.GetComponent<Player>();
-                    if (pl != null)
+                    if (pl != null && pl.team == team)
                         _Hud.PlayerName.text = pl.team == team ? ("Ally Life:" + pl.Life) : "Enemy" + " " + pl.PlayerName;
                     break;
                 }
@@ -346,6 +368,8 @@ public class Player : Bs
     }
     private void Die(int player)
     {
+        
+        
         Debug.Log("Die" + PlayerName);
         audio.PlayOneShot(dieSound.Random(), 6);
         Destroy(model.animation);
@@ -353,8 +377,9 @@ public class Player : Bs
         foreach (var a in model.GetComponentsInChildren<Rigidbody>())
             a.isKinematic = false;
         model.SetLayer(LayerMask.NameToLayer("Player"));
+
+        _Game.timer.AddMethod(10000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
         _Hud.KillText.text += _Game.players[player].PlayerName + " Killed " + PlayerName + "\r\n";
-        _Hud.KillText.animation.Play();
         model.parent = _Game.Fx;
         Destroy(p_gun.gameObject);
         Destroy(model.gameObject, 5);
@@ -387,7 +412,6 @@ public class Player : Bs
     
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        //todo -life if hit
         if (Time.time - grounded > .6f)
             vel = Vector3.zero;
 

@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Linq;
 using doru;
 using UnityEngine;
+using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class Gun : Bs
 {
@@ -89,6 +92,16 @@ public class Gun : Bs
             (Time.time - pl.HitTime < 1f ? Random.insideUnitSphere * .01f : Vector3.zero);
         CallRPC(RPCShoot, RPCMode.All, ray.origin, ray.direction);
     }
+    private IEnumerable<RaycastHit> RaycastAll(Ray ray, int dist, int layer)
+    {
+        RaycastHit h;
+        while (Physics.Raycast(ray, out h, dist, layer))
+        {
+            ray.origin = h.point - h.normal * .1f;
+            yield return h;
+        }
+    }
+
     [RPC]
     private void RPCShoot(Vector3 rayOrg, Vector3 rayDir)
     {
@@ -103,57 +116,69 @@ public class Gun : Bs
             Capsules.Emit();
         }
         Ray ray = new Ray(rayOrg, rayDir);
+        float WallScore=0;
         pl.audio.PlayOneShot(shootSound.Random(), pl.observing ? .2f : 1);
         cursorOffset = Mathf.Min(cursorOffset + shootCursor, 15);
-        //bug shoot inverce
-        foreach (var h in Physics.RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Level") | 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("IgnoreColl")).Reverse()) //note use for
+        
+        foreach (var h in RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Level") | 1 << LayerMask.NameToLayer("Player") | 1 << LayerMask.NameToLayer("IgnoreColl"))) 
         {
             Player enemy = h.collider.transform.root.GetComponent<Player>();
-            if (enemy != null) {
+            if (enemy != null)
+            {
                 if (enemy == pl) continue;
-                if (enemy.team != pl.team) {
+                if (enemy.team != pl.team)
+                {
                     CreateBlood(h);
                     ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
                     RaycastHit h2;
-                    if (Physics.Raycast(ray, out h2, 100, 1 << LayerMask.NameToLayer("Level"))) {
+                    if (Physics.Raycast(ray, out h2, 100, 1 << LayerMask.NameToLayer("Level")))
+                    {
                         GameObject g = (GameObject)Instantiate(pl.Plane, h2.point + h2.normal * .04f, Quaternion.LookRotation(h2.normal));
                         g.transform.localScale = Vector3.one * 18;
                         g.renderer.material = pl.BloodDecals.Random();
                         g.transform.parent = _Game.Fx;
                     }
-                    if (enemy.IsMine || Offline && !enemy.dead) {
+                    if (enemy.IsMine || Offline && !enemy.dead)
+                    {
 
                         var angle = Mathf.DeltaAngle(Quaternion.LookRotation(pl.pos - enemy.pos).eulerAngles.y, enemy.rot.eulerAngles.y);
                         if (angle > 45) _Hud.SetPainRight(1);
-                        if (angle < -45) _Hud.SetPainLeft(1); 
+                        if (angle < -45) _Hud.SetPainLeft(1);
 
-                        if (h.collider.name == "Bip01 Head") {
+                        if (h.collider.name == "Bip01 Head")
+                        {
                             enemy.CallRPC(enemy.RPCSetLife, RPCMode.All, 0, pl.id);
                             enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
                         }
                         else
                             enemy.CallRPC(enemy.RPCSetLife, RPCMode.All, enemy.Life - 25, pl.id);
-                    }
+                    }                    
                 }
             }
-            else if (h.rigidbody != null) {
-                CreateBlood(h);
-                //timer.AddMethod(delegate { });
+            else if (h.rigidbody != null)
+            {
+                CreateBlood(h);                
                 h.rigidbody.AddForceAtPosition(ray.direction * 1000, h.point);
             }
-            else {
+            else
+            {
                 ((GameObject)Instantiate(pl.sparks, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
                 var g = (GameObject)Instantiate(pl.Plane, h.point + h.normal * .04f, Quaternion.LookRotation(h.normal));
                 g.transform.localScale = Vector3.one * 1f;
                 g.transform.parent = _Game.Fx;
                 g.renderer.material = pl.BulletHoleMaterials.Random();
             }
-            break;
+            WallScore++;
+            if(WallScore>1)
+                break;
         }
         var a = handsShoot.Random();
         a.time = 0;
         handsAn.Play(a.name, PlayMode.StopSameLayer);
     }
+
+    
+
     private void CreateBlood(RaycastHit h)
     {
         ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;

@@ -5,9 +5,10 @@ using System.Text.RegularExpressions;
 
 public delegate void Action<T1, T2, T3, T4, T5>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5);
 public delegate void Action<T1, T2, T3, T4, T5, T6>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
-public class Bs : Base {
-    
-    public const int port = 5300;
+public class Bs : Base
+{
+
+    public const int port = 5301;
     public bool IsMine
     {
         get
@@ -39,14 +40,18 @@ public class Bs : Base {
     //static Transform m_Fx;
     //public static Transform _Fx { get { if (m_Fx == null) m_Fx = (Transform)FindObjectOfType(; return m_Fx; } }
     public static ObsCamera _ObsCamera { get { return _Game.Obs; } }
-    static TeamSelectGui  m_TeamSelectGui ;
-    public static TeamSelectGui  _TeamSelectGui  { get { if (m_TeamSelectGui  == null) m_TeamSelectGui  = (TeamSelectGui )MonoBehaviour.FindObjectOfType(typeof(TeamSelectGui )); return m_TeamSelectGui ; } }
+    static TeamSelectGui m_TeamSelectGui;
+    public static TeamSelectGui _TeamSelectGui { get { if (m_TeamSelectGui == null) m_TeamSelectGui = (TeamSelectGui)MonoBehaviour.FindObjectOfType(typeof(TeamSelectGui)); return m_TeamSelectGui; } }
     static Hud m_Hud;
-    public static Hud _Hud { get { if (m_Hud == null) m_Hud = (Hud)MonoBehaviour.FindObjectOfType(typeof(Hud)); return m_Hud; } }    
+    public static Hud _Hud { get { if (m_Hud == null) m_Hud = (Hud)MonoBehaviour.FindObjectOfType(typeof(Hud)); return m_Hud; } }
     static Game m_Game;
     public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
-    static ConnectionGui m_GameGui;
-    public static ConnectionGui _GameGui { get { if (m_GameGui == null) m_GameGui = (ConnectionGui)MonoBehaviour.FindObjectOfType(typeof(ConnectionGui)); return m_GameGui; } }
+    static GameGui m_GameGui;
+    public static GameGui _GameGui { get { if (m_GameGui == null) m_GameGui = (GameGui)MonoBehaviour.FindObjectOfType(typeof(GameGui)); return m_GameGui; } }
+    static Loader m_Loader;
+    public static Loader _Loader { get { if (m_Loader == null) m_Loader = (Loader)MonoBehaviour.FindObjectOfType(typeof(Loader)); return m_Loader; } }
+    static LoaderGui m_LoaderGui;
+    public static LoaderGui _LoaderGui { get { if (m_LoaderGui == null) m_LoaderGui = (LoaderGui)MonoBehaviour.FindObjectOfType(typeof(LoaderGui)); return m_LoaderGui; } }
     static Player m_Player;
     public static Player _Player { get { return _Game._Player; } }
     public static Vector3 GetMove()
@@ -109,8 +114,9 @@ public class Bs : Base {
     }
     public void CallRPC<T, T2>(Action<T, T2> n, RPCMode m, T p, T2 p2)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
+        if (Network.peerType != NetworkPeerType.Disconnected) {
             networkView.RPC(n.Method.Name, m, p, p2);
+        }
         else
             n(p, p2);
     }
@@ -182,5 +188,6 @@ public class Bs : Base {
     }
 
     public float Temp = 1;
+    public float Temp2 = 1;
 
 }

@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
@@ -186,7 +187,10 @@ public class Bs : Base
         return false;
 
     }
-
+    public string RemoveFirstLine(string s)
+    {
+        return string.Join("\r\n", s.Split("\r\n").Skip(1).ToArray());
+    }
     public float Temp = 1;
     public float Temp2 = 1;
 

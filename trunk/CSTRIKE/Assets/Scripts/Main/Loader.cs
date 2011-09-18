@@ -21,6 +21,7 @@ public class Loader : Bs
     public override void Awake()
     {
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1) {
+            Debug.Log("Destroyed Loader Dub");
             DestroyImmediate(this.gameObject);
             return;
         }
@@ -53,12 +54,7 @@ public class Loader : Bs
         Network.RemoveRPCsInGroup(1);
         networkView.RPC("RPCLoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
     }
-    public void OnLevelWasLoaded(int level)
-    {
-        Debug.Log("Level Loaded "+name);
-        Network.isMessageQueueRunning = true;
-        Network.SetSendingEnabled(0, true);
-    }
+   
     [RPC]
     public IEnumerator RPCLoadLevel(string level, int levelPrefix)
     {

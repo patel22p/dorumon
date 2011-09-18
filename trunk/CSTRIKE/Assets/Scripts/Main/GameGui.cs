@@ -21,6 +21,11 @@ public class GameGui : Bs
     }
     void SelectTeam(int id)
     {
+        if (gui.Button("Close"))
+        {
+            enabled = false;
+            Screen.lockCursor = true;
+        }
         if (gui.Button("Disconnect"))
             Network.Disconnect();
     }

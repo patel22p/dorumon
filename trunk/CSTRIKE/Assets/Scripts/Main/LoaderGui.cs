@@ -8,13 +8,9 @@ public class LoaderGui : Bs
     string ip = "127.0.0.1";
     string label = "";
     public override void Awake()
-    {
-        if (Application.loadedLevel != 0)
-        {
-            enabled = false;
-            return;
-        }
-        Refresh();
+    {   
+        if(!isEditor)
+            Refresh();
         base.Awake();
     }
     

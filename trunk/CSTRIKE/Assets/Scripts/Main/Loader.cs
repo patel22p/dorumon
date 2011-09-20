@@ -15,19 +15,27 @@ public class Loader : Bs
     int fps;
     Timer timer = new Timer();
     public string[] maps;
-
-    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+    internal bool DebugLevel;
+    string NickNameEditor = "Editor" + new System.Random().Next(99);
+    internal string playerName { get { return isEditor ? NickNameEditor : PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
 
     public override void Awake()
     {
-
-        if (Object.FindObjectsOfType(typeof(Loader)).Length > 1) {
+        if (Object.FindObjectsOfType(typeof(Loader)).Length > 1)
+        {
             Debug.Log("Destroyed Loader Dub");
             DestroyImmediate(this.gameObject);
             return;
         }
-        Application.RegisterLogCallback(onLog);
         Debug.Log("Loader Awake");
+        if (Application.loadedLevel != 0)
+        {
+            Debug.Log("DebugLevelMode");
+            DebugLevel = true;
+            enabled = false;
+            return;
+        }
+        Application.RegisterLogCallback(onLog);
         networkView.group = 1;
         DontDestroyOnLoad(transform.root);
         base.Awake();

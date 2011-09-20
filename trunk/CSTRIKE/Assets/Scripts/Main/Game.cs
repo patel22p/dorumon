@@ -10,9 +10,10 @@ using doru;
 
 public class Game : Bs
 {
-    public new Player _Player;
-    internal Timer timer = new Timer();
     public enum StartUp { AutoHost, Offline }
+    public bool autoTeam;
+    internal new Player _Player;
+    internal Timer timer = new Timer();
     public StartUp startUp;
     public Team team = Team.Spectators;
     public int PlayerSkin;
@@ -47,6 +48,7 @@ public class Game : Bs
     public override void Awake()
     {
         Debug.Log("Game Awake");
+        if (!isEditor) team = Team.Spectators;
         
         if (!Offline)
             OnConnected();
@@ -54,11 +56,7 @@ public class Game : Bs
     }
     public void Start()
     {
-        timer.AddMethod(5000, delegate
-        {
-            MiniMapCamera.enabled= false;
-        });
-
+        timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });
         if (startUp == StartUp.AutoHost && Offline)
         {
             if (Network.InitializeServer(6, port, false) != NetworkConnectionError.NoError)
@@ -69,11 +67,11 @@ public class Game : Bs
     
     public void Update()
     {        
-        //todo select model
         UpdateChat();
         if (Network.isServer && timer.TimeElapsed(2000))
             CheckForWins();
         UpdateOther();
+        timer.Update();
     }
 
     private void UpdateChat()
@@ -106,12 +104,13 @@ public class Game : Bs
     [RPC]
     private void RPCChat(string s)
     {
-        timer.AddMethod(5000, delegate { chatOutput.text = RemoveFirstLine(chatOutput.text); });
+        timer.AddMethod(15000, delegate { chatOutput.text = RemoveFirstLine(chatOutput.text); });
         chatOutput.text += s + "\r\n";
     }
 
     private void UpdateOther()
     {
+      
         GameTime -= Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -121,7 +120,10 @@ public class Game : Bs
         _Hud.ScoreBoard.text = "";
         if (Input.GetKey(KeyCode.Tab))
             DrawScoreBoard();
-        if (Input.GetKeyDown(KeyCode.Escape))
+        
+        if (Input.GetKeyDown(KeyCode.Backslash))
+            Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetKeyDown(KeyCode.Escape) && !isEditor)
         {
             _GameGui.enabled = !_GameGui.enabled;
             Screen.lockCursor = !_GameGui.enabled;
@@ -131,9 +133,7 @@ public class Game : Bs
             if (Time.time - mouseClickTime < .5f)
                 Screen.lockCursor = true;
             mouseClickTime = Time.time;
-        }        
-
-        timer.Update();
+        }                
     }
 
     private void CheckForWins()
@@ -182,12 +182,9 @@ public class Game : Bs
     }
     public void OnLevelWasLoaded(int level)
     {
-        
-        if (_Game != null)
-            foreach (Player p in Object.FindObjectsOfType(typeof(Player)))
-                DestroyImmediate(p.gameObject);
-
         Debug.Log(name + " Level Loaded " + level);
+        foreach (Player p in Object.FindObjectsOfType(typeof(Player)))
+            DestroyImmediate(p.gameObject);
         Network.isMessageQueueRunning = true;
         Network.SetSendingEnabled(0, true);
     }
@@ -252,6 +249,12 @@ public class Game : Bs
     {
         var r = Random.onUnitSphere;
         r.y = 0;
+        if (_Player != null)
+        {
+            Network.RemoveRPCs(_Player.networkView.viewID);
+            Network.Destroy(_Player.gameObject);
+        }
+
         if (Offline)
             Instantiate(PlayerPrefab);
         else
@@ -269,7 +272,10 @@ public class Game : Bs
     }
     void OnConnected()
     {
-        Debug.Log("Connected " + name);
+        Debug.Log("Connected " + name + _Loader.DebugLevel);
+
+        //if (_Loader.DebugLevel)
+        //    OnLevelWasLoaded(1);
         CreatePlayer();
         _TeamSelectGui.enabled = true;
     }
@@ -281,7 +287,7 @@ public class Game : Bs
     internal void OnTeamSelected()
     {
         if (_Player != null && !_Player.dead)
-            _Player.CallRPC(_Player.RPCSetLife, RPCMode.All, 0, _Player.id); 
+            _Player.CallRPC(_Player.SetLife, RPCMode.All, 0, _Player.id); 
 
         if (!GameStarted)        
             CreatePlayer();

@@ -1,30 +1,21 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 public enum Team { Spectators, Terrorists, CounterTerrorists }
 public class Player : Bs
 {
 
     public new Camera camera;
     internal Gun gun;
-    internal CharacterController controller;    
-    Vector3 move;
+    internal CharacterController controller;
+    public Team team;
 
-    public Vector3 vel;
-    public float speeadd;
-    public float VelM;
-    public Vector3 syncPos;
-    public float syncRotx;
-    public float syncRoty;
-    public Vector3 syncVel;
-    public Bs model;    
-    public Bs Cam;
-
-    public int skin;
     public Transform[] TerrorSkins;
     public Transform[] CTerrorSkins;
-    public Transform Skins;
-    public Transform smdImport;
+    public Bs model;
+    public Bs Cam;
     public Transform UpperBone;
     public Transform CamRnd;
     public Transform p_gun;
@@ -43,59 +34,61 @@ public class Player : Bs
     public AudioClip[] hitSound;
     public AudioClip[] fallSound;
     public Transform[] RagDoll;
-    public Renderer[] playerRenders;
+    public List<Renderer> playerRenders= new List<Renderer>();
     public Renderer[] gunRenders;
     Renderer[] SkinRenderers = new Renderer[] { };
     private Animation an { get { return model.animation; } }
     private AnimationState idle { get { return an["idle"]; } }
     private AnimationState run { get { return an["run"]; } }
     private AnimationState jump { get { return an["jump"]; } }
-    
     public Animation customAnim { get { return animation; } }
     public AnimationCurve SpeedAdd;
-
-    public Team team;
+    public Vector3 vel;
+    Vector3 move;
+    public Vector3 syncPos;
+    public Vector3 syncVel;
+    public Vector3 syncMove;
+    public int left = -65;
+    public int right = 95;
+    public string PlayerName;
     public int Life = 100;
     public int Shield = 100;
     public int PlayerMoney;
-    public string PlayerName;
     public int PlayerScore;
     public int PlayerDeaths;
     public int PlayerPing;
     public int PlayerFps;
     public int id;
     public float HitTime;
-    const int left = -65;
-    const int right = 95;
     public float yvel;
     private float grounded;
-
+    public float speeadd;
+    public float VelM;
+    public float syncRotx;
+    public float syncRoty;
+    bool syncUpdated;
     private bool PlayerRenderersActive = true;
     private bool GunRenderersActive = true;
     internal bool observing;
+    public int skin;
 
+    //todo draw calls
     public override void Awake()
     {
+        Debug.Log("Player Awake");
+        
         if (IsMine) _Game._Player = this;
-        foreach (var a in Skins.gameObject.GetComponentsInChildren<Renderer>())
-            a.enabled = false;
-
-        //Skins.SetActive(false);
-
         camera.gameObject.active = false;
         IgnoreAll("IgnoreColl");
         if (IsMine || Offline) {
             CallRPC(RpcSetupPlayer, RPCMode.All, _Loader.playerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team,_Game.PlayerSkin);
-            
-            CallRPC(RPCSetPlayerDeaths, RPCMode.All, _Game.PlayerDeaths);
-            CallRPC(RPCSetPlayerScore, RPCMode.All, _Game.PlayerScore);
-            CallRPC(RPCSetMoney, RPCMode.All, _Game.PlayerMoney);
+            CallRPC(SetPlayerDeaths, RPCMode.All, _Game.PlayerDeaths);
+            CallRPC(SetPlayerScore, RPCMode.All, _Game.PlayerScore);
+            CallRPC(SetMoney, RPCMode.All, _Game.PlayerMoney);
         }
-        smdImport.renderer.enabled = false;
  
         gun = GetComponentInChildren<Gun>();
         gun.pl = this;
-        Debug.Log("Player Awake");
         if (!IsMine) {
             name = "Player-Remote";
             model.animation.cullingType = AnimationCullingType.BasedOnClipBounds;
@@ -108,19 +101,50 @@ public class Player : Bs
             a.isKinematic = true;
         if (team == Team.Spectators)
             CallRPC(Disable, RPCMode.All);
+
+        
+        
     }
 
+    private void LoadSkin()
+    {
+        
+        var nwModelPrefab = (team == Team.CounterTerrorists ? CTerrorSkins : TerrorSkins)[this.skin];
+        var nwModel = ((Transform)Instantiate(nwModelPrefab, model.pos, model.rot));
+        foreach (var a in nwModel.GetComponentsInChildren<Renderer>())
+            playerRenders.Add(a);
+
+        List<Transform> last = new List<Transform>();
+        foreach (var a in nwModel.transform.Find("Bip01").GetTransforms().Reverse().ToArray())
+        {
+            var t = model.transform.GetTransforms().FirstOrDefault(b => b.name == a.name);
+            last.Add(a);
+            if (t != null) 
+            {
+                foreach (var b in last)
+                {
+                    b.parent = t;
+                    b.localRotation = Quaternion.identity;
+                    b.localPosition = Vector3.zero;
+                }
+                last.Clear();
+            }
+        }
+        Destroy(model.transform.Find("smdimport").gameObject);
+        nwModel.Find("smdimport").parent = model.transform;
+        Destroy(nwModel.gameObject);
+    }
     public void OnPlayerConnected(NetworkPlayer player)
     {
         if (!Network.isServer) return;
         CallRPC(RpcSetupPlayer, player, PlayerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team,_Game.PlayerSkin);
-        CallRPC(RPCSetPlayerDeaths, player, PlayerDeaths);
-        CallRPC(RPCSetPlayerScore, player, PlayerScore);
-        CallRPC(RPCSetMoney, player, PlayerMoney);
+        CallRPC(SetPlayerDeaths, player, PlayerDeaths);
+        CallRPC(SetPlayerScore, player, PlayerScore);
+        CallRPC(SetMoney, player, PlayerMoney);
         if (dead)
             CallRPC(Disable, player);
         else
-            CallRPC(RPCSetLife, player, Life, id);
+            CallRPC(SetLife, player, Life, id);
     }
 
 
@@ -144,48 +168,42 @@ public class Player : Bs
         InitAnimations();
         controller = GetComponent<CharacterController>();
     }
-    
-
-
     [RPC]
-    private void RPCSetMoney(int Money)
+    private void SetMoney(int Money)
     {
         if (IsMine)
             _Game.PlayerMoney = Money;
         this.PlayerMoney = Money;
     }
-
-
     [RPC]
     public void SetTeam(int team)
     {
         this.team = (Team)team;
     }
-
     [RPC]
-    private void RPCSetPlayerScore(int score)
+    private void SetPlayerScore(int score)
     {
         if(IsMine)
             _Game.PlayerScore = score;
         this.PlayerScore = score;
     }
     [RPC]
-    private void RPCSetPlayerDeaths(int PlayerDeaths)
+    private void SetPlayerDeaths(int PlayerDeaths)
     {
         if (IsMine)
             _Game.PlayerDeaths = PlayerDeaths;
         this.PlayerDeaths = PlayerDeaths;
     }
-
     [RPC]
     private void RpcSetupPlayer(string PlayerName, int PlayerID, int team, int skin)
     {
         this.skin = skin;
         this.id = PlayerID;
-        _Game.players[PlayerID] = this;
+        _Game.players[PlayerID] = this; 
         this.PlayerName = PlayerName;
         if (!Offline)
             this.team = (Team)team;
+        LoadSkin();
     }
     public void Update()
     {
@@ -196,39 +214,6 @@ public class Player : Bs
         UpdateRotation();
         UpdateInput();
         UpdateOther();
-        UpdateSkin();
-    }
-    private void UpdateSkin()
-    {
-        if (skinBones == null)
-        {
-            foreach (var a in Skins.gameObject.GetComponentsInChildren<Renderer>())
-                a.enabled = false;
-
-            skinBones = new Dictionary<Transform, Transform>();
-            var t = (team == Team.Terrorists ? TerrorSkins : CTerrorSkins)[skin];
-            foreach (Transform t2 in t)
-                FillSkinBones(t2.name, t2, model.transform);
-            SkinRenderers = t.GetComponentsInChildren<Renderer>();
-            foreach (var a in SkinRenderers)
-                a.enabled = true;
-
-        }
-        foreach (var a in skinBones)
-        {
-            a.Key.position = a.Value.position;
-            a.Key.rotation = a.Value.rotation;
-        }
-    }
-    Dictionary<Transform, Transform> skinBones;
-    private void FillSkinBones(string path, Transform to, Transform from)
-    {
-        var a = from.Find(path);
-        if (a == null)
-            return;
-        skinBones[to] = a;        
-        foreach (Transform t2 in to)
-            FillSkinBones(path + "/" + t2.name, t2, from);
     }
     private void UpdateOther()
     {
@@ -269,7 +254,10 @@ public class Player : Bs
     {
         if (dead) return;
         if (syncUpdated)
+        {
             vel = syncVel;
+            move = syncMove;
+        }
 
         if (move.magnitude > 0 && isGrounded)
         {
@@ -298,7 +286,9 @@ public class Player : Bs
     {
         if (!IsMine) {
             CamRotX = Mathf.LerpAngle(CamRotX, syncRotx, Time.deltaTime * 10);
-            roty = Mathf.LerpAngle(roty, syncRoty, Time.deltaTime * 10);
+            var nwroty = Mathf.LerpAngle(roty, syncRoty, Time.deltaTime * 10);
+            var d = nwroty - roty;
+            Rotate(d);
         }
         Vector3 CamxModely = clampAngles(new Vector3(CamRotX, model.lroty, 0));
         var numpad = new Vector3(
@@ -327,6 +317,9 @@ public class Player : Bs
         Debug.DrawRay(pos, rot * Vector3.forward);
         Debug.DrawRay(pos, model.rot * Vector3.forward, Color.red);
     }
+
+    
+
     private void UpdateMove()
     {
 
@@ -355,20 +348,31 @@ public class Player : Bs
     {
         if (IsMine) {
             if (DebugKey(KeyCode.H))
-                CallRPC(RPCSetLife, RPCMode.All, 0, id);
+                CallRPC(SetLife, RPCMode.All, 0, id);
             move = GetMove();
             Vector3 MouseDelta = GetMouse();
+            if (_ObsCamera.camMode == ObsCamera.CamMode.thirdPerson2)
+            {
+                Ray ray = _ObsCamera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 1000))
+                {
+                    var hitRot = Quaternion.LookRotation(hit.point - camera.transform.position).eulerAngles;
+                    var CamerRot = camera.transform.eulerAngles;                    
+                    MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, hitRot.x), Mathf.DeltaAngle(CamerRot.y, hitRot.y), 0);
+                }
+            }
+            
             CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
-            //if (Input.GetKey(KeyCode.LeftShift))
-            //    CamRotX = 0;
-            roty += MouseDelta.y;
-            model.lroty = Mathf.Clamp(clampAngle(model.lroty - MouseDelta.y), left, right);
-
+            Rotate(MouseDelta.y);
             if (Input.GetKeyDown(KeyCode.Space))
-                CallRPC(RpcJump, RPCMode.All);
-
-
+                CallRPC(Jump, RPCMode.All);
         }
+    }
+    private void Rotate(float d)
+    {
+        roty += d;
+        model.lroty = Mathf.Clamp(clampAngle(model.lroty - d), left, right);
     }
     [RPC]
     private void SetFPS(int fps,int ping)
@@ -376,9 +380,8 @@ public class Player : Bs
         PlayerFps = fps;
         PlayerPing = ping;
     }
-    
     [RPC]
-    private void RpcJump()
+    private void Jump()
     {
         customAnim.Play("jumpCustom");
         jump.time = 0;
@@ -386,7 +389,7 @@ public class Player : Bs
         vel *= 1.2f;
     }
     [RPC]
-    public void RPCSetLife(int life, int player)
+    public void SetLife(int life, int player)
     {
         Life = life;
         HitTime = Time.time;
@@ -397,29 +400,23 @@ public class Player : Bs
     }
     private void Die(int player)
     {
-        
-        
         Debug.Log("Die" + PlayerName);
+        var pl = _Game.players[player];
         audio.PlayOneShot(dieSound.Random(), 6);
         Destroy(model.animation);
-        //networkView.enabled = false;
         foreach (var a in model.GetComponentsInChildren<Rigidbody>())
             a.isKinematic = false;
         model.SetLayer(LayerMask.NameToLayer("Player"));
-        //fix death
-        _Game.timer.AddMethod(10000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
-        _Hud.KillText.text += _Game.players[player].PlayerName + " Killed " + PlayerName + "\r\n";
+        _Game.timer.AddMethod(15000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
+        _Hud.KillText.text += pl.PlayerName + " Killed " + PlayerName + "\r\n";
         model.parent = _Game.Fx;
         Destroy(p_gun.gameObject);
         Destroy(model.gameObject, 5);
         if (IsMine) {
-            //_ObsCamera.KilledByTime = Time.time;
-            _ObsCamera.pl = _Game.players[player];
-            var pl = _Game.players[player];
-            //_ObsCamera.pos = pos - (Quaternion.LookRotation(pos - pl.pos) * Vector3.back * 1);
+            _ObsCamera.pl = pl;            
             if (pl != this)
-                CallRPC(RPCSetPlayerScore, RPCMode.All, pl.PlayerScore + 1);
-            CallRPC(RPCSetPlayerDeaths, RPCMode.All, pl.PlayerDeaths + 1);
+                pl.CallRPC(SetPlayerScore, RPCMode.All, pl.PlayerScore + 1);
+            CallRPC(SetPlayerDeaths, RPCMode.All, PlayerDeaths + 1);
             _ObsCamera.camMode = ObsCamera.CamMode.thirdPerson;
         }
         Disable();
@@ -444,17 +441,17 @@ public class Player : Bs
         if (Time.time - grounded > .6f)
             vel = Vector3.zero;
 
-        if (controller.velocity.y < -Temp && IsMine)
+        if (controller.velocity.y < -8.3f && IsMine)
         {
-            CallRPC(RPCSetLife, RPCMode.All, Life + (int) (controller.velocity.y*Temp2), id);
+            CallRPC(SetLife, RPCMode.All, Life + (int) (controller.velocity.y*3), id);
             audio.PlayOneShot(fallSound.Random());
         }
         if (controller.velocity.y < -7) {
             customAnim.Play("Hit");
-            HitTime = Time.time;
-            Debug.Log(hit.moveLength);            
+            HitTime = Time.time;            
         }
     }
+    
     public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (dead) return;
@@ -463,16 +460,18 @@ public class Player : Bs
             syncRotx = CamRotX;
             syncRoty = roty;
             syncVel = vel;
+            syncMove = move;
         }
         stream.Serialize(ref syncPos);
         stream.Serialize(ref syncRotx);
         stream.Serialize(ref syncRoty);
         stream.Serialize(ref syncVel);
+        stream.Serialize(ref syncMove);
         if (stream.isReading)
             syncUpdated = true;
 
     }
-    bool syncUpdated;
+    
     #region props
     public void WalkSound()
     {
@@ -524,5 +523,6 @@ public class Player : Bs
         }
     }
     #endregion
-    public new bool enabled;
+    
 }
+

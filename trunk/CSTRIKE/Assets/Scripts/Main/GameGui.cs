@@ -12,7 +12,8 @@ public class GameGui : Bs
     }
     public void OnGUI()
     {
-        if (Screen.lockCursor) return;
+        if (Screen.lockCursor) enabled = false;
+
         var c = new Vector3(Screen.width, Screen.height) / 2f;
         var s = new Vector3(200, 100) / 2f;
         var v1 = c - s;

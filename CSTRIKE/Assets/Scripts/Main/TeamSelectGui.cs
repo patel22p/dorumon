@@ -1,13 +1,14 @@
 using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
+using System;
 
 public class TeamSelectGui : Bs
 {
 
     public void OnGUI()
     {
-        if (Screen.lockCursor) return;
+        if (Screen.lockCursor) enabled = false;
         var c = new Vector3(Screen.width, Screen.height) / 2f;
         var s = new Vector3(200, 200) / 2f;
         var v1 = c - s;
@@ -26,7 +27,7 @@ public class TeamSelectGui : Bs
             var skins = (_Game.team == Team.CounterTerrorists ? p.CTerrorSkins : p.TerrorSkins);
             for (int i = 0; i < skins.Length; i++)
             {
-                if (gui.Button(skins[i].name))
+                if (gui.Button(skins[i].name) || Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
                     _Game.PlayerSkin = i;
                     OnTeamSelected();
@@ -35,17 +36,17 @@ public class TeamSelectGui : Bs
         }
         else
         {
-            if (gui.Button("Terrorists"))
+            if (gui.Button("Terrorists") || Input.GetKeyDown(KeyCode.Alpha1))
             {
                 _Game.team = Team.Terrorists;
                 teamSelected = true;
             }
-            if (gui.Button("Counter Terrorists"))
+            if (gui.Button("Counter Terrorists") || Input.GetKeyDown(KeyCode.Alpha2))
             {
                 _Game.team = Team.CounterTerrorists;
                 teamSelected = true;
             }
-            if (gui.Button("Spectator"))
+            if (gui.Button("Spectator") || Input.GetKeyDown(KeyCode.Alpha5))
             {
                 _Game.team = Team.Spectators;
                 OnTeamSelected();

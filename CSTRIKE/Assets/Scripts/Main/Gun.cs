@@ -54,7 +54,7 @@ public class Gun : Bs
     }
     public void Update()
     {
-        
+     
         timer.Update();
         shooting = Time.time - lastShoot < shootTime * 2;
         CamRnd.localRotation = Quaternion.Slerp(CamRnd.localRotation, Quaternion.identity, Time.deltaTime * 2);
@@ -125,8 +125,8 @@ public class Gun : Bs
             Player enemy = h.collider.transform.root.GetComponent<Player>();
             if (enemy != null)
             {
-                if (enemy == pl) continue;
-                if (enemy.team != pl.team)
+                if (enemy == pl ) continue;
+                if (enemy.team != pl.team || isEditor)
                 {
                     CreateBlood(h);
                     ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
@@ -147,11 +147,11 @@ public class Gun : Bs
 
                         if (h.collider.name == "Bip01 Head")
                         {
-                            enemy.CallRPC(enemy.RPCSetLife, RPCMode.All, 0, pl.id);
+                            enemy.CallRPC(enemy.SetLife, RPCMode.All, 0, pl.id);
                             enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
                         }
                         else
-                            enemy.CallRPC(enemy.RPCSetLife, RPCMode.All, enemy.Life - 25, pl.id);
+                            enemy.CallRPC(enemy.SetLife, RPCMode.All, enemy.Life - 25, pl.id);
                     }                    
                 }
             }

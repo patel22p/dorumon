@@ -9,7 +9,7 @@ public delegate void Action<T1, T2, T3, T4, T5, T6>(T1 t1, T2 t2, T3 t3, T4 t4, 
 public class Bs : Base
 {
 
-    public const int port = 5301;
+    public const int port = 80;
     public bool IsMine
     {
         get
@@ -18,6 +18,7 @@ public class Bs : Base
             return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine;
         }
     }
+    
     public static bool Offline { get { return Network.peerType == NetworkPeerType.Disconnected; } }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
@@ -69,6 +70,8 @@ public class Bs : Base
     {
         return Screen.lockCursor ? new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), 0) : Vector3.zero;
     }
+    
+
     public void Active(bool value)
     {
         foreach (Transform a in this.GetComponentsInChildren<Transform>())
@@ -200,5 +203,13 @@ public class Bs : Base
     }
     public float Temp = 1;
     public float Temp2 = 1;
+    public bool isEditor
+    {
+        get
+        {
+            return
+            Application.isEditor;
+        }
+    }
 
 }

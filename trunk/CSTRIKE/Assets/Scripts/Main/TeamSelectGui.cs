@@ -24,12 +24,12 @@ public class TeamSelectGui : Bs
             if (gui.Button("<<Back"))
                 teamSelected = false;
             var p = _Game.PlayerPrefab.GetComponent<Player>();
-            var skins = (_Game.team == Team.CounterTerrorists ? p.CTerrorSkins : p.TerrorSkins);
+            var skins = (_Game.pv.team == Team.CounterTerrorists ? p.CTerrorSkins : p.TerrorSkins);
             for (int i = 0; i < skins.Length; i++)
             {
                 if (gui.Button(skins[i].name) || Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
-                    _Game.PlayerSkin = i;
+                    _Game.pv.skin= i;
                     OnTeamSelected();
                 }
             }
@@ -38,18 +38,30 @@ public class TeamSelectGui : Bs
         {
             if (gui.Button("Terrorists") || Input.GetKeyDown(KeyCode.Alpha1))
             {
-                _Game.team = Team.Terrorists;
+                _Game.pv.team = Team.Terrorists;
                 teamSelected = true;
             }
             if (gui.Button("Counter Terrorists") || Input.GetKeyDown(KeyCode.Alpha2))
             {
-                _Game.team = Team.CounterTerrorists;
+                _Game.pv.team = Team.CounterTerrorists;
                 teamSelected = true;
             }
             if (gui.Button("Spectator") || Input.GetKeyDown(KeyCode.Alpha5))
             {
-                _Game.team = Team.Spectators;
+                _Game.pv.team = Team.Spectators;
                 OnTeamSelected();
+            }
+            if (Network.isServer && gui.Button("Add T Bot"))
+            {
+                var i = _Game.GetNextFree();
+                _Game.playerViews[i].team = Team.Terrorists;
+                _Game.CreateBot(i);
+            }
+            if (Network.isServer && gui.Button("Add CT Bot"))
+            {
+                var i = _Game.GetNextFree();
+                _Game.playerViews[i].team = Team.CounterTerrorists;
+                _Game.CreateBot(i);
             }
         }
     }

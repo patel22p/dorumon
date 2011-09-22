@@ -17,6 +17,8 @@ public class Hud : Bs {
     public GUIText KillText;
     public GUITexture PainLeft;
     public GUITexture PainRight;
+    public GUITexture PainUp;
+    public GUITexture PainDown;
     public GUIText Patrons;
     private bool PlayerHudActived=true;
     private bool SpectatorHudActived=true;    
@@ -30,6 +32,7 @@ public class Hud : Bs {
     {
         SetPainRight(-Time.deltaTime * 1);
         SetPainLeft(-Time.deltaTime * 1);
+        SetPainUp(-Time.deltaTime * 1);
     }
     
     public void SetPainRight(float v)
@@ -37,6 +40,19 @@ public class Hud : Bs {
         var c = PainRight.color;
         c.a = Mathf.Clamp(c.a + v, 0, 1);
         PainRight.color = c;
+    }
+    public void SetPainUp(float v)
+    {
+        var c = PainUp.color;
+        c.a = Mathf.Clamp(c.a + v, 0, 1);
+        PainUp.color = c;
+    }
+
+    public void SetPainDown(float v)
+    {
+        var c = PainDown.color;
+        c.a = Mathf.Clamp(c.a + v, 0, 1);
+        PainDown.color = c;
     }
 
     public void SetPainLeft(float v)

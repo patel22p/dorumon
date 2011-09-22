@@ -3,10 +3,15 @@ using doru;
 using UnityEngine;
 using System.Collections;
 using gui = UnityEngine.GUILayout;
+using Object= UnityEngine.Object;
 using System.Collections.Generic;
+using System;
+using Random = UnityEngine.Random;
 
 public class Loader : Bs
 {
+    //todo version
+    
     public int errorcount;
     public int exceptionCount;
     int lastLevelPrefix;
@@ -15,12 +20,14 @@ public class Loader : Bs
     int fps;
     Timer timer = new Timer();
     public string[] maps;
-    internal bool DebugLevel;
+    internal bool DebugLevelMode;
     string NickNameEditor = "Editor" + new System.Random().Next(99);
     internal string playerName { get { return isEditor ? NickNameEditor : PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
 
     public override void Awake()
     {
+        MasterServer.ipAddress = "127.0.0.1";
+        MasterServer.port = 23466;
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1)
         {
             Debug.Log("Destroyed Loader Dub");
@@ -31,8 +38,7 @@ public class Loader : Bs
         if (Application.loadedLevel != 0)
         {
             Debug.Log("DebugLevelMode");
-            DebugLevel = true;
-            enabled = false;
+            DebugLevelMode = true;
             return;
         }
         Application.RegisterLogCallback(onLog);

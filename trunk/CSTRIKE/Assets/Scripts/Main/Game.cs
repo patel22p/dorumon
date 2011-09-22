@@ -1,63 +1,70 @@
-using Object = UnityEngine.Object;
-using System.Linq;
-using UnityEngine;
-using System.Collections;
 using System;
-using Random = UnityEngine.Random;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using doru;
-
+using UnityEngine;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
+[Serializable]
+public class PlayerView
+{
+    public bool bot;
+    public int PlayerPing;
+    public int PlayerFps;
+    public int PlayerMoney=16000;
+    public int PlayerScore;
+    public int PlayerDeaths;
+    public string PlayerName = "";
+    public int skin;
+    public Team team;
+}
 public class Game : Bs
 {
     public enum StartUp { AutoHost, Offline }
-    public bool autoTeam;
-    internal new Player _Player;
     internal Timer timer = new Timer();
-    public StartUp startUp;
-    public Team team = Team.Spectators;
-    public int PlayerSkin;
+    public StartUp startUpMode;
     public enum group { Player }
-    public Player[] players = new Player[36];
     public ObsCamera Obs;
     public GUIText chatInput;
     public GUIText chatOutput;
     public AudioClip[] go;
+    public AudioClip twin;
+    public AudioClip ctwin;
+    public PlayerView pv { get { return playerViews[NetworkPlayerID]; } }
+    internal Player[] players = new Player[36];
     public IEnumerable<Player> Players { get { return players.Where(a => a != null); } }
     public IEnumerable<Player> AlivePlayers { get { return Players.Where(a => !a.dead); } }
-    public IEnumerable<Player> Terror { get { return Players.Where(a => a.team == Team.Terrorists); } }
-    public IEnumerable<Player> CounterTerror { get { return Players.Where(a => a.team == Team.CounterTerrorists); } }
-    public IEnumerable<Player> Spectators { get { return Players.Where(a => a.team == Team.Spectators); } }
+    public IEnumerable<Player> Terror { get { return Players.Where(a => a.pv.team == Team.Terrorists); } }
+    public IEnumerable<Player> CounterTerror { get { return Players.Where(a => a.pv.team == Team.CounterTerrorists); } }
+    public IEnumerable<Player> Spectators { get { return Players.Where(a => a.pv.team == Team.Spectators); } }
     public GameObject PlayerPrefab;
     public Transform Fx;
     public Transform CTSpawn;
     public Transform TSpawn;
-
-    public bool GameStarted;
-    public int PlayerMoney = 16000;
-    public int PlayerScore;
-    public int PlayerDeaths;
-    public int PlayerPing;
+    public bool GameStarted;        
     public int TScore;
     public int CTScore;
     private float mouseClickTime = float.MinValue;
     private float ResetGameTime = float.MaxValue;
     internal float GameTime = TimeSpan.FromMinutes(18).Milliseconds;
     public Camera MiniMapCamera;
-
+    public PlayerView[] playerViews = new PlayerView[32];
     public override void Awake()
     {
+        for (int i = 0; i < 32; i++)
+            playerViews[i] = new PlayerView();
         Debug.Log("Game Awake");
-        if (!isEditor) team = Team.Spectators;
-        
-        if (!Offline)
+        if (!Offline || startUpMode == StartUp.Offline)
             OnConnected();
         _LoaderGui.enabled = false;        
     }
     public void Start()
     {
+        _Hud.PrintPopup("Press F1/F2 to switch camera views");
         timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });
-        if (startUp == StartUp.AutoHost && Offline)
+        if (startUpMode == StartUp.AutoHost && Offline)
         {
             if (Network.InitializeServer(6, port, false) != NetworkConnectionError.NoError)
                 Network.Connect("127.0.0.1", port);
@@ -73,7 +80,33 @@ public class Game : Bs
         UpdateOther();
         timer.Update();
     }
+    private void UpdateOther()
+    {
 
+        GameTime -= Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            _TeamSelectGui.enabled = !_TeamSelectGui.enabled;
+            Screen.lockCursor = !_TeamSelectGui.enabled;
+        }
+        _Hud.ScoreBoard.text = "";
+        if (Input.GetKey(KeyCode.Tab))
+            DrawScoreBoard();
+
+        if (Input.GetKeyDown(KeyCode.Backslash))
+            Screen.lockCursor = !Screen.lockCursor;
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            _GameGui.enabled = !_GameGui.enabled;
+            Screen.lockCursor = !_GameGui.enabled;
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Time.time - mouseClickTime < .3f)
+                Screen.lockCursor = true;
+            mouseClickTime = Time.time;
+        }
+    }
     private void UpdateChat()
     {
         if (chatInput.enabled)
@@ -108,33 +141,7 @@ public class Game : Bs
         chatOutput.text += s + "\r\n";
     }
 
-    private void UpdateOther()
-    {
-      
-        GameTime -= Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            _TeamSelectGui.enabled = !_TeamSelectGui.enabled;
-            Screen.lockCursor = !_TeamSelectGui.enabled;
-        }
-        _Hud.ScoreBoard.text = "";
-        if (Input.GetKey(KeyCode.Tab))
-            DrawScoreBoard();
-        
-        if (Input.GetKeyDown(KeyCode.Backslash))
-            Screen.lockCursor = !Screen.lockCursor;
-        if (Input.GetKeyDown(KeyCode.Escape) && !isEditor)
-        {
-            _GameGui.enabled = !_GameGui.enabled;
-            Screen.lockCursor = !_GameGui.enabled;
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (Time.time - mouseClickTime < .5f)
-                Screen.lockCursor = true;
-            mouseClickTime = Time.time;
-        }                
-    }
+    
 
     private void CheckForWins()
     {
@@ -160,13 +167,13 @@ public class Game : Bs
                     {
                         CallRPC(SetCTScore, RPCMode.All, CTScore + 1);
                         ResetGameTime = Time.time;
-                        CallRPC(RPCPrint, RPCMode.All, "Terrorists Win");
+                        CallRPC(TerWin, RPCMode.All);
                     }
                     if (CounterTerror.Where(a => !a.dead).Count() == 0)
                     {
                         CallRPC(SetTScore, RPCMode.All, TScore + 1);
                         ResetGameTime = Time.time;
-                        CallRPC(RPCPrint, RPCMode.All, "Counter Terrorists Win");
+                        CallRPC(CTerWin, RPCMode.All);
                     }
                 }
                 if (Time.time - ResetGameTime > 3)
@@ -174,6 +181,19 @@ public class Game : Bs
             }
         }
     }
+    [RPC]
+    private void TerWin()
+    {
+        RPCPrint("Terrorists Win");
+        _ObsCamera.audio.PlayOneShot(twin);
+    }
+    [RPC]
+    private void CTerWin()
+    {
+        RPCPrint("Counter Terrorists Win");
+        _ObsCamera.audio.PlayOneShot(ctwin);
+    }
+
     [RPC]
     private void RPCPrint(string s)
     {
@@ -211,14 +231,22 @@ public class Game : Bs
         sb.AppendLine();
         sb.AppendLine("Spectators");
         foreach (var p in Spectators)
-            sb.AppendLine(p.PlayerName);
+            sb.AppendLine(p.pv.PlayerName);
         _Hud.ScoreBoard.text = sb.ToString();
     }
     private static void PrintPls(StringBuilder sb, string templ, IEnumerable<Player> pls)
     {
         foreach (var p in pls)
-            sb.AppendLine(string.Format(templ, p.PlayerName, p.dead ? "Dead" : "", p.PlayerScore, p.PlayerDeaths, p.PlayerPing, p.PlayerFps, "", ""));
+            sb.AppendLine(string.Format(templ, p.pv.PlayerName, p.dead ? "Dead" : "", p.pv.PlayerScore, p.pv.PlayerDeaths, p.pv.PlayerPing, p.pv.PlayerFps, "", ""));
     }
+
+    [RPC]
+    private void SetGameStarted(bool value)
+    {
+        ResetGameTime = float.MaxValue;
+        GameStarted = value;
+    }
+
     [RPC]
     private void StartGame()
     {
@@ -234,32 +262,45 @@ public class Game : Bs
         GameStarted = true;
         foreach (Transform a in Fx)
             Destroy(a.gameObject);
-        
+
         CreatePlayer();
-        _Player.audio.PlayOneShot(go.Random());
-    }
-    [RPC]
-    private void SetGameStarted(bool value)
-    {
-        ResetGameTime = float.MaxValue;
-        GameStarted = value;
+        _ObsCamera.audio.PlayOneShot(go.Random());
+
+        if (Network.isServer)
+        {
+            for (int i = 0; i < playerViews.Length; i++)
+            {
+                var a = playerViews[i];
+                if (a.bot)
+                    CreateBot(i);
+            }
+        }
     }
 
     private void CreatePlayer()
-    {
-        var r = Random.onUnitSphere;
-        r.y = 0;
-        if (_Player != null)
-        {
-            Network.RemoveRPCs(_Player.networkView.viewID);
-            Network.Destroy(_Player.gameObject);
-        }
-
-        if (Offline)
-            Instantiate(PlayerPrefab);
-        else
-            Network.Instantiate(PlayerPrefab, (_Game.team == Team.CounterTerrorists ? CTSpawn.position : TSpawn.position) + r, Quaternion.identity, (int)group.Player);
+    {        
+        Player.paramId = NetworkPlayerID;    
+        InstanciatePlayer();
     }
+
+    private void InstanciatePlayer()
+    {
+        var vector3 = (playerViews[Player.paramId].team == Team.CounterTerrorists ? CTSpawn.position : TSpawn.position) + ZeroY(Random.onUnitSphere);
+        if (Offline)
+            Instantiate(PlayerPrefab, vector3, Quaternion.identity);
+        else
+            Network.Instantiate(PlayerPrefab, vector3, Quaternion.identity, (int)group.Player);
+    }
+
+    internal void CreateBot(int id)
+    {
+        Debug.Log("Create Bot " + id);
+        Player.paramId = id;
+        playerViews[id].bot = true;
+        playerViews[id].skin = Random.Range(0, 3);        
+        InstanciatePlayer();
+    }
+
     [RPC]
     public void SetTScore(int score)
     {        
@@ -272,7 +313,7 @@ public class Game : Bs
     }
     void OnConnected()
     {
-        Debug.Log("Connected " + name + _Loader.DebugLevel);
+        Debug.Log("Connected " + name + _Loader.DebugLevelMode);
 
         //if (_Loader.DebugLevel)
         //    OnLevelWasLoaded(1);
@@ -281,17 +322,24 @@ public class Game : Bs
     }
     public void OnPlayerDisconnected(NetworkPlayer player)
     {
+        playerViews[player.GetHashCode()] = new PlayerView();
         Network.RemoveRPCs(player);
         Network.DestroyPlayerObjects(player);
     }
     internal void OnTeamSelected()
     {
         if (_Player != null && !_Player.dead)
-            _Player.CallRPC(_Player.SetLife, RPCMode.All, 0, _Player.id); 
+            _Player.CallRPC(_Player.SetLife, RPCMode.All, 0, _Player.id);
 
-        if (!GameStarted)        
+        if (!GameStarted)
+        {
+            if (_Player != null)
+            {
+                Network.RemoveRPCs(_Player.networkView.viewID);
+                Network.Destroy(_Player.gameObject);
+            }
             CreatePlayer();
-        _Player.CallRPC(_Player.SetTeam, RPCMode.All, (int)_Game.team); 
+        }
     }
     public void OnPlayerConnected(NetworkPlayer player)
     {
@@ -300,6 +348,14 @@ public class Game : Bs
         CallRPC(SetCTScore, player, CTScore);
         CallRPC(SetTScore, player, TScore);
     }
+    public int GetNextFree()
+    {
+        var i = 16;
+        while (players[++i] != null) { }
+        return i;
+    }
     public void OnServerInitialized() { OnConnected(); }
     public void OnConnectedToServer() { OnConnected(); }
+
+    
 }

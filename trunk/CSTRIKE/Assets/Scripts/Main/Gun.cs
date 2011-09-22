@@ -20,9 +20,11 @@ public class Gun : Bs
     public AudioClip ClipIn;
     public AudioClip Draw;
     public AudioClip BoltPull;
+    public int damage = 14;
 
     internal Animation handsAn { get { return Hands.animation; } }
     AnimationState[] m_handsShoot;
+
     internal AnimationState[] handsShoot
     {
         get
@@ -42,6 +44,17 @@ public class Gun : Bs
     float cursorOffset;
     public int patrons = 30;
     internal bool shooting;
+    public override void Awake()
+    {
+        //Debug.Log("Gun Awake");
+        base.Awake();
+        enabled = false;
+    }
+    public void OnSetup()
+    {
+        //Debug.Log("Gun On Setup");
+        enabled = true;
+    }
 
     public void Start()
     {
@@ -59,24 +72,25 @@ public class Gun : Bs
         shooting = Time.time - lastShoot < shootTime * 2;
         CamRnd.localRotation = Quaternion.Slerp(CamRnd.localRotation, Quaternion.identity, Time.deltaTime * 2);
         cursorOffset = Mathf.MoveTowards(cursorOffset, 0, Time.deltaTime * 20);
-        if (IsMine)
-        {
-            if (Input.GetMouseButton(0) && Time.time - lastShoot > shootTime && Screen.lockCursor)
-            {
-                if (!handsReload.enabled)
-                {
-                    if (patrons > 0)
-                        shoot();
-                    else
-                        CallRPC(Reload, RPCMode.All);
-                }
-            }
-            if (Input.GetKeyDown(KeyCode.R) && !handsReload.enabled && patrons != 30)
-                CallRPC(Reload, RPCMode.All);
-        }
     }
+
+    public void MouseDown()
+    {
+        if (Time.time - lastShoot > shootTime)
+        {
+            if (!handsReload.enabled)
+            {
+                if (patrons > 0)
+                    shoot();
+                else
+                    CallRPC(Reload, RPCMode.All);
+            }
+        }
+     
+    }
+
     [RPC]
-    private void Reload()
+    public void Reload()
     {
         patrons = 30;
         handsAn.Play(handsReload.name);
@@ -126,7 +140,7 @@ public class Gun : Bs
             if (enemy != null)
             {
                 if (enemy == pl ) continue;
-                if (enemy.team != pl.team || isEditor)
+                if (enemy.pv.team != pl.pv.team || isEditor)
                 {
                     CreateBlood(h);
                     ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
@@ -138,12 +152,16 @@ public class Gun : Bs
                         g.renderer.material = pl.BloodDecals.Random();
                         g.transform.parent = _Game.Fx;
                     }
-                    if (enemy.IsMine || Offline && !enemy.dead)
+                    if (enemy.observing)
                     {
-
                         var angle = Mathf.DeltaAngle(Quaternion.LookRotation(pl.pos - enemy.pos).eulerAngles.y, enemy.rot.eulerAngles.y);
+                        //todo set multiply 
                         if (angle > 45) _Hud.SetPainRight(1);
-                        if (angle < -45) _Hud.SetPainLeft(1);
+                        else if (angle < -45) _Hud.SetPainLeft(1);
+                        else _Hud.SetPainUp(1);
+                    }
+                    if (enemy.IsMine && !enemy.dead)
+                    {                        
 
                         if (h.collider.name == "Bip01 Head")
                         {
@@ -151,7 +169,7 @@ public class Gun : Bs
                             enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
                         }
                         else
-                            enemy.CallRPC(enemy.SetLife, RPCMode.All, enemy.Life - 25, pl.id);
+                            enemy.CallRPC(enemy.SetLife, RPCMode.All, enemy.Life - damage, pl.id);
                     }                    
                 }
             }
@@ -185,7 +203,7 @@ public class Gun : Bs
     }
     public void OnRenderObject()
     {
-        if (IsMine) {
+        if (pl == _ObsCamera.pl) {
             LineMaterial.SetPass(0);
             GL.LoadOrtho();
             GL.Begin(GL.LINES);

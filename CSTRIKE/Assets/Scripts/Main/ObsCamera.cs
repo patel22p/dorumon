@@ -7,30 +7,26 @@ public class ObsCamera : Bs
 {
 
     public Player pl;
-    public enum CamMode { thirdPerson2, thirdPerson, topDown, firstPerson, Free }
+    public enum CamMode { thirdPerson2, thirdPerson, firstPerson, Free }
     public CamMode camMode;
     internal float KilledByTime = float.MinValue;
     //bool thirdPerson = true;
     Vector3 xy;
     public void LateUpdate()
     {
-        //todo add 3nd camera
-        if (DebugKey(KeyCode.F1))
+        
+        if (Input.GetKeyDown(KeyCode.F1))
         {
             camMode = CamMode.firstPerson;
             _Hud.PrintPopup("1nd ps Camera");
         }
-        if (DebugKey(KeyCode.F2))
+        if (Input.GetKeyDown(KeyCode.F2))
         {
             camMode = CamMode.thirdPerson2;
 
             _Hud.PrintPopup("3nd ps Camera");
         }
-        if (DebugKey(KeyCode.F3))
-        {
-            camMode = CamMode.topDown;
-            _Hud.PrintPopup("TopDown Camera");
-        }
+
         if (_Player != null && !_Player.dead)
         {
             pl = _Player;
@@ -38,16 +34,34 @@ public class ObsCamera : Bs
                 camMode = CamMode.firstPerson;
         }
         else
-            UpdateSpectatorMode();
+        {
+            if (_Game.AlivePlayers.Count() == 0)
+                camMode = CamMode.Free;
+            else if (pl == null || pl.dead)
+                pl = _Game.AlivePlayers.First();
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                camMode++;
+                camMode = (CamMode)Clamp2((int)camMode, Enum.GetNames(typeof(CamMode)).Length - 1);
+                _Hud.PrintPopup("Camera Mode: " + camMode);
+            }
+
+            if (Input.GetMouseButtonDown(0) && camMode != CamMode.Free)
+            {
+                pl = _Game.AlivePlayers.Next(pl);
+                _Hud.PrintPopup("Following: " + pl.name);
+            }
+        }
 
         var t = TimeSpan.FromMilliseconds(_Game.GameTime);
-        if (camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2 || camMode == CamMode.topDown)
+        if ((camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2))
         {
             _Hud.SetPlayerHudActive(true);
             _Hud.SetSpectatorHudActive(false);            
             _Hud.life.text = "b" + pl.Life;
             _Hud.shield.text = "a" + pl.Shield;
-            _Hud.money.text = "$" + pl.PlayerMoney;
+            _Hud.money.text = "$" + pl.pv.PlayerMoney;
             _Hud.time.text = "e" + t.Minutes + ":" + t.Seconds;
             if (!pl.gun.handsReload.enabled)
                 _Hud.Patrons.text = pl.gun.patrons + "|   30";
@@ -56,15 +70,6 @@ public class ObsCamera : Bs
                 SetRenderers(pl);
                 pos = pl.camera.camera.transform.position;
                 rot = pl.camera.camera.transform.rotation;
-            }
-            else if (camMode == CamMode.topDown)
-            {
-                posy = pl.posy + 6;
-                rot = Quaternion.LookRotation(Vector3.down);
-                xy += GetMouse();
-                posx = pl.posx + xy.y / 20f;
-                posz = pl.posz + -xy.x / 20f;
-
             }
             else if (camMode == CamMode.thirdPerson2)
             {
@@ -76,7 +81,8 @@ public class ObsCamera : Bs
         {
             _Hud.SetPlayerHudActive(false);
             _Hud.SetSpectatorHudActive(true);
-            _Hud.SpecInfo.text = t.Minutes + ":" + t.Seconds + "   " + _Game.PlayerMoney;
+            
+            _Hud.SpecInfo.text = t.Minutes + ":" + t.Seconds + "   " + _Game.pv.PlayerMoney;
             if (camMode == CamMode.Free)
             {
                 Vector3 move = GetMove() * Time.deltaTime * 10;
@@ -93,25 +99,6 @@ public class ObsCamera : Bs
     }
     Vector3 MouseRot;
 
-    private void UpdateSpectatorMode()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            camMode++;
-            camMode = (CamMode)Clamp2((int)camMode, Enum.GetNames(typeof(CamMode)).Length - 1);
-            _Hud.PrintPopup("Camera Mode: " + camMode);
-        }
-
-        if (Input.GetMouseButtonDown(0) && camMode != CamMode.Free)
-        {
-            pl = _Game.AlivePlayers.Next(pl);
-            _Hud.PrintPopup("Following: " + pl.name);
-        }
-        if (_Game.AlivePlayers.Count() == 0)
-            camMode = CamMode.Free;
-        else if (pl == null)
-            pl = _Game.AlivePlayers.First();
-    }
 
     private void SetRenderers(Player pl)
     {

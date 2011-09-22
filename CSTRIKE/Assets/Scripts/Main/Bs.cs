@@ -1,3 +1,4 @@
+
 using System.Linq;
 using UnityEngine;
 using System.Collections;
@@ -8,17 +9,16 @@ public delegate void Action<T1, T2, T3, T4, T5>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t
 public delegate void Action<T1, T2, T3, T4, T5, T6>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
 public class Bs : Base
 {
-
-    public const int port = 80;
+    
+    public const int port = 80;    
     public bool IsMine
     {
         get
-        {
-            if (transform.root.tag == "Enemy") return false;
+        {            
             return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine;
         }
     }
-    
+    public static int NetworkPlayerID { get { return Offline ? 1 : Network.player.GetHashCode(); } }
     public static bool Offline { get { return Network.peerType == NetworkPeerType.Disconnected; } }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
@@ -42,6 +42,9 @@ public class Bs : Base
     //static Transform m_Fx;
     //public static Transform _Fx { get { if (m_Fx == null) m_Fx = (Transform)FindObjectOfType(; return m_Fx; } }
     public static ObsCamera _ObsCamera { get { return _Game.Obs; } }
+    static LevelEditor m_LevelEditor;
+    public static LevelEditor _LevelEditor { get { if (m_LevelEditor == null) m_LevelEditor = (LevelEditor)MonoBehaviour.FindObjectOfType(typeof(LevelEditor)); return m_LevelEditor; } }
+
     static TeamSelectGui m_TeamSelectGui;
     public static TeamSelectGui _TeamSelectGui { get { if (m_TeamSelectGui == null) m_TeamSelectGui = (TeamSelectGui)MonoBehaviour.FindObjectOfType(typeof(TeamSelectGui)); return m_TeamSelectGui; } }
     static Hud m_Hud;
@@ -55,7 +58,7 @@ public class Bs : Base
     static LoaderGui m_LoaderGui;
     public static LoaderGui _LoaderGui { get { if (m_LoaderGui == null) m_LoaderGui = (LoaderGui)MonoBehaviour.FindObjectOfType(typeof(LoaderGui)); return m_LoaderGui; } }
     static Player m_Player;
-    public static Player _Player { get { return _Game._Player; } }
+    public static Player _Player;
     public static Vector3 GetMove()
     {
         if (!Screen.lockCursor) return Vector3.zero;
@@ -201,8 +204,7 @@ public class Bs : Base
     {
         return string.Join("\r\n", s.Split("\r\n").Skip(1).ToArray());
     }
-    public float Temp = 1;
-    public float Temp2 = 1;
+    public float[] Temp = Enumerable.Repeat<float>(1,10).ToArray();    
     public bool isEditor
     {
         get
@@ -212,4 +214,9 @@ public class Bs : Base
         }
     }
 
+    public static Vector3 ZeroY(Vector3 v)
+    {
+        v.y = 0;
+        return v.normalized;
+    }
 }

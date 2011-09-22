@@ -1,12 +1,15 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using gui = UnityEngine.GUILayout;
 
 public class LoaderGui : Bs
 {
-    const string csgame = "csgame";
+    
     string ip = "127.0.0.1";
     string label = "";
+    public string version;
+    //todo fix server list
     public override void Awake()
     {   
         if(!isEditor)
@@ -20,7 +23,7 @@ public class LoaderGui : Bs
         var s = new Vector3(200, 400) / 2f;
         var v1 = c - s;
         var v2 = c + s;
-        GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), ServerList, "Server List");
+        GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), ServerList, version);
     }
     bool SelectMap;
     void ServerList(int id)
@@ -80,6 +83,14 @@ public class LoaderGui : Bs
         }
     }
 
+    public override void OnEditorGui()
+    {
+        version = "Counter Strike V" + DateTime.Now.ToShortDateString();
+        base.OnSelectionChanged();
+        base.OnEditorGui();
+    }
+    
+
     private int GetLevelLoad(string a)
     {        
         return (int)(Application.GetStreamProgressForLevel(a)*100);
@@ -90,14 +101,14 @@ public class LoaderGui : Bs
         Print("Loading Map");
         SelectMap = false;
         Network.InitializeServer(6, port, !Network.HavePublicAddress());
-        MasterServer.RegisterHost(csgame, _Loader.playerName + "'s game",mapName);
+        MasterServer.RegisterHost(_LoaderGui.version, _Loader.playerName + "'s game",mapName);
         _Loader.LoadLevel(mapName);
     }
 
     private void Refresh()
     {
         MasterServer.ClearHostList();
-        MasterServer.RequestHostList(csgame);
+        MasterServer.RequestHostList(_LoaderGui.version);
     }
 
 

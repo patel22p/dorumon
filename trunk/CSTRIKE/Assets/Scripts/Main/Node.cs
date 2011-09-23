@@ -1,24 +1,26 @@
 using System.Linq;
-using UnityEngine;
-using System.Collections;
+#if UNITY_EDITOR
 using UnityEditor;
+
+#endif
+using System.Collections;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using gui = UnityEngine.GUILayout;
 
 public class Node : Bs
 {
-    internal int walkCount = 0;
+    public bool StartNode;
+    internal int walkCount;
     public List<Node> nodes = new List<Node>();
     public IEnumerable<Node> Nodes { get { return nodes.Where(a => a != null); } }
-    internal Player lastP;
-    public bool Jump;
-    public bool Land;
-    //public float JumpPower = 7f;
     public override void Awake()
     {
-        this.gameObject.active = false;
+        Active(false);
     }
+#if UNITY_EDITOR
+
     public override void OnEditorGui()
     {
         if (gui.Button("Link Nodes"))
@@ -45,4 +47,5 @@ public class Node : Bs
         Node[] nds = Selection.gameObjects.Select(a => a.GetComponent<Node>()).Where(b => b != null).ToArray();
         return nds;
     }
+#endif
 }

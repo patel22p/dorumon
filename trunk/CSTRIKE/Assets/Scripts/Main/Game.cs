@@ -11,6 +11,7 @@ using Random = UnityEngine.Random;
 public class PlayerView
 {
     public bool bot;
+    public int id;
     public int PlayerPing;
     public int PlayerFps;
     public int PlayerMoney=16000;
@@ -22,6 +23,7 @@ public class PlayerView
 }
 public class Game : Bs
 {
+    public LevelEditor levelEditor;
     public enum StartUp { AutoHost, Offline }
     internal Timer timer = new Timer();
     public StartUp startUpMode;
@@ -34,11 +36,10 @@ public class Game : Bs
     public AudioClip ctwin;
     public PlayerView pv { get { return playerViews[NetworkPlayerID]; } }
     internal Player[] players = new Player[36];
+    internal PlayerView[] playerViews = new PlayerView[36];
     public IEnumerable<Player> Players { get { return players.Where(a => a != null); } }
-    public IEnumerable<Player> AlivePlayers { get { return Players.Where(a => !a.dead); } }
-    public IEnumerable<Player> Terror { get { return Players.Where(a => a.pv.team == Team.Terrorists); } }
-    public IEnumerable<Player> CounterTerror { get { return Players.Where(a => a.pv.team == Team.CounterTerrorists); } }
-    public IEnumerable<Player> Spectators { get { return Players.Where(a => a.pv.team == Team.Spectators); } }
+    public IEnumerable<PlayerView> PlayerViews { get { return playerViews.Where(a => a != null); } }
+    
     public GameObject PlayerPrefab;
     public Transform Fx;
     public Transform CTSpawn;
@@ -50,16 +51,15 @@ public class Game : Bs
     private float ResetGameTime = float.MaxValue;
     internal float GameTime = TimeSpan.FromMinutes(18).Milliseconds;
     public Camera MiniMapCamera;
-    public PlayerView[] playerViews = new PlayerView[32];
+    
     public override void Awake()
     {
-        for (int i = 0; i < 32; i++)
-            playerViews[i] = new PlayerView();
-        Debug.Log("Game Awake");
+        Debug.Log("Game Awake");        
         if (!Offline || startUpMode == StartUp.Offline)
             OnConnected();
         _LoaderGui.enabled = false;        
     }
+
     public void Start()
     {
         _Hud.PrintPopup("Press F1/F2 to switch camera views");
@@ -71,9 +71,22 @@ public class Game : Bs
             return;
         }
     }
-    
+    [RPC]
+    public void AddPlayerView(int id, string name)
+    {
+        var v = playerViews[id] = new PlayerView();
+        v.id = id;
+        v.PlayerName = name;
+    }
+    [RPC]
+    public void RemovePlayerView(int id)
+    {
+        playerViews[id] = null;
+    }
+
     public void Update()
-    {        
+    {
+        if (Offline) return;
         UpdateChat();
         if (Network.isServer && timer.TimeElapsed(2000))
             CheckForWins();
@@ -131,23 +144,17 @@ public class Game : Bs
         }
    
     }
-
-    
-
     [RPC]
     private void RPCChat(string s)
     {
         timer.AddMethod(15000, delegate { chatOutput.text = RemoveFirstLine(chatOutput.text); });
         chatOutput.text += s + "\r\n";
     }
-
-    
-
     private void CheckForWins()
     {
         if (!GameStarted)
         {
-            if (Terror.Count() > 0 && CounterTerror.Count() > 0 && ResetGameTime == float.MaxValue)
+            if (PlayerViews.Any(a => a.team == Team.Terrorists) && PlayerViews.Any(a => a.team == Team.CounterTerrorists) && ResetGameTime == float.MaxValue)
             {
                 CallRPC(RPCPrint, RPCMode.All, "Game Started");
                 ResetGameTime = Time.time;
@@ -155,23 +162,24 @@ public class Game : Bs
             if (Time.time - ResetGameTime > 3)
                 CallRPC(StartGame, RPCMode.All);
         }
-        else if(GameStarted)
+        else if (GameStarted)
         {
-            if (Terror.Count() == 0 || CounterTerror.Count() == 0)
-                CallRPC(SetGameStarted,RPCMode.All,false);
+            if (!PlayerViews.Any(a => a.team == Team.Terrorists) || !PlayerViews.Any(a => a.team == Team.CounterTerrorists))
+                CallRPC(SetGameStarted, RPCMode.All, false);
             else
             {
                 if (ResetGameTime == float.MaxValue)
                 {
-                    if (Terror.Where(a => !a.dead).Count() == 0)
+                    if (!Players.Any(a => a.pv.team == Team.CounterTerrorists))
                     {
-                        CallRPC(SetCTScore, RPCMode.All, CTScore + 1);
+                        //todo use playerViewer
+                        CallRPC(SetTScore, RPCMode.All, TScore + 1);
                         ResetGameTime = Time.time;
                         CallRPC(TerWin, RPCMode.All);
                     }
-                    if (CounterTerror.Where(a => !a.dead).Count() == 0)
+                    if (!Players.Any(a => a.pv.team == Team.Terrorists))
                     {
-                        CallRPC(SetTScore, RPCMode.All, TScore + 1);
+                        CallRPC(SetCTScore, RPCMode.All, CTScore + 1);
                         ResetGameTime = Time.time;
                         CallRPC(CTerWin, RPCMode.All);
                     }
@@ -221,23 +229,23 @@ public class Game : Bs
         sb.AppendLine();
         sb.AppendLine("Terrorists  " + TScore);
         sb.AppendLine("_______________________________________________________________________________");
-        PrintPls(sb, templ, Terror);
+        PrintPls(sb, templ, PlayerViews.Where(a => a.team == Team.Terrorists));
         sb.AppendLine();
         sb.AppendLine();
         sb.AppendLine("Counter - Terrorists  " + CTScore);
         sb.AppendLine("_______________________________________________________________________________");
         //sb.AppendLine(tabl);
-        PrintPls(sb, templ, CounterTerror);
+        PrintPls(sb, templ, PlayerViews.Where(a => a.team == Team.CounterTerrorists));
         sb.AppendLine();
         sb.AppendLine("Spectators");
-        foreach (var p in Spectators)
-            sb.AppendLine(p.pv.PlayerName);
+        foreach (var p in PlayerViews.Where(a => a.team == Team.Spectators))
+            sb.AppendLine(p.PlayerName);
         _Hud.ScoreBoard.text = sb.ToString();
     }
-    private static void PrintPls(StringBuilder sb, string templ, IEnumerable<Player> pls)
+    private void PrintPls(StringBuilder sb, string templ, IEnumerable<PlayerView> pls)
     {
         foreach (var p in pls)
-            sb.AppendLine(string.Format(templ, p.pv.PlayerName, p.dead ? "Dead" : "", p.pv.PlayerScore, p.pv.PlayerDeaths, p.pv.PlayerPing, p.pv.PlayerFps, "", ""));
+            sb.AppendLine(string.Format(templ, p.PlayerName, players[p.id] == null ? "Dead" : "", p.PlayerScore, p.PlayerDeaths, p.PlayerPing, p.PlayerFps, "", ""));
     }
 
     [RPC]
@@ -250,6 +258,7 @@ public class Game : Bs
     [RPC]
     private void StartGame()
     {
+        Debug.Log("StartGame");
         if (Network.isServer)
             foreach (Player p in GameObject.FindObjectsOfType(typeof(Player)))
             {
@@ -257,48 +266,47 @@ public class Game : Bs
                 Network.Destroy(p.gameObject);
             }
 
-        Debug.Log("StartGame");
         ResetGameTime = float.MaxValue;
         GameStarted = true;
         foreach (Transform a in Fx)
             Destroy(a.gameObject);
 
-        CreatePlayer();
+        if (pv.team != Team.Spectators)
+            CreatePlayer();
         _ObsCamera.audio.PlayOneShot(go.Random());
 
         if (Network.isServer)
         {
             for (int i = 0; i < playerViews.Length; i++)
-            {
-                var a = playerViews[i];
-                if (a.bot)
-                    CreateBot(i);
-            }
+                if (playerViews[i] != null)
+                {
+                    var a = playerViews[i];
+                    if (a.bot)
+                        CreateBot(i);
+                }
         }
     }
 
     private void CreatePlayer()
     {        
-        Player.paramId = NetworkPlayerID;    
-        InstanciatePlayer();
+        if(pv.team == Team.Spectators)
+            Debug.LogWarning("Player is Spec");
+        InstanciatePlayer(NetworkPlayerID);
     }
 
-    private void InstanciatePlayer()
+    private void InstanciatePlayer(int PlayerID)
     {
-        var vector3 = (playerViews[Player.paramId].team == Team.CounterTerrorists ? CTSpawn.position : TSpawn.position) + ZeroY(Random.onUnitSphere);
-        if (Offline)
-            Instantiate(PlayerPrefab, vector3, Quaternion.identity);
-        else
-            Network.Instantiate(PlayerPrefab, vector3, Quaternion.identity, (int)group.Player);
+        var vector3 = (playerViews[PlayerID].team == Team.CounterTerrorists ? CTSpawn.position : TSpawn.position) + ZeroY(Random.onUnitSphere);
+        var pl = ((GameObject)Network.Instantiate(PlayerPrefab, vector3, Quaternion.identity, (int)group.Player)).GetComponent<Player>();
+        pl.CallRPC(pl.SetID, RPCMode.AllBuffered, PlayerID);
     }
 
     internal void CreateBot(int id)
     {
         Debug.Log("Create Bot " + id);
-        Player.paramId = id;
         playerViews[id].bot = true;
         playerViews[id].skin = Random.Range(0, 3);        
-        InstanciatePlayer();
+        InstanciatePlayer(id);
     }
 
     [RPC]
@@ -314,48 +322,51 @@ public class Game : Bs
     void OnConnected()
     {
         Debug.Log("Connected " + name + _Loader.DebugLevelMode);
-
-        //if (_Loader.DebugLevel)
-        //    OnLevelWasLoaded(1);
-        CreatePlayer();
+        CallRPC(AddPlayerView, RPCMode.AllBuffered, Network.player.GetHashCode(), _Loader.playerName);
         _TeamSelectGui.enabled = true;
     }
-    public void OnPlayerDisconnected(NetworkPlayer player)
+    public void OnPlayerConnected(NetworkPlayer player)
     {
-        playerViews[player.GetHashCode()] = new PlayerView();
+        if (!Network.isServer) return;        
+        CallRPC(SetGameStarted, player, GameStarted);
+        CallRPC(SetCTScore, player, CTScore);
+        CallRPC(SetTScore, player, TScore);
+    }
+
+    
+
+    public void OnPlayerDisconnected(NetworkPlayer player)
+    {                
+        CallRPC(RemovePlayerView, RPCMode.All, player.GetHashCode());
         Network.RemoveRPCs(player);
         Network.DestroyPlayerObjects(player);
     }
     internal void OnTeamSelected()
     {
-        if (_Player != null && !_Player.dead)
-            _Player.CallRPC(_Player.SetLife, RPCMode.All, 0, _Player.id);
+        if (_Player != null)
+        {
+            Network.RemoveRPCs(_Player.networkView.viewID);
+            Network.Destroy(_Player.gameObject);
+        }
 
         if (!GameStarted)
         {
-            if (_Player != null)
-            {
-                Network.RemoveRPCs(_Player.networkView.viewID);
-                Network.Destroy(_Player.gameObject);
-            }
-            CreatePlayer();
+            
+            if (_Game.pv.team != Team.Spectators) CreatePlayer();
         }
     }
-    public void OnPlayerConnected(NetworkPlayer player)
-    {
-        if (!Network.isServer) return;
-        CallRPC(SetGameStarted, player, GameStarted);
-        CallRPC(SetCTScore, player, CTScore);
-        CallRPC(SetTScore, player, TScore);
-    }
-    public int GetNextFree()
+    
+    public int GetNextFreeSlot()
     {
         var i = 16;
         while (players[++i] != null) { }
         return i;
     }
+
+
+
     public void OnServerInitialized() { OnConnected(); }
     public void OnConnectedToServer() { OnConnected(); }
-
     
+
 }

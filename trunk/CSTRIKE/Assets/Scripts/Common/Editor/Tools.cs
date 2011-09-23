@@ -13,11 +13,11 @@ public class Tools : Editor{
         foreach (Material m in Selection.objects)
         {
             //m.shader = Shader.Find("Mobile/Unlit (Supports Lightmap)");
-            //m.shader = Shader.Find("Diffuse");
-            m.shader = Shader.Find("Toon/Basic Outline");
-            m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
-            m.SetFloat("_Outline", .002f);
-            m.SetColor("_Color",Color.white);
+            m.shader = Shader.Find("Diffuse");
+            //m.shader = Shader.Find("Toon/Basic Outline");
+            //m.SetTexture("_ToonShade", (Cubemap)AssetDatabase.LoadAssetAtPath(@"Assets\Standard Assets\Toon Shading\Sources\Textures\toony lighting.psd", typeof(Cubemap)));
+            //m.SetFloat("_Outline", .002f);
+            //m.SetColor("_Color",Color.white);
         }
     }
     

@@ -41,21 +41,14 @@ public class Gun : Bs
     public float shootCursor = 5;
     public float shootTime = .1f;
     float lastShoot;
-    float cursorOffset;
+    internal float cursorOffset;
     public int patrons = 30;
     internal bool shooting;
     public override void Awake()
     {
-        //Debug.Log("Gun Awake");
-        base.Awake();
         enabled = false;
+        base.Awake();
     }
-    public void OnSetup()
-    {
-        //Debug.Log("Gun On Setup");
-        enabled = true;
-    }
-
     public void Start()
     {
         m_handsShoot = new[] { handsAn["shoot1"], handsAn["shoot2"], handsAn["shoot3"] };
@@ -64,6 +57,10 @@ public class Gun : Bs
         handsDraw.layer = 1;
         handsReload.layer = 1;        
         handsAn.Play(handsDraw.name);
+    }
+    public void OnSetID()
+    {
+        enabled = true;
     }
     public void Update()
     {
@@ -160,9 +157,8 @@ public class Gun : Bs
                         else if (angle < -45) _Hud.SetPainLeft(1);
                         else _Hud.SetPainUp(1);
                     }
-                    if (enemy.IsMine && !enemy.dead)
+                    if (enemy.IsMine)
                     {                        
-
                         if (h.collider.name == "Bip01 Head")
                         {
                             enemy.CallRPC(enemy.SetLife, RPCMode.All, 0, pl.id);
@@ -194,30 +190,11 @@ public class Gun : Bs
         a.time = 0;
         handsAn.Play(a.name, PlayMode.StopSameLayer);
     }
-
-    
-
     private void CreateBlood(RaycastHit h)
     {
         ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
     }
-    public void OnRenderObject()
-    {
-        if (pl == _ObsCamera.pl) {
-            LineMaterial.SetPass(0);
-            GL.LoadOrtho();
-            GL.Begin(GL.LINES);
-            GL.Color(Color.green);
-            foreach (var a in list) {
-                var v = new Vector3(Screen.width, Screen.height) / 2 + new Vector3(a.x, a.y);
-                v += a.normalized * (1 + cursorOffset);
-                v.x /= Screen.width;
-                v.y /= Screen.height;
-                GL.Vertex(v);
-            }
-            GL.End();
-        }
-    }
+    
     
 
     #region props
@@ -247,29 +224,7 @@ public class Gun : Bs
         pl.audio.PlayOneShot(BoltPull, .5f);
     }
 
-    static Material lineMaterial;
-    static Material LineMaterial
-    {
-        get
-        {
-            if (!lineMaterial) {
-                lineMaterial = new Material("Shader \"Lines/Colored Blended\" {" +
-                    "SubShader { Pass { " +
-                    "    Blend SrcAlpha OneMinusSrcAlpha " +
-                    "    ZWrite Off Cull Off Fog { Mode Off } " +
-                    "    BindChannels {" +
-                    "      Bind \"vertex\", vertex Bind \"color\", color }" +
-                    "} } }") { hideFlags = HideFlags.HideAndDontSave, shader = { hideFlags = HideFlags.HideAndDontSave } };
-            }
-            return lineMaterial;
-        }
-    }
-    const float d = 3, len = 5;
-    Vector3[] list = new[]{ 
-            Vector3.left *d, Vector3.left*(d+len),
-            Vector3.up *d, Vector3.up*(d+len),
-            Vector3.right *d, Vector3.right*(d+len),
-            Vector3.down *d, Vector3.down*(d+len)};
+    
 
     #endregion
 }

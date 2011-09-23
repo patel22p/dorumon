@@ -42,8 +42,8 @@ public class Bs : Base
     //static Transform m_Fx;
     //public static Transform _Fx { get { if (m_Fx == null) m_Fx = (Transform)FindObjectOfType(; return m_Fx; } }
     public static ObsCamera _ObsCamera { get { return _Game.Obs; } }
-    static LevelEditor m_LevelEditor;
-    public static LevelEditor _LevelEditor { get { if (m_LevelEditor == null) m_LevelEditor = (LevelEditor)MonoBehaviour.FindObjectOfType(typeof(LevelEditor)); return m_LevelEditor; } }
+    //static LevelEditor m_LevelEditor;
+    //public static LevelEditor _LevelEditor { get { if (m_LevelEditor == null) m_LevelEditor = (LevelEditor)MonoBehaviour.FindObjectOfType(typeof(LevelEditor)); return m_LevelEditor; } }
 
     static TeamSelectGui m_TeamSelectGui;
     public static TeamSelectGui _TeamSelectGui { get { if (m_TeamSelectGui == null) m_TeamSelectGui = (TeamSelectGui)MonoBehaviour.FindObjectOfType(typeof(TeamSelectGui)); return m_TeamSelectGui; } }

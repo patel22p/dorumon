@@ -3,18 +3,17 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+public enum CamMode { thirdPerson2, thirdPerson, firstPerson, Free }
 public class ObsCamera : Bs
 {
-
     public Player pl;
-    public enum CamMode { thirdPerson2, thirdPerson, firstPerson, Free }
     public CamMode camMode;
     internal float KilledByTime = float.MinValue;
     //bool thirdPerson = true;
     Vector3 xy;
     public void LateUpdate()
     {
-        
+        if (Offline) return;
         if (Input.GetKeyDown(KeyCode.F1))
         {
             camMode = CamMode.firstPerson;
@@ -27,7 +26,7 @@ public class ObsCamera : Bs
             _Hud.PrintPopup("3nd ps Camera");
         }
 
-        if (_Player != null && !_Player.dead)
+        if (_Player != null)
         {
             pl = _Player;
             if (camMode == CamMode.Free || camMode == CamMode.thirdPerson)
@@ -35,10 +34,11 @@ public class ObsCamera : Bs
         }
         else
         {
-            if (_Game.AlivePlayers.Count() == 0)
+            
+            if (_Game.Players.Count() == 0)
                 camMode = CamMode.Free;
-            else if (pl == null || pl.dead)
-                pl = _Game.AlivePlayers.First();
+            else if (pl == null)
+                pl = _Game.Players.First();
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -49,7 +49,7 @@ public class ObsCamera : Bs
 
             if (Input.GetMouseButtonDown(0) && camMode != CamMode.Free)
             {
-                pl = _Game.AlivePlayers.Next(pl);
+                pl = _Game.Players.Next(pl);
                 _Hud.PrintPopup("Following: " + pl.name);
             }
         }
@@ -57,6 +57,7 @@ public class ObsCamera : Bs
         var t = TimeSpan.FromMilliseconds(_Game.GameTime);
         if ((camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2))
         {
+            if (pl == null) return;
             _Hud.SetPlayerHudActive(true);
             _Hud.SetSpectatorHudActive(false);            
             _Hud.life.text = "b" + pl.Life;
@@ -82,6 +83,7 @@ public class ObsCamera : Bs
             _Hud.SetPlayerHudActive(false);
             _Hud.SetSpectatorHudActive(true);
             
+            
             _Hud.SpecInfo.text = t.Minutes + ":" + t.Seconds + "   " + _Game.pv.PlayerMoney;
             if (camMode == CamMode.Free)
             {
@@ -91,6 +93,7 @@ public class ObsCamera : Bs
             }
             else if (camMode == CamMode.thirdPerson)
             {
+                if (pl == null) return;
                 rote += GetMouse();
                 pos = pl.pos + rot * Vector3.back * 3;                
             }
@@ -98,8 +101,6 @@ public class ObsCamera : Bs
 
     }
     Vector3 MouseRot;
-
-
     private void SetRenderers(Player pl)
     {
         pl.observing = true;
@@ -115,5 +116,50 @@ public class ObsCamera : Bs
             return max;
         return a;
     }
+
+    public void OnRenderObject()
+    {
+        //fix cursor
+        if ((camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2) && pl != null)
+        {
+            LineMaterial.SetPass(0);
+            GL.LoadOrtho();
+            GL.Begin(GL.LINES);
+            GL.Color(Color.green);
+            foreach (var a in list)
+            {
+                var v = new Vector3(Screen.width, Screen.height) / 2 + new Vector3(a.x, a.y);
+                v += a.normalized * (1 + pl.gun.cursorOffset);
+                v.x /= Screen.width;
+                v.y /= Screen.height;
+                GL.Vertex(v);
+            }
+            GL.End();
+        }
+    }
+    static Material lineMaterial;
+    static Material LineMaterial
+    {
+        get
+        {
+            if (!lineMaterial)
+            {
+                lineMaterial = new Material("Shader \"Lines/Colored Blended\" {" +
+                    "SubShader { Pass { " +
+                    "    Blend SrcAlpha OneMinusSrcAlpha " +
+                    "    ZWrite Off Cull Off Fog { Mode Off } " +
+                    "    BindChannels {" +
+                    "      Bind \"vertex\", vertex Bind \"color\", color }" +
+                    "} } }") { hideFlags = HideFlags.HideAndDontSave, shader = { hideFlags = HideFlags.HideAndDontSave } };
+            }
+            return lineMaterial;
+        }
+    }
+    const float d = 3, len = 5;
+    Vector3[] list = new[]{ 
+            Vector3.left *d, Vector3.left*(d+len),
+            Vector3.up *d, Vector3.up*(d+len),
+            Vector3.right *d, Vector3.right*(d+len),
+            Vector3.down *d, Vector3.down*(d+len)};
 
 }

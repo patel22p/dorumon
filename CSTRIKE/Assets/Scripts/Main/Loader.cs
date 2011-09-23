@@ -10,8 +10,6 @@ using Random = UnityEngine.Random;
 
 public class Loader : Bs
 {
-    //todo version
-    
     public int errorcount;
     public int exceptionCount;
     int lastLevelPrefix;
@@ -26,13 +24,16 @@ public class Loader : Bs
 
     public override void Awake()
     {
-        MasterServer.ipAddress = "127.0.0.1";
-        MasterServer.port = 23466;
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1)
         {
             Debug.Log("Destroyed Loader Dub");
             DestroyImmediate(this.gameObject);
             return;
+        }
+        if (isEditor)
+        {
+            MasterServer.ipAddress = "127.0.0.1";
+            MasterServer.port = 23466;
         }
         Debug.Log("Loader Awake");
         if (Application.loadedLevel != 0)

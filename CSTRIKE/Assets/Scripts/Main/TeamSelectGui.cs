@@ -51,15 +51,17 @@ public class TeamSelectGui : Bs
                 _Game.pv.team = Team.Spectators;
                 OnTeamSelected();
             }
-            if (Network.isServer && gui.Button("Add T Bot"))
+            if (_Game.levelEditor != null && Network.isServer && gui.Button("Add T Bot"))
             {
-                var i = _Game.GetNextFree();
+                var i = _Game.GetNextFreeSlot();                
+                _Game.CallRPC(_Game.AddPlayerView, RPCMode.AllBuffered, i, "Bot" + i);
                 _Game.playerViews[i].team = Team.Terrorists;
                 _Game.CreateBot(i);
             }
-            if (Network.isServer && gui.Button("Add CT Bot"))
+            if (_Game.levelEditor!=null && Network.isServer && gui.Button("Add CT Bot"))
             {
-                var i = _Game.GetNextFree();
+                var i = _Game.GetNextFreeSlot();                
+                _Game.CallRPC(_Game.AddPlayerView, RPCMode.AllBuffered, i, "Bot" + i);
                 _Game.playerViews[i].team = Team.CounterTerrorists;
                 _Game.CreateBot(i);
             }

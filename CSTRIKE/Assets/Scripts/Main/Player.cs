@@ -11,7 +11,6 @@ public class Player : Bs
     public new Camera camera;
     internal Gun gun;
     internal CharacterController controller;
-    public static int paramId;    
     public Transform[] TerrorSkins;
     public Transform[] CTerrorSkins;
     public Bs model;
@@ -68,53 +67,41 @@ public class Player : Bs
     public bool observing;
     public bool imortality;
 
-    //todo draw calls
     public override void Awake()
     {
-        IgnoreAll("IgnoreColl");
-
         enabled = false;
-        print("Player Awake " + IsMine);        
-        if (IsMine)
-        {
-            CallRPC(SetupPlayerID, RPCMode.All, (tag == "Bot") ? _Game.GetNextFree() : paramId);
-            CallRPC(SetBot, RPCMode.All, bot);
-            CallRPC(SetTeam, RPCMode.All, (int)pv.team);
-            CallRPC(SetName, RPCMode.All, bot ? "Bot" + id : _Loader.playerName);
-            CallRPC(SetSkin, RPCMode.All, pv.skin);
-        }
+        print("Player Awake " + id);        
         gun = GetComponentInChildren<Gun>();
         gun.pl = this;
-        
-        foreach (var a in GetComponentsInChildren<Rigidbody>())
-            a.isKinematic = true;
     }
-    public void OnSetup()
+    public void OnSetID()
     {
-        print("Player OnSetup");
         enabled = true;
     }
 
     public void Start()
     {
         if (IsMine && !bot) _Player = this;
-
-        if (!dead)
+        IgnoreAll("IgnoreColl");
+        if (IsMine)
         {
-            InitAnimations();
-            controller = GetComponent<CharacterController>();
-            model.animation.cullingType = IsMine ? AnimationCullingType.BasedOnClipBounds : AnimationCullingType.AlwaysAnimate;
+            CallRPC(SetBot, RPCMode.All, bot);
+            CallRPC(SetTeam, RPCMode.All, (int)pv.team);
+            CallRPC(SetSkin, RPCMode.All, pv.skin);
         }
+        foreach (var a in GetComponentsInChildren<Rigidbody>())
+            a.isKinematic = true;
+
+        InitAnimations();
+        controller = GetComponent<CharacterController>();
+        model.animation.cullingType = IsMine ? AnimationCullingType.BasedOnClipBounds : AnimationCullingType.AlwaysAnimate;
         if (!IsMine)
             name = (bot ? "RemoteBot" : "RemotePlayer") + id;
         else
-            name = (bot ? "Bot" : "Player") + id;
-
-        if (pv.team == Team.Spectators)
-            CallRPC(Disable, RPCMode.All);
+            name = (bot ? "Bot" : "Player") + id;        
     }
 
-    
+
     private void LoadSkin()
     {
 
@@ -146,20 +133,16 @@ public class Player : Bs
     public void OnPlayerConnected(NetworkPlayer player)
     {
         if (!Network.isServer) return;
-        
-        //CallRPC(SetupPlayer, player, pv.PlayerName, Offline ? Random.Range(0, 32) : Network.player.GetHashCode(), (int)_Game.team, pv.skin);
-        CallRPC(SetupPlayerID, player, bot ? _Game.GetNextFree() : NetworkPlayerID);
+        //_Game.timer.AddMethod(delegate
+        //{
         CallRPC(SetBot, player, bot);
         CallRPC(SetTeam, player, (int)pv.team);
-        CallRPC(SetName, player, bot ? "Bot" + _Game.GetNextFree() : _Loader.playerName);
         CallRPC(SetSkin, player, bot || Offline ? Random.Range(0, 3) : pv.skin);
         CallRPC(SetPlayerDeaths, player, pv.PlayerDeaths);
         CallRPC(SetPlayerScore, player, pv.PlayerScore);
         CallRPC(SetMoney, player, pv.PlayerMoney);
-        if (dead)
-            CallRPC(Disable, player);
-        else
-            CallRPC(SetLife, player, Life, id);
+        CallRPC(SetLife, player, Life, id);
+        //});
     }
 
 
@@ -190,52 +173,33 @@ public class Player : Bs
     {
         this.pv.team = (Team)team;
     }
+
     [RPC]
-    private void SetPlayerScore(int score)
+    public void SetID(int id)
     {
-        pv.PlayerScore = score;
+        print("SetId"+id);
+        this.id = id;
+        _Game.players[id] = this;
+        foreach (var a in this.GetComponentsInChildren<Bs>())
+            a.SendMessage("OnSetID",SendMessageOptions.DontRequireReceiver);
     }
-    [RPC]
-    private void SetPlayerDeaths(int PlayerDeaths)
-    {
-        pv.PlayerDeaths = PlayerDeaths;
-    }
+
     [RPC]
     private void SetBot(bool bot)
     {
         print("SetBot "+bot);
         this.pv.bot = bot;
     }
-    [RPC]
-    private void SetName(string name)
-    {
-        pv.PlayerName = name;
-    }
+ 
     [RPC]
     private void SetSkin(int skin)
     {
         pv.skin = skin;
         LoadSkin();
-    }
-
-    [RPC]
-    private void SetupPlayerID(int PlayerID)
-    {
-        print("SetId "+ PlayerID);
-        this.id = PlayerID;
-        _Game.players[PlayerID] = this;
-        _Game.timer.AddMethod(delegate
-                                  {
-                                      foreach (var a in transform.GetComponentsInChildren<Bs>())
-                                          a.SendMessage("OnSetup", SendMessageOptions.DontRequireReceiver);
-                                  });
-    }
-
-    
+    }        
 
     public void Update()
     {
-        if (dead) return;
         //todo add bomb
         UpdateJump();
         UpdateMove();
@@ -250,9 +214,9 @@ public class Player : Bs
     private void UpdateOther()
     {
         if (posy < -20)
-            CallRPC(Disable, RPCMode.All);
+            CallRPC(Die, RPCMode.All);
 
-        if (_Player.pv.team == Team.Spectators || _Player.dead || pv.team == _Player.pv.team)
+        if (_Game.pv.team == Team.Spectators || pv.team == _Game.pv.team)
             MiniMapCursor.renderer.enabled = true;
         else
             MiniMapCursor.renderer.enabled = false;
@@ -282,12 +246,10 @@ public class Player : Bs
     }
     public void LateUpdate()
     {
-        if (dead) return;
         observing = false;
     }
     public void FixedUpdate()
     {
-        if (dead) return;
         if (syncUpdated)
         {
             vel = syncVel;
@@ -352,9 +314,6 @@ public class Player : Bs
         SetWeight(blends[3], Mathf.Max(0, 1 - Vector3.Distance(numpad, (Vector3.left + Vector3.up))));
         SetWeight(blends[9], Mathf.Max(0, 1 - Vector3.Distance(numpad, (Vector3.left + Vector3.down))));
     }
-
-
-
     private void UpdateMove()
     {
 
@@ -383,54 +342,48 @@ public class Player : Bs
         }
 
     }
-    Path path;
     
+    Path path;
     Node curNode;
     float EnemySeenTime;
     float nextShootTime;
     Vector3 e;
-
 
     List<Player> LastShooted = new List<Player>();
 
     private void UpdateBot()
     {
 
-        var enemies = _Game.Players.Where(a => a != null && !a.dead && a.pv.team != pv.team)
-            .Union(LastShooted.Where(a => a != null && !a.dead))
+        //note add hold time
+        //note add node width
+        //note add atack nodes when shooting
+        var enemies = _Game.Players.Where(a => a.pv.team != pv.team)
+            .Union(LastShooted.Where(a => a != null))
             .OrderBy(a => Vector3.Distance(pos, a.pos));
         
-        
-        
-
         var visibleEnemy = enemies.FirstOrDefault(a => !Physics.Raycast(new Ray(pos, a.pos - pos), Vector3.Distance(a.pos, pos), 1 << LayerMask.NameToLayer("Level"))
                                                     && !Physics.Raycast(new Ray(pos, (a.pos - pos) + Vector3.up), Vector3.Distance(a.pos, pos), 1 << LayerMask.NameToLayer("Level")));
 
         if (enemies.Count() > 0)
         {
-            //todo if you shoot he shoot back
-            //todo if hit RayForward go left
-
             //selectNode
             if (path == null)
             {
-                path = _LevelEditor.paths.OrderBy(a => a.walkCount).FirstOrDefault(a => Vector3.Distance(pos, a.nodes.First().position) < 20);
-                path.walkCount++;
+                path = _Game.levelEditor.paths.Where(a => Vector3.Distance(pos, a.StartNode.pos) < 20).Random();
+                path.walkCount++;                
                 curNode = path.nodes.OrderBy(a => Vector3.Distance(pos, a.pos)).FirstOrDefault();
                 curNode.walkCount++;
-                curNode.lastP = this;
             }
 
             if (Vector3.Distance(curNode.pos, pos) < 2)
             {
-                curNode = curNode.Nodes.OrderBy(a => a.walkCount).FirstOrDefault(a => a.lastP != this);
+                curNode = curNode.Nodes.OrderBy(a => a.walkCount).FirstOrDefault();
                 if (curNode == null)
                 {
                     path = null;
                     return;
                 }
                 curNode.walkCount++;
-                curNode.lastP = this;
             }
             
 
@@ -452,6 +405,8 @@ public class Player : Bs
           
             var dir = ZeroY(curNode.pos - pos);
             if (Physics.Raycast(new Ray(pos, dir), 1, 1 << LayerMask.NameToLayer("Player")))
+            //    stucktime = Time.time;
+            //if (stucktime + .5f > Time.time)
                 dir = Quaternion.LookRotation(Vector3.left) * dir;
             Debug.DrawRay(pos, dir, Color.green);            
             move = ZeroY(Quaternion.Inverse(camera.transform.rotation) * dir);
@@ -462,7 +417,7 @@ public class Player : Bs
             ////shoot
             if (visibleEnemy != null)
             {
-                //todo depends distance
+                //note depends distance
                 if (Time.time > nextShootTime && !gun.handsReload.enabled)
                 {
                     if (Time.time > nextShootTime + .5f)
@@ -482,18 +437,19 @@ public class Player : Bs
             CallRPC(SetLife, RPCMode.All, 0, id);
         move = GetMove();
         Vector3 MouseDelta = GetMouse();
-        if (_ObsCamera.camMode == ObsCamera.CamMode.thirdPerson2)
+        if (_ObsCamera.camMode == CamMode.thirdPerson2)
         {
             Ray ray = _ObsCamera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
             RaycastHit hit;
-            //fix look to nearest wall
+            ray.origin += (pos - _ObsCamera.pos).magnitude * ray.direction.normalized;
+            Debug.DrawRay(ray.origin, ray.direction);
             if (Physics.Raycast(ray, out hit, 1000))
             {
-                var hitRot = Quaternion.LookRotation(hit.point - camera.transform.position).eulerAngles;
+                var dir = Quaternion.LookRotation(hit.point - camera.transform.position).eulerAngles;
                 var CamerRot = camera.transform.eulerAngles;
-                MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, hitRot.x),
-                                         Mathf.DeltaAngle(CamerRot.y, hitRot.y), 0);
-            }
+                MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, dir.x),
+                                         Mathf.DeltaAngle(CamerRot.y, dir.y), 0);
+            } 
         }
 
         CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
@@ -526,91 +482,97 @@ public class Player : Bs
         Fade(jump);
         vel *= 1.2f;
     }
+    [RPC]
+    public void SetPlayerScore(int score)
+    {
+        pv.PlayerScore = score;
+    }
 
+    [RPC]
+    public void SetPlayerDeaths(int PlayerDeaths)
+    {
+        pv.PlayerDeaths = PlayerDeaths;
+    }
     [RPC]
     public void SetLife(int life, int player)
     {
-        if (dead) return;
+        if (!enabled) return;
+        var pl = _Game.players[player];
         if (!(imortality && isEditor))
             Life = life;
         HitTime = Time.time;
         audio.PlayOneShot(hitSound.Random(), 3);
         if (Life <= 0)
-        {
-            Die(player);
+        {            
+            if (pl != null)
+                _Hud.KillText.text += pl.pv.PlayerName + " Killed " + pv.PlayerName + "\r\n";
+            _Game.timer.AddMethod(15000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
+            if (IsMine)
+            {                
+                _ObsCamera.pl = pl;
+                if (pl != this)
+                    pl.CallRPC(pl.SetPlayerScore, RPCMode.All, pl.pv.PlayerScore + 1);
+                CallRPC(SetPlayerDeaths, RPCMode.All, pv.PlayerDeaths + 1);
+                _ObsCamera.camMode = CamMode.thirdPerson;
+            }
+            if (IsMine)
+                CallRPC(Die, RPCMode.All);
         }
-        var pl = _Game.players[player];
 
         if (pl != null && bot && pl.pv.team == pv.team && !LastShooted.Contains(pl))
         {
-            print("AllyKiller");
             LastShooted.Add(pl);
         }
 
     }
-    private void Die(int player)
+    
+    [RPC]
+    private void Die()
     {
-        if (dead) return;
-        print("Die" + pv.PlayerName);
-        var pl = _Game.players[player];
-        if(pl!=null)
-            _Hud.KillText.text += pl.pv.PlayerName + " Killed " + pv.PlayerName + "\r\n";
+        if (!enabled) return;
+        SetPlayerRendererActive(true);
+        print("Die" + pv.PlayerName);        
         audio.PlayOneShot(dieSound.Random(), 6);
         Destroy(model.animation);
         foreach (var a in model.GetComponentsInChildren<Rigidbody>())
             a.isKinematic = false;
         model.SetLayer(LayerMask.NameToLayer("Player"));
-        _Game.timer.AddMethod(15000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
-        
         model.parent = _Game.Fx;
+        enabled = false;
         Destroy(p_gun.gameObject);
-        Destroy(model.gameObject, 5);
-        if (IsMine && !bot)
+        Destroy(model.gameObject, 10);
+        if (IsMine)
         {
-            _ObsCamera.pl = pl;
-            if (pl != this)
-                pl.CallRPC(SetPlayerScore, RPCMode.All, pl.pv.PlayerScore + 1);
-            CallRPC(SetPlayerDeaths, RPCMode.All, pv.PlayerDeaths + 1);
-            _ObsCamera.camMode = ObsCamera.CamMode.thirdPerson;
-        }
-        Disable();
+            _Game.timer.AddMethod(delegate
+                                      {
+                                          Network.RemoveRPCs(networkView.viewID);
+                                          Network.Destroy(gameObject);
+                                      });
+        }        
     }
-    [RPC]
-    private void Disable()
-    {
-        if (dead) return;
-        print("Disable" + name);
-        Life = 0;
-        SetPlayerRendererActive(true);
-        dead = true;
-        foreach (Transform t in transform)
-            Destroy(t.gameObject);
-        transform.parent = null;
-        foreach (var c in this.GetComponents<Component>())
-            if (c != this && !(c is Transform) && !(c is NetworkView)) Destroy(c);
-        name += " - Dead";
-    }
+    
 
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (Time.time - grounded > .6f)
             vel = Vector3.zero;
-
-        if (controller.velocity.y < -10f && IsMine)
+        if (IsMine)
         {
-            CallRPC(SetLife, RPCMode.All, Life + (int)(controller.velocity.y * 3), id);
-            audio.PlayOneShot(fallSound.Random());
-        }
-        if (controller.velocity.y < -7)
-        {
-            customAnim.Play("Hit");
-            HitTime = Time.time;
+            if (controller.velocity.y < -10f && IsMine)
+            {
+                CallRPC(SetLife, RPCMode.All, Life + (int) (controller.velocity.y*3), id);
+                audio.PlayOneShot(fallSound.Random());
+            }
+            if (controller.velocity.y < -7)
+            {
+                customAnim.Play("Hit");
+                HitTime = Time.time;
+            }
         }
     }
 
     public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
-        if (dead) return;
         if (stream.isWriting)
         {
             syncPos = pos;
@@ -655,14 +617,12 @@ public class Player : Bs
     }
 
     bool isGrounded { get { return Time.time - grounded < .1f; } }
-    public bool dead;
-
 
     public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }
 
     public void SetPlayerRendererActive(bool value)
     {
-        
+        if (!enabled) return;
         if (PlayerRenderersActive != value)
         {
             PlayerRenderersActive = value;
@@ -688,7 +648,7 @@ public class Player : Bs
     public bool bot { get { return pv.bot; } }
     public new void print(object o)
     {
-        Debug.Log(name + id + ":" + o);
+        Debug.Log(name + ":" + o);
     }
 }
 

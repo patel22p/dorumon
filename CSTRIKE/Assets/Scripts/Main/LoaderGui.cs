@@ -9,7 +9,6 @@ public class LoaderGui : Bs
     string ip = "127.0.0.1";
     string label = "";
     public string version;
-    //todo fix server list
     public override void Awake()
     {   
         if(!isEditor)

@@ -12,15 +12,28 @@ using gui = UnityEngine.GUILayout;
 public class Node : Bs
 {
     public bool StartNode;
+    public float height;
     internal int walkCount;
     public List<Node> nodes = new List<Node>();
     public IEnumerable<Node> Nodes { get { return nodes.Where(a => a != null); } }
     public override void Awake()
     {
-        Active(false);
+        if (!isEditor)
+            Active(false);
     }
-#if UNITY_EDITOR
 
+    public Vector3 GetPos(float offset)
+    {
+        return pos + rot * Vector3.left * offset;
+    }
+
+
+#if UNITY_EDITOR
+    private static Node[] GetNodes()
+    {
+        Node[] nds = Selection.gameObjects.Select(a => a.GetComponent<Node>()).Where(b => b != null).ToArray();
+        return nds;
+    }
     public override void OnEditorGui()
     {
         if (gui.Button("Link Nodes"))
@@ -42,10 +55,6 @@ public class Node : Bs
         }
     }
 
-    private static Node[] GetNodes()
-    {
-        Node[] nds = Selection.gameObjects.Select(a => a.GetComponent<Node>()).Where(b => b != null).ToArray();
-        return nds;
-    }
+    
 #endif
 }

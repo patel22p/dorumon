@@ -5,16 +5,11 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
 public enum Team { Spectators, Terrorists, CounterTerrorists }
-public class Player : Bs
+
+public class Player : Shared
 {
-    
-    public new Camera camera;
-    internal Gun gun;
-    internal CharacterController controller;
     public Transform[] TerrorSkins;
     public Transform[] CTerrorSkins;
-    public Bs model;
-    public Bs Cam;
     public Transform UpperBone;
     public Transform CamRnd;
     public Transform p_gun;
@@ -32,36 +27,14 @@ public class Player : Bs
     public AudioClip[] headShootSound;
     public AudioClip[] hitSound;
     public AudioClip[] fallSound;
-    public PlayerView pv { get { return _Game.playerViews[id]; } }
     public Transform[] RagDoll;
     public List<Renderer> playerRenders = new List<Renderer>();
     public Renderer[] gunRenders;
     Renderer[] SkinRenderers = new Renderer[] { };
-    private Animation an { get { return model.animation; } }
-    private AnimationState idle { get { return an["idle"]; } }
-    private AnimationState run { get { return an["run"]; } }
     private AnimationState jump { get { return an["jump"]; } }
     public Animation customAnim { get { return animation; } }
-    public AnimationCurve SpeedAdd;
-    public Vector3 vel;
-    Vector3 move;
-    public Vector3 syncPos;
-    public Vector3 syncVel;
-    public Vector3 syncMove;
-    public int left = -65;
-    public int right = 95;
-    public int Life = 100;
-    public int Shield = 100;    
-    internal int id = -1;
-    
-    public float HitTime;
-    public float yvel;
-    private float grounded;
-    public float speeadd;
-    public float VelM;
-    public float syncRotx;
-    public float syncRoty;
-    bool syncUpdated;
+    public int Shield = 100;
+
     private bool PlayerRenderersActive = true;
     private bool GunRenderersActive = true;
     public bool observing;
@@ -248,31 +221,7 @@ public class Player : Bs
     {
         observing = false;
     }
-    public void FixedUpdate()
-    {
-        if (syncUpdated)
-        {
-            vel = syncVel;
-            move = syncMove;
-        }
 
-        if (move.magnitude > 0 && isGrounded)
-        {
-            speeadd = Mathf.Max(0, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
-            VelM = vel.magnitude;
-            vel += rot * move * speeadd * (Time.time - HitTime < 1 ? .5f : 1);
-        }
-        if (isGrounded)
-            vel *= .83f;
-        controller.SimpleMove(vel);
-
-
-        if (yvel > 0f)
-            controller.Move(new Vector3(0, yvel, 0));
-        if (syncUpdated)
-            controller.Move(syncPos - pos);
-        syncUpdated = false;
-    }
     private void UpdateJump()
     {
         if (controller.isGrounded) grounded = Time.time;
@@ -343,93 +292,6 @@ public class Player : Bs
 
     }
     
-    Path path;
-    Node curNode;
-    float EnemySeenTime;
-    float nextShootTime;
-    Vector3 e;
-
-    List<Player> LastShooted = new List<Player>();
-
-    private void UpdateBot()
-    {
-
-        //note add hold time
-        //note add node width
-        //note add atack nodes when shooting
-        var enemies = _Game.Players.Where(a => a.pv.team != pv.team)
-            .Union(LastShooted.Where(a => a != null))
-            .OrderBy(a => Vector3.Distance(pos, a.pos));
-        
-        var visibleEnemy = enemies.FirstOrDefault(a => !Physics.Raycast(new Ray(pos, a.pos - pos), Vector3.Distance(a.pos, pos), 1 << LayerMask.NameToLayer("Level"))
-                                                    && !Physics.Raycast(new Ray(pos, (a.pos - pos) + Vector3.up), Vector3.Distance(a.pos, pos), 1 << LayerMask.NameToLayer("Level")));
-
-        if (enemies.Count() > 0)
-        {
-            //selectNode
-            if (path == null)
-            {
-                path = _Game.levelEditor.paths.Where(a => Vector3.Distance(pos, a.StartNode.pos) < 20).Random();
-                path.walkCount++;                
-                curNode = path.nodes.OrderBy(a => Vector3.Distance(pos, a.pos)).FirstOrDefault();
-                curNode.walkCount++;
-            }
-
-            if (Vector3.Distance(curNode.pos, pos) < 2)
-            {
-                curNode = curNode.Nodes.OrderBy(a => a.walkCount).FirstOrDefault();
-                if (curNode == null)
-                {
-                    path = null;
-                    return;
-                }
-                curNode.walkCount++;
-            }
-            
-
-            //rotate
-            if (visibleEnemy != null)
-            {
-                Debug.DrawRay(pos, visibleEnemy.pos - pos, Color.red);
-                EnemySeenTime = Time.time;
-                e = Quaternion.LookRotation(visibleEnemy.pos - pos).eulerAngles;
-            }
-            if (Time.time - EnemySeenTime > 3)
-                e = Quaternion.LookRotation(ZeroY(curNode.pos - pos)).eulerAngles;
-
-            var CamerRot = camera.transform.eulerAngles;
-            Vector3 MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, e.x),
-                                             Mathf.DeltaAngle(CamerRot.y, e.y), 0) * Time.deltaTime * 10;
-
-            ////move
-          
-            var dir = ZeroY(curNode.pos - pos);
-            if (Physics.Raycast(new Ray(pos, dir), 1, 1 << LayerMask.NameToLayer("Player")))
-            //    stucktime = Time.time;
-            //if (stucktime + .5f > Time.time)
-                dir = Quaternion.LookRotation(Vector3.left) * dir;
-            Debug.DrawRay(pos, dir, Color.green);            
-            move = ZeroY(Quaternion.Inverse(camera.transform.rotation) * dir);
-
-            CamRotX += MouseDelta.x;
-            Rotate(MouseDelta.y);
-
-            ////shoot
-            if (visibleEnemy != null)
-            {
-                //note depends distance
-                if (Time.time > nextShootTime && !gun.handsReload.enabled)
-                {
-                    if (Time.time > nextShootTime + .5f)
-                        nextShootTime = Time.time + Random.Range(0, 2f);
-                    move = Vector3.zero;
-                    gun.MouseDown();
-                }
-            }
-        }
-        else
-            move = Vector3.zero;
-    }
     private void UpdateInput()
     {
 
@@ -462,12 +324,7 @@ public class Player : Bs
         if (Input.GetKeyDown(KeyCode.R) && !gun.handsReload.enabled && gun.patrons != 30)
             gun.CallRPC(gun.Reload, RPCMode.All);
     }
-    private void Rotate(float d)
-    {
-        //todo smooth rotate
-        roty += d;
-        model.lroty = Mathf.Clamp(clampAngle(model.lroty - d), left, right);
-    }
+
     [RPC]
     private void SetFPS(int fps, int ping)
     {
@@ -519,11 +376,8 @@ public class Player : Bs
                 CallRPC(Die, RPCMode.All);
         }
 
-        if (pl != null && bot && pl.pv.team == pv.team && !LastShooted.Contains(pl))
-        {
+        if (pl != null && pl != this && bot && pl.pv.team == pv.team && !LastShooted.Contains(pl))
             LastShooted.Add(pl);
-        }
-
     }
     
     [RPC]
@@ -571,26 +425,6 @@ public class Player : Bs
         }
     }
 
-    public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (stream.isWriting)
-        {
-            syncPos = pos;
-            syncRotx = CamRotX;
-            syncRoty = roty;
-            syncVel = vel;
-            syncMove = move;
-        }
-        stream.Serialize(ref syncPos);
-        stream.Serialize(ref syncRotx);
-        stream.Serialize(ref syncRoty);
-        stream.Serialize(ref syncVel);
-        stream.Serialize(ref syncMove);
-        if (stream.isReading)
-            syncUpdated = true;
-
-    }
-
     #region props
     public void WalkSound()
     {
@@ -615,10 +449,6 @@ public class Player : Bs
             return m_blends;
         }
     }
-
-    bool isGrounded { get { return Time.time - grounded < .1f; } }
-
-    public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }
 
     public void SetPlayerRendererActive(bool value)
     {

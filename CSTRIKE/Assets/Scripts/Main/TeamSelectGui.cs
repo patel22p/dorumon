@@ -17,6 +17,7 @@ public class TeamSelectGui : Bs
     }
     
     bool teamSelected;
+    Team team;
     void SelectTeam(int id)
     {
         if (teamSelected)
@@ -38,12 +39,12 @@ public class TeamSelectGui : Bs
         {
             if (gui.Button("Terrorists") || Input.GetKeyDown(KeyCode.Alpha1))
             {
-                _Game.pv.team = Team.Terrorists;
+                team = Team.Terrorists;
                 teamSelected = true;
             }
             if (gui.Button("Counter Terrorists") || Input.GetKeyDown(KeyCode.Alpha2))
             {
-                _Game.pv.team = Team.CounterTerrorists;
+                team = Team.CounterTerrorists;
                 teamSelected = true;
             }
             if (gui.Button("Spectator") || Input.GetKeyDown(KeyCode.Alpha5))
@@ -70,6 +71,7 @@ public class TeamSelectGui : Bs
 
     private void OnTeamSelected()
     {
+        _Game.pv.team = team;
         teamSelected = false;
         this.enabled = false;
         _Game.OnTeamSelected();

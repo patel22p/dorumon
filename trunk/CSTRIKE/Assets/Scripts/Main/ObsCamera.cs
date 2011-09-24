@@ -21,8 +21,7 @@ public class ObsCamera : Bs
         }
         if (Input.GetKeyDown(KeyCode.F2))
         {
-            camMode = CamMode.thirdPerson2;
-
+            camMode = _Player != null ? CamMode.thirdPerson2 : CamMode.thirdPerson;
             _Hud.PrintPopup("3nd ps Camera");
         }
 

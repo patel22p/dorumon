@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_4_0;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_4_0;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_WEBPLAYER;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -58,10 +58,12 @@
      <Compile Include="Assets\Scripts\Main\LevelEditor.cs" />
      <Compile Include="Assets\Scripts\Main\Loader.cs" />
      <Compile Include="Assets\Scripts\Main\LoaderGui.cs" />
+     <Compile Include="Assets\Scripts\Main\Monster.cs" />
      <Compile Include="Assets\Scripts\Main\Node.cs" />
      <Compile Include="Assets\Scripts\Main\ObsCamera.cs" />
      <Compile Include="Assets\Scripts\Main\Path.cs" />
      <Compile Include="Assets\Scripts\Main\Player.cs" />
+     <Compile Include="Assets\Scripts\Main\Shared.cs" />
      <Compile Include="Assets\Scripts\Main\TeamSelectGui.cs" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Standard Assets\Standard Assets (Mobile)\Shaders\Particle Shaders\Mobile Multiply Culled.shader" />

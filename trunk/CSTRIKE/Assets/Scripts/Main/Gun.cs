@@ -137,7 +137,7 @@ public class Gun : Bs
             if (enemy != null)
             {
                 if (enemy == pl ) continue;
-                if (enemy.pv.team != pl.pv.team || isEditor)
+                if (enemy.pv.team != pl.pv.team)
                 {
                     CreateBlood(h);
                     ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);

@@ -86,6 +86,7 @@ public class Loader : Bs
     {
         Debug.Log("Disconnected "+name);
         _LoaderGui.enabled = true;
+        _LoaderGui.Print("Server closed connection");
         Application.LoadLevel(0);
         
     }

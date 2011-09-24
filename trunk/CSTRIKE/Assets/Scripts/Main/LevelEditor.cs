@@ -89,11 +89,11 @@ public class LevelEditor : Bs
                     foreach (var o in n.nodes)
                         if (o != null)
                         {
-                            //Gizmos.color = Color.white;
+                            Gizmos.color = Color.white;
                             Gizmos.DrawLine(n.pos, o.pos);
-                            //Gizmos.color = Color.red;
-                            //Gizmos.DrawRay(o.pos, Quaternion.Euler(0, 35, 0) * (o.pos - n.pos).normalized * .3f);
-                            //Gizmos.DrawRay(o.pos, Quaternion.Euler(0, -35, 0) * (o.pos - n.pos).normalized * .3f);
+                            var v = ZeroY(n.rot * Vector3.left);
+                            Gizmos.color = Color.cyan;
+                            Gizmos.DrawRay(n.pos - v * n.height, v * n.height * 2);
                         }
 
             }

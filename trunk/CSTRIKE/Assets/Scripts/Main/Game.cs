@@ -172,7 +172,6 @@ public class Game : Bs
                 {
                     if (!Players.Any(a => a.pv.team == Team.CounterTerrorists))
                     {
-                        //todo use playerViewer
                         CallRPC(SetTScore, RPCMode.All, TScore + 1);
                         ResetGameTime = Time.time;
                         CallRPC(TerWin, RPCMode.All);

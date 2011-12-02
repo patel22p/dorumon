@@ -50,6 +50,9 @@
      <Compile Include="Assets\Scripts\Common\MeshCombineUtility.cs" />
      <Compile Include="Assets\Scripts\Common\Timer.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
+     <Compile Include="Assets\Scripts\LevelEditor.cs" />
+     <Compile Include="Assets\Scripts\Node.cs" />
+     <Compile Include="Assets\Scripts\Path.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\NoiseEffectShaderRGB.shader" />

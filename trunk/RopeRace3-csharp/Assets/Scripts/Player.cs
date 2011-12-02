@@ -13,10 +13,7 @@ public class Player : Bs {
     public float MaxAngl=100;
 	void FixedUpdate () {
         rigidbody.maxAngularVelocity = MaxAngl;
-        if (Input.GetKey(KeyCode.D))
-            this.rigidbody.AddRelativeTorque(-Vector3.forward * torq);
-        if (Input.GetKey(KeyCode.A))
-            this.rigidbody.AddRelativeTorque(Vector3.forward * torq);
+       
     }
     
 }

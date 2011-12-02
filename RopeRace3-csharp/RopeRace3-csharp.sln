@@ -1,18 +1,15 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass-vs", "Assembly-CSharp-firstpass-vs.csproj", "{761F8873-5AD4-79B5-6FF1-F5AC84FFC680}"
+# Visual Studio 2008
+
+Project("{05CB5D14-05CC-F653-C10C-20E6680D204F}") = "RopeRace3", "Assembly-CSharp-firstpass-vs.csproj", "{761F8873-5AD4-79B5-6FF1-F5AC84FFC680}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-vs", "Assembly-CSharp-vs.csproj", "{317FC4C5-26E4-A103-C682-2DA85D701478}"
+Project("{05CB5D14-05CC-F653-C10C-20E6680D204F}") = "RopeRace3", "Assembly-CSharp-vs.csproj", "{317FC4C5-26E4-A103-C682-2DA85D701478}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor-firstpass-vs", "Assembly-CSharp-Editor-firstpass-vs.csproj", "{7517BDF7-DBDC-DD15-1AB3-274A93B99405}"
+Project("{05CB5D14-05CC-F653-C10C-20E6680D204F}") = "RopeRace3", "Assembly-CSharp-Editor-firstpass-vs.csproj", "{7517BDF7-DBDC-DD15-1AB3-274A93B99405}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor-vs", "Assembly-CSharp-Editor-vs.csproj", "{4A57BA6E-74CE-33C2-59FB-7B8DFA0B4A97}"
+Project("{05CB5D14-05CC-F653-C10C-20E6680D204F}") = "RopeRace3", "Assembly-CSharp-Editor-vs.csproj", "{4A57BA6E-74CE-33C2-59FB-7B8DFA0B4A97}"
 EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -38,4 +35,5 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	
 EndGlobal

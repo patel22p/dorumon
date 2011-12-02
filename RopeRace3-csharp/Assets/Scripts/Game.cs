@@ -1,42 +1,60 @@
 using System.Linq;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Game : Bs {
-
+    public override void Awake()
+    {
+        _Game = this;
+        _Camera = cam.GetComponentInChildren<Camera>();
+        base.Awake();
+    }
 	void Start () {
         //CurNode = Path.nodes.First();
+        foreach (Rigidbody a in GameObject.FindObjectsOfType(typeof(Rigidbody)))
+        {
+            if (a.gameObject.GetComponent<Player>() == null)
+                obsToRotate.Add(a.transform);
+        }
     }
     public Path Path;
     public Transform level;
     public Player pl;
     public Transform cam;
+    
     public Transform Death;
+    
     public Node CurNode;
-
+    public List<Transform> obsToRotate;
     void FixedUpdate()
     {
-        var tmp = CurNode.Nodes.FirstOrDefault(a => Vector3.Distance(pl.pos, a.pos) <1);
-        if (tmp != null) CurNode = tmp;
 
+        var lr = pl.rigidbody.velocity.x > 0;
+        CurNode = CurNode.Nodes.FirstOrDefault(a => Vector3.Distance(a.position, pl.pos) < 2f) ?? CurNode;
+        var nextbone = CurNode.Nodes.Add(CurNode).FirstOrDefault(a =>
+            (lr && pl.posx < a.position.x || !lr && pl.posx >= a.position.x)
+            && Vector3.Distance(a.position, pl.pos) > 2f);
 
-        if (Input.GetKey(KeyCode.D) && CurNode.NextNode != null)
-            pl.rigidbody.AddForce((-pl.pos + CurNode.NextNode.pos).normalized * pl.torq);
-        if (Input.GetKey(KeyCode.A) && CurNode.PrevNode != null)
-            pl.rigidbody.AddForce((-pl.pos + CurNode.PrevNode.pos).normalized * pl.torq);
-        Node nearest = CurNode.Nodes.OrderBy(a => Vector3.Distance(pl.pos, a.pos)).FirstOrDefault();
-        Debug.DrawLine(pl.pos, nearest.pos);
-        cam.position = Vector3.Lerp(cam.position, pl.pos, Time.deltaTime * camspeed);
+        if (nextbone != null)
+        {
+            Debug.DrawLine(pl.pos, nextbone.position, Color.red);
+            var angle = lr ? clamp(Quaternion.LookRotation(pl.pos - nextbone.position).eulerAngles.y + 90) :
+                clamp(Quaternion.LookRotation(nextbone.position - pl.pos).eulerAngles.y + 90);
+            //print(angle);
+            angle = angle * Time.deltaTime * camrotspeed;
+            foreach (var a in obsToRotate)
+                a.RotateAround(pl.pos, -Vector3.up, angle);
+
+            cam.position = Vector3.Lerp(cam.position, pl.pos, Time.deltaTime * camspeed);           
+        }
         if (pl.position.y < Death.position.y)
         {
-            pl.position = CurNode.position + Vector3.up;
+            pl.position = CurNode.PrevNode.pos + Vector3.up;
             pl.rigidbody.velocity = Vector3.zero;
         }
-        pl.rigidbody.angularVelocity = Vector3.Project(pl.rigidbody.angularVelocity, CurNode.transform.right);
-        Debug.DrawLine(pl.pos, pl.pos + pl.rigidbody.angularVelocity, Color.red);
-        pl.rigidbody.velocity = ZeroY(Vector3.Project(pl.rigidbody.velocity, pl.pos - nearest.pos)) + Vector3.up * pl.rigidbody.velocity.y;
-        
     }
+
     public float camspeed=1;
     public float camrotspeed = 1;
 }

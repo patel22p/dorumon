@@ -11,7 +11,12 @@ using System.Collections;
 public static class Ext
 {
 
-    
+    public static IEnumerable<T> Add<T>(this IEnumerable<T> ts, T t)
+    {
+        yield return t;
+        foreach (var a in ts)
+            yield return a;
+    }
     public static T Next<T>(this IEnumerable<T> ts, T t) 
     {        
         T o = default(T);

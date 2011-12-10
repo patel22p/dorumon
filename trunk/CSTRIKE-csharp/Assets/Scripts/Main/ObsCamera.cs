@@ -14,9 +14,9 @@ public class ObsCamera : Bs
     Vector3 xy;
     public void LateUpdate()
     {
-        //todo fix follow bot no gui
-        //todo fix follow bot - cursor
-        //todo killby camera
+       //note fix follow bot no gui
+       //note fix follow bot - cursor
+       //note killby camera
         if (Offline) return;
         if (Input.GetKeyDown(KeyCode.F1))
         {
@@ -96,7 +96,7 @@ public class ObsCamera : Bs
             
             _Hud.SpecInfo.text = t.Minutes + ":" + t.Seconds + "   " + _Game.pv.PlayerMoney;
             if (camMode == CamMode.Free)
-            {
+            { 
                 Vector3 move = GetMove() * Time.deltaTime * 10;
                 camera.transform.position += transform.rotation * move;
                 rote += GetMouse();
@@ -110,7 +110,6 @@ public class ObsCamera : Bs
         }
 
     }
-    Vector3 MouseRot;
     private void SetRenderers(Player pl)
     {
         pl.observing = true;
@@ -118,14 +117,7 @@ public class ObsCamera : Bs
         pl.SetPlayerRendererActive(false);
         
     }
-    public static int Clamp2(int a, int max)
-    {
-        if (a > max)
-            return 0;
-        if (a < 0)
-            return max;
-        return a;
-    }
+    
 
     public void OnRenderObject()
     {

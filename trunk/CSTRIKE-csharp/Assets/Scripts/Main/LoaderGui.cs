@@ -6,14 +6,15 @@ using doru;
 
 public class LoaderGui : Bs
 {
-    
+    public Transform Loading;
+    public Transform Logo;
     string ip = "127.0.0.1";
     //string label = "";
     public string version;
     public bool ConnectToMasterServer;
     public void Start()
     {
-        Screen.lockCursor = false;
+        lockCursor = false;
         
             Refresh();
     }
@@ -37,13 +38,15 @@ public class LoaderGui : Bs
 
     bool SelectMap;
     public GameType gameType = GameType.TeamDeathMatch;
+    private Vector2 scrollPosition;
     void ServerList(int id)
     {
+         
         if (SelectMap)
         {
             if (gui.Button("<<Back"))
                 SelectMap = false;
-
+            scrollPosition = gui.BeginScrollView(scrollPosition);
             foreach (var map in _Loader.maps)
             {
                 int p = GetLevelLoad(map);
@@ -53,13 +56,14 @@ public class LoaderGui : Bs
                     else
                         print("Map Not Loaded yet");
             }
+            gui.EndScrollView();
         }
 
         else
         {
-            if (Screen.lockCursor) return;
+            if (lockCursor) return;
             gui.Label("Name:");
-            _Loader.playerName = gui.TextField(_Loader.playerName);            
+            _Loader.playerName = gui.TextField(_Loader.playerName, 25);
             gui.Label("Ip Address:");
             ip = gui.TextField(ip);
             gui.BeginHorizontal();
@@ -67,29 +71,23 @@ public class LoaderGui : Bs
                 Network.Connect(ip, port);
             if (gui.Button("Host"))
                 SelectMap = true;
-            if (gui.Button("Refresh"))
-            { 
-                //Refresh(); 
-            }
+            if (gui.Button("Refresh")) { }
 
 
             gui.EndHorizontal();
-            //gui.BeginHorizontal();
-            //gui.Label("GameMode:");
-            //gameType = (GameType)gui.SelectionGrid((int)gameType, Enum.GetNames(typeof(GameType)),1);
-            //gui.EndHorizontal();
-            //gui.Label(label);
-
+            scrollPosition = gui.BeginScrollView(scrollPosition);
             foreach (HostData host in MasterServer.PollHostList())
             {
                 int p = GetLevelLoad(host.comment);
                 if (gui.Button("Join to " + host.gameName +
                     (host.useNat ? "(NAT)" : "") +
+                    (" " + host.connectedPlayers) +
                     (p < 100 ? (" " + p + "%") : "")))
                 {
                     if (p == 100)
                     {
                         Print("Trying Connect to " + host.gameName);
+                        
                         var er = Network.Connect(host);
                         if (er != NetworkConnectionError.NoError)
                             Print(er + "");
@@ -99,9 +97,21 @@ public class LoaderGui : Bs
 
                 }
             }
+            gui.EndScrollView();
         }
     }
+    public void OnFailedToConnect(NetworkConnectionError error)
+    {
+        Debug.LogWarning("Could not connect to server: " + error);
+        ShowLoading(false);
+    }
 
+    public void ShowLoading(bool show)
+    {
+        Loading.gameObject.active = show;
+        Logo.gameObject.active = !show;
+        this.enabled = !show;
+    }
     public override void OnEditorGui()
     {
         version = "Counter Strike V" + DateTime.Now.ToShortDateString();
@@ -117,10 +127,12 @@ public class LoaderGui : Bs
 
     private void Host(string mapName)
     {
-        Print("Loading Map");
+        ShowLoading(true);
+        Debug.LogWarning("Loading Map");
         SelectMap = false;
-        Network.InitializeServer(6, port, !Network.HavePublicAddress());        
-        MasterServer.RegisterHost(_LoaderGui.version, _Loader.playerName + "'s game",mapName);
+        Network.InitializeServer(6, port, !Network.HavePublicAddress());
+        if (ConnectToMasterServer)
+            MasterServer.RegisterHost(_LoaderGui.version, _Loader.playerName + "'s game", mapName);
         _Loader.LoadLevel(mapName);
     }
 

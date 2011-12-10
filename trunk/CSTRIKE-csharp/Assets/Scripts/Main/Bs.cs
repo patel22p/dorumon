@@ -9,6 +9,12 @@ public delegate void Action<T1, T2, T3, T4, T5>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t
 public delegate void Action<T1, T2, T3, T4, T5, T6>(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
 public class Bs : Base
 {
+    public bool Android { get { return Application.isEditor ? _Loader.Android : Application.platform == RuntimePlatform.Android; } }
+    public bool lockCursor
+    {
+        get { return Android ? false : Screen.lockCursor; }
+        set { Screen.lockCursor = value; }
+    }
     public virtual void Awake()
     {
     }    
@@ -51,35 +57,32 @@ public class Bs : Base
     //static LevelEditor m_LevelEditor;
     //public static LevelEditor _LevelEditor { get { if (m_LevelEditor == null) m_LevelEditor = (LevelEditor)MonoBehaviour.FindObjectOfType(typeof(LevelEditor)); return m_LevelEditor; } }
 
+
+
     static TeamSelectGui m_TeamSelectGui;
     public static TeamSelectGui _TeamSelectGui { get { if (m_TeamSelectGui == null) m_TeamSelectGui = (TeamSelectGui)MonoBehaviour.FindObjectOfType(typeof(TeamSelectGui)); return m_TeamSelectGui; } }
     static Hud m_Hud;
     public static Hud _Hud { get { if (m_Hud == null) m_Hud = (Hud)MonoBehaviour.FindObjectOfType(typeof(Hud)); return m_Hud; } }
     static Game m_Game;
     public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
-    static GameGui m_GameGui;
-    public static GameGui _GameGui { get { if (m_GameGui == null) m_GameGui = (GameGui)MonoBehaviour.FindObjectOfType(typeof(GameGui)); return m_GameGui; } }
     static Loader m_Loader;
     public static Loader _Loader { get { if (m_Loader == null) m_Loader = (Loader)MonoBehaviour.FindObjectOfType(typeof(Loader)); return m_Loader; } }
     static LoaderGui m_LoaderGui;
     public static LoaderGui _LoaderGui { get { if (m_LoaderGui == null) m_LoaderGui = (LoaderGui)MonoBehaviour.FindObjectOfType(typeof(LoaderGui)); return m_LoaderGui; } }
     static Player m_Player;
     public static Player _Player;
-    public static Vector3 GetMove()
+
+    public Vector3 GetMove()
     {
-        if (!Screen.lockCursor) return Vector3.zero;
-        Vector3 v = Vector3.zero;
-        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) v += Vector3.forward;
-        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) v += Vector3.back;
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) v += Vector3.left;
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) v += Vector3.right;
-        return v.normalized;
+        return _Game.GetMove();
     }
-    public static Vector3 GetMouse()
+
+    public Vector3 GetMouse()
     {
-        return Screen.lockCursor ? new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), 0) : Vector3.zero;
+        return _Game.GetMouse();
     }
-    
+
+
 
     public void Active(bool value)
     {

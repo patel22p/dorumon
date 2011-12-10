@@ -10,7 +10,10 @@ using Random = UnityEngine.Random;
 
 public class Loader : Bs
 {
-    public GUISkin skin;
+    public new bool Android = true;
+    public GUISkin skin { get { return Android ? AndroidSkin : Defaultskin; } }
+    public GUISkin Defaultskin;
+    public GUISkin AndroidSkin;    
     public int errorcount;
     public int exceptionCount;
     int lastLevelPrefix;
@@ -20,13 +23,12 @@ public class Loader : Bs
     Timer timer = new Timer();
     public string[] maps;
     internal bool DebugLevelMode;
-    string NickNameEditor = "Editor" + new System.Random().Next(99);
-    internal string playerName { get { return isEditor ? NickNameEditor : PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
     
     
     public override void Awake()
     {
-        
+        PlayerPrefs.DeleteAll();
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1)
         {
             Debug.Log("Destroyed Loader Dub");

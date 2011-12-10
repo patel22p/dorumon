@@ -55,7 +55,6 @@
      <Compile Include="Assets\Scripts\Main\BsNetwork.cs" />
      <Compile Include="Assets\Scripts\Main\C4.cs" />
      <Compile Include="Assets\Scripts\Main\Game.cs" />
-     <Compile Include="Assets\Scripts\Main\GameGui.cs" />
      <Compile Include="Assets\Scripts\Main\GunBase.cs" />
      <Compile Include="Assets\Scripts\Main\Hud.cs" />
      <Compile Include="Assets\Scripts\Main\LevelEditor.cs" />

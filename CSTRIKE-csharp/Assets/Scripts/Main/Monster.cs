@@ -25,8 +25,8 @@ public class Monster : Shared
     }
     public override void Start()
     {
-        //todo set size
-        //todo custom speed
+       //note set size
+       //note custom speed
         InitAnimations();
         base.Start();
     }

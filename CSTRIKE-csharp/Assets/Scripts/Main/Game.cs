@@ -12,6 +12,11 @@ public enum GameType { TeamDeathMatch, Survival }
 public enum group { Player,bomb }
 public class Game : Bs
 {
+    public GUITexture shootButton;
+    public Vector2 sensivity = Vector2.one;
+    public float sensivityMove = .2f;
+    private Vector2 LeftTap;
+    private Vector2 RightTap;
     public bool immortal;
     internal GameType gameType;
     public bool EnableSound;
@@ -49,6 +54,7 @@ public class Game : Bs
     
     public override void Awake()
     {
+        _TeamSelectGui.enabled = true;
         afkTime = Time.time;
         if (_Loader.playerName == "") _Loader.playerName = "Guest" + Random.Range(0, 99);
         IgnoreAll("IgnoreColl");
@@ -67,11 +73,12 @@ public class Game : Bs
         }
     }
     public void Start()
-    {        
+    {
+        
         if (!EnableSound && isEditor)
             AudioListener.volume = 0;
 
-        //todo fix map ratio
+       //note fix map ratio
         //if (Network.isServer)
         //{
         //    var a = (Player)FindObjectOfType(typeof(Player));
@@ -90,16 +97,19 @@ public class Game : Bs
         //timer.AddMethod(15000, delegate { _Hud.PrintPopup("Press F1/F2 to switch camera views"); });
         timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });        
     }
-    
+
+
     public void Update()
     {        
-        if (Offline) return;        
+        if (Offline) return;
+        UpdateTouch();
         UpdateChat();
         if (Network.isServer && timer.TimeElapsed(2000))
             CheckForWins();
         UpdateOther();
         timer.Update();
     }
+    
     private void UpdateOther()
     {
         if (Input.anyKey)
@@ -111,23 +121,23 @@ public class Game : Bs
         if (Input.GetKeyDown(KeyCode.M))
         {
             _TeamSelectGui.enabled = !_TeamSelectGui.enabled;
-            Screen.lockCursor = !_TeamSelectGui.enabled;
+            lockCursor = !_TeamSelectGui.enabled;
         }
         _Hud.ScoreBoard.text = "";
         if (Input.GetKey(KeyCode.Tab))
             DrawScoreBoard();
 
         if (Input.GetKeyDown(KeyCode.Backslash))
-            Screen.lockCursor = !Screen.lockCursor;
+            lockCursor = !lockCursor;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            _GameGui.enabled = !_GameGui.enabled;
-            Screen.lockCursor = !_GameGui.enabled;
+            _TeamSelectGui.enabled = !_TeamSelectGui.enabled;
+            lockCursor = !_TeamSelectGui.enabled;
         }
         if (Input.GetMouseButtonDown(0))
         {
             if (Time.time - mouseClickTime < .3f)
-                Screen.lockCursor = true;
+                lockCursor = true;
             mouseClickTime = Time.time;
         }
     }
@@ -143,14 +153,14 @@ public class Game : Bs
                     else
                     {
                         chatInput.enabled = false;
-                        Screen.lockCursor = true;
+                        lockCursor = true;
                     }
                 }
                 else if (c == '\n' || c == '\r')
                 {
                     CallRPC(Chat, RPCMode.All, _Loader.playerName + ": " + chatInput.text.Substring(4));
                     chatInput.enabled = false;
-                    Screen.lockCursor = true;
+                    lockCursor = true;
                 }
                 else
                     chatInput.text += c;
@@ -158,7 +168,7 @@ public class Game : Bs
         else
             if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Y))
             {
-                Screen.lockCursor = false;
+                lockCursor = false;
                 chatInput.enabled = true;
                 chatInput.text = "say:";
             }
@@ -242,7 +252,7 @@ public class Game : Bs
                 CallRPC(SetGameStarted, RPCMode.All, false);
             else
             {
-                //todo add zombie music, camera animation
+               //note remove zombies
                 if (ResetGameTime == float.MaxValue)
                 {
                     //t win
@@ -369,12 +379,12 @@ public class Game : Bs
     public void OnConnectedToServer() { OnConnected(); }
     private void OnConnected()
     {
-        Debug.Log("Connected " + name + _Loader.DebugLevelMode);        
-
+        Debug.Log("Connected " + name + _Loader.DebugLevelMode);
+        _TeamSelectGui.enabled = true;
         CallRPC(AddPlayerView, RPCMode.AllBuffered, Network.player.GetHashCode(), _Loader.playerName);
         if (Network.isServer)
             CallRPC(SetGameType, RPCMode.AllBuffered, (int)_LoaderGui.gameType);
-        _TeamSelectGui.enabled = true;
+        
     }
     public void OnPlayerConnected(NetworkPlayer player)
     {
@@ -420,6 +430,53 @@ public class Game : Bs
         if (type == PlType.Fatty)
             return FattyPrefab;
         return PlayerPrefab;
-    }    
+    }
+    public new Vector3 GetMove()
+    {
+        if (!(lockCursor || Android)) return Vector3.zero;
+        Vector3 v = Vector3.zero;
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) v += Vector3.forward;
+        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) v += Vector3.back;
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) v += Vector3.left;
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) v += Vector3.right;
+        
+        v = v.normalized;
+        v += new Vector3(LeftTap.x, 0, LeftTap.y).normalized;
+            //Vector3.ClampMagnitude(new Vector3(LeftTap.x, 0, LeftTap.y) * sensivityMove, 1);
+        return v;
+    }
+    public new Vector3 GetMouse()
+    {
 
+        if (Android && RightTap.magnitude < 15) return new Vector3(-RightTap.y * Mathf.Abs(RightTap.y) * _Game.sensivity.y, RightTap.x * Mathf.Abs(RightTap.x) * _Game.sensivity.x, 0);
+        //print(RightTap);
+        return lockCursor ? new Vector3(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), 0) : Vector3.zero;
+    }
+    public void UpdateTouch()
+    {
+        RightTap = Vector2.zero;
+        //LeftTap = Vector2.zero;
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+
+            if (Input.GetTouch(i).phase == TouchPhase.Moved)
+            {
+                if (Input.GetTouch(i).position.x > 400)
+                {
+                    if (Input.GetTouch(i).deltaPosition != Vector2.zero)
+                        RightTap = Input.GetTouch(i).deltaPosition;                    
+                }
+                else if (Input.GetTouch(i).deltaPosition.magnitude > 3)
+                    LeftTap = Input.GetTouch(i).deltaPosition;
+            }
+            if ((Input.GetTouch(i).phase == TouchPhase.Ended || Input.GetTouch(i).phase == TouchPhase.Canceled) && Input.GetTouch(i).position.x < 400)
+                LeftTap = Vector2.zero;
+            //{
+            //    if (Input.GetTouch(i).position.x > 400)
+            //        RightTap = Vector2.zero;
+            //    else
+            //        LeftTap = Vector2.zero;
+            //}
+        }
+    }
 }

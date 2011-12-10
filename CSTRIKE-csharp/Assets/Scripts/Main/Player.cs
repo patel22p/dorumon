@@ -61,11 +61,11 @@ public class Player : Shared
     }
     public override void Start()
     {        
-        //todo shield
+       //note shield
         if (IsMine && !bot)
         {
             _Player = this;
-            Screen.lockCursor = true;
+            lockCursor = true;
         }
         
         if(IsMine)
@@ -223,7 +223,7 @@ public class Player : Shared
     private void UpdateRotation()
     {
         if (!IsMine)
-        {
+        {            
             CamRotX = Mathf.LerpAngle(CamRotX, syncRotx, Time.deltaTime * 10);
             var nwroty = Mathf.LerpAngle(roty, syncRoty, Time.deltaTime * 10);
             var d = nwroty - roty;
@@ -282,6 +282,9 @@ public class Player : Shared
         }
     }
     float EPressTime;
+
+
+
     private void UpdateInput()
     {
         //foreach (var g in guns)
@@ -294,16 +297,24 @@ public class Player : Shared
         //    NextGun();
         //if (Input.GetAxis("Mouse ScrollWheel") < 0)
         //    PrevGun();
-        
-        if(Input.GetTouch(0).phase == TouchPhase.Moved)
-            print(Input.GetTouch(0).deltaPosition);
+        Vector3 MouseDelta = _Game.GetMouse();
 
-        if (Input.GetMouseButtonDown(0) && Screen.lockCursor)
-            gun.MouseButtonDown = true;
-        if (Input.GetMouseButtonUp(0) && Screen.lockCursor)
-            gun.MouseButtonDown = false;
 
-        move = GetMove();
+        bool mbDown = Android ? false : Input.GetMouseButton(0);                
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            var p = Input.GetTouch(i).position;
+            if (Input.GetTouch(i).phase == TouchPhase.Began && Vector2.Distance(new Vector2(1, 0), new Vector2(p.x/800, p.y/400)) < .1f)
+            {
+                mbDown = true;
+                MouseDelta = Vector3.zero;
+                break;
+            }
+        }
+        if (lockCursor || Android)
+            gun.MouseButtonDown = mbDown;
+
+        move = _Game.GetMove();
         if (gun == c4 && gun.MouseButtonDown)
             move = Vector3.zero;
         if (_Bomb != null && (_Bomb.pos - pos).magnitude < 2 && _Bomb.enabled)
@@ -321,7 +332,6 @@ public class Player : Shared
             }
             
         }
-        Vector3 MouseDelta = GetMouse();
         if (_ObsCamera.camMode == CamMode.thirdPerson2)
         {
             Ray ray = _ObsCamera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
@@ -339,13 +349,15 @@ public class Player : Shared
 
         CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
         Rotate(MouseDelta.y);
-        if (Input.GetKeyDown(KeyCode.Space) && Screen.lockCursor)
+        if (Input.GetKeyDown(KeyCode.Space) && lockCursor)
             CallRPC(Jump, RPCMode.All);
         
 
         if (Input.GetKeyDown(KeyCode.R))
             gun.OnRDown();
     }
+
+    
 
     public void PrevGun()
     {

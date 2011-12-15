@@ -1,4 +1,4 @@
-﻿public class BsNetwork:Bs
+public class BsNetwork:Bs
 {
     public override void Awake()
     {

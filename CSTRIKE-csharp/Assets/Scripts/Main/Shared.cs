@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public enum Team { Spectators, Terrorists, CounterTerrorists, Zombies }
-public enum PlType { Player, Bot, Monster,Fatty,Any }
+public enum PlType { Player, Bot, Monster,Fatty}
 public class PlayerView
 {
     public PlType plType;
@@ -40,9 +40,9 @@ public class Shared : Bs
     public AnimationCurve SpeedAdd;
     public Vector3 vel;
     public Vector3 syncPos;
-    public Vector3 syncVel;
+    //public Vector3 syncVel;
     public Vector3 syncMove;
-    public char syncAnimState;
+    //public char syncAnimState;
     internal int id = -1;
     public int Life = 100;
     public int Shield = 100;
@@ -77,8 +77,8 @@ public class Shared : Bs
 
         if (IsMine)
         {
-            CallRPC(SetPlType, RPCMode.All, (int)PlType);
-            CallRPC(SetTeam, RPCMode.All, (int)pv.team);            
+            CallRPC(SetPlType, PhotonTargets.All, (int)PlType);
+            CallRPC(SetTeam, PhotonTargets.All, (int)pv.team);            
         }
 
         foreach (var a in GetComponentsInChildren<Rigidbody>())
@@ -94,14 +94,14 @@ public class Shared : Bs
     {
 
         if (controller.isGrounded) grounded = Time.time;
-        if (_Game.pv.team == Team.Spectators || pv.team == _Game.pv.team || _Game.gameType == GameType.Survival)
+        if (_Game.pv.team == Team.Spectators || pv.team == _Game.pv.team)
             MiniMapCursor.renderer.enabled = true;
         else
             MiniMapCursor.renderer.enabled = false;
     }
     protected virtual Shared UpdateVisibleEnemy()
     {
-        var near = enemies.FirstOrDefault(a => (a.pos - pos).magnitude < 5);
+        Shared near = enemies.FirstOrDefault(a => (a.pos - pos).magnitude < 5);
         if (near) return near;
         if (visibleEnemy == null || !PlayerVisible(visibleEnemy.hpos) || visibleEnemy.pv.team == pv.team)
         {
@@ -157,25 +157,30 @@ public class Shared : Bs
         }
     }
 
-    public virtual void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-    {
-        if (stream.isWriting)
-        {
-            syncPos = pos;
-            syncRotx = CamRotX;
-            syncRoty = roty;
-            syncVel = vel;
-            syncMove = move;
-        }
-        stream.Serialize(ref syncPos);
-        stream.Serialize(ref syncRotx);
-        stream.Serialize(ref syncRoty);
-        stream.Serialize(ref syncVel);
-        stream.Serialize(ref syncMove);
-        if (stream.isReading)
-            syncUpdated = true;
 
-    }
+    //public virtual void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    //{
+    //    if (stream.isWriting)
+    //    {
+    //        stream.SendNext(pos);
+    //        stream.SendNext(CamRotX);
+    //        stream.SendNext(roty);
+    //        stream.SendNext(move);
+    //    }
+    //    else
+    //    {
+    //        syncPos = (Vector3) stream.ReceiveNext();
+    //        syncRotx = (float) stream.ReceiveNext();
+    //        syncRoty = (float) stream.ReceiveNext();
+    //        syncMove = (Vector3) stream.ReceiveNext();
+
+    //        if (stream.isReading)
+    //            syncUpdated = true;
+    //    }
+    //}
+
+
+    
 
     public virtual void LateUpdate()
     {
@@ -188,7 +193,7 @@ public class Shared : Bs
     }
 
     [RPC]
-    public void SetID(int id)
+    public virtual void SetID(int id)
     {
         print("SetId"+id);
         this.id = id;
@@ -203,19 +208,19 @@ public class Shared : Bs
     }
 
     [RPC]
-    public void SetPlayerScore(int score)
+    public virtual void SetPlayerScore(int score)
     {
         pv.PlayerScore = score;
     }
 
     [RPC]
-    public void SetTeam(int team)
+    public virtual void SetTeam(int team)
     {
         TeamPath = pv.team = (Team)team;
     }
 
     [RPC]
-    protected void SetPlType(int bot)
+    public virtual void SetPlType(int bot)
     {
         print("SetPlType "+bot);
         this.pv.plType = (PlType)bot;
@@ -235,21 +240,21 @@ public class Shared : Bs
             if (IsMine)
             {
                 if (pl != null)
-                    _Game.CallRPC(_Game.RpcKillText, RPCMode.All, (pl.pv.PlayerName + " Killed " + pv.PlayerName));
+                    _Game.CallRPC(_Game.RpcKillText, PhotonTargets.All, (pl.pv.PlayerName + " Killed " + pv.PlayerName));
                 if (this == _Player && pl is Player)
                     _ObsCamera.pl = (Player)pl;
                 if (pl != this)
-                    pl.CallRPC(pl.SetPlayerScore, RPCMode.All, pl.pv.PlayerScore + 1);
-                CallRPC(SetPlayerDeaths, RPCMode.All, pv.PlayerDeaths + 1);
+                    pl.CallRPC(pl.SetPlayerScore, PhotonTargets.All, pl.pv.PlayerScore + 1);
+                CallRPC(SetPlayerDeaths, PhotonTargets.All, pv.PlayerDeaths + 1);
             }
             if (IsMine)
-                CallRPC(Die, RPCMode.All);
+                CallRPC(Die, PhotonTargets.All);
         }
     }
     public override void OnEditorGui()
     {
         if (GUILayout.Button("Kill"))
-            CallRPC(SetLife, RPCMode.All, 0, id);
+            CallRPC(SetLife, PhotonTargets.All, 0, id);
         base.OnEditorGui();
     }
     [RPC]
@@ -268,15 +273,15 @@ public class Shared : Bs
             a.isKinematic = false;
         nm.parent = _Game.Fx;
         Destroy(nm.gameObject, 10);
-        
+
         enabled = false;
         if (IsMine)
         {
-            _Game.timer.AddMethod(delegate
-            {
-                Network.RemoveRPCs(networkView.viewID);
-                Network.Destroy(gameObject);
-            });
+            //_Game.timer.AddMethod(delegate
+            //{
+            PhotonNetwork.RemoveRPCs(photonView);
+            PhotonNetwork.Destroy(gameObject);
+            //});
         }
     }
 
@@ -302,7 +307,7 @@ public class Shared : Bs
     }
 
     [RPC]
-    public void SetPlayerDeaths(int PlayerDeaths)
+    public virtual void SetPlayerDeaths(int PlayerDeaths)
     {
         pv.PlayerDeaths = PlayerDeaths;
     }

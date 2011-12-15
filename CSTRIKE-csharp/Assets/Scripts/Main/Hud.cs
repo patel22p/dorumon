@@ -12,7 +12,7 @@ public class Hud : Bs {
     public GUIText time;
     public GUIText money;
     public GUIText ScoreBoard;
-    public Transform SpectatorHUD;    
+    
     public Transform PlayerHUD;    
     public GUIText PlayerName;
     public GUIText SpecInfo;
@@ -24,8 +24,7 @@ public class Hud : Bs {
     public GUITexture PainUp;
     public GUITexture PainDown;
     public GUIText Patrons;
-    private bool PlayerHudActived=true;
-    private bool SpectatorHudActived=true;
+    private bool PlayerHudActived=true;    
     public void Start()
     {
         bomb.material.color = Color.green;
@@ -88,12 +87,5 @@ public class Hud : Bs {
             _Hud.PlayerHUD.SetActive(value);
         }
     }
-    public void SetSpectatorHudActive(bool value)
-    {
-        if (SpectatorHudActived != value)
-        {
-            SpectatorHudActived = value;
-            _Hud.SpectatorHUD.SetActive(value);
-        }
-    }
+    
 }

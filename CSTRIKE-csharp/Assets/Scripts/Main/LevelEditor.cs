@@ -17,7 +17,7 @@ public class LevelEditor : Bs
     public GameObject PathPrefab;
     public bool twoSide;
     Transform path;
-    public IEnumerable<Path> paths { get { return transform.Cast<Transform>().Select(a => a.GetComponent<Path>()); } }    
+    public IEnumerable<NPath> paths { get { return transform.Cast<Transform>().Select(a => a.GetComponent<NPath>()); } }    
 #if UNITY_EDITOR
     public override void OnSceneGUI(SceneView scene, ref bool repaint)
     {
@@ -51,7 +51,7 @@ public class LevelEditor : Bs
                 {
                     path = ((GameObject)Instantiate(PathPrefab)).transform;
                     path.name = Prefix + "Path";
-                    path.GetComponent<Path>().StartNode = n;
+                    path.GetComponent<NPath>().StartNode = n;
                     path.position = n.pos;
                     n.StartNode = true;
                     path.parent = this.transform;
@@ -66,7 +66,7 @@ public class LevelEditor : Bs
     {
         if (Lastsel != null)
         {
-            var path = Lastsel.GetComponent<Path>();
+            var path = Lastsel.GetComponent<NPath>();
             if (path != null)
                 path.name = path.team + " " + path.plTypes.FirstOrDefault();
         }

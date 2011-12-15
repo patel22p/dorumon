@@ -26,12 +26,12 @@ public class Bs : Base
     {
         get
         {            
-            return Network.peerType == NetworkPeerType.Disconnected || networkView.isMine;
+            return PhotonNetwork.connectionState == ConnectionState.Disconnected || photonView.isMine;
         }
     }
     public static Bomb _Bomb;
-    public static int NetworkPlayerID { get { return Offline ? 1 : Network.player.GetHashCode(); } }
-    public static bool Offline { get { return Network.peerType == NetworkPeerType.Disconnected; } }
+    public static int NetworkPlayerID { get { return Offline ? 1 : PhotonNetwork.player.GetHashCode(); } }
+    public static bool Offline { get { return PhotonNetwork.connectionState == ConnectionState.Disconnected; } }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
     public Vector3 position { get { return tr.position; } set { tr.position = value; } }
@@ -97,88 +97,88 @@ public class Bs : Base
         if (a > 180) return a - 360;
         return a;
     }
-    public void CallRPC(Action n, RPCMode m)
-    {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m);
+    public void CallRPC(Action n, PhotonTargets m)
+    {        
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m);
         else
             n();
     }
-    public void CallRPC(Action n, NetworkPlayer m)
+    public void CallRPC(Action n, PhotonPlayer m)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m);
         else
             n();
     }
-    public void CallRPC<T>(Action<T> n, RPCMode m, T p)
+    public void CallRPC<T>(Action<T> n, PhotonTargets m, T p)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p);
         else
             n(p);
     }
-    public void CallRPC<T>(Action<T> n, NetworkPlayer m, T p)
+    public void CallRPC<T>(Action<T> n, PhotonPlayer m, T p)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p);
         else
             n(p);
     }
-    public void CallRPC<T, T2>(Action<T, T2> n, RPCMode m, T p, T2 p2)
+    public void CallRPC<T, T2>(Action<T, T2> n, PhotonTargets m, T p, T2 p2)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected) {
-            networkView.RPC(n.Method.Name, m, p, p2);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected) {
+            photonView.RPC(n.Method.Name, m, p, p2);
         }
         else
             n(p, p2);
     }
-    public void CallRPC<T, T2>(Action<T, T2> n, NetworkPlayer m, T p, T2 p2)
+    public void CallRPC<T, T2>(Action<T, T2> n, PhotonPlayer m, T p, T2 p2)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2);
         else
             n(p, p2);
     }
-    public void CallRPC<T, T2, T3>(Action<T, T2, T3> n, RPCMode m, T p, T2 p2, T3 p3)
+    public void CallRPC<T, T2, T3>(Action<T, T2, T3> n, PhotonTargets m, T p, T2 p2, T3 p3)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3);
         else
             n(p, p2, p3);
     }
-    public void CallRPC<T, T2, T3>(Action<T, T2, T3> n, NetworkPlayer m, T p, T2 p2, T3 p3)
+    public void CallRPC<T, T2, T3>(Action<T, T2, T3> n, PhotonPlayer m, T p, T2 p2, T3 p3)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3);
         else
             n(p, p2, p3);
     }
-    public void CallRPC<T, T2, T3, T4>(Action<T, T2, T3, T4> n, RPCMode m, T p, T2 p2, T3 p3, T4 p4)
+    public void CallRPC<T, T2, T3, T4>(Action<T, T2, T3, T4> n, PhotonTargets m, T p, T2 p2, T3 p3, T4 p4)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3, p4);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3, p4);
         else
             n(p, p2, p3, p4);
     }
-    public void CallRPC<T, T2, T3, T4>(Action<T, T2, T3, T4> n, NetworkPlayer m, T p, T2 p2, T3 p3, T4 p4)
+    public void CallRPC<T, T2, T3, T4>(Action<T, T2, T3, T4> n, PhotonPlayer m, T p, T2 p2, T3 p3, T4 p4)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3, p4);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3, p4);
         else
             n(p, p2, p3, p4);
     }
-    public void CallRPC<T, T2, T3, T4, T5>(Action<T, T2, T3, T4, T5> n, RPCMode m, T p, T2 p2, T3 p3, T4 p4, T5 p5)
+    public void CallRPC<T, T2, T3, T4, T5>(Action<T, T2, T3, T4, T5> n, PhotonTargets m, T p, T2 p2, T3 p3, T4 p4, T5 p5)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3, p4, p5);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3, p4, p5);
         else
             n(p, p2, p3, p4, p5);
     }
-    public void CallRPC<T, T2, T3, T4, T5, T6>(Action<T, T2, T3, T4, T5, T6> n, RPCMode m, T p, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
+    public void CallRPC<T, T2, T3, T4, T5, T6>(Action<T, T2, T3, T4, T5, T6> n, PhotonTargets m, T p, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6)
     {
-        if (Network.peerType != NetworkPeerType.Disconnected)
-            networkView.RPC(n.Method.Name, m, p, p2, p3, p4, p5, p6);
+        if (PhotonNetwork.connectionState != ConnectionState.Disconnected)
+            photonView.RPC(n.Method.Name, m, p, p2, p3, p4, p5, p6);
         else
             n(p, p2, p3, p4, p5, p6);
     }

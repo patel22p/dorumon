@@ -153,6 +153,8 @@ public class Player : Shared
         pv.skin = skin;
         LoadSkin();
     }
+
+    
     public virtual void FixedUpdate()
     {
         if (syncUpdated)
@@ -160,7 +162,7 @@ public class Player : Shared
             //vel = syncVel;
             move = syncMove;
         }
-
+        //print(isGrounded);
         if (move.magnitude > 0 && isGrounded)
         {
             speeadd = Mathf.Max(0f, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
@@ -169,21 +171,40 @@ public class Player : Shared
         if (isGrounded)
         {
             vel *= .83f;
-            move *= .90f; 
+            move *= .90f;
         }
-        controller.SimpleMove(vel);
+        //print(controller.velocity);
+        //if (!Input.GetKey(KeyCode.I))
+        //var v = Vector3.SmoothDamp(pos, syncPos, ref smoothDampV, smoothDamp) - pos;
+
+        //if (!IsMine)
+        //{
+        //    //if ((syncPos - pos).magnitude > 3)
+        //    //    pos = syncPos;
+        //    //else
+        //    syncPos.y = posy;
+        //    pos = (Vector3.Lerp(pos, syncPos, Time.deltaTime * smoothDamp));
+        //}
+        if (IsMine) syncPos = pos;
+        print(vel);
+        controller.SimpleMove(vel + (Vector3.MoveTowards(pos, syncPos, 1) - pos)*movetow);
+        //else
+        //{
+
+        //    controller.SimpleMove(Vector3.zero);
+        //}
 
         if (yvel > 0f)
-            controller.Move(new Vector3(0, yvel, 0));
-        if (syncUpdated)
         {
-            if ((syncPos - pos).magnitude > 1)
-                pos = syncPos;
-            else
-                controller.Move(syncPos - pos);
+            //print(yvel);
+
+            //controller.SimpleMove(new Vector3(0, yvel, 0));
+            controller.Move(new Vector3(0, yvel, 0));
         }
+
         syncUpdated = false;
     }
+    public float movetow = 5;
     public override void Update()
     {
         base.Update();
@@ -204,9 +225,10 @@ public class Player : Shared
         //todo shop
         //todo door script
         //todo climbing
-        if (IsMine)
-            if (new[] { KeyCode.A, KeyCode.D, KeyCode.W, KeyCode.S }.Any(a => Input.GetKeyDown(a) || Input.GetKeyUp(a)) || Input.GetMouseButtonUp(0) || Input.GetMouseButtonDown(0) || timer.TimeElapsed(1000))
-                CallRPC(UpdateSync, PhotonTargets.All, pos, move);
+        //if (IsMine)
+        //if (new[] { KeyCode.A, KeyCode.D, KeyCode.W, KeyCode.S }.Any(a => Input.GetKeyDown(a) || Input.GetKeyUp(a)) || Input.GetMouseButtonUp(0) || Input.GetMouseButtonDown(0) || timer.TimeElapsed(1000))
+        if (timer.TimeElapsed(1000))
+            CallRPC(UpdateSync, PhotonTargets.All, pos.y);
 
         if (isGrounded && jump.weight > 0)
             jump.weight *= .86f;
@@ -302,11 +324,13 @@ public class Player : Shared
     float EPressTime;
 
     [RPC]
-    public void UpdateSync(Vector3 pos,Vector3 move)
+    public void UpdateSync(float pos)
     {
+        if (!IsMine)            
+            this.posy = pos;
         //print("UpdatePos");
-        this.pos = pos;
-        this.move = move;
+        
+        //this.move = move;
     }
 
     
@@ -341,25 +365,32 @@ public class Player : Shared
         if (lockCursor || Android)
             gun.MouseButtonDown = mbDown;
 
+        //if (isGrounded)
         move = _Game.GetMove();
+        
         if (gun == c4 && gun.MouseButtonDown)
             move = Vector3.zero;
-        
-        if (_Bomb != null && (_Bomb.pos - pos).magnitude < 2 && _Bomb.enabled)
-        {
-            if (Input.GetKeyDown(KeyCode.E))
-                EPressTime = Time.time;
-            if (Input.GetKey(KeyCode.E))
-            {
-                var t = (Time.time - EPressTime) / 10;
-                Debug.Log(t);
-                _Hud.SetProgress(t);
-                if (t > 1)
-                    _Bomb.CallRPC(_Bomb.Difuse, PhotonTargets.All);
-                move = Vector3.zero;
-            }
+
+        //if (_Bomb != null && (_Bomb.pos - pos).magnitude < 2 && _Bomb.enabled)
+        //{
+        //    if (Input.GetKeyDown(KeyCode.E))
+        //        EPressTime = Time.time;
+        //    if (Input.GetKey(KeyCode.E))
+        //    {
+        //        var t = (Time.time - EPressTime) / 10;
+        //        Debug.Log(t);
+        //        _Hud.SetProgress(t);
+        //        if (t > 1)
+        //            _Bomb.CallRPC(_Bomb.Difuse, PhotonTargets.All);
+        //        move = Vector3.zero;
+        //    }
             
-        }
+        //}
+        //if (Input.GetKey(KeyCode.I))
+        //{
+        //    vel = Vector3.zero;
+        //    move = Vector3.zero;
+        //}
         if (_ObsCamera.thirdPerson )
         {
             Ray ray = _ObsCamera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
@@ -377,7 +408,8 @@ public class Player : Shared
 
         CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
         Rotate(MouseDelta.y);
-        if (Input.GetKeyDown(KeyCode.Space) && lockCursor)
+
+        if (Input.GetKeyDown(KeyCode.Space) && lockCursor && isGrounded)
             CallRPC(Jump, PhotonTargets.All);
         
 
@@ -601,8 +633,10 @@ public class Player : Shared
 
         }
     }
+    private float tsp;
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        
         //byte syncRotXC = byte.MinValue;
         //byte syncRotYC = byte.MinValue;
         //byte syncMoveC = byte.MinValue;
@@ -631,27 +665,39 @@ public class Player : Shared
         //stream.Serialize(ref syncMoveC);
         if (stream.isReading)
         {
-            var x = (short)stream.ReceiveNext();
-            var z = (short)stream.ReceiveNext();
-            syncPos = new Vector3(x / sv * 100f, posy, z / sv * 100f);
-            syncRotx = (byte)stream.ReceiveNext() / 255f * 360f;
-            syncRoty = (byte)stream.ReceiveNext() / 255f * 360f;
-            var mv = (byte)stream.ReceiveNext();
-            if (mv != byte.MinValue)
+
+            if (tsp < info.timestamp)
             {
-                syncMove = Quaternion.Euler(0, (mv - 1) / 254f * 360f, 0) * Vector3.forward;
-                //print(syncMove);
+                var x = (short)stream.ReceiveNext();
+                var z = (short)stream.ReceiveNext();
+                syncPos = new Vector3(x / sv * 100f, posy, z / sv * 100f);
+                syncRotx = (byte)stream.ReceiveNext() / 255f * 360f;
+                syncRoty = (byte)stream.ReceiveNext() / 255f * 360f;
+                var mv = (byte)stream.ReceiveNext();
+                if (mv != byte.MinValue)
+                {
+                    syncMove = Quaternion.Euler(0, (mv - 1) / 254f * 360f, 0) * Vector3.forward;
+                    //print(syncMove);
+                }
+                else
+                    syncMove = Vector3.zero;
+                syncUpdated = true;
             }
-            else
-                syncMove = Vector3.zero;
-            syncUpdated = true;
+            //else
+            //    print("Time Stamp Error");
+            tsp = info.timestamp;
         }
 
     }
-    //public new virtual void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    
+    
+    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     //{
+
     //    if (stream.isWriting)
     //    {
+    //        stream.SendNext(pos);
+    //        stream.SendNext(CamRotX);
     //        syncPos = pos;
     //        syncRotx = CamRotX;
     //        syncRoty = roty;

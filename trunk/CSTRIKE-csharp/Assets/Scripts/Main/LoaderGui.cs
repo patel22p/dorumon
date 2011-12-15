@@ -9,16 +9,17 @@ public class MasterServer { }
 public class LoaderGui : Bs
 {
     //bug implement create join failed
-    string gameName = "";
+    //string gameName = "";
     //string label = "";
-    public string version;
+    private string version = "b";
     public bool ConnectToMasterServer;
 
     Timer timer = new Timer();
     public void Start()
     {
         print("LoadGUI Start");
-        PhotonNetwork.ConnectUsingSettings();
+        if (PhotonNetwork.connectionState == ConnectionState.Disconnected)
+            PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.playerName = "Guest" + Random.Range(0, 99);
     }
     public void Update()
@@ -27,24 +28,26 @@ public class LoaderGui : Bs
     }
     public void OnGUI()
     {
+        
         GUI.skin = _Loader.skin;
         var c = new Vector3(Screen.width, Screen.height) / 2f;
         var s = new Vector3(400, 400) / 2f;
         var v1 = c - s;
         var v2 = c + s;
-        GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), Window, version);
+        GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), Window, version + " www.csmini.tk");
     }
 
     enum Menu { MainMenu, SelectMap, Options }
     private Menu menu;
     private Vector2 scrollPosition;
 
-    public bool EnableBlood { get { return PlayerPrefs.GetInt("EnableBlood", 1) == 1; } set { PlayerPrefs.SetInt("EnableBlood", value ? 1 : 0); } }
-    public bool EnableHighQuality { get { return PlayerPrefs.GetInt("EnableHighQuality", 0) == 1; } set { PlayerPrefs.SetInt("EnableHighQuality", value ? 1 : 0); } }
-    public float SensivityX { get { return PlayerPrefs.GetFloat("sx", 1); } set { PlayerPrefs.SetFloat("sx", value); } }
-    public float SensivityY { get { return PlayerPrefs.GetFloat("sy", 1); } set { PlayerPrefs.SetFloat("sy", value); } }
-    public float SoundVolume  { get { return PlayerPrefs.GetFloat("SoundVolume ", 1); } set { PlayerPrefs.SetFloat("SoundVolume ", value); } }
-    public float maxPlayers = 2;
+
+    public float maxPlayers
+    {
+        get { return PlayerPrefs.GetFloat("maxPlayers", 2); }
+        set { PlayerPrefs.SetFloat("maxPlayers", value); }
+    }
+
     void Window(int id)
     {
         if (menu == Menu.Options)
@@ -52,8 +55,9 @@ public class LoaderGui : Bs
             if (gui.Button("<<Back"))
                 menu = Menu.MainMenu;
 
-            EnableHighQuality = gui.Toggle(EnableHighQuality, "High Quality");
-            EnableBlood = gui.Toggle(EnableBlood, "Enable Blood");
+
+            _Loader.EnableHighQuality = gui.Toggle(_Loader.EnableHighQuality, "High Quality");
+            _Loader.EnableBlood = gui.Toggle(_Loader.EnableBlood, "Enable Blood");
             gui.BeginHorizontal();
             gui.Label("MaxPlayers:" + (int)maxPlayers, gui.ExpandWidth(false));
             maxPlayers = gui.HorizontalSlider(maxPlayers, 1, 8);
@@ -61,20 +65,20 @@ public class LoaderGui : Bs
 
             gui.BeginHorizontal();
             gui.Label("SensivityX", gui.ExpandWidth(false));
-            SensivityX = gui.HorizontalSlider(SensivityX, .1f, 2);
+            _Loader.SensivityX = gui.HorizontalSlider(_Loader.SensivityX, .1f, 2);
             gui.EndHorizontal();
             gui.BeginHorizontal();
             gui.Label("SensivityY", gui.ExpandWidth(false));
-            SensivityY = gui.HorizontalSlider(SensivityY, .1f, 2);
+            _Loader.SensivityY = gui.HorizontalSlider(_Loader.SensivityY, .1f, 2);
             gui.EndHorizontal();
             gui.BeginHorizontal();
             gui.Label("Sound Vol", gui.ExpandWidth(false));
-            SoundVolume = gui.HorizontalSlider(SoundVolume, 0, 1);
+            _Loader.SoundVolume = gui.HorizontalSlider(_Loader.SoundVolume, 0, 1);
             gui.EndHorizontal();
             if (gui.Button("Reset Settings"))
                 PlayerPrefs.DeleteAll();
 
-            AudioListener.volume = SoundVolume;
+            AudioListener.volume = _Loader.SoundVolume;
         }
         else if (menu == Menu.SelectMap)
         {
@@ -93,20 +97,20 @@ public class LoaderGui : Bs
             gui.EndScrollView();
         }
         else
-        {
+        {            
             if (lockCursor) return;
-            gui.Label(PhotonNetwork.connectionState + "");
+            gui.Label(PhotonNetwork.connectionState + " " + PhotonNetwork.GetRoomList().Length);
             gui.Label("Name:");
             _Loader.playerName = gui.TextField(_Loader.playerName, 25);
-            gui.Label("GameName:");
-            gameName = gui.TextField(gameName);
+            //gui.Label("GameName:");
+            //gameName = gui.TextField(gameName);
             gui.BeginHorizontal();
-            if (gui.Button("Connect"))
-            {
-                ShowLoading(true);
-                PhotonNetwork.JoinRoom(gameName == "" ? "test" : gameName);
-                _Loader.timer.AddMethod(6000, delegate { ShowLoading(false); });
-            }
+            //if (gui.Button("Connect"))
+            //{
+            //    ShowLoading(true);
+            //    PhotonNetwork.JoinRoom(gameName == "" ? "test" : gameName);
+            //    _Loader.timer.AddMethod(6000, delegate { ShowLoading(false); });
+            //}
             if (gui.Button("Host"))
                 menu = Menu.SelectMap;
             if (gui.Button("Options"))
@@ -120,7 +124,11 @@ public class LoaderGui : Bs
             else
                 foreach (Room host in PhotonNetwork.GetRoomList())
                 {
-                    int p = GetLevelLoad(host.name.Split("/")[0]);
+                    var sets = host.name.Split("/");
+                    if(sets.Length!=3) continue;
+                    string mapName = sets[0];                    
+                    if (sets[1] != version) continue;                    
+                    int p = GetLevelLoad(mapName);                    
                     if (gui.Button(host.name +
                         (" " + host.playerCount + "/" + host.maxPlayers) +
                         (p < 100 ? (" " + p + "%") : "")))
@@ -130,6 +138,7 @@ public class LoaderGui : Bs
                             Print("Trying Connect to " + host.name);
                             ShowLoading(true);
                             _Loader.timer.AddMethod(6000, delegate { ShowLoading(false); });
+                            this.mapName = mapName;
                             PhotonNetwork.JoinRoom(host.name);
                         }
                         else
@@ -157,15 +166,20 @@ public class LoaderGui : Bs
         Debug.LogWarning("Loading Map");
         menu = Menu.MainMenu;
         //PhotonNetwork.JoinRoom((int)maxPlayers - 1, port, !PhotonNetwork.HavePublicAddress());
-        PhotonNetwork.CreateRoom(mapName + "/" + _Loader.playerName, ConnectToMasterServer, true, (byte)(maxPlayers - 1));        
+
+        PhotonNetwork.CreateRoom(mapName + "/" + version + "/" + _Loader.playerName, mapName != "1", true, (byte)(maxPlayers));
+        
         //if (ConnectToMasterServer)
         //    MasterServer.RegisterHost(_LoaderGui.version, _Loader.playerName + "'s game", mapName);
-        
+
     }
+    
     public void OnCreatedRoom()    {
         //if (!enabled) return;
         _Loader.LoadLevel(mapName);
     }
+
+    public void OnJoinedRoom() { _Loader.LoadLevel(mapName); }
     public void OnPhotonCreateGameFailed()
     {
         Print("Same Room Already Exists");

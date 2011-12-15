@@ -1,56 +1,56 @@
+
 using doru;
 using System.Linq;
 using UnityEngine;
 using System.Collections;
 using System;
 
-public enum CamMode { thirdPerson2, thirdPerson, firstPerson, Free }
+
 public class ObsCamera : Bs
 {
     public Player pl;
-    public CamMode camMode;
+    //public CamMode camMode;
+    public bool thirdPerson;
     internal float KilledByTime = float.MinValue;
     //bool thirdPerson = true;
     Vector3 xy;
+    public SSAOEffect sSAOEffect;
+    public ContrastEnhance contrastEnhance;
+    public override void Awake()
+    {
+        if (!_LoaderGui.EnableHighQuality)
+        {
+            contrastEnhance.enabled = sSAOEffect.enabled = false;
+            QualitySettings.currentLevel = QualityLevel.Fastest;
+        }
+        else if (!Application.isEditor && !Android)
+            contrastEnhance.enabled = sSAOEffect.enabled = true;
+        base.Awake();
+    }
+
     public void LateUpdate()
     {
        //note fix follow bot no gui
        //note fix follow bot - cursor
        //note killby camera
         if (Offline) return;
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            camMode = CamMode.firstPerson;
-            _Hud.PrintPopup("Camera Mode: " + camMode);
-        }
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            camMode = _Player != null ? CamMode.thirdPerson2 : CamMode.thirdPerson;
-            _Hud.PrintPopup("Camera Mode: " + camMode);
-        }
 
-        if (_Player != null)
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            pl = _Player;
-            if (camMode == CamMode.Free || camMode == CamMode.thirdPerson)
-                camMode = CamMode.firstPerson;
+            thirdPerson = !thirdPerson;
+            _Hud.PrintPopup(thirdPerson ? "3rd person Cam" : "FPS cam");
         }
+        
+        if (_Player != null)
+            pl = _Player;
         else
         {
-            
             if (_Game.Players.Count() == 0)
-                camMode = CamMode.Free;
-            else if (pl == null)
+                return;
+            if (pl == null)
                 pl = _Game.Players.First();
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {                
-                camMode = new[] { CamMode.Free, CamMode.thirdPerson, CamMode.firstPerson }.Next(camMode); 
-                //camMode = (CamMode)Clamp2((int)camMode, Enum.GetNames(typeof(CamMode)).Length - 1);
-                _Hud.PrintPopup("Camera Mode: " + camMode);
-            }
-
-            if (Input.GetMouseButtonDown(0) && camMode != CamMode.Free)
+            if (Input.GetMouseButtonDown(0))
             {
                 pl = _Game.Players.Next(pl);
                 _Hud.PrintPopup("Following: " + pl.pv.PlayerName);
@@ -58,11 +58,12 @@ public class ObsCamera : Bs
         }
 
         var t = TimeSpan.FromMilliseconds(_Game.GameTime);
-        if ((camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2) && pl.pv !=null)
+
+        
+        if (pl != null)
         {
-            if (pl == null) return;
-            _Hud.SetPlayerHudActive(true);
-            _Hud.SetSpectatorHudActive(false);            
+            
+            _Hud.SetPlayerHudActive(true);            
             _Hud.life.text = "b" + pl.Life;
             _Hud.shield.text = "a" + pl.Shield;
             _Hud.money.text = "$" + pl.pv.PlayerMoney;
@@ -76,52 +77,37 @@ public class ObsCamera : Bs
                 _Hud.bomb.enabled = false;
                         
             _Hud.Patrons.text = pl.gun.patrons + "|   " + pl.gun.globalPatrons;
-            if (camMode == CamMode.firstPerson)
+            if (!thirdPerson)
             {
                 SetRenderers(pl);
                 pos = pl.camera.camera.transform.position;
                 rot = pl.camera.camera.transform.rotation;
             }
-            else if (camMode == CamMode.thirdPerson2)
-            {                
+            else
+            {
                 rote += GetMouse();
                 pos = pl.pos + Vector3.up * 2f + rot * Vector3.back * 3;
             }
+
         }        
         else
         {
             _Hud.SetPlayerHudActive(false);
-            _Hud.SetSpectatorHudActive(true);
-            
-            
-            _Hud.SpecInfo.text = t.Minutes + ":" + t.Seconds + "   " + _Game.pv.PlayerMoney;
-            if (camMode == CamMode.Free)
-            { 
-                Vector3 move = GetMove() * Time.deltaTime * 10;
-                camera.transform.position += transform.rotation * move;
-                rote += GetMouse();
-            }
-            else if (camMode == CamMode.thirdPerson)
-            {                
-                if (pl == null) return;
-                rote += GetMouse();
-                pos = pl.pos + Vector3.up * 1.5f + rot * Vector3.back * 3;                
-            }
         }
+        
 
     }
     private void SetRenderers(Player pl)
     {
-        pl.observing = true;
         pl.SetGunRenderersActive(true);
         pl.SetPlayerRendererActive(false);
-        
+        pl.observing = true;
     }
     
 
     public void OnRenderObject()
     {
-        if ((camMode == CamMode.firstPerson || camMode == CamMode.thirdPerson2) && pl != null)
+        if (_Player != null || (!thirdPerson && pl != null))
         {
             LineMaterial.SetPass(0);
             GL.LoadOrtho();

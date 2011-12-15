@@ -20,15 +20,16 @@ public class Loader : Bs
     public GUIText info;
     string LastError = "";
     int fps;
-    Timer timer = new Timer();
+    public Timer timer = new Timer();
     public string[] maps;
     internal bool DebugLevelMode;
-    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+
+    internal string playerName { get { return PhotonNetwork.playerName; } set { PhotonNetwork.playerName = value; } }
+    //internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
     
     
     public override void Awake()
-    {
-        PlayerPrefs.DeleteAll();
+    {                
         if (Object.FindObjectsOfType(typeof(Loader)).Length > 1)
         {
             Debug.Log("Destroyed Loader Dub");
@@ -43,12 +44,16 @@ public class Loader : Bs
             Debug.Log("DebugLevelMode");
             DebugLevelMode = true;            
         }        
-        networkView.group = 1;
+        photonView.group = 1;
         DontDestroyOnLoad(transform.root);
         base.Awake();
     }
-    
 
+    public void OnFailedToConnect_OBSELETE(NetworkConnectionError error)
+    {
+        Debug.LogWarning("Could not connect to server: " + error);
+        _LoaderGui.ShowLoading(false);
+    }
     public void Update()
     {
         fps = (int)timer.GetFps();
@@ -67,19 +72,19 @@ public class Loader : Bs
 
     public void LoadLevel(string level)
     {
-        Network.RemoveRPCsInGroup(0);
-        Network.RemoveRPCsInGroup(1);
-        networkView.RPC("RPCLoadLevel", RPCMode.AllBuffered, level, lastLevelPrefix + 1);
+        //PhotonNetwork.RemoveRPCsInGroup(0);
+        //PhotonNetwork.RemoveRPCsInGroup(1);
+        photonView.RPC("RPCLoadLevel", PhotonTargets.AllBuffered, level, lastLevelPrefix + 1);
     }
    
     [RPC]
     public IEnumerator RPCLoadLevel(string level, int levelPrefix)
     {
         Debug.Log("LoadLevel: " + level);
-        lastLevelPrefix = levelPrefix;
-        Network.SetSendingEnabled(0, false);
-        Network.isMessageQueueRunning = false;
-        Network.SetLevelPrefix(levelPrefix);
+        //lastLevelPrefix = levelPrefix;
+        //PhotonNetwork.SetSendingEnabled(0, false);
+        PhotonNetwork.isMessageQueueRunning = false;
+        //PhotonNetwork.SetLevelPrefix(levelPrefix);
         Application.LoadLevel(level);
         yield return null;
     }
@@ -87,23 +92,23 @@ public class Loader : Bs
     {
         Debug.Log("Disconnected "+name);
         _LoaderGui.enabled = true;
+        lockCursor = false;
         _LoaderGui.Print("Server closed connection");        
-        Application.LoadLevel(0);
-        
+        Application.LoadLevel(0);        
     }
     public void OnLevelWasLoaded(int level)
     {
         Debug.Log(name + " Level Loaded " + level);
         _Loader.LastError = "";
-        Network.isMessageQueueRunning = true;
-        Network.SetSendingEnabled(0, true);
+        PhotonNetwork.isMessageQueueRunning = true;
+        PhotonNetwork.SetSendingEnabled(0, true);
     }
     void OnConnected()
     {
         Debug.Log("Connected "+name);
     }
-    public void OnServerInitialized() { OnConnected(); }
-    public void OnConnectedToServer() { OnConnected(); }
+    public void OnCreatedRoom() { OnConnected(); }
+    public void OnJoinedRoom() { OnConnected(); }
 
 
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ public class Bomb : Bs
         if (IsMine)
         {
             if (bombTime < 0)
-                CallRPC(Explode, RPCMode.All);
+                CallRPC(Explode, PhotonTargets.All);
         }
     }
     [RPC]

@@ -11,7 +11,7 @@ public class TeamSelectGui : Bs
             GUI.skin = _Loader.skin;
             if (lockCursor) enabled = false;
             var c = new Vector3(Screen.width, Screen.height) / 2f;
-            var s = new Vector3(250, 450) / 2f;
+            var s = new Vector3(300, 450) / 2f;
             var v1 = c - s;
             var v2 = c + s;
             GUI.Window((int)WindowEnum.TeamSelect, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), SelectTeam,
@@ -25,7 +25,7 @@ public class TeamSelectGui : Bs
             var s = new Vector3(200, 200) / 2f;
             var v1 = c - s;
             var v2 = c + s;
-            GUI.Window((int)WindowEnum.ConnectionGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), GameGuiWnd, "Game Menu");
+            GUI.Window((int)WindowEnum.GameGUI, Rect.MinMaxRect(v1.x, v1.y, v2.x, v2.y), GameGuiWnd, "Game Menu");
         }
     }
 
@@ -34,7 +34,6 @@ public class TeamSelectGui : Bs
     private Vector2 scrollPos;
     void SelectTeam(int id)
     {
-        //todo team select
         if (teamSelected)
         {
             if (gui.Button("<<Back"))
@@ -54,7 +53,23 @@ public class TeamSelectGui : Bs
         {
 
             gui.BeginHorizontal();
-            if (_Game.gameType != GameType.Survival && gui.Button("Terrorists") || Input.GetKeyDown(KeyCode.Alpha1))
+            if (gui.Button("Auto Select"))
+            {
+                if (_Game.PlayerViews.Count(a => a.team == Team.Terrorists) < _Game.PlayerViews.Count(a => a.team == Team.CounterTerrorists))
+                    team = Team.Terrorists;
+                else
+                    team = Team.CounterTerrorists;
+                teamSelected = true;
+            }
+            if (gui.Button("Spectator") || Input.GetKeyDown(KeyCode.Alpha5))
+            {
+                team = _Game.pv.team = Team.Spectators;
+                OnTeamSelected();
+            }
+            gui.EndHorizontal();
+
+            gui.BeginHorizontal();
+            if (gui.Button("Terrorists") || Input.GetKeyDown(KeyCode.Alpha1))
             {
                 team = Team.Terrorists;
                 teamSelected = true;
@@ -65,30 +80,19 @@ public class TeamSelectGui : Bs
                 teamSelected = true;
             }
             gui.EndHorizontal();
-            if (gui.Button("Spectator") || Input.GetKeyDown(KeyCode.Alpha5))
-            {
-                _Game.pv.team = Team.Spectators;
-                OnTeamSelected();
-            }
+            
             scrollPos = gui.BeginScrollView(scrollPos);
-            if (_Game.levelEditor != null && Network.isServer)
+            if (_Game.levelEditor != null && PhotonNetwork.isMasterClient)
             {
-                if (_Game.gameType == GameType.Survival)
-                {
-                    DrawBotMenu(Team.CounterTerrorists, PlType.Bot);
-                }
-                else
-                {
-                    gui.Label("Counter Terrorists TEAM");
-                    DrawBotMenu(Team.CounterTerrorists, PlType.Bot);
-                    foreach (var a in _Game.EnableZombies)
-                        DrawBotMenu(Team.CounterTerrorists, a);
-                    gui.Label("_______________________");
-                    gui.Label("Terrorists TEAM");
-                    DrawBotMenu(Team.Terrorists, PlType.Bot);
-                    foreach (var a in _Game.EnableZombies)
-                        DrawBotMenu(Team.Terrorists, a);
-                }
+                gui.Label("Counter Terrorists TEAM");
+                DrawBotMenu(Team.CounterTerrorists, PlType.Bot);
+                foreach (var a in _Game.EnableZombies)
+                    DrawBotMenu(Team.CounterTerrorists, a);
+                gui.Label("_______________________");
+                gui.Label("Terrorists TEAM");
+                DrawBotMenu(Team.Terrorists, PlType.Bot);
+                foreach (var a in _Game.EnableZombies)
+                    DrawBotMenu(Team.Terrorists, a);
             }
             gui.EndScrollView();
         }
@@ -117,13 +121,14 @@ public class TeamSelectGui : Bs
 
     void GameGuiWnd(int id)
     {
-        if (gui.Button("Close"))
+        if (PhotonNetwork.isMasterClient && gui.Button("Restart Game"))
         {
-            Application.Quit();
+            _Game.CallRPC(_Game.StartGame, PhotonTargets.All);
             enabled = false;
             lockCursor = true;
         }
+        
         if (gui.Button("Disconnect"))
-            Network.Disconnect();
+            PhotonNetwork.LeaveRoom();
     }
 }

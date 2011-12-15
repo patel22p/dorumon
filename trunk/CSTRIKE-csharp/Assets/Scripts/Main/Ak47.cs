@@ -69,7 +69,7 @@ public class Ak47 : GunBase
                     if (patrons > 0)
                         shoot();
                     else if (globalPatrons > 0)
-                        CallRPC(Reload, RPCMode.All);
+                        CallRPC(Reload, PhotonTargets.All);
                     //else
                     //{
                         //pl.audio.PlayOneShot(Pistol ? pl.dryfire_pistol : pl.dryfire_rifle);
@@ -84,7 +84,7 @@ public class Ak47 : GunBase
     public override void OnRDown()
     {
         if (!this.handsReload.enabled && patrons != 30 && globalPatrons > 0)
-            this.CallRPC(Reload, RPCMode.All);
+            this.CallRPC(Reload, PhotonTargets.All);
     }
 
     [RPC]
@@ -107,7 +107,7 @@ public class Ak47 : GunBase
             (Random.insideUnitSphere * cursorOffset * 0.005f) +
             (Random.insideUnitSphere * 0.01f * pl.controller.velocity.magnitude) +
             (Time.time - pl.HitTime < 1f ? Random.insideUnitSphere * .01f : Vector3.zero);
-        CallRPC(RPCShoot, RPCMode.All, ray.origin, ray.direction);
+        CallRPC(RPCShoot, PhotonTargets.All, ray.origin, ray.direction);
     }
     private IEnumerable<RaycastHit> RaycastAll(Ray ray, int dist, int layer)
     {
@@ -144,15 +144,18 @@ public class Ak47 : GunBase
                 if (enemy == pl ) continue;
                 if (enemy.pv.team != pl.pv.team)
                 {
-                    CreateBlood(h);
-                    ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere * .4f);
-                    RaycastHit h2;
-                    if (Physics.Raycast(ray, out h2, 100, 1 << LayerMask.NameToLayer("Level")))
+                    if (_LoaderGui.EnableBlood)
                     {
-                        GameObject g = (GameObject)Instantiate(pl.Plane, h2.point + h2.normal * .04f, Quaternion.LookRotation(h2.normal));
-                        g.transform.localScale = Vector3.one * 18; 
-                        g.renderer.material = pl.BloodDecals.Random();
-                        g.transform.parent = _Game.Fx;
+                        CreateBlood(h);
+                        ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere*.4f);
+                        RaycastHit h2;
+                        if (Physics.Raycast(ray, out h2, 100, 1 << LayerMask.NameToLayer("Level")))
+                        {
+                            GameObject g =(GameObject)Instantiate(pl.Plane, h2.point + h2.normal*.04f, Quaternion.LookRotation(h2.normal));
+                            g.transform.localScale = Vector3.one*18;
+                            g.renderer.material = pl.BloodDecals.Random();
+                            g.transform.parent = _Game.Fx;
+                        }
                     }
                     if (enemy.observing)
                     {
@@ -165,11 +168,11 @@ public class Ak47 : GunBase
                     {                        
                         if (h.collider.name == "Bip01 Head")
                         {
-                            enemy.CallRPC(enemy.SetLife, RPCMode.All, 0, pl.id);
+                            enemy.CallRPC(enemy.SetLife, PhotonTargets.All, 0, pl.id);
                             enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
                         }
                         else
-                            enemy.CallRPC(enemy.SetLife, RPCMode.All, enemy.Life - damage, pl.id);
+                            enemy.CallRPC(enemy.SetLife, PhotonTargets.All, enemy.Life - damage, pl.id);
                     }                    
                 }
             }
@@ -198,7 +201,8 @@ public class Ak47 : GunBase
     }
     private void CreateBlood(RaycastHit h)
     {
-        ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
+        if (_LoaderGui.EnableBlood)
+            ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
     }
     
     

@@ -53,7 +53,7 @@ public class Monster : Shared
         if (sight != null && sighTime < Time.time && IsMine)
         {
             sighTime = Time.time + Random.Range(10, 20);
-            CallRPC(Sigh, RPCMode.All);
+            CallRPC(Sigh, PhotonTargets.All);
         }
         if (an != null)
         {
@@ -71,9 +71,9 @@ public class Monster : Shared
         an.Blend(sight.name);
         audio.PlayOneShot(sighSounds.Random());
     }
-    public void OnPlayerConnected(NetworkPlayer player)
+    public void OnPhotonPlayerConnected(PhotonPlayer player)
     {
-        if (!Network.isServer) return;
+        if (!PhotonNetwork.isMasterClient) return;
         //_Game.timer.AddMethod(delegate
         //{
         CallRPC(SetPlType, player, (int)PlType);
@@ -123,7 +123,7 @@ public class Monster : Shared
                 EnemySeenTime = Time.time;
                 EnemySeenPos = visibleEnemy.pos;
                 if (Vector3.Distance(pos, visibleEnemy.pos) < range && !attack.Any(a => a.enabled))
-                    CallRPC(PlayAttack, RPCMode.All);
+                    CallRPC(PlayAttack, PhotonTargets.All);
             }
 
         }
@@ -141,7 +141,7 @@ public class Monster : Shared
         if (visibleEnemy != null && Vector3.Distance(pos, visibleEnemy.pos) < range * 1.1f)
         {
             if (visibleEnemy.IsMine)
-                visibleEnemy.CallRPC(visibleEnemy.SetLife, RPCMode.All, visibleEnemy.Life - 40, id);
+                visibleEnemy.CallRPC(visibleEnemy.SetLife, PhotonTargets.All, visibleEnemy.Life - 40, id);
         }
     }
     public Transform orgin;
@@ -158,6 +158,57 @@ public class Monster : Shared
 
         base.LateUpdate();
     }
+    
+    [RPC]
+    public override void SetID(int id)
+    {
+        base.SetID(id);
+    }
+    [RPC]
+    public override void SetPlayerScore(int score)
+    {
+        base.SetPlayerScore(score);
+    }
+    [RPC]
+    public override void SetPlType(int bot)
+    {
+        base.SetPlType(bot);
+    }
+    [RPC]
+    public override void SetTeam(int team)
+    {
+        base.SetTeam(team);
+    }
+    [RPC]
+    public override void SetLife(int life, int player)
+    {
+        base.SetLife(life, player);
+    }
+    //public override void SetID(int id)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //public override void SetPlayerScore(int score)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //public override void SetTeam(int team)
+    //{
+    //    throw new NotImplementedException();
+    //}
+
+    //public override void SetPlayerDeaths(int PlayerDeaths)
+    //{
+    //    throw new NotImplementedException();
+    //}
+    
+    [RPC]
+    public override void SetPlayerDeaths(int PlayerDeaths)
+    {
+        base.SetPlayerDeaths(PlayerDeaths);
+    }
     public void FixedUpdate()
     {
         if (syncUpdated)
@@ -170,25 +221,37 @@ public class Monster : Shared
 
         syncUpdated = false;
     }
-    public override void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
+    [RPC]
+    public override void Die()
     {
-        if (!enabled) return;
+        base.Die();
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        //if (!enabled) return;
         if (stream.isWriting)
         {
-            syncPos = pos;
-            syncRoty = roty;
-            syncAnimState = (char)animState;
+            stream.SendNext(pos);
+            stream.SendNext(roty);
+            stream.SendNext((byte)animState);
+            //syncPos = pos;
+            //syncRoty = roty;
+            //syncAnimState = (char)animState;
         }
         
-        stream.Serialize(ref syncAnimState);
-        stream.Serialize(ref syncPos);
-        stream.Serialize(ref syncRoty);
+        //stream.Serialize(ref syncAnimState);
+        //stream.Serialize(ref syncPos);
+        //stream.Serialize(ref syncRoty);
         
         if (stream.isReading)
         {
             syncUpdated = true;
-            roty = syncRoty;
-            animState = (AnimState)syncAnimState;
+            syncPos = (Vector3) stream.ReceiveNext();
+            roty = (float)stream.ReceiveNext();
+            animState = (AnimState)(byte)stream.ReceiveNext();
+            //roty = syncRoty;
+            //animState = (AnimState)syncAnimState;
         }
 
     }

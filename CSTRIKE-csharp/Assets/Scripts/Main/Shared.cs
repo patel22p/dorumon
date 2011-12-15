@@ -202,10 +202,10 @@ public class Shared : Bs
             a.SendMessage("OnSetID",SendMessageOptions.DontRequireReceiver);
     }
     
-    public new void print(object o)
-    {
-        Debug.Log(name + ":" + o);
-    }
+    //public new void print(object o)
+    //{
+    //    Debug.Log(name + ":" + o);
+    //}
 
     [RPC]
     public virtual void SetPlayerScore(int score)

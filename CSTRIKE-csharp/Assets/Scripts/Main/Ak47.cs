@@ -144,7 +144,7 @@ public class Ak47 : GunBase
                 if (enemy == pl ) continue;
                 if (enemy.pv.team != pl.pv.team)
                 {
-                    if (_LoaderGui.EnableBlood)
+                    if (_Loader.EnableBlood)
                     {
                         CreateBlood(h);
                         ray = new Ray(h.point, ray.direction + Vector3.down + Random.insideUnitSphere*.4f);
@@ -168,6 +168,7 @@ public class Ak47 : GunBase
                     {                        
                         if (h.collider.name == "Bip01 Head")
                         {
+                            //note headShot sound
                             enemy.CallRPC(enemy.SetLife, PhotonTargets.All, 0, pl.id);
                             enemy.audio.PlayOneShot(pl.headShootSound.Random(), 6);
                         }
@@ -201,7 +202,7 @@ public class Ak47 : GunBase
     }
     private void CreateBlood(RaycastHit h)
     {
-        if (_LoaderGui.EnableBlood)
+        if (_Loader.EnableBlood)
             ((GameObject)Instantiate(pl.BloodPrefab, h.point, Quaternion.LookRotation(h.normal))).transform.parent = _Game.Fx;
     }
     

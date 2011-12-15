@@ -18,7 +18,7 @@ public class ObsCamera : Bs
     public ContrastEnhance contrastEnhance;
     public override void Awake()
     {
-        if (!_LoaderGui.EnableHighQuality)
+        if (!_Loader.EnableHighQuality)
         {
             contrastEnhance.enabled = sSAOEffect.enabled = false;
             QualitySettings.currentLevel = QualityLevel.Fastest;

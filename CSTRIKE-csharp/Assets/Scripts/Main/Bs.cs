@@ -21,7 +21,7 @@ public class Bs : Base
     
     public float temp = 1;
     public float temp1 = 1;        
-    public const int port = 5300;    
+    //public const int port = 5300;    
     public bool IsMine
     {
         get
@@ -30,8 +30,8 @@ public class Bs : Base
         }
     }
     public static Bomb _Bomb;
-    public static int NetworkPlayerID { get { return Offline ? 1 : PhotonNetwork.player.GetHashCode(); } }
-    public static bool Offline { get { return PhotonNetwork.connectionState == ConnectionState.Disconnected; } }
+    public static int NetworkPlayerID { get { return Offline ? 1 : PhotonNetwork.player.ID; } }
+    public static bool Offline { get { return PhotonNetwork.room == null; } }
     public Transform tr { get { return transform; } }
     public Vector3 pos { get { return tr.position; } set { tr.position = value; } }
     public Vector3 position { get { return tr.position; } set { tr.position = value; } }
@@ -67,8 +67,7 @@ public class Bs : Base
     public static Game _Game { get { if (m_Game == null) m_Game = (Game)MonoBehaviour.FindObjectOfType(typeof(Game)); return m_Game; } }
     static Loader m_Loader;
     public static Loader _Loader { get { if (m_Loader == null) m_Loader = (Loader)MonoBehaviour.FindObjectOfType(typeof(Loader)); return m_Loader; } }
-    static LoaderGui m_LoaderGui;
-    public static LoaderGui _LoaderGui { get { if (m_LoaderGui == null) m_LoaderGui = (LoaderGui)MonoBehaviour.FindObjectOfType(typeof(LoaderGui)); return m_LoaderGui; } }
+    
     static Player m_Player;
     public static Player _Player;
 

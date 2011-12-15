@@ -229,6 +229,7 @@ public class Monster : Shared
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        
         //if (!enabled) return;
         if (stream.isWriting)
         {

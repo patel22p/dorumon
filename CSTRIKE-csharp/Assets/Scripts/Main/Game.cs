@@ -53,7 +53,7 @@ public class Game : Bs
     public override void Awake()
     {
         _Loader.timer.Clear();
-        _LoaderGui.enabled = false;
+        //_LoaderGui.enabled = false;
         _TeamSelectGui.enabled = true;
         afkTime = Time.time;
         if (_Loader.playerName == "" || Application.isEditor) _Loader.playerName = "Guest" + Random.Range(0, 99);
@@ -62,8 +62,7 @@ public class Game : Bs
         IgnoreAll("Dead", "Level", "Dead");
         
         Debug.Log("Game Awake");        
-        if (!Offline)
-            OnConnected();
+        
         
         if (Offline)
         {
@@ -71,27 +70,31 @@ public class Game : Bs
             return;
         }
     }
-    public void OnJoinedLobby()
-    {
-        if (PhotonNetwork.GetRoomList().Length == 0)
-            PhotonNetwork.CreateRoom("Test");
-    }
-
-    public void OnPhotonCreateGameFailed()
-    {
-        PhotonNetwork.JoinRoom("Test");
-    }
     public void Start()
     {
-        
+
+        if (!Offline)
+            OnConnected();
         if (!EnableSound && isEditor)
             AudioListener.volume = 0;
 
         timer.AddMethod(5000, delegate { _Hud.PrintPopup("Press M to select Team"); });
         timer.AddMethod(10000, delegate { _Hud.PrintPopup("Press C to switch camera views"); });
         //timer.AddMethod(15000, delegate { _Hud.PrintPopup("Press F1/F2 to switch camera views"); });
-        timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });        
+        timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });
     }
+
+    public void OnJoinedLobby()
+    {
+        if (PhotonNetwork.GetRoomList().Length == 0)
+            PhotonNetwork.CreateRoom("Test", false, true, 10);
+    }
+
+    public void OnPhotonCreateGameFailed()
+    {
+        PhotonNetwork.JoinRoom("Test");
+    }
+    
 
     //public  void OnGUI()
     //{
@@ -106,6 +109,8 @@ public class Game : Bs
     //}
     public void Update()
     {
+        //print("sendRate" + PhotonNetwork.sendRate);
+        //print("sendRate2" + PhotonNetwork.sendRateOnSerialize);
         //print(PhotonNetwork.connectionStateDetailed);
         //PhotonNetwork.sendRate = NetworkSendRate;
 
@@ -184,7 +189,7 @@ public class Game : Bs
         if (PhotonNetwork.isMasterClient)
         {
             //foreach (var plc in PhotonNetwork.playerList)
-                PhotonNetwork.RemoveAllInstantiatedObjects();
+            PhotonNetwork.RemoveAllInstantiatedObjects();
             //PhotonNetwork.RemoveAllInstantiatedObjects();
             //PhotonNetwork.Destroy();
             //foreach (Shared p in GameObject.FindObjectsOfType(typeof(Shared)))
@@ -214,10 +219,10 @@ public class Game : Bs
     [RPC]
     public void AddPlayerView(int id, string name)
     {
+        print("AddPlayerView" + id + " " + name);
         var v = playerViews[id] = new PlayerView();
         v.id = id;
         v.PlayerName = name;
-        RpcKillText(name + " connected");
     }
     [RPC]
     public virtual void RpcKillText(string txt)
@@ -230,9 +235,10 @@ public class Game : Bs
     [RPC]
     public void RemovePlayerView(int id)
     {
+        
         if (playerViews[id] != null)
         {
-            RpcKillText(playerViews[id].PlayerName + " disconnected");
+            //RpcKillText(playerViews[id].PlayerName + " disconnected");
             playerViews[id] = null;
         }
 
@@ -340,12 +346,12 @@ public class Game : Bs
         ResetGameTime = float.MaxValue;
         GameStarted = value;
     }
-    [RPC]
-    private void CleanLeftPlayers()
-    {
-        foreach (Shared p in GameObject.FindObjectsOfType(typeof(Shared)))
-            Destroy(p.gameObject);
-    }
+    //[RPC]
+    //private void CleanLeftPlayers()
+    //{
+    //    foreach (Shared p in GameObject.FindObjectsOfType(typeof(Shared)))
+    //        Destroy(p.gameObject);
+    //}
     public void RemoveBot(PlType type,Team team)
     {
         var bot = PlayerViews.FirstOrDefault(a => a.team == team && a.plType == type);        
@@ -386,6 +392,13 @@ public class Game : Bs
     
     //public void OnCreatedRoom() { OnConnected(); }
     public void OnJoinedRoom() { OnConnected(); }
+
+    public void OnLeftRoom()
+    {
+        Debug.Log("Disconnected " + name);
+        lockCursor = false;
+        Application.LoadLevel(0);
+    }
     private void OnConnected()
     {
         Debug.Log("Connected " + name + _Loader.DebugLevelMode);
@@ -398,10 +411,15 @@ public class Game : Bs
         CallRPC(SetGameStarted, player, GameStarted);
         CallRPC(SetCTScore, player, CTScore);
         CallRPC(SetTScore, player, TScore);
+        RpcKillText(player.name + " Connected");
     }
-    public void OnPhotonPlayerDisconneced(PhotonPlayer player)
+    public void OnPhotonPlayerDisconnected(PhotonPlayer player)
     {
-        CallRPC(RemovePlayerView, PhotonTargets.All, player.GetHashCode());        
+        print("Disconnected" + player.name);
+        //if (PhotonNetwork.isMasterClient)
+            //CallRPC(RemovePlayerView, PhotonTargets.All, player.ID);
+        RemovePlayerView(player.ID);
+        RpcKillText(player.name + " disconnected");
         PhotonNetwork.DestroyPlayerObjects(player);        
     }
     internal void OnTeamSelected()
@@ -450,9 +468,13 @@ public class Game : Bs
     public new Vector3 GetMouse()
     {
 
-        if (Android && RightTap.magnitude < 15) return new Vector3(-RightTap.y * Mathf.Abs(RightTap.y) * _Game.sensivity.y * _LoaderGui.SensivityY, RightTap.x * Mathf.Abs(RightTap.x) * _Game.sensivity.x * _LoaderGui.SensivityX, 0);
+        if (Android && RightTap.magnitude < 15) return new Vector3(-RightTap.y * Mathf.Abs(RightTap.y) * _Game.sensivity.y * _Loader.SensivityY, RightTap.x * Mathf.Abs(RightTap.x) * _Game.sensivity.x * _Loader.SensivityX, 0);
         //print(RightTap);
-        return lockCursor ? new Vector3(-Input.GetAxis("Mouse Y") * _LoaderGui.SensivityY, Input.GetAxis("Mouse X") * _LoaderGui.SensivityX, 0) : Vector3.zero;
+        return lockCursor ? new Vector3(-Input.GetAxis("Mouse Y") * _Loader.SensivityY, Input.GetAxis("Mouse X") * _Loader.SensivityX, 0) : Vector3.zero;
+    }
+    public void OnMasterClientSwitched(PhotonPlayer bla)
+    {
+        if (PhotonNetwork.isMasterClient) RpcKillText(bla.name + " is host now");
     }
     public void UpdateTouch()
     {

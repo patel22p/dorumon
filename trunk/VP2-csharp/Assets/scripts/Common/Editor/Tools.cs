@@ -4,14 +4,18 @@ using System.Collections;
 using UnityEditor;
 public class Tools : Editor{
 
-    [MenuItem("RTools/Test")]
-    public static void Test()
+
+    [MenuItem("RTools/SetMat")]
+    public static void SetMat()
     {
-        var v1 = (Vector3.left + Vector3.up+Vector3.forward).normalized;
-        //Debug.DrawLine(Vector3.zero, v1);
-        Debug.Log(Vector3.Project(v1, Vector3.left));
+        Undo.RegisterSceneUndo("rtools");
+        foreach (Material m in Selection.objects)
+        {
+            m.shader = Shader.Find("Diffuse");
+            m.SetColor("_Color", new Color(1, 1, 1, 0));
+        }
     }
-    
+
     [MenuItem("RTools/SetToon")]
     public static void SetTOon()
     {        

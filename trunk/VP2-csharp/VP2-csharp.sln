@@ -1,16 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass-vs", "Assembly-CSharp-firstpass-vs.csproj", "{5BE4C580-9AE3-52C4-30A5-8337BBBF7284}"
+# Visual Studio 2008
+
+Project("{04A4653B-A1C4-3D3F-9D67-22D742069B7B}") = "VP2", "Assembly-CSharp-firstpass-vs.csproj", "{5BE4C580-9AE3-52C4-30A5-8337BBBF7284}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-vs", "Assembly-CSharp-vs.csproj", "{18CD3D44-6E1A-76C1-8497-AFECCA9A4704}"
+Project("{04A4653B-A1C4-3D3F-9D67-22D742069B7B}") = "VP2", "Assembly-CSharp-vs.csproj", "{18CD3D44-6E1A-76C1-8497-AFECCA9A4704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor-vs", "Assembly-CSharp-Editor-vs.csproj", "{DE207F7D-BD03-EB72-CADD-7ED2F82685F1}"
+Project("{04A4653B-A1C4-3D3F-9D67-22D742069B7B}") = "VP2", "Assembly-CSharp-Editor-vs.csproj", "{DE207F7D-BD03-EB72-CADD-7ED2F82685F1}"
 EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -32,4 +29,5 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	
 EndGlobal

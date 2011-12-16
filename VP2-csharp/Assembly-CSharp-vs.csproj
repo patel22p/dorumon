@@ -49,6 +49,7 @@
      <Compile Include="Assets\scripts\Common\MeshCombineUtility.cs" />
      <Compile Include="Assets\scripts\Common\Timer.cs" />
      <Compile Include="Assets\scripts\Game.cs" />
+     <Compile Include="Assets\scripts\Score.cs" />
      <Compile Include="Assets\scripts\bs.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
@@ -79,7 +80,7 @@
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ColorCorrectionCurvesSimple.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\NoiseEffectShaderYUV.shader" />
      <None Include="Assets\Standard Assets\Projectors\Sources\Shaders\Projector Light.shader" />
-     <None Include="Assets\Shaders\iphone-lightmap-reflective.shader" />
+     <None Include="Assets\Standard Assets\Shaders\iphone-lightmap-reflective.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\GlowEffectDownsample.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\CreaseApply.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\ChromaticAberrationShader.shader" />

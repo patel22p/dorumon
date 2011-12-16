@@ -1,15 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class bs : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+public class bs : Base
+{
+    public static Game _Game;
 }

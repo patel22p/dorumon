@@ -18,7 +18,6 @@ public class Game : bs
     public Transform Death;
     public Transform Shadow;
     public Transform Cam;
-    private Vector3 mouseOffset;
     private Vector3 oldMouse;
     public Vector2 MouseSensivity = Vector2.one;
     public float Clamp = 40;
@@ -27,17 +26,21 @@ public class Game : bs
     public GlowEffect glow;
     public void FixedUpdate()
     {
-        
-        if (Input.GetMouseButton(0))
+
+        if (Input.GetMouseButton(0) && oldMouse != Vector3.zero)
         {
             var v = (oldMouse - Input.mousePosition);
-            v.x *= MouseSensivity.x;
-            v.y *= MouseSensivity.y;
-            mouseOffset += v;
-            mouseOffset = Vector3.ClampMagnitude(mouseOffset, Clamp);
-            transform.RotateAround(Player.position, Vector3.left, v.y);
-            transform.RotateAround(Player.position, Vector3.forward, v.x);
-            transform.Rotate(Vector3.up, -transform.rotation.eulerAngles.y);
+            if (v.magnitude < 50)
+            {
+                v.x *= MouseSensivity.x;
+                v.y *= MouseSensivity.y;
+                //var old = transform.rotation;
+                transform.RotateAround(Player.position, Vector3.left, v.y);
+                transform.RotateAround(Player.position, Vector3.forward, v.x);
+                transform.Rotate(Vector3.up, -transform.rotation.eulerAngles.y);
+                //transform.rotation = old;
+                rigidbody.MoveRotation(transform.rotation);
+            }
         }
 
         CameraZoom += Input.GetAxis("Mouse ScrollWheel");
@@ -58,18 +61,18 @@ public class Game : bs
         //print(Input.acceleration);
     }
 
-    public float Power = 1;
-    public float SoundSmooth = 5;
-    public void Update()
-    {
-        float[] numArray = new float[256];
-        AudioListener.GetSpectrumData(numArray, 0, FFTWindow.BlackmanHarris);
-        print(numArray.Length);
-        glow.glowIntensity += numArray[0] * Power;
-        //glow.glowIntensity = bmf.bloomIntensity;
-        glow.glowIntensity = Mathf.Lerp(glow.glowIntensity, 0, Time.deltaTime * SoundSmooth); 
-        //print(numArray[freq]);
-    }
+    //public float Power = 1;
+    //public float SoundSmooth = 5;
+    //public void Update()
+    //{
+    //    float[] numArray = new float[256];
+    //    AudioListener.GetSpectrumData(numArray, 0, FFTWindow.BlackmanHarris);
+    //    //print(numArray.Length);
+    //    glow.glowIntensity += numArray[0] * Power;
+    //    //glow.glowIntensity = bmf.bloomIntensity;
+    //    glow.glowIntensity = Mathf.Lerp(glow.glowIntensity, 0, Time.deltaTime * SoundSmooth); 
+    //    //print(numArray[freq]);
+    //}
 
 
 

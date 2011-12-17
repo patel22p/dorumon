@@ -24,14 +24,16 @@ public class Loader : Bs
     public string[] maps;
     internal bool DebugLevelMode;
 
-    internal string playerName { get { return PhotonNetwork.playerName; } set { PhotonNetwork.playerName = value; } }
+    //internal string playerName { get { return PhotonNetwork.playerName; } set { PhotonNetwork.playerName = value; } }
+    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+
     public bool EnableBlood { get { return PlayerPrefs.GetInt("EnableBlood", 1) == 1; } set { PlayerPrefs.SetInt("EnableBlood", value ? 1 : 0); } }
     public bool EnableHighQuality { get { return PlayerPrefs.GetInt("EnableHighQuality", 0) == 1; } set { PlayerPrefs.SetInt("EnableHighQuality", value ? 1 : 0); } }
     public float SensivityX { get { return PlayerPrefs.GetFloat("sx", 1); } set { PlayerPrefs.SetFloat("sx", value); } }
     public float SensivityY { get { return PlayerPrefs.GetFloat("sy", 1); } set { PlayerPrefs.SetFloat("sy", value); } }
     public float SoundVolume { get { return PlayerPrefs.GetFloat("SoundVolume ", 1); } set { PlayerPrefs.SetFloat("SoundVolume ", value); } }
 
-    //internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+    
     
     
     public override void Awake()

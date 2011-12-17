@@ -11,7 +11,7 @@ public class LoaderGui : Bs
     //bug implement create join failed
     //string gameName = "";
     //string label = "";
-    private string version = "b";
+    private string version = "c";
     public bool ConnectToMasterServer;
 
     Timer timer = new Timer();
@@ -20,10 +20,13 @@ public class LoaderGui : Bs
         print("LoadGUI Start");
         if (PhotonNetwork.connectionState == ConnectionState.Disconnected)
             PhotonNetwork.ConnectUsingSettings();
-        PhotonNetwork.playerName = "Guest" + Random.Range(0, 99);
+        //if (PhotonNetwork.playerName == "")
+        //    PhotonNetwork.playerName = "Guest" + Random.Range(0, 99);
+        
     }
     public void Update()
     {
+        PhotonNetwork.playerName = _Loader.playerName;
         timer.Update();
     }
     public void OnGUI()
@@ -174,7 +177,8 @@ public class LoaderGui : Bs
 
     }
     
-    public void OnCreatedRoom()    {
+    public void OnCreatedRoom()
+    {
         //if (!enabled) return;
         _Loader.LoadLevel(mapName);
     }

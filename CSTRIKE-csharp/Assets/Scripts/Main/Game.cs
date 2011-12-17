@@ -49,14 +49,14 @@ public class Game : Bs
     public int zombies = 10;
     float afkTime;
     //float NetworkSendRate = 5;
-
+    public bool RandomName;
     public override void Awake()
     {
         _Loader.timer.Clear();
         //_LoaderGui.enabled = false;
         _TeamSelectGui.enabled = true;
         afkTime = Time.time;
-        if (_Loader.playerName == "" || Application.isEditor) _Loader.playerName = "Guest" + Random.Range(0, 99);
+        if (RandomName && Application.isEditor) PhotonNetwork.playerName = _Loader.playerName = "Guest" + Random.Range(0, 99);
         IgnoreAll("IgnoreColl");
         IgnoreAll("BotBox");
         IgnoreAll("Dead", "Level", "Dead");

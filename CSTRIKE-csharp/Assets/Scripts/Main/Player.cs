@@ -153,10 +153,9 @@ public class Player : Shared
         pv.skin = skin;
         LoadSkin();
     }
-
-    
     public virtual void FixedUpdate()
     {
+       
         if (syncUpdated)
         {
             //vel = syncVel;
@@ -175,19 +174,7 @@ public class Player : Shared
         }
         //print(controller.velocity);
         //if (!Input.GetKey(KeyCode.I))
-        //var v = Vector3.SmoothDamp(pos, syncPos, ref smoothDampV, smoothDamp) - pos;
-
-        //if (!IsMine)
-        //{
-        //    //if ((syncPos - pos).magnitude > 3)
-        //    //    pos = syncPos;
-        //    //else
-        //    syncPos.y = posy;
-        //    pos = (Vector3.Lerp(pos, syncPos, Time.deltaTime * smoothDamp));
-        //}
-        if (IsMine) syncPos = pos;
-        print(vel);
-        controller.SimpleMove(vel + (Vector3.MoveTowards(pos, syncPos, 1) - pos)*movetow);
+        controller.SimpleMove(vel);
         //else
         //{
 
@@ -202,9 +189,16 @@ public class Player : Shared
             controller.Move(new Vector3(0, yvel, 0));
         }
 
+        if (syncUpdated)
+        {
+            if ((syncPos - pos).magnitude > 1)
+                pos = syncPos;
+            else
+                controller.Move(syncPos - pos);
+        }
+
         syncUpdated = false;
     }
-    public float movetow = 5;
     public override void Update()
     {
         base.Update();
@@ -326,11 +320,8 @@ public class Player : Shared
     [RPC]
     public void UpdateSync(float pos)
     {
-        if (!IsMine)            
-            this.posy = pos;
-        //print("UpdatePos");
-        
-        //this.move = move;
+        if (!IsMine)
+            controller.Move(new Vector3(0, this.posy - pos, 0));
     }
 
     

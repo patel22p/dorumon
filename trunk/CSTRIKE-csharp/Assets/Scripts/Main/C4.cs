@@ -34,7 +34,7 @@ public class C4 : GunBase
                 _Hud.SetProgress(press.time / press.length);
             else
             {
-                PhotonNetwork.Instantiate(BombPrefab, pl.pos, Quaternion.identity, (int)group.bomb);
+                PhotonNetwork.Instantiate(BombPrefab, pl.pos, Quaternion.identity, (int)Group.Bomb);
                 patrons = 0;
                 _Player.NextGun();
             }

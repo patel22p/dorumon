@@ -402,7 +402,7 @@ public static class PhotonNetwork
             }
             else
             {
-                return (uint)networkingPeer.ServerTimeInMilliSeconds / 1000.0f;
+                return (double)networkingPeer.ServerTimeInMilliSeconds / 1000.0f;
             }
         }
     }

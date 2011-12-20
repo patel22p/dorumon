@@ -139,7 +139,7 @@ public class PhotonMessageInfo
     private int timeInt;
     public PhotonPlayer sender;
     public PhotonView photonView;
-    public float timestamp
+    public double timestamp
     {
         get { return (timeInt / 1000.0f); }
     }

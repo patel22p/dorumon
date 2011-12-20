@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-
 public enum Team { Spectators, Terrorists, CounterTerrorists, Zombies }
-public enum PlType { Player, Bot, Monster,Fatty}
+public enum PlType { Player, Bot, Monster, Fatty }
 public class PlayerView
 {
     public PlType plType;
@@ -20,29 +19,24 @@ public class PlayerView
     public Team team;
     public bool bot { get { return plType != PlType.Player; } }
 }
-
 public class Shared : Bs
 {
-    
     public Node curNode;
     public LayerMask CantSeeThrough;
     public Bs model;
-
     protected Vector3 move;
     public Transform Head;
     public Transform MiniMapCursor;
     protected float EnemySeenTime;
     protected float nextShootTime;
-    public Team TeamPath;    
+    public Team TeamPath;
     protected float NodeOffset;
     public Bs Cam;
     internal CharacterController controller;
     public AnimationCurve SpeedAdd;
     public Vector3 vel;
     public Vector3 syncPos;
-    //public Vector3 syncVel;
     public Vector3 syncMove;
-    //public char syncAnimState;
     internal int id = -1;
     public int Life = 100;
     public int Shield = 100;
@@ -66,33 +60,25 @@ public class Shared : Bs
     public float CamRotX { get { return Cam.rotx; } set { Cam.rotx = value; } }
     protected bool isGrounded { get { return Time.time - grounded < .1f; } }
     public PlType PlType { get { return pv.plType; } }
-
     public override void Awake()
-    {        
+    {
         CreatedTime = Time.time;
         base.Awake();
     }
     public virtual void Start()
     {
-
         if (IsMine)
         {
             CallRPC(SetPlType, PhotonTargets.All, (int)PlType);
-            CallRPC(SetTeam, PhotonTargets.All, (int)pv.team);            
+            CallRPC(SetTeam, PhotonTargets.All, (int)pv.team);
         }
-
         foreach (var a in GetComponentsInChildren<Rigidbody>())
             a.isKinematic = true;
-
         name = (!IsMine ? "Remote" : "Local") + PlType + id;
-
         controller = GetComponent<CharacterController>();
     }
-
-    
     public virtual void Update()
     {
-
         if (controller.isGrounded) grounded = Time.time;
         if (_Game.pv.team == Team.Spectators || pv.team == _Game.pv.team)
             MiniMapCursor.renderer.enabled = true;
@@ -117,10 +103,9 @@ public class Shared : Bs
     }
     public Vector3 UpdateBotMoveDir()
     {
-        var dir = ZeroYNorm(curNode.GetPos(NodeOffset) - pos);        
+        var dir = ZeroYNorm(curNode.GetPos(NodeOffset) - pos);
         return dir;
     }
-
     public Vector3 UpdateCheckDir(Vector3 dir)
     {
         if (Physics.RaycastAll(new Ray(cpos, dir), 1, 1 << LayerMask.NameToLayer("Level") | 1 << LayerMask.NameToLayer("Player")).Any(a => a.transform.root != this.transform))
@@ -130,10 +115,9 @@ public class Shared : Bs
         }
         return dir;
     }
-
     public void UpdateNode()
     {
-        SearchForAnyNode:
+    SearchForAnyNode:
         if (curNode == null)
         {
             curNode = _Game.levelEditor.paths.Where(a => a.team == TeamPath && a.plTypes.Contains(PlType)).SelectMany(a => a.nodes)
@@ -142,90 +126,49 @@ public class Shared : Bs
             NodeOffset = Random.Range(-curNode.height, curNode.height);
             curNode.walkCount++;
         }
-
         if (ZeroY(curNode.GetPos(NodeOffset) - pos).magnitude < .5f)
         {
             curNode = curNode.Nodes.OrderBy(a => a.walkCount).FirstOrDefault();
-
             if (curNode == null)
                 goto SearchForAnyNode;
-
-            if (curNode.EndNode && TeamPath!= Team.Zombies) TeamPath = (TeamPath == Team.Terrorists ? Team.CounterTerrorists : Team.Terrorists);
-
+            if (curNode.EndNode && TeamPath != Team.Zombies) TeamPath = (TeamPath == Team.Terrorists ? Team.CounterTerrorists : Team.Terrorists);
             NodeOffset = Random.Range(-curNode.height, curNode.height);
             curNode.walkCount++;
         }
     }
-
-
-    //public virtual void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-    //    if (stream.isWriting)
-    //    {
-    //        stream.SendNext(pos);
-    //        stream.SendNext(CamRotX);
-    //        stream.SendNext(roty);
-    //        stream.SendNext(move);
-    //    }
-    //    else
-    //    {
-    //        syncPos = (Vector3) stream.ReceiveNext();
-    //        syncRotx = (float) stream.ReceiveNext();
-    //        syncRoty = (float) stream.ReceiveNext();
-    //        syncMove = (Vector3) stream.ReceiveNext();
-
-    //        if (stream.isReading)
-    //            syncUpdated = true;
-    //    }
-    //}
-
-
-    
-
     public virtual void LateUpdate()
     {
         observing = false;
     }
-
     public void Fade(AnimationState s)
     {
         an.CrossFade(s.name);
     }
-
     [RPC]
-    public virtual void SetID(int id)
+    public virtual void SetID(int ID)
     {
-        print("SetId"+id);
-        this.id = id;
-        _Game.shareds[id] = this;
+        print("SetId" + ID);
+        this.id = ID;
+        _Game.shareds[ID] = this;
         foreach (var a in this.GetComponentsInChildren<Bs>())
-            a.SendMessage("OnSetID",SendMessageOptions.DontRequireReceiver);
+            a.SendMessage("OnSetID", SendMessageOptions.DontRequireReceiver);
     }
-    
-    //public new void print(object o)
-    //{
-    //    Debug.Log(name + ":" + o);
-    //}
-
     [RPC]
     public virtual void SetPlayerScore(int score)
     {
         pv.PlayerScore = score;
     }
-
     [RPC]
     public virtual void SetTeam(int team)
     {
         TeamPath = pv.team = (Team)team;
     }
-
     [RPC]
-    public virtual void SetPlType(int bot)
+    public virtual void SetPlType(int Bot)
     {
-        print("SetPlType "+bot);
-        this.pv.plType = (PlType)bot;
+        print("SetPlType " + Bot);
+        this.pv.plType = (PlType)Bot;
     }
-    
     [RPC]
     public virtual void SetLife(int life, int player)
     {
@@ -236,7 +179,7 @@ public class Shared : Bs
         HitTime = Time.time;
         audio.PlayOneShot(hitSound.Random(), 3);
         if (Life <= 0)
-        {          
+        {
             if (IsMine)
             {
                 if (pl != null)
@@ -264,7 +207,6 @@ public class Shared : Bs
         print("Die" + pv.PlayerName);
         audio.PlayOneShot(dieSound.Random(), 6);
         Destroy(model.animation);
-
         var nm = (Transform)Instantiate(model.transform, model.pos, model.rot);
         foreach (var a in nm.GetComponentsInChildren<SkinnedMeshRenderer>())
             a.updateWhenOffscreen = true;
@@ -273,18 +215,13 @@ public class Shared : Bs
             a.isKinematic = false;
         nm.parent = _Game.Fx;
         Destroy(nm.gameObject, 10);
-
         enabled = false;
         if (IsMine)
         {
-            //_Game.timer.AddMethod(delegate
-            //{
             PhotonNetwork.RemoveRPCs(photonView);
             PhotonNetwork.Destroy(gameObject);
-            //});
         }
     }
-
     public void OnSetID()
     {
         enabled = true;
@@ -305,7 +242,6 @@ public class Shared : Bs
             return _Game.Shareds.Where(a => a.pv != null && a.pv.team != pv.team);
         }
     }
-
     [RPC]
     public virtual void SetPlayerDeaths(int PlayerDeaths)
     {

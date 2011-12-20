@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
-
 public class Player : Shared
 {
     private Timer timer = new Timer();
@@ -34,15 +33,12 @@ public class Player : Shared
     public List<Renderer> playerRenders = new List<Renderer>();
     public Renderer[] gunRenders;
     private Renderer[] SkinRenderers = new Renderer[] { };
-    
-
     public int left = -65;
     public int right = 95;
     private Vector3 nextDist;
     private Vector3 botRotation;
     private bool PlayerRenderersActive = true;
     private bool GunRenderersActive = true;
-
     public override void Awake()
     {
         base.Awake();
@@ -56,42 +52,33 @@ public class Player : Shared
         }
         gun = guns[0];
         gun.SetActive(true);
-        
-
         enabled = false;
-        print("Player Awake " + id);                
-        
+        print("Player Awake " + id);
     }
     public override void Start()
-    {        
-       //note shield
+    {
         if (IsMine && !bot)
         {
             _Player = this;
             lockCursor = true;
         }
-        
-        if(IsMine)
+        if (IsMine)
             CallRPC(SetSkin, PhotonTargets.All, pv.skin);
-
         InitAnimations();
         timer.AddMethod(1000, delegate
         {
             GunRenderersActive = true;
             PlayerRenderersActive = true;
         });
-        
         base.Start();
     }
     private void LoadSkin()
     {
-
         var nwModelPrefab = (pv.team == Team.CounterTerrorists ? CTerrorSkins : TerrorSkins)[this.pv.skin];
         var nwModel = ((Transform)Instantiate(nwModelPrefab, model.pos, model.rot));
         foreach (var p in nwModel.GetComponentsInChildren<Renderer>())
             playerRenders.Add(p);
-
-        List<Transform> last = new List<Transform>();
+        var last = new List<Transform>();
         foreach (var p in nwModel.transform.Find("Bip01").GetTransforms().Reverse().ToArray())
         {
             var t = model.transform.GetTransforms().FirstOrDefault(b => b.name == p.name);
@@ -108,14 +95,12 @@ public class Player : Shared
             }
         }
         Destroy(model.transform.Find("smdimport").gameObject);
-        nwModel.Find("smdimport").parent = model.transform;        
+        nwModel.Find("smdimport").parent = model.transform;
         Destroy(nwModel.gameObject);
     }
     public void OnPhotonPlayerConnected(PhotonPlayer player)
     {
         if (!PhotonNetwork.isMasterClient) return;
-        //_Game.timer.AddMethod(delegate
-        //{
         CallRPC(SetPlType, player, (int)PlType);
         CallRPC(SetTeam, player, (int)pv.team);
         CallRPC(SetSkin, player, bot ? Random.Range(0, 3) : pv.skin);
@@ -123,8 +108,7 @@ public class Player : Shared
         CallRPC(SetPlayerScore, player, pv.PlayerScore);
         CallRPC(SetMoney, player, pv.PlayerMoney);
         CallRPC(SetLife, player, Life, id);
-        CallRPC(SelectGun, player, gun.arrayId);        
-        //});
+        CallRPC(SelectGun, player, gun.arrayId);
     }
     private void InitAnimations()
     {
@@ -132,19 +116,17 @@ public class Player : Shared
         idle.speed = .5f;
         idle.wrapMode = run.wrapMode = WrapMode.Loop;
         jump.wrapMode = WrapMode.Once;
-
         foreach (var b in blends)
         {
             b.AddMixingTransform(UpperBone);
             b.layer = 2;
         }
-
         blends[5].layer = 1;
         jump.layer = 1;
     }
     [RPC]
     private void SetMoney(int Money)
-    {        
+    {
         this.pv.PlayerMoney = Money;
     }
     [RPC]
@@ -155,13 +137,8 @@ public class Player : Shared
     }
     public virtual void FixedUpdate()
     {
-       
         if (syncUpdated)
-        {
-            //vel = syncVel;
             move = syncMove;
-        }
-        //print(isGrounded);
         if (move.magnitude > 0 && isGrounded)
         {
             speeadd = Mathf.Max(0f, SpeedAdd.Evaluate(Vector3.Distance(controller.velocity, rot * move)));
@@ -170,39 +147,21 @@ public class Player : Shared
         if (isGrounded)
         {
             vel *= .83f;
-            move *= .90f;
+            move *= .98f;
         }
-        //print(controller.velocity);
-        //if (!Input.GetKey(KeyCode.I))
         controller.SimpleMove(vel);
-        //else
-        //{
-
-        //    controller.SimpleMove(Vector3.zero);
-        //}
-
         if (yvel > 0f)
-        {
-            //print(yvel);
-
-            //controller.SimpleMove(new Vector3(0, yvel, 0));
             controller.Move(new Vector3(0, yvel, 0));
-        }
-
         if (syncUpdated)
-        {
             if ((syncPos - pos).magnitude > 1)
                 pos = syncPos;
             else
                 controller.Move(syncPos - pos);
-        }
-
         syncUpdated = false;
     }
     public override void Update()
     {
         base.Update();
-        
         UpdateMove();
         UpdateRotation();
         if (IsMine)
@@ -213,35 +172,21 @@ public class Player : Shared
         UpdateOther();
         timer.Update();
     }
-    
     private void UpdateOther()
     {
-        //todo shop
-        //todo door script
-        //todo climbing
-        //if (IsMine)
-        //if (new[] { KeyCode.A, KeyCode.D, KeyCode.W, KeyCode.S }.Any(a => Input.GetKeyDown(a) || Input.GetKeyUp(a)) || Input.GetMouseButtonUp(0) || Input.GetMouseButtonDown(0) || timer.TimeElapsed(1000))
-        if (timer.TimeElapsed(1000))
-            CallRPC(UpdateSync, PhotonTargets.All, pos.y);
-
         if (isGrounded && jump.weight > 0)
             jump.weight *= .86f;
-
         if (posy < -20 && IsMine)
             CallRPC(Die, PhotonTargets.All);
-
         if (!observing)
-        {   
+        {
             SetGunRenderersActive(false);
             SetPlayerRendererActive(true);
         }
-
         if (observing)
-        {            
-            //bug wroing viewId assigned
+        {
             if (_Game.timer.TimeElapsed(1000))
                 CallRPC(SetFPS, PhotonTargets.All, (int)_Game.timer.GetFps(), (PhotonNetwork.isMasterClient || Offline) ? -1 : PhotonNetwork.GetPing());
-
             var ray = camera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
             _Hud.PlayerName.text = "";
             foreach (var h in Physics.RaycastAll(ray, 1000, 1 << LayerMask.NameToLayer("Player")))
@@ -253,11 +198,11 @@ public class Player : Shared
                     break;
                 }
         }
-    }   
+    }
     private void UpdateRotation()
     {
         if (!IsMine)
-        {            
+        {
             CamRotX = Mathf.LerpAngle(CamRotX, syncRotx, Time.deltaTime * 10);
             var nwroty = Mathf.LerpAngle(roty, syncRoty, Time.deltaTime * 10);
             var d = nwroty - roty;
@@ -267,8 +212,6 @@ public class Player : Shared
         var numpad = new Vector3(
             (Mathf.Clamp(CamxModely.y / -left, -1, 0) + Mathf.Clamp(CamxModely.y / right, 0, 1)),
             -(Mathf.Clamp(CamxModely.x / 45, -1, 0) + Mathf.Clamp(CamxModely.x / 45, 0, 1)));
-
-
         foreach (var b in blends)
         {
             if (gun.shooting)
@@ -305,7 +248,6 @@ public class Player : Shared
                 model.rot = Quaternion.LookRotation(vel);
                 run.speed = 2f * (vel.magnitude / 5);
             }
-
             Fade(run);
             camera.animation.CrossFade("cam_move");
         }
@@ -316,37 +258,23 @@ public class Player : Shared
         }
     }
     float EPressTime;
-
     [RPC]
-    public void UpdateSync(float pos)
+    public void UpdateSync(float Pos)
     {
         if (!IsMine)
-            controller.Move(new Vector3(0, this.posy - pos, 0));
+            if (Math.Abs(this.posy - Pos) > 2)
+                posy = Pos;
+            else
+                controller.Move(new Vector3(0, this.posy - Pos, 0));
     }
-
-    
     private void UpdateInput()
     {
-        //foreach (var g in guns)
-        //    if (Input.GetKeyDown(KeyCode.Alpha0 + g.gunId))
-        //    {
-        //        CallRPC(SelectGun, PhotonTargets.All, g.arrayId);
-        //        break;
-        //    }
-        //if (Input.GetAxis("Mouse ScrollWheel") > 0)
-        //    NextGun();
-        //if (Input.GetAxis("Mouse ScrollWheel") < 0)
-        //    PrevGun();
-        
-        
         Vector3 MouseDelta = _Game.GetMouse();
-
-
-        bool mbDown = Android ? false : Input.GetMouseButton(0);                
+        bool mbDown = !Android && Input.GetMouseButton(0);
         for (int i = 0; i < Input.touchCount; i++)
         {
             var p = Input.GetTouch(i).position;
-            if (Input.GetTouch(i).phase == TouchPhase.Began && Vector2.Distance(new Vector2(1, 0), new Vector2(p.x/800, p.y/400)) < .1f)
+            if (Input.GetTouch(i).phase == TouchPhase.Began && Vector2.Distance(new Vector2(1, 0), new Vector2(p.x / 800, p.y / 400)) < .1f)
             {
                 mbDown = true;
                 MouseDelta = Vector3.zero;
@@ -355,34 +283,10 @@ public class Player : Shared
         }
         if (lockCursor || Android)
             gun.MouseButtonDown = mbDown;
-
-        //if (isGrounded)
         move = _Game.GetMove();
-        
         if (gun == c4 && gun.MouseButtonDown)
             move = Vector3.zero;
-
-        //if (_Bomb != null && (_Bomb.pos - pos).magnitude < 2 && _Bomb.enabled)
-        //{
-        //    if (Input.GetKeyDown(KeyCode.E))
-        //        EPressTime = Time.time;
-        //    if (Input.GetKey(KeyCode.E))
-        //    {
-        //        var t = (Time.time - EPressTime) / 10;
-        //        Debug.Log(t);
-        //        _Hud.SetProgress(t);
-        //        if (t > 1)
-        //            _Bomb.CallRPC(_Bomb.Difuse, PhotonTargets.All);
-        //        move = Vector3.zero;
-        //    }
-            
-        //}
-        //if (Input.GetKey(KeyCode.I))
-        //{
-        //    vel = Vector3.zero;
-        //    move = Vector3.zero;
-        //}
-        if (_ObsCamera.thirdPerson )
+        if (_ObsCamera.thirdPerson)
         {
             Ray ray = _ObsCamera.camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
             RaycastHit hit;
@@ -394,29 +298,19 @@ public class Player : Shared
                 var CamerRot = camera.transform.eulerAngles;
                 MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, dir.x),
                                          Mathf.DeltaAngle(CamerRot.y, dir.y), 0);
-            } 
+            }
         }
-
         CamRotX = Mathf.Clamp(clampAngle(CamRotX) + MouseDelta.x, -85, 85);
         Rotate(MouseDelta.y);
-
         if (Input.GetKeyDown(KeyCode.Space) && lockCursor && isGrounded)
             CallRPC(Jump, PhotonTargets.All);
-        
-
         if (Input.GetKeyDown(KeyCode.R))
             gun.OnRDown();
-
-  
     }
-
-    
-
     public void PrevGun()
     {
         CallRPC(SelectGun, PhotonTargets.All, guns.Prev(gun).arrayId);
     }
-
     public void NextGun()
     {
         CallRPC(SelectGun, PhotonTargets.All, guns.Next(gun).arrayId);
@@ -424,9 +318,8 @@ public class Player : Shared
     [RPC]
     public void SelectGun(int i)
     {
-        //Debug.Log(i);
         if (guns[i].gunId == 5 && guns[i].patrons == 0)
-            i = 0;        
+            i = 0;
         if (gun.arrayId != i)
         {
             var g = guns[i];
@@ -436,11 +329,10 @@ public class Player : Shared
             gun = g;
         }
     }
-
     [RPC]
-    public override void SetID(int id)
+    public override void SetID(int ID)
     {
-        base.SetID(id);
+        base.SetID(ID);
     }
     [RPC]
     public override void SetPlayerScore(int score)
@@ -452,26 +344,16 @@ public class Player : Shared
     {
         base.SetTeam(team);
     }
-
     [RPC]
-    public override void SetPlType(int bot)
+    public override void SetPlType(int Bot)
     {
-        base.SetPlType(bot);
+        base.SetPlType(Bot);
     }
     [RPC]
     public override void SetLife(int life, int player)
     {
         base.SetLife(life, player);
     }
-    //public new void SetID(int id)
-    //{
-    //    print("SetId" + id);
-    //    this.id = id;
-    //    _Game.shareds[id] = this;
-    //    foreach (var a in this.GetComponentsInChildren<Bs>())
-    //        a.SendMessage("OnSetID", SendMessageOptions.DontRequireReceiver);
-    //}
-
     [RPC]
     private void SetFPS(int fps, int ping)
     {
@@ -481,7 +363,6 @@ public class Player : Shared
     [RPC]
     private void Jump()
     {
-        //bug fix jump 
         customAnim.Play("jumpCustom");
         jump.time = 0;
         Fade(jump);
@@ -499,8 +380,6 @@ public class Player : Shared
     {
         base.SetPlayerDeaths(PlayerDeaths);
     }
-    
-
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (Time.time - grounded > .6f)
@@ -509,7 +388,7 @@ public class Player : Shared
         {
             if (controller.velocity.y < -10f && IsMine)
             {
-                CallRPC(SetLife, PhotonTargets.All, Life + (int) (controller.velocity.y*3), id);
+                CallRPC(SetLife, PhotonTargets.All, Life + (int)(controller.velocity.y * 3), id);
                 audio.PlayOneShot(fallSound.Random());
             }
             if (controller.velocity.y < -7)
@@ -523,8 +402,7 @@ public class Player : Shared
     {
         roty += d;
         model.lroty = Mathf.Clamp(clampAngle(model.lroty - d), left, right);
-    }    
-
+    }
     protected virtual void UpdateBot()
     {
         if (CreatedTime + 3 > Time.time) return;
@@ -532,59 +410,43 @@ public class Player : Shared
         if (_Game.timer.TimeElapsed(500) || visibleEnemy == null)
             visibleEnemy = UpdateVisibleEnemy();
         move = Vector3.zero;
-        if (enemies.Count() > 0)
+        if (enemies.Any())
         {
-
             UpdateNode();
             if (curNode == null)
             {
-                //move = Vector3.zero;
                 return;
             }
             if (Time.time - EnemySeenTime > 3)
                 botRotation = Quaternion.LookRotation(ZeroY(curNode.GetPos(NodeOffset) - pos)).eulerAngles;
             Debug.DrawLine(pos, curNode.GetPos(NodeOffset), Color.green);
-
-            //rotate
             if (visibleEnemy != null)
             {
                 Debug.DrawRay(pos, visibleEnemy.pos - pos, Color.red);
                 EnemySeenTime = Time.time;
                 botRotation = Quaternion.LookRotation((visibleEnemy.hpos) - hpos).eulerAngles;
             }
-
-
-
             var CamerRot = this.camera.transform.eulerAngles;
             Vector3 MouseDelta = new Vector3(Mathf.DeltaAngle(CamerRot.x, botRotation.x),
                                              Mathf.DeltaAngle(CamerRot.y, botRotation.y), 0) * Time.deltaTime * 10;
-
             CamRotX += MouseDelta.x;
             Rotate(MouseDelta.y);
-
-            ////move
             Vector3 dir = UpdateBotMoveDir();
             dir = UpdateCheckDir(dir);
             move = ZeroYNorm(Quaternion.Inverse(this.camera.transform.rotation) * dir);
-
-            ////shoot
             if (visibleEnemy != null)
             {
                 if (Time.time > nextShootTime)
                 {
                     if ((visibleEnemy.pos - pos).magnitude > 8)
                     {
-                        //move = Vector3.zero;
                         if (Time.time > nextShootTime + .5f)
                             nextShootTime = Time.time + Random.Range(0, 2f);
                     }
-                    gun.MouseButtonDown=true;
+                    gun.MouseButtonDown = true;
                 }
             }
         }
-        //else
-        //    move = Vector3.zero;
-        
     }
     public void SetWeight(AnimationState s, float f)
     {
@@ -592,7 +454,6 @@ public class Player : Shared
     }
     private AnimationState[] m_blends;
     public new Camera camera;
-
     internal AnimationState[] blends
     {
         get
@@ -621,89 +482,44 @@ public class Player : Shared
             GunRenderersActive = value;
             foreach (var r in gunRenders)
                 r.enabled = value;
-
         }
     }
-    private float tsp;
+    private double tsp;
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        
-        //byte syncRotXC = byte.MinValue;
-        //byte syncRotYC = byte.MinValue;
-        //byte syncMoveC = byte.MinValue;
-        //short syncposy = 0, syncposz = 0;
-        float sv = (short.MaxValue / 2);
-
+        const float sv = (short.MaxValue / 2);
         if (stream.isWriting)
         {
-            //syncposy = (short)(Mathf.Clamp(pos.x, -100, 100) / 100f * sv);
-            //syncposz = (short)(Mathf.Clamp(pos.z, -100, 100) / 100f * sv);
+            stream.SendNext(move == Vector3.zero ? (byte)0 : (byte)((Quaternion.LookRotation(move).eulerAngles.y / 360f * 254f) + 1));
             stream.SendNext((short)(Mathf.Clamp(pos.x, -100, 100) / 100f * sv));
             stream.SendNext((short)(Mathf.Clamp(pos.z, -100, 100) / 100f * sv));
-
-            //syncRotXC = (byte)(CamRotX / 360f * 255f);
-            //syncRotYC = (byte)(roty / 360f * 255f);
+            stream.SendNext((short)(Mathf.Clamp(pos.y, -100, 100) / 100f * sv));
             stream.SendNext((byte)(CamRotX / 360f * 255f));
             stream.SendNext((byte)(roty / 360f * 255f));
-
-            stream.SendNext(move == Vector3.zero ? (byte)0 : (byte)((Quaternion.LookRotation(move).eulerAngles.y / 360f * 254f) + 1));
         }
-
-        //stream.Serialize(ref  syncposy);
-        //stream.Serialize(ref  syncposz);
-        //stream.Serialize(ref syncRotXC);
-        //stream.Serialize(ref syncRotYC);
-        //stream.Serialize(ref syncMoveC);
         if (stream.isReading)
         {
-
             if (tsp < info.timestamp)
             {
-                var x = (short)stream.ReceiveNext();
-                var z = (short)stream.ReceiveNext();
-                syncPos = new Vector3(x / sv * 100f, posy, z / sv * 100f);
-                syncRotx = (byte)stream.ReceiveNext() / 255f * 360f;
-                syncRoty = (byte)stream.ReceiveNext() / 255f * 360f;
                 var mv = (byte)stream.ReceiveNext();
                 if (mv != byte.MinValue)
                 {
                     syncMove = Quaternion.Euler(0, (mv - 1) / 254f * 360f, 0) * Vector3.forward;
-                    //print(syncMove);
                 }
                 else
                     syncMove = Vector3.zero;
+                var x = (short)stream.ReceiveNext();
+                var z = (short)stream.ReceiveNext();
+                var y = (short)stream.ReceiveNext();
+                syncPos = new Vector3(x / sv * 100f, y / sv * 100f, z / sv * 100f);
+                var ts = (float)(PhotonNetwork.time - info.timestamp);
+                if (_Game.predict && ts > 0 && ts < .5f)
+                    syncPos += move * ts;
+                syncRotx = (byte)stream.ReceiveNext() / 255f * 360f;
+                syncRoty = (byte)stream.ReceiveNext() / 255f * 360f;
                 syncUpdated = true;
             }
-            //else
-            //    print("Time Stamp Error");
             tsp = info.timestamp;
         }
-
     }
-    
-    
-    //public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    //{
-
-    //    if (stream.isWriting)
-    //    {
-    //        stream.SendNext(pos);
-    //        stream.SendNext(CamRotX);
-    //        syncPos = pos;
-    //        syncRotx = CamRotX;
-    //        syncRoty = roty;
-    //        //syncVel = vel;
-    //        syncMove = move;
-    //    }
-    //    stream.Serialize(ref syncPos);
-    //    stream.Serialize(ref syncRotx);
-    //    stream.Serialize(ref syncRoty);
-    //    //stream.Serialize(ref syncVel);
-    //    stream.Serialize(ref syncMove);
-    //    if (stream.isReading)
-    //        syncUpdated = true;
-
-    //}
 }
-
-

@@ -160,9 +160,9 @@ public class Monster : Shared
     }
     
     [RPC]
-    public override void SetID(int id)
+    public override void SetID(int ID)
     {
-        base.SetID(id);
+        base.SetID(ID);
     }
     [RPC]
     public override void SetPlayerScore(int score)
@@ -170,9 +170,9 @@ public class Monster : Shared
         base.SetPlayerScore(score);
     }
     [RPC]
-    public override void SetPlType(int bot)
+    public override void SetPlType(int Bot)
     {
-        base.SetPlType(bot);
+        base.SetPlType(Bot);
     }
     [RPC]
     public override void SetTeam(int team)
@@ -184,7 +184,7 @@ public class Monster : Shared
     {
         base.SetLife(life, player);
     }
-    //public override void SetID(int id)
+    //public override void SetID(int ID)
     //{
     //    throw new NotImplementedException();
     //}

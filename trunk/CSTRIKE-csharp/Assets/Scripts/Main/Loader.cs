@@ -25,7 +25,7 @@ public class Loader : Bs
     internal bool DebugLevelMode;
 
     //internal string playerName { get { return PhotonNetwork.playerName; } set { PhotonNetwork.playerName = value; } }
-    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "Guest" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
+    internal string playerName { get { return PlayerPrefs.GetString("PlayerName", "User" + Random.Range(0, 99)); } set { PlayerPrefs.SetString("PlayerName", value); } }
 
     public bool EnableBlood { get { return PlayerPrefs.GetInt("EnableBlood", 1) == 1; } set { PlayerPrefs.SetInt("EnableBlood", value ? 1 : 0); } }
     public bool EnableHighQuality { get { return PlayerPrefs.GetInt("EnableHighQuality", 0) == 1; } set { PlayerPrefs.SetInt("EnableHighQuality", value ? 1 : 0); } }

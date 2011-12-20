@@ -11,7 +11,7 @@ public class LoaderGui : Bs
     //bug implement create join failed
     //string gameName = "";
     //string label = "";
-    private string version = "c";
+    
     public bool ConnectToMasterServer;
 
     Timer timer = new Timer();
@@ -128,10 +128,14 @@ public class LoaderGui : Bs
                 foreach (Room host in PhotonNetwork.GetRoomList())
                 {
                     var sets = host.name.Split("/");
-                    if(sets.Length!=3) continue;
-                    string mapName = sets[0];                    
-                    if (sets[1] != version) continue;                    
-                    int p = GetLevelLoad(mapName);                    
+                    if (!isEditor)
+                    {
+                        if (sets.Length != 3) continue;
+                        if (sets[1] != version) continue;
+                    }
+                    string mapName = sets[0];
+                    int p = GetLevelLoad(mapName);
+
                     if (gui.Button(host.name +
                         (" " + host.playerCount + "/" + host.maxPlayers) +
                         (p < 100 ? (" " + p + "%") : "")))
@@ -164,6 +168,8 @@ public class LoaderGui : Bs
     public string mapName;
     private void Host(string mapName)
     {
+        if (PhotonNetwork.connectionState == ConnectionState.Disconnected)
+            PhotonNetwork.offlineMode = true;
         this.mapName = mapName;
         ShowLoading(true);
         Debug.LogWarning("Loading Map");

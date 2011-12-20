@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,10 +6,10 @@ using doru;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
-
-public enum group { Player,bomb }
+public enum Group { Player, Bomb }
 public class Game : Bs
 {
+    public bool predict = true;
     public Vector2 sensivity = Vector2.one;
     public float sensivityMove = .2f;
     private Vector2 LeftTap;
@@ -27,7 +26,7 @@ public class Game : Bs
     public AudioClip twin;
     public AudioClip ctwin;
     public PlayerView pv { get { return playerViews[NetworkPlayerID]; } }
-    internal Dictionary<int,Shared> shareds = new Dictionary<int,Shared>();
+    internal Dictionary<int, Shared> shareds = new Dictionary<int, Shared>();
     internal Dictionary<int, PlayerView> playerViews = new Dictionary<int, PlayerView>();
     public IEnumerable<Shared> Shareds { get { return shareds.Where(a => a.Value != null).Select(a => a.Value); } }
     public IEnumerable<Player> Players { get { return shareds.Where(a => a.Value != null && a.Value is Player).Select(a => (Player)a.Value); } }
@@ -39,7 +38,7 @@ public class Game : Bs
     public Transform CTSpawn { get { return GameObject.Find("SpawnCT").transform; } }
     public Transform TSpawn { get { return GameObject.Find("SpawnT").transform; } }
     public Transform BombPlace;
-    public bool GameStarted;        
+    public bool GameStarted;
     public int TScore;
     public int CTScore;
     private float mouseClickTime = float.MinValue;
@@ -48,72 +47,41 @@ public class Game : Bs
     public Camera MiniMapCamera;
     public int zombies = 10;
     float afkTime;
-    //float NetworkSendRate = 5;
     public bool RandomName;
     public override void Awake()
     {
         _Loader.timer.Clear();
-        //_LoaderGui.enabled = false;
         _TeamSelectGui.enabled = true;
         afkTime = Time.time;
-        if (RandomName && Application.isEditor) PhotonNetwork.playerName = _Loader.playerName = "Guest" + Random.Range(0, 99);
+        if (RandomName && Application.isEditor) PhotonNetwork.playerName = _Loader.playerName = "User" + Random.Range(0, 99);
         IgnoreAll("IgnoreColl");
         IgnoreAll("BotBox");
         IgnoreAll("Dead", "Level", "Dead");
-        
-        Debug.Log("Game Awake");        
-        
-        
+        Debug.Log("Game Awake");
         if (Offline)
-        {
             PhotonNetwork.ConnectUsingSettings();
-            return;
-        }
     }
     public void Start()
     {
-
         if (!Offline)
             OnConnected();
         if (!EnableSound && isEditor)
             AudioListener.volume = 0;
-
         timer.AddMethod(5000, delegate { _Hud.PrintPopup("Press M to select Team"); });
         timer.AddMethod(10000, delegate { _Hud.PrintPopup("Press C to switch camera views"); });
-        //timer.AddMethod(15000, delegate { _Hud.PrintPopup("Press F1/F2 to switch camera views"); });
         timer.AddMethod(5000, delegate { MiniMapCamera.enabled = false; });
     }
-
     public void OnJoinedLobby()
     {
         if (PhotonNetwork.GetRoomList().Length == 0)
             PhotonNetwork.CreateRoom("Test", false, true, 10);
     }
-
     public void OnPhotonCreateGameFailed()
     {
         PhotonNetwork.JoinRoom("Test");
     }
-    
-
-    //public  void OnGUI()
-    //{
-    //    var a= GUILayout.HorizontalSlider(NetworkSendRate, 1, 40, GUILayout.Width(200));
-    //    if(a!=NetworkSendRate)
-    //        CallRPC(SetNetworkRate, PhotonTargets.All, a);
-    //}
-    //[RPC]
-    //public void SetNetworkRate(float rate)
-    //{
-    //    NetworkSendRate = rate;
-    //}
     public void Update()
     {
-        //print("sendRate" + PhotonNetwork.sendRate);
-        //print("sendRate2" + PhotonNetwork.sendRateOnSerialize);
-        //print(PhotonNetwork.connectionStateDetailed);
-        //PhotonNetwork.sendRate = NetworkSendRate;
-
         if (Offline) return;
         UpdateTouch();
         UpdateChat();
@@ -122,19 +90,16 @@ public class Game : Bs
         UpdateOther();
         timer.Update();
     }
-    
     private void UpdateOther()
     {
         if (Input.anyKey)
             afkTime = Time.time;
         if (afkTime - Time.time > 120 && PhotonNetwork.isNonMasterClientInGame && _Player != null)
             PhotonNetwork.Disconnect();
-
         GameTime -= Time.deltaTime;
         _Hud.ScoreBoard.text = "";
         if (Input.GetKey(KeyCode.Tab))
             DrawScoreBoard();
-
         if (Input.GetKeyDown(KeyCode.Backslash))
             lockCursor = !lockCursor;
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.M) && lockCursor)
@@ -174,13 +139,12 @@ public class Game : Bs
                     chatInput.text += c;
             }
         else
-            if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Y))
+            if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Y) || Input.GetKeyDown(KeyCode.Return))
             {
                 lockCursor = false;
                 chatInput.enabled = true;
                 chatInput.text = "say:";
             }
-
     }
     [RPC]
     public void StartGame()
@@ -188,16 +152,7 @@ public class Game : Bs
         Debug.Log("StartGame");
         if (PhotonNetwork.isMasterClient)
         {
-            //foreach (var plc in PhotonNetwork.playerList)
             PhotonNetwork.RemoveAllInstantiatedObjects();
-            //PhotonNetwork.RemoveAllInstantiatedObjects();
-            //PhotonNetwork.Destroy();
-            //foreach (Shared p in GameObject.FindObjectsOfType(typeof(Shared)))
-            //{
-            //    PhotonNetwork.RemoveRPCs(p.photonView);
-            //    PhotonNetwork.Destroy(p.photonView);
-            //}
-            //CallRPC(CleanLeftPlayers, PhotonTargets.Others);
         }
         ResetGameTime = float.MaxValue;
         GameStarted = true;
@@ -209,20 +164,18 @@ public class Game : Bs
             InstanciateShared(NetworkPlayerID, PlayerPrefab);
         }
         _ObsCamera.audio.PlayOneShot(go.Random());
-
-        // create bots
         if (PhotonNetwork.isMasterClient)
             foreach (var a in playerViews)
                 if (a.Value != null && a.Value.bot)
                     InstanciateShared(a.Key, GetPrefab(a.Value.plType));
     }
     [RPC]
-    public void AddPlayerView(int id, string name)
+    public void AddPlayerView(int id, string _name)
     {
-        print("AddPlayerView" + id + " " + name);
+        print("AddPlayerView" + id + " " + _name);
         var v = playerViews[id] = new PlayerView();
         v.id = id;
-        v.PlayerName = name;
+        v.PlayerName = _name;
     }
     [RPC]
     public virtual void RpcKillText(string txt)
@@ -231,17 +184,13 @@ public class Game : Bs
         _Hud.KillText.text += "\r\n" + txt;
         _Game.timer.AddMethod(15000, delegate { _Hud.KillText.text = RemoveFirstLine(_Hud.KillText.text); });
     }
-
     [RPC]
     public void RemovePlayerView(int id)
     {
-        
         if (playerViews[id] != null)
         {
-            //RpcKillText(playerViews[id].PlayerName + " disconnected");
             playerViews[id] = null;
         }
-
     }
     [RPC]
     private void Chat(string s)
@@ -251,7 +200,6 @@ public class Game : Bs
     }
     private void CheckForWins()
     {
-       
         if (!GameStarted)
         {
             if (PlayerViews.Any(a => a.team == Team.Terrorists) &&
@@ -269,17 +217,14 @@ public class Game : Bs
                 CallRPC(SetGameStarted, PhotonTargets.All, false);
             else
             {
-               //note remove zombies
                 if (ResetGameTime == float.MaxValue)
                 {
-                    //t win
                     if (!Shareds.Any(a => a.pv.team == Team.CounterTerrorists) || (_Bomb != null && _Bomb.bombTime < 0))
                     {
                         CallRPC(SetTScore, PhotonTargets.All, TScore + 1);
                         CallRPC(TerWin, PhotonTargets.All);
-                        ResetGameTime = Time.time;                        
+                        ResetGameTime = Time.time;
                     }
-                    //ct win
                     if (!Shareds.Any(a => a.pv.team == Team.Terrorists) || (_Bomb != null && _Bomb.difused))
                     {
                         CallRPC(SetCTScore, PhotonTargets.All, CTScore + 1);
@@ -327,7 +272,6 @@ public class Game : Bs
         sb.AppendLine();
         sb.AppendLine("Counter - Terrorists  " + CTScore);
         sb.AppendLine("_______________________________________________________________________________");
-        //sb.AppendLine(tabl);
         PrintPls(sb, templ, PlayerViews.Where(a => a.team == Team.CounterTerrorists));
         sb.AppendLine();
         sb.AppendLine("Spectators");
@@ -346,15 +290,9 @@ public class Game : Bs
         ResetGameTime = float.MaxValue;
         GameStarted = value;
     }
-    //[RPC]
-    //private void CleanLeftPlayers()
-    //{
-    //    foreach (Shared p in GameObject.FindObjectsOfType(typeof(Shared)))
-    //        Destroy(p.gameObject);
-    //}
-    public void RemoveBot(PlType type,Team team)
+    public void RemoveBot(PlType type, Team team)
     {
-        var bot = PlayerViews.FirstOrDefault(a => a.team == team && a.plType == type);        
+        var bot = PlayerViews.FirstOrDefault(a => a.team == team && a.plType == type);
         shareds[bot.id].CallRPC(shareds[bot.id].Die, PhotonTargets.All);
         RemovePlayerView(bot.id);
     }
@@ -363,7 +301,7 @@ public class Game : Bs
         var id = _Game.GetNextFreeSlot();
         if (id > 50) Debug.LogWarning("Max Bot Limit");
         else
-        {            
+        {
             Debug.Log("Create " + type + id);
             CallRPC(AddPlayerView, PhotonTargets.AllBuffered, id, type + "" + id);
             playerViews[id].plType = type;
@@ -372,27 +310,24 @@ public class Game : Bs
             InstanciateShared(id, GetPrefab(type));
         }
     }
-    private void InstanciateShared(int PlayerID, Object PlayerPrefab)
+    private void InstanciateShared(int PlayerID, Object playerPrefab)
     {
         print("InstShared" + _Game.pv.team);
         Vector3 vector3 = (playerViews[PlayerID].team == Team.CounterTerrorists ? CTSpawn.position : TSpawn.position) + ZeroY(Random.onUnitSphere);
-        var pl = ((GameObject)PhotonNetwork.Instantiate(PlayerPrefab, vector3, Quaternion.identity, (int)group.Player)).GetComponent<Shared>();
+        var pl = PhotonNetwork.Instantiate(playerPrefab, vector3, Quaternion.identity, (int)Group.Player).GetComponent<Shared>();
         pl.CallRPC(pl.SetID, PhotonTargets.AllBuffered, PlayerID);
     }
     [RPC]
     public void SetTScore(int score)
-    {        
+    {
         TScore = score;
     }
     [RPC]
     public void SetCTScore(int score)
-    {        
+    {
         CTScore = score;
     }
-    
-    //public void OnCreatedRoom() { OnConnected(); }
     public void OnJoinedRoom() { OnConnected(); }
-
     public void OnLeftRoom()
     {
         Debug.Log("Disconnected " + name);
@@ -403,11 +338,13 @@ public class Game : Bs
     {
         Debug.Log("Connected " + name + _Loader.DebugLevelMode);
         _TeamSelectGui.enabled = true;
-        CallRPC(AddPlayerView, PhotonTargets.AllBuffered, PhotonNetwork.player.ID, _Loader.playerName);                
+        if (isEditor)
+            _Loader.playerName = "Player" + PhotonNetwork.player.ID;
+        CallRPC(AddPlayerView, PhotonTargets.AllBuffered, PhotonNetwork.player.ID, _Loader.playerName);
     }
     public void OnPhotonPlayerConnected(PhotonPlayer player)
     {
-        if (!PhotonNetwork.isMasterClient) return;        
+        if (!PhotonNetwork.isMasterClient) return;
         CallRPC(SetGameStarted, player, GameStarted);
         CallRPC(SetCTScore, player, CTScore);
         CallRPC(SetTScore, player, TScore);
@@ -416,11 +353,9 @@ public class Game : Bs
     public void OnPhotonPlayerDisconnected(PhotonPlayer player)
     {
         print("Disconnected" + player.name);
-        //if (PhotonNetwork.isMasterClient)
-            //CallRPC(RemovePlayerView, PhotonTargets.All, player.ID);
         RemovePlayerView(player.ID);
         RpcKillText(player.name + " disconnected");
-        PhotonNetwork.DestroyPlayerObjects(player);        
+        PhotonNetwork.DestroyPlayerObjects(player);
     }
     internal void OnTeamSelected()
     {
@@ -429,7 +364,6 @@ public class Game : Bs
             PhotonNetwork.RemoveRPCs(_Player.photonView);
             PhotonNetwork.Destroy(_Player.gameObject);
         }
-        
         if (!GameStarted && _Game.pv.team != Team.Spectators)
             InstanciateShared(NetworkPlayerID, PlayerPrefab);
     }
@@ -439,8 +373,6 @@ public class Game : Bs
         while (shareds.ContainsKey(++i) && shareds[i] != null) { }
         return i;
     }
-    
-    
     public GameObject GetPrefab(PlType type)
     {
         if (type == PlType.Player || type == PlType.Bot)
@@ -455,21 +387,17 @@ public class Game : Bs
     {
         if (!(lockCursor || Android)) return Vector3.zero;
         Vector3 v = Vector3.zero;
-        if (Input.GetKey(KeyCode.W)) v += Vector3.forward;
-        if (Input.GetKey(KeyCode.S)) v += Vector3.back;
-        if (Input.GetKey(KeyCode.A)) v += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) v += Vector3.right;
-
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) v += Vector3.forward;
+        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) v += Vector3.back;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) v += Vector3.left;
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightAlt)) v += Vector3.right;
         v = v.normalized;
         v += new Vector3(LeftTap.x, 0, LeftTap.y).normalized;
-            //Vector3.ClampMagnitude(new Vector3(LeftTap.x, 0, LeftTap.y) * sensivityMove, 1);
         return v;
     }
     public new Vector3 GetMouse()
     {
-
         if (Android && RightTap.magnitude < 15) return new Vector3(-RightTap.y * Mathf.Abs(RightTap.y) * _Game.sensivity.y * _Loader.SensivityY, RightTap.x * Mathf.Abs(RightTap.x) * _Game.sensivity.x * _Loader.SensivityX, 0);
-        //print(RightTap);
         return lockCursor ? new Vector3(-Input.GetAxis("Mouse Y") * _Loader.SensivityY, Input.GetAxis("Mouse X") * _Loader.SensivityX, 0) : Vector3.zero;
     }
     public void OnMasterClientSwitched(PhotonPlayer bla)
@@ -479,10 +407,8 @@ public class Game : Bs
     public void UpdateTouch()
     {
         RightTap = Vector2.zero;
-        //LeftTap = Vector2.zero;
         for (int i = 0; i < Input.touchCount; i++)
         {
-
             if (Input.GetTouch(i).phase == TouchPhase.Moved)
             {
                 if (Input.GetTouch(i).position.x > 400)

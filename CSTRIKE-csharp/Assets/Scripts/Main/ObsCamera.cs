@@ -30,12 +30,9 @@ public class ObsCamera : Bs
 
     public void LateUpdate()
     {
-       //note fix follow bot no gui
-       //note fix follow bot - cursor
-       //note killby camera
         if (Offline) return;
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C) && !_Game.chatInput.enabled)
         {
             thirdPerson = !thirdPerson;
             _Hud.PrintPopup(thirdPerson ? "3rd person Cam" : "FPS cam");
@@ -85,6 +82,7 @@ public class ObsCamera : Bs
             }
             else
             {
+                //todo camera collision
                 rote += GetMouse();
                 pos = pl.pos + Vector3.up * 2f + rot * Vector3.back * 3;
             }
